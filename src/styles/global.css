@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  overflow-x: hidden;
+  background: #000;
+}
+
+body {
+  overflow-x: hidden;
+  background: #0A0A0A;
+  min-height: 100vh;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Remove button outlines but keep accessibility */
+button:focus-visible {
+  outline: 2px solid #00FFFF;
+  outline-offset: 2px;
+}
+
+/* Scanlines - very subtle */
+.scanlines::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 255, 255, 0.01) 2px,
+      rgba(0, 255, 255, 0.01) 4px
+    );
+  pointer-events: none;
+  z-index: 9999;
+}
