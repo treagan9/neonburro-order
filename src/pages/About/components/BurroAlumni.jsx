@@ -1,4 +1,4 @@
-import { Box, Container, Heading, Text, VStack, HStack, Grid, Tag, Avatar } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, VStack, HStack, Grid, Tag, Image } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { FiMapPin, FiCode, FiStar } from 'react-icons/fi';
 
@@ -13,7 +13,8 @@ const BurroAlumni = () => {
       specialization: "Full Stack",
       currentRole: "Senior Dev @ Startup",
       location: "Denver, CO",
-      project: "Built inventory management system"
+      project: "Built inventory management system",
+      image: "/images/profiles/alex-chen.png"
     },
     {
       name: "Jamie Rodriguez",
@@ -21,7 +22,8 @@ const BurroAlumni = () => {
       specialization: "Frontend",
       currentRole: "React Developer @ Agency",
       location: "Austin, TX",
-      project: "Led redesign of client dashboard"
+      project: "Led redesign of client dashboard",
+      image: "/images/profiles/jamie-rodriguez.png"
     },
     {
       name: "Sam Thompson",
@@ -29,7 +31,8 @@ const BurroAlumni = () => {
       specialization: "Backend",
       currentRole: "API Engineer @ Tech Co",
       location: "Remote",
-      project: "Optimized database performance"
+      project: "Optimized database performance",
+      image: "/images/profiles/sam-thompson.png"
     },
     {
       name: "Morgan Lee",
@@ -37,7 +40,8 @@ const BurroAlumni = () => {
       specialization: "DevOps",
       currentRole: "Infrastructure Lead",
       location: "Seattle, WA",
-      project: "Implemented CI/CD pipeline"
+      project: "Implemented CI/CD pipeline",
+      image: "/images/profiles/morgan-lee.png"
     },
     {
       name: "Casey Martinez",
@@ -45,7 +49,8 @@ const BurroAlumni = () => {
       specialization: "Full Stack",
       currentRole: "Freelance Developer",
       location: "Ridgway, CO",
-      project: "Built local business websites"
+      project: "Built local business websites",
+      image: "/images/profiles/Casey-marrtinez.png"
     },
     {
       name: "Riley Park",
@@ -53,7 +58,8 @@ const BurroAlumni = () => {
       specialization: "Mobile",
       currentRole: "Flutter Developer",
       location: "Portland, OR",
-      project: "Created cross-platform app"
+      project: "Created cross-platform app",
+      image: "/images/profiles/Riley-park.png"
     }
   ];
 
@@ -133,7 +139,24 @@ const BurroAlumni = () => {
                 >
                   <VStack align="start" spacing={4}>
                     <HStack spacing={3}>
-                      <Avatar name={alum.name} size="md" bg="neon.cyan" color="dark.black" />
+                      <Box
+                        width="60px"
+                        height="60px"
+                        borderRadius="xl"
+                        overflow="hidden"
+                        border="2px solid"
+                        borderColor="neon.cyan"
+                        flexShrink={0}
+                      >
+                        <Image
+                          src={alum.image}
+                          alt={alum.name}
+                          width="100%"
+                          height="100%"
+                          objectFit="cover"
+                          objectPosition="center top"
+                        />
+                      </Box>
                       <VStack align="start" spacing={0}>
                         <Text color="white" fontWeight="600">{alum.name}</Text>
                         <Text color="gray.400" fontSize="sm">{alum.cohort}</Text>
