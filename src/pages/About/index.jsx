@@ -1,7 +1,6 @@
 import { Box } from '@chakra-ui/react';
 import OurStory from './components/OurStory';
 import CoreTeam from './components/CoreTeam';
-import WhatWeDo from './components/WhatWeDo';
 import CertificationProgram from './components/CertificationProgram';
 import Philosophy from './components/Philosophy';
 import BurroAlumni from './components/BurroAlumni';
@@ -12,7 +11,6 @@ const AboutPage = () => {
   return (
     <Box bg="dark.black" minH="100vh">
       <OurStory />
-      <WhatWeDo />
       <CoreTeam />
       <CertificationProgram />
       <BurroAlumni />
