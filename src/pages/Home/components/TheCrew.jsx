@@ -1,327 +1,279 @@
-import { Box, Container, Heading, Text, VStack, HStack, Grid, Tag, IconButton } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, VStack, HStack, Grid, Image, useBreakpointValue } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { useState, useRef } from 'react';
-import { FiGithub, FiLinkedin, FiMail, FiCoffee, FiMapPin, FiTerminal, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiMapPin, FiCoffee } from 'react-icons/fi';
 
 const MotionBox = motion(Box);
 
 const TheCrew = () => {
-  const [hoveredMember, setHoveredMember] = useState(null);
+  const [flippedCards, setFlippedCards] = useState({});
+  const [hoverTimeout, setHoverTimeout] = useState({});
+  const isMobile = useBreakpointValue({ base: true, lg: false });
   const scrollContainerRef = useRef(null);
+
+  // Neon colors inspired by the logo - orange and cyan
+  const neonColors = {
+    orange: '#FF6B35',
+    cyan: '#00D9FF',
+    orangeLight: '#FFA366',
+    cyanLight: '#66E5FF',
+    orangeDark: '#CC4410',
+    cyanDark: '#0099CC'
+  };
 
   const crew = [
     {
-      id: 'chief-burro',
+      id: 'tyler',
       handle: 'ChiefBurro',
       name: 'Tyler',
-      role: 'Founder & Lead Developer',
-      obsessions: ['React Architecture', 'Mountain Biking', 'Perfect Espresso'],
-      favoriteSpot: 'Eatery 66',
+      role: 'Founder & Creative Director',
+      image: '/images/profiles/tyler.png',
+      obsessions: ['New Tech Stacks', 'Creative Direction', 'Mountain Sunrises'],
+      favoriteSpots: ['Eatery 66', 'True Grit Cafe'],
       fuel: 'Double Cortado',
       stats: {
-        bugsSquashed: '2,847',
-        elevation: "7,200ft",
-        yearsInRidgway: '5'
+        'Ideas Pitched': 'Too Many',
+        'Elevation Today': '1,200ft',
+        'Slack Messages': '24/7'
       },
-      bio: 'Traded Silicon Valley for San Juan Mountains. Builds apps faster at altitude.',
-      ascii: `
-   /\\___/\\
-  (  o.o  )
-   > ^ 
-  __|_|__
-      `,
-      color: 'neon.cyan'
+      bio: 'Creative dreamer who thought "what if we built this?" Lives for connecting dots others don\'t see.',
+      color: neonColors.cyan
     },
     {
-      id: 'shadow-founder',
+      id: 'bryan',
       handle: 'ShadowFounder',
       name: 'Bryan',
-      role: 'Founder • Architect of the Burroverse',
-      obsessions: ['Infrastructure', 'Clean Pull Requests', 'Remote Operations'],
-      favoriteSpot: 'The Million Roadhouse',
-      fuel: 'API Calls',
+      role: 'Co-Founder • Visionary',
+      image: '/images/profiles/bryan.png',
+      obsessions: ['Infrastructure', 'Distributed Systems', 'The Next Build'],
+      favoriteSpots: ['The Million Dollar Restaurant', 'Colorado Boy Pub'],
+      fuel: 'Problem Solving',
       stats: {
-        systemsBuilt: '∞',
-        uptime: "99.99%",
-        presence: 'Everywhere'
+        'Current Location': 'Variable',
+        'Systems Running': 'All of Them',
+        'Time Zone': 'Yes'
       },
-      bio: 'The unseen hand. Makes the Burro real. If it works, he paid for it.',
-      ascii: `
-   [===]
-  [ ^ ^ ]
-  [  _  ]
-   |___|
-      `,
-      color: 'mountain.600'
+      bio: 'The architect who makes it real. Here, there, everywhere. If it scales, he built it.',
+      color: neonColors.orange
     },
     {
-      id: 'the-builder',
+      id: 'ted',
       handle: 'TheBuilder',
       name: 'Ted',
       role: 'Technical Product Manager',
-      obsessions: ['Flutter Apps', 'Impossible Deadlines', 'Clean Sprints'],
-      favoriteSpot: 'Taco Del Gnar',
-      fuel: 'Energy Drinks',
+      image: '/images/profiles/ted.png',
+      obsessions: ['Flutter', 'Sprint Planning', 'Realistic Timelines'],
+      favoriteSpots: ['Taco Del Gnar', 'Eatery 66'],
+      fuel: 'Whatever\'s Cold',
       stats: {
-        appsShipped: '47',
-        fundingRaised: '$100k',
-        deadlinesMet: 'All'
+        'Sprints Complete': 'This Week\'s',
+        'Team Morale': 'High',
+        'Scope Creep': 'Managed'
       },
-      bio: 'Ships or dies. Turns chaos into sprints and napkin ideas into working code.',
-      ascii: `
-   |---|
-  |o o|
-  | > |
-  |___|
-      `,
-      color: 'neon.blue'
+      bio: 'Keeps the train on the tracks. Makes sure ideas become features.',
+      color: neonColors.cyanLight
     },
     {
-      id: 'stack-scout',
+      id: 'jared',
       handle: 'StackScout',
       name: 'Jared',
-      role: 'Ideas Guy • Stack Planner',
-      obsessions: ['Tech Stacks', 'Competitive Intel', 'Future Tech'],
-      favoriteSpot: 'Thai Paradise',
-      fuel: 'Research Papers',
+      role: 'Tech Research & Strategy',
+      image: '/images/profiles/jared.png',
+      obsessions: ['Emerging Tech', 'Market Trends', 'The Next Big Thing'],
+      favoriteSpots: ['Thai Paradise', 'True Grit Cafe'],
+      fuel: 'Research Rabbitholes',
       stats: {
-        stacksAnalyzed: '500+',
-        tabsOpen: 'Yes',
-        stepsAhead: '2'
+        'Browser Tabs': 'Don\'t Ask',
+        'Newsletters': 'All of Them',
+        'Cool Tools': 'Weekly'
       },
-      bio: 'Knows what your competitors are doing before they do.',
-      ascii: `
-   (o o)
-  < | | >
-  |[+]|
-   | |
-      `,
-      color: 'matrix.500'
+      bio: 'Scouts the tech landscape so you don\'t have to.',
+      color: neonColors.orangeLight
     },
     {
-      id: 'inventory-whisperer',
-      handle: 'InventoryWhisperer',
-      name: 'Phillip',
-      role: 'Notification Systems Lead',
-      obsessions: ['Logistics', 'Alert Systems', 'Python Automation'],
-      favoriteSpot: 'Bella Vino',
-      fuel: 'Excel + Coffee',
-      stats: {
-        alertsDesigned: '1,000+',
-        systemsOptimized: '87',
-        amazonMind: 'Elite'
-      },
-      bio: 'Designs alerts before you knew you needed one. Build it once, build it right.',
-      ascii: `
-   [!]
-  (o.o)
-  <|||>
-   | |
-      `,
-      color: 'neon.yellow'
-    },
-    {
-      id: 'pixel-wrangler',
-      handle: 'PixelWrangler',
+      id: 'sarah',
+      handle: 'PixelPerfector',
       name: 'Sarah',
       role: 'Design & UX',
-      obsessions: ['Typography', 'Backcountry Skiing', 'Color Theory'],
-      favoriteSpot: 'True Grit Cafe',
-      fuel: 'Matcha Latte',
+      image: '/images/profiles/sarah.png',
+      obsessions: ['User Flows', 'Typography', 'Ski Conditions'],
+      favoriteSpots: ['True Grit Cafe', 'Kate\'s Place'],
+      fuel: 'Matcha + Figma',
       stats: {
-        pixelsPushed: '∞',
-        elevation: "8,400ft",
-        designsShipped: '147'
+        'Iterations': 'Until Right',
+        'Fonts Tried': 'One More',
+        'User Joy': 'The Goal'
       },
-      bio: 'Designs interfaces that work as beautifully as mountain sunrise.',
-      ascii: `
-   ___
-  [o.o]
-  <(_)>
-  _| |_
-      `,
-      color: 'neon.pink'
+      bio: 'Makes interfaces feel like home. Believes good design is invisible.',
+      color: neonColors.cyan
     },
     {
-      id: 'design-sensei',
-      handle: 'DesignSensei',
-      name: 'Ken',
-      role: 'Lead Design Architect',
-      obsessions: ['Minimalism', 'User Flow', 'Japanese Typography'],
-      favoriteSpot: 'Floating Lotus Brewery',
-      fuel: 'Sencha + Meditation',
-      stats: {
-        pixelsPerfected: '1M+',
-        designAwards: '12',
-        zenLevel: 'Master'
-      },
-      bio: 'Brings zen to pixels. Every design tells a story, every interaction has purpose.',
-      ascii: `
-   ~~~
-  (^_^)
-  <| |>
-   | |
-      `,
-      color: 'mountain.400'
-    },
-    {
-      id: 'seo-ninja',
-      handle: 'SEONinja',
+      id: 'maria',
+      handle: 'SEOWhisperer',
       name: 'Maria',
-      role: 'SEO Strategy Lead',
-      obsessions: ['SERP Rankings', 'Content Strategy', 'Local SEO'],
-      favoriteSpot: "Kate's Place",
-      fuel: 'Green Tea + Analytics',
+      role: 'SEO & Content Strategy',
+      image: '/images/profiles/maria.png',
+      obsessions: ['Core Web Vitals', 'Local Search', 'Morning Yoga'],
+      favoriteSpots: ['Kate\'s Place', 'Eatery 66'],
+      fuel: 'Green Tea + Data',
       stats: {
-        rankingsAchieved: '#1',
-        trafficBoosted: '+400%',
-        keywordsConquered: '10k+'
+        'Keywords': 'Researched',
+        'Rankings': 'Climbing',
+        'Yoga': 'Daily'
       },
-      bio: 'Makes Google fall in love with your site. Dominates SERPs like morning yoga.',
-      ascii: `
-   [#1]
-  (o.o)
-  <| |>
-   | |
-      `,
-      color: 'matrix.400'
+      bio: 'Helps people find you online. Balances algorithms with authenticity.',
+      color: neonColors.orange
     },
     {
-      id: 'content-alchemist',
-      handle: 'ContentAlchemist',
+      id: 'ken',
+      handle: 'DesignZen',
+      name: 'Ken',
+      role: 'Senior Designer',
+      image: '/images/profiles/ken.png',
+      obsessions: ['White Space', 'User Journey', 'Japanese Design'],
+      favoriteSpots: ['Floating Lotus Brewery', 'True Grit Cafe'],
+      fuel: 'Sencha + Silence',
+      stats: {
+        'Designs': 'Simplified',
+        'Pixels': 'Purposeful',
+        'Feedback': 'Constructive'
+      },
+      bio: 'Less is more, but better. Makes complex things feel simple.',
+      color: neonColors.cyanDark
+    },
+    {
+      id: 'jake',
+      handle: 'ContentCraft',
       name: 'Jake',
-      role: 'Content & Digital PR',
-      obsessions: ['Viral Content', 'Link Building', 'Brand Stories'],
-      favoriteSpot: 'Colorado Boy Pub',
-      fuel: 'Americano + Ideas',
+      role: 'Content & Brand Voice',
+      image: '/images/profiles/jake.png',
+      obsessions: ['Storytelling', 'Brand Narrative', 'Local Coffee'],
+      favoriteSpots: ['Colorado Boy Pub', 'Taco Del Gnar'],
+      fuel: 'Stories + Caffeine',
       stats: {
-        articlesWritten: '500+',
-        backlinksEarned: '2k+',
-        storiesTold: '∞'
+        'Words Today': 'Quota Met',
+        'Stories': 'Yours',
+        'Coffee Shops': 'All Local'
       },
-      bio: 'Turns brands into legends. Makes content that Google and humans both love.',
-      ascii: `
-   ===
-  (o_o)
-  <|T|>
-   | |
-      `,
-      color: 'neon.cyan'
+      bio: 'Finds your brand\'s voice. Makes content people actually read.',
+      color: neonColors.orangeDark
     },
     {
-      id: 'motion-wizard',
-      handle: 'MotionWizard',
-      name: 'Alex',
-      role: 'Video & Animation Lead',
-      obsessions: ['After Effects', 'Motion Design', '3D Animation'],
-      favoriteSpot: 'Lazy Dog Saloon',
-      fuel: 'Monster + Keyframes',
-      stats: {
-        framesRendered: '10M+',
-        videosProduced: '200+',
-        viewsGenerated: '5M+'
-      },
-      bio: 'Makes pixels dance. Turns static into cinematic magic.',
-      ascii: `
-   [▶]
-  (o.o)
-  <|V|>
-   | |
-      `,
-      color: 'neon.pink'
-    },
-    {
-      id: 'data-shaman',
-      handle: 'DataShaman',
+      id: 'marcus',
+      handle: 'BackendBard',
       name: 'Marcus',
-      role: 'Backend & Systems',
-      obsessions: ['Database Optimization', 'Trail Running', 'API Design'],
-      favoriteSpot: 'Sunrise Burritos',
-      fuel: 'Black Coffee + Energy Bar',
+      role: 'Backend Developer',
+      image: '/images/profiles/marcus.png',
+      obsessions: ['Clean APIs', 'Trail Maps', 'Database Design'],
+      favoriteSpots: ['Taco Del Gnar', 'Thai Paradise'],
+      fuel: 'Logic + Loops',
       stats: {
-        queriesOptimized: '10,384',
-        elevation: "9,000ft",
-        uptimeRecord: '99.99%'
+        'APIs Built': 'What You Need',
+        'Response': 'Fast',
+        'Trail Miles': 'Weekend Goal'
       },
-      bio: 'Makes data flow like mountain streams. Faster than your CDN.',
-      ascii: `
-   { }
-  (^_^)
-  <[|]>
-   | |
-      `,
-      color: 'mountain.400'
+      bio: 'Makes the magic happen behind the scenes.',
+      color: neonColors.cyanLight
     },
     {
-      id: 'code-whisperer',
-      handle: 'CodeWhisperer',
-      name: 'Alex T',
-      role: 'Full Stack Developer',
-      obsessions: ['Next.js', 'Rock Climbing', 'Clean Code'],
-      favoriteSpot: 'True Grit Cafe',
-      fuel: 'Cold Brew + Trail Mix',
+      id: 'phil',
+      handle: 'SystemsSage',
+      name: 'Phillip',
+      role: 'Automation & Integration',
+      image: '/images/profiles/phil.png',
+      obsessions: ['Workflow Automation', 'Python Scripts', 'Wine Pairings'],
+      favoriteSpots: ['Bella Vino', 'Eatery 66'],
+      fuel: 'Efficiency + Espresso',
       stats: {
-        commitsThisYear: '1,847',
-        elevation: "7,800ft",
-        testsWritten: '∞'
+        'Automated': 'The Boring',
+        'Time Saved': 'Hours Daily',
+        'Wine IQ': 'Expanding'
       },
-      bio: 'Writes code so clean you could eat off it. Debugs by moonlight.',
-      ascii: `
-   < >
-  (o_o)
-  <| |>
-   | |
-      `,
-      color: 'matrix.400'
+      bio: 'Automates the boring stuff. Makes workflows actually flow.',
+      color: neonColors.orangeLight
+    },
+    {
+      id: 'alex',
+      handle: 'MotionMaker',
+      name: 'Alex',
+      role: 'Video & Animation',
+      image: '/images/profiles/alex.png',
+      obsessions: ['Frame Rates', 'Motion Graphics', 'New Transitions'],
+      favoriteSpots: ['Lazy Dog Saloon', 'Taco Del Gnar'],
+      fuel: 'Creative Energy',
+      stats: {
+        'Videos': 'This Week\'s',
+        'Render Time': 'Coffee Break',
+        'Ideas': 'Visualized'
+      },
+      bio: 'Brings static to life. Tells stories in seconds.',
+      color: neonColors.cyan
+    },
+    {
+      id: 'nicole',
+      handle: 'CloudKeeper',
+      name: 'Nicole',
+      role: 'Infrastructure & DevOps',
+      image: '/images/profiles/nicole.png',
+      obsessions: ['Container Gardens', 'Deployment Pipelines', 'Actual Gardens'],
+      favoriteSpots: ['Thai Paradise', 'Kate\'s Place'],
+      fuel: 'Terminal + Tea',
+      stats: {
+        'Deploys': 'Smooth',
+        'Downtime': 'Never',
+        'Plants': 'Thriving'
+      },
+      bio: 'Keeps the lights on. Your infrastructure\'s guardian angel.',
+      color: neonColors.orange
     }
   ];
 
-  const scroll = (direction) => {
-    if (scrollContainerRef.current) {
-      const scrollAmount = 306; // Width of one card plus gap
-      scrollContainerRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
+  const handleCardClick = (id) => {
+    if (isMobile) {
+      setFlippedCards(prev => ({ ...prev, [id]: !prev[id] }));
     }
   };
+
+  const handleCardHover = (id, isHovering) => {
+    if (!isMobile) {
+      if (isHovering) {
+        // Add delay before flipping to prevent glitchy behavior
+        const timeout = setTimeout(() => {
+          setFlippedCards(prev => ({ ...prev, [id]: true }));
+        }, 150);
+        setHoverTimeout(prev => ({ ...prev, [id]: timeout }));
+      } else {
+        // Clear timeout if user leaves before delay
+        if (hoverTimeout[id]) {
+          clearTimeout(hoverTimeout[id]);
+          setHoverTimeout(prev => {
+            const newTimeouts = { ...prev };
+            delete newTimeouts[id];
+            return newTimeouts;
+          });
+        }
+        // Add small delay before flipping back
+        setTimeout(() => {
+          setFlippedCards(prev => ({ ...prev, [id]: false }));
+        }, 100);
+      }
+    }
+  };
+
+  // Desktop grid or mobile scroll
+  const isDesktop = useBreakpointValue({ base: false, lg: true });
 
   return (
     <Box 
       position="relative" 
-      py={{ base: 20, md: 32 }} 
+      py={{ base: 16, md: 24 }} 
       bg="dark.black"
       overflow="hidden"
     >
-      {/* Topographic map background - very subtle */}
-      <Box
-        position="absolute"
-        top={0}
-        left={0}
-        right={0}
-        bottom={0}
-        opacity={0.02}
-        bgImage="repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 100px,
-          rgba(0, 255, 255, 0.1) 100px,
-          rgba(0, 255, 255, 0.1) 101px
-        ),
-        repeating-linear-gradient(
-          90deg,
-          transparent,
-          transparent 100px,
-          rgba(139, 92, 246, 0.1) 100px,
-          rgba(139, 92, 246, 0.1) 101px
-        )"
-        pointerEvents="none"
-      />
-
-      <Container maxW="1400px" px={{ base: 6, md: 8 }} position="relative">
-        <VStack spacing={{ base: 16, md: 20 }}>
+      <Container maxW="1400px" px={{ base: 4, lg: 8 }} position="relative">
+        <VStack spacing={{ base: 12, md: 16 }}>
           {/* Header */}
-          <VStack spacing={4} textAlign="center" maxW="800px" mx="auto">
+          <VStack spacing={6} textAlign="center" maxW="800px" mx="auto">
             <MotionBox
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -329,13 +281,13 @@ const TheCrew = () => {
               viewport={{ once: true }}
             >
               <Text 
-                color="neon.cyan" 
+                color={neonColors.cyan}
                 fontSize="sm" 
                 fontWeight="600" 
                 letterSpacing="wider"
                 textTransform="uppercase"
               >
-                The Crew
+                Meet the Crew
               </Text>
             </MotionBox>
 
@@ -351,9 +303,8 @@ const TheCrew = () => {
                 fontWeight="bold"
                 color="white"
                 lineHeight="1.2"
-                letterSpacing="-0.02em"
               >
-                Meet the Outlaws
+                The Digital Outlaws
               </Heading>
             </MotionBox>
 
@@ -364,297 +315,292 @@ const TheCrew = () => {
               viewport={{ once: true }}
             >
               <Text
-                fontSize={{ base: "lg", md: "xl" }}
+                fontSize={{ base: "md", md: "lg" }}
                 color="gray.400"
                 maxW="600px"
                 mx="auto"
-                lineHeight="1.6"
               >
-                We're not suits. We're mountain people who happen to love code. 
-                Big crew, bigger talent, zero ego.
+                Mountain people who happen to love code. {isMobile ? 'Tap' : 'Hover'} to meet us.
               </Text>
             </MotionBox>
           </VStack>
 
-          {/* Scrollable Team Container */}
-          <Box position="relative" width="100%" maxW="100vw" mx="-24px">
-            {/* Left Scroll Button - More Subtle */}
-            <IconButton
-              icon={<FiChevronLeft />}
-              position="absolute"
-              left={{ base: 2, md: 4 }}
-              top="50%"
-              transform="translateY(-50%)"
-              zIndex={10}
-              onClick={() => scroll('left')}
-              bg="whiteAlpha.100"
-              border="1px solid"
-              borderColor="whiteAlpha.200"
-              color="gray.400"
-              _hover={{ 
-                bg: 'whiteAlpha.200',
-                color: 'white',
-                borderColor: 'whiteAlpha.300'
-              }}
-              aria-label="Scroll left"
-              size="md"
-              borderRadius="full"
-              display={{ base: 'none', md: 'flex' }}
-              opacity={0.7}
-              transition="all 0.3s"
-            />
-
-            {/* Right Scroll Button - More Subtle */}
-            <IconButton
-              icon={<FiChevronRight />}
-              position="absolute"
-              right={{ base: 2, md: 4 }}
-              top="50%"
-              transform="translateY(-50%)"
-              zIndex={10}
-              onClick={() => scroll('right')}
-              bg="whiteAlpha.100"
-              border="1px solid"
-              borderColor="whiteAlpha.200"
-              color="gray.400"
-              _hover={{ 
-                bg: 'whiteAlpha.200',
-                color: 'white',
-                borderColor: 'whiteAlpha.300'
-              }}
-              aria-label="Scroll right"
-              size="md"
-              borderRadius="full"
-              display={{ base: 'none', md: 'flex' }}
-              opacity={0.7}
-              transition="all 0.3s"
-            />
-
-            {/* Scrollable Container */}
-            <HStack
-              ref={scrollContainerRef}
-              spacing={6}
-              overflowX="auto"
-              py={4}
-              px={{ base: 6, md: 24 }}
-              css={{
-                '&::-webkit-scrollbar': {
-                  height: '6px',
-                },
-                '&::-webkit-scrollbar-track': {
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  borderRadius: '3px',
-                },
-                '&::-webkit-scrollbar-thumb': {
-                  background: 'rgba(0, 255, 255, 0.2)',
-                  borderRadius: '3px',
-                },
-                '&::-webkit-scrollbar-thumb:hover': {
-                  background: 'rgba(0, 255, 255, 0.3)',
-                },
-                scrollbarWidth: 'thin',
-                scrollbarColor: 'rgba(0, 255, 255, 0.2) rgba(255, 255, 255, 0.05)',
-              }}
+          {/* Cards Container */}
+          {isDesktop ? (
+            // Desktop Grid - 3 rows of 4
+            <Grid
+              templateColumns="repeat(4, 1fr)"
+              gap={8}
+              width="100%"
             >
               {crew.map((member, index) => (
                 <MotionBox
                   key={member.id}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: Math.min(index * 0.1, 0.4) }}
+                  transition={{ duration: 0.5, delay: Math.min(index * 0.05, 0.3) }}
                   viewport={{ once: true }}
-                  flexShrink={0}
+                  style={{ perspective: '1000px' }}
+                  height="420px"
                 >
-                  <Box
-                    position="relative"
-                    p={6}
-                    borderRadius="xl"
-                    bg="whiteAlpha.50"
-                    backdropFilter="blur(10px)"
-                    border="2px solid"
-                    borderColor={hoveredMember === member.id ? member.color : 'whiteAlpha.100'}
-                    cursor="pointer"
-                    height="420px"
-                    width="280px"
-                    onMouseEnter={() => setHoveredMember(member.id)}
-                    onMouseLeave={() => setHoveredMember(null)}
-                    _hover={{
-                      transform: 'translateY(-4px)',
-                      bg: 'whiteAlpha.100'
-                    }}
-                    transition="all 0.3s"
-                    display="flex"
-                    flexDirection="column"
-                  >
-                    {/* ASCII Portrait */}
-                    <Box
-                      height="60px"
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                      fontFamily="mono"
-                      fontSize="xs"
-                      color={member.color}
-                      whiteSpace="pre"
-                      lineHeight="1"
-                      opacity={0.8}
-                    >
-                      {member.ascii}
-                    </Box>
-
-                    {/* Handle & Name */}
-                    <VStack align="start" spacing={1} mb={3}>
-                      <Text
-                        color={member.color}
-                        fontSize="sm"
-                        fontFamily="mono"
-                        fontWeight="600"
-                      >
-                        @{member.handle}
-                      </Text>
-                      <Text color="white" fontSize="xl" fontWeight="600">
-                        {member.name}
-                      </Text>
-                      <Text color="gray.400" fontSize="sm" height="40px" overflow="hidden">
-                        {member.role}
-                      </Text>
-                    </VStack>
-
-                    {/* Bio */}
-                    <Text color="gray.300" fontSize="sm" mb={3} lineHeight="1.6" height="60px" overflow="hidden">
-                      {member.bio}
-                    </Text>
-
-                    {/* Stats */}
-                    <VStack align="start" spacing={1} mb={3} flex={1}>
-                      {Object.entries(member.stats).slice(0, 3).map(([key, value]) => (
-                        <HStack key={key} spacing={2} fontSize="xs">
-                          <Text color="gray.500">
-                            {key.replace(/([A-Z])/g, ' $1').trim()}:
-                          </Text>
-                          <Text color={member.color} fontFamily="mono" fontWeight="600">
-                            {value}
-                          </Text>
-                        </HStack>
-                      ))}
-                    </VStack>
-
-                    {/* Favorites */}
-                    <VStack 
-                      align="start" 
-                      spacing={2} 
-                      pt={3} 
-                      borderTop="1px solid" 
-                      borderColor="whiteAlpha.100"
-                      mt="auto"
-                    >
-                      <HStack spacing={2} fontSize="xs">
-                        <FiMapPin color={member.color} />
-                        <Text color="gray.400">{member.favoriteSpot}</Text>
-                      </HStack>
-                      <HStack spacing={2} fontSize="xs">
-                        <FiCoffee color={member.color} />
-                        <Text color="gray.400">{member.fuel}</Text>
-                      </HStack>
-                    </VStack>
-
-                    {/* Hover State - Obsessions */}
-                    <Box
-                      position="absolute"
-                      top={0}
-                      left={0}
-                      right={0}
-                      bottom={0}
-                      bg="dark.black"
-                      opacity={hoveredMember === member.id ? 0.95 : 0}
-                      borderRadius="xl"
-                      p={6}
-                      transition="opacity 0.3s"
-                      pointerEvents={hoveredMember === member.id ? 'auto' : 'none'}
-                    >
-                      <VStack align="start" spacing={4} height="100%" justify="space-between">
-                        <Box>
-                          <Text color={member.color} fontSize="sm" fontWeight="600" mb={3}>
-                            Currently Obsessed With:
-                          </Text>
-                          <VStack align="start" spacing={2}>
-                            {member.obsessions.map((obsession, i) => (
-                              <HStack key={i} spacing={2}>
-                                <Box
-                                  width="6px"
-                                  height="6px"
-                                  borderRadius="full"
-                                  bg={member.color}
-                                />
-                                <Text color="gray.300" fontSize="sm">
-                                  {obsession}
-                                </Text>
-                              </HStack>
-                            ))}
-                          </VStack>
-                        </Box>
-                        
-                        <HStack spacing={2}>
-                          <IconButton
-                            size="sm"
-                            icon={<FiGithub />}
-                            variant="ghost"
-                            color="gray.400"
-                            _hover={{ color: member.color }}
-                            aria-label="GitHub"
-                          />
-                          <IconButton
-                            size="sm"
-                            icon={<FiLinkedin />}
-                            variant="ghost"
-                            color="gray.400"
-                            _hover={{ color: member.color }}
-                            aria-label="LinkedIn"
-                          />
-                          <IconButton
-                            size="sm"
-                            icon={<FiMail />}
-                            variant="ghost"
-                            color="gray.400"
-                            _hover={{ color: member.color }}
-                            aria-label="Email"
-                          />
-                        </HStack>
-                      </VStack>
-                    </Box>
-                  </Box>
+                  <CrewCard 
+                    member={member} 
+                    isFlipped={flippedCards[member.id]} 
+                    onCardClick={handleCardClick}
+                    onCardHover={handleCardHover}
+                    isMobile={isMobile}
+                  />
                 </MotionBox>
               ))}
-            </HStack>
-          </Box>
-
-          {/* Team Philosophy */}
-          <Box
-            mt={12}
-            p={8}
-            borderRadius="xl"
-            bg="whiteAlpha.50"
-            backdropFilter="blur(10px)"
-            border="1px solid"
-            borderColor="whiteAlpha.100"
-            textAlign="center"
-            maxW="800px"
-            mx="auto"
-          >
-            <HStack spacing={2} justify="center" mb={4}>
-              <FiTerminal size={20} color="#00FFFF" />
-              <Text color="neon.cyan" fontSize="sm" fontWeight="600" letterSpacing="wider">
-                OUR PHILOSOPHY
-              </Text>
-            </HStack>
-            <Text color="gray.300" fontSize="lg" lineHeight="1.8">
-              We believe the best code comes from people who love what they do and where they live. 
-              That's why we chose Ridgway — for the mountains, the community, and the perfect 
-              work-life balance that makes us better developers.
-            </Text>
-          </Box>
+            </Grid>
+          ) : (
+            // Mobile Horizontal Scroll
+            <Box width="100vw" ml="-1rem" mr="-1rem">
+              <HStack
+                ref={scrollContainerRef}
+                spacing={4}
+                overflowX="auto"
+                py={4}
+                px={4}
+                css={{
+                  '&::-webkit-scrollbar': {
+                    height: '6px',
+                  },
+                  '&::-webkit-scrollbar-track': {
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    borderRadius: '3px',
+                  },
+                  '&::-webkit-scrollbar-thumb': {
+                    background: `${neonColors.cyan}33`,
+                    borderRadius: '3px',
+                  },
+                  scrollSnapType: 'x mandatory',
+                }}
+              >
+                {crew.map((member, index) => (
+                  <MotionBox
+                    key={member.id}
+                    initial={{ opacity: 0, x: 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: Math.min(index * 0.05, 0.3) }}
+                    viewport={{ once: true }}
+                    style={{ perspective: '1000px' }}
+                    height="480px"
+                    minW="280px"
+                    scrollSnapAlign="start"
+                  >
+                    <CrewCard 
+                      member={member} 
+                      isFlipped={flippedCards[member.id]} 
+                      onCardClick={handleCardClick}
+                      onCardHover={handleCardHover}
+                      isMobile={isMobile}
+                    />
+                  </MotionBox>
+                ))}
+              </HStack>
+            </Box>
+          )}
         </VStack>
       </Container>
+    </Box>
+  );
+};
+
+// Separate Card Component for cleaner code
+const CrewCard = ({ member, isFlipped, onCardClick, onCardHover, isMobile }) => {
+  return (
+    <Box
+      position="relative"
+      width="100%"
+      height="100%"
+      style={{
+        transformStyle: 'preserve-3d',
+        transition: 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+        transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+        transformOrigin: 'center center',
+      }}
+      onClick={() => onCardClick(member.id)}
+      onMouseEnter={() => onCardHover(member.id, true)}
+      onMouseLeave={() => onCardHover(member.id, false)}
+      cursor="pointer"
+    >
+      {/* Front of Card */}
+      <Box
+        position="absolute"
+        width="100%"
+        height="100%"
+        style={{ backfaceVisibility: 'hidden' }}
+        borderRadius="xl"
+        overflow="hidden"
+        bg="rgba(0,0,0,0.7)"
+        backdropFilter="blur(10px)"
+        border="2px solid"
+        borderColor="whiteAlpha.100"
+        _hover={{ 
+          borderColor: member.color,
+          boxShadow: `0 0 20px ${member.color}33`
+        }}
+        transition="all 0.3s ease"
+        willChange="transform"
+      >
+        <VStack height="100%" spacing={0}>
+          {/* Profile Image - Full height to show entire image */}
+          <Box
+            width="100%"
+            height="75%"
+            position="relative"
+            overflow="hidden"
+          >
+            <Image
+              src={member.image}
+              alt={member.name}
+              width="100%"
+              height="100%"
+              objectFit="cover"
+              objectPosition="center top"
+              loading="lazy"
+            />
+            <Box
+              position="absolute"
+              bottom={0}
+              left={0}
+              right={0}
+              height="80px"
+              bgGradient="linear(to-t, rgba(0,0,0,0.9), transparent)"
+            />
+          </Box>
+
+          {/* Basic Info */}
+          <VStack
+            flex={1}
+            width="100%"
+            p={5}
+            spacing={1}
+            justify="center"
+            align="start"
+            bg="rgba(0,0,0,0.8)"
+          >
+            <Text
+              color={member.color}
+              fontSize="xs"
+              fontFamily="mono"
+              fontWeight="600"
+              textShadow={`0 0 10px ${member.color}`}
+            >
+              @{member.handle}
+            </Text>
+            <Heading
+              as="h3"
+              color="white"
+              fontSize="xl"
+              fontWeight="600"
+            >
+              {member.name}
+            </Heading>
+            <Text
+              color="gray.400"
+              fontSize="xs"
+              fontWeight="500"
+            >
+              {member.role}
+            </Text>
+          </VStack>
+        </VStack>
+      </Box>
+
+      {/* Back of Card */}
+      <Box
+        position="absolute"
+        width="100%"
+        height="100%"
+        style={{
+          backfaceVisibility: 'hidden',
+          transform: 'rotateY(180deg)',
+        }}
+        borderRadius="xl"
+        bg="rgba(0,0,0,0.95)"
+        border="2px solid"
+        borderColor={member.color}
+        boxShadow={`0 0 30px ${member.color}44`}
+        p={6}
+        overflow="auto"
+      >
+        <VStack align="start" spacing={4} height="100%">
+          {/* Bio */}
+          <Box>
+            <Text color="white" fontSize="sm" lineHeight="1.6">
+              {member.bio}
+            </Text>
+          </Box>
+
+          {/* Stats */}
+          <Box width="100%">
+            <Text 
+              color={member.color} 
+              fontSize="xs" 
+              fontWeight="600" 
+              mb={2}
+              textShadow={`0 0 10px ${member.color}`}
+            >
+              STATS
+            </Text>
+            <VStack align="start" spacing={1}>
+              {Object.entries(member.stats).map(([key, value]) => (
+                <HStack key={key} width="100%" justify="space-between">
+                  <Text color="gray.500" fontSize="xs">{key}</Text>
+                  <Text color="gray.300" fontSize="xs" fontFamily="mono">{value}</Text>
+                </HStack>
+              ))}
+            </VStack>
+          </Box>
+
+          {/* Obsessions */}
+          <Box width="100%">
+            <Text 
+              color={member.color} 
+              fontSize="xs" 
+              fontWeight="600" 
+              mb={2}
+              textShadow={`0 0 10px ${member.color}`}
+            >
+              CURRENTLY OBSESSED WITH
+            </Text>
+            <Box>
+              {member.obsessions.map((item, i) => (
+                <Text
+                  key={i}
+                  display="inline-block"
+                  fontSize="xs"
+                  color="gray.300"
+                  bg="whiteAlpha.100"
+                  px={2}
+                  py={1}
+                  borderRadius="md"
+                  mr={2}
+                  mb={2}
+                >
+                  {item}
+                </Text>
+              ))}
+            </Box>
+          </Box>
+
+          {/* Favorites */}
+          <VStack align="start" spacing={2} mt="auto" width="100%">
+            <HStack spacing={2}>
+              <FiMapPin size={14} color={member.color} />
+              <Text color="gray.400" fontSize="xs">
+                {member.favoriteSpots.join(', ')}
+              </Text>
+            </HStack>
+            <HStack spacing={2}>
+              <FiCoffee size={14} color={member.color} />
+              <Text color="gray.400" fontSize="xs">{member.fuel}</Text>
+            </HStack>
+          </VStack>
+        </VStack>
+      </Box>
     </Box>
   );
 };

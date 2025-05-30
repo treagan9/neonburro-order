@@ -30,7 +30,6 @@ const Navigation = () => {
     { label: 'Services', href: '/services' },
     { label: 'Our Work', href: '/work' },
     { label: 'About', href: '/about' },
-    { label: 'Blog', href: '/blog' },
     { label: 'Contact', href: '/contact' }
   ];
 
@@ -254,7 +253,6 @@ const Navigation = () => {
               >
                 <Text>Ridgway, Colorado</Text>
                 <Text>hello@neonburro.com</Text>
-                <Text>(970) 555-0123</Text>
               </VStack>
             </VStack>
           </DrawerBody>
