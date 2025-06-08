@@ -1,21 +1,22 @@
 functionsDirectory = "/Users/tyler/neonburro/netlify/functions"
-functionsDirectoryOrigin = "config-v1"
+functionsDirectoryOrigin = "ui"
+redirectsOrigin = "config"
 plugins = []
 headers = []
-redirects = []
 
 [functions]
 
 [functions."*"]
 
 [build]
-publish = "/Users/tyler/neonburro/yarn dev"
+publish = "/Users/tyler/neonburro/dist"
 publishOrigin = "config"
 commandOrigin = "config"
-command = "netlify deploy --prod"
+command = "yarn build"
 functions = "/Users/tyler/neonburro/netlify/functions"
 
 [build.environment]
+NODE_VERSION = "18.18.0"
 
 [build.processing]
 
@@ -28,3 +29,15 @@ functions = "/Users/tyler/neonburro/netlify/functions"
 [build.processing.js]
 
 [build.services]
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]

@@ -2,12 +2,14 @@ import { Box, Container, Heading, Text, VStack, HStack, Grid, Button, Image } fr
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { FiCode, FiShoppingCart, FiMapPin, FiSmartphone, FiDatabase, FiMail, FiTrendingUp, FiShield } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 
 const MotionBox = motion(Box);
 
 const DigitalAlchemy = () => {
   const [activeService, setActiveService] = useState(null);
   const [particles, setParticles] = useState([]);
+  const navigate = useNavigate();
 
   const services = [
     {
@@ -15,60 +17,68 @@ const DigitalAlchemy = () => {
       icon: FiCode,
       title: 'Digital Experiences',
       description: 'Immersive web applications that captivate and convert',
-      color: '#00FFFF'
+      color: 'brand.primary',
+      stat: '3.2s → 0.8s'
     },
     {
       id: 'commerce-engines',
       icon: FiShoppingCart,
       title: 'Commerce Engines',
       description: 'Online stores engineered for maximum revenue',
-      color: '#FF10F0'
+      color: 'accent.warm',
+      stat: '+47% CVR'
     },
     {
       id: 'local-domination',
       icon: FiMapPin,
       title: 'Local Domination',
       description: 'Own your neighborhood in search results',
-      color: '#39FF14'
+      color: 'accent.neon',
+      stat: 'Top 3'
     },
     {
       id: 'pocket-power',
       icon: FiSmartphone,
       title: 'Pocket Power',
       description: 'Mobile-first experiences that users love',
-      color: '#8B5CF6'
+      color: 'brand.primaryLight',
+      stat: '95/100'
     },
     {
       id: 'data-architecture',
       icon: FiDatabase,
       title: 'Data Architecture',
       description: 'Bulletproof systems that scale infinitely',
-      color: '#FFFF00'
+      color: 'accent.cool',
+      stat: '99.9%'
     },
     {
       id: 'growth-machines',
       icon: FiMail,
       title: 'Growth Machines',
-      description: 'Automated marketing that works while you sleep',
-      color: '#0EA5E9'
+      description: 'Automated marketing that works 24/7',
+      color: 'brand.primary',
+      stat: '5x ROI'
     },
     {
       id: 'performance-alchemy',
       icon: FiTrendingUp,
       title: 'Performance Alchemy',
       description: 'Transform slow sites into speed demons',
-      color: '#FF6B00'
+      color: 'accent.warm',
+      stat: '100/100'
     },
     {
       id: 'digital-fortress',
       icon: FiShield,
       title: 'Digital Fortress',
       description: 'Security-first builds that protect your empire',
-      color: '#A78BFA'
+      color: 'brand.primaryDark',
+      stat: 'A+ SSL'
     }
   ];
 
-  // Generate flowing particles
+  // Generate flowing particles with better timing
   useEffect(() => {
     const interval = setInterval(() => {
       setParticles(prev => [
@@ -76,10 +86,11 @@ const DigitalAlchemy = () => {
         {
           id: Date.now(),
           progress: 0,
-          lane: Math.floor(Math.random() * 3)
+          lane: Math.floor(Math.random() * 3),
+          speed: 1.5 + Math.random() * 1
         }
-      ].slice(-10));
-    }, 800);
+      ].slice(-8));
+    }, 600);
 
     return () => clearInterval(interval);
   }, []);
@@ -90,7 +101,7 @@ const DigitalAlchemy = () => {
       setParticles(prev => 
         prev.map(p => ({
           ...p,
-          progress: p.progress + 2
+          progress: p.progress + p.speed
         }))
       );
     }, 50);
@@ -101,27 +112,27 @@ const DigitalAlchemy = () => {
   return (
     <Box 
       position="relative" 
-      py={{ base: 12, md: 16 }} 
+      py={{ base: 16, md: 20 }} 
       bg="dark.black"
       overflow="hidden"
     >
-      {/* Background gradient */}
+      {/* Background gradient - more subtle */}
       <Box
         position="absolute"
         top="50%"
         left="50%"
         transform="translate(-50%, -50%)"
-        width="150%"
-        height="150%"
-        opacity={0.05}
-        bgGradient="radial(circle at center, neon.cyan 0%, transparent 70%)"
+        width="120%"
+        height="120%"
+        opacity={0.03}
+        bgGradient="radial(circle at center, brand.primary 0%, transparent 60%)"
         pointerEvents="none"
       />
 
       <Container maxW="1400px" px={{ base: 6, md: 8 }} position="relative">
-        <VStack spacing={{ base: 8, md: 12 }}>
+        <VStack spacing={{ base: 10, md: 16 }}>
           {/* Header */}
-          <VStack spacing={2} textAlign="center" maxW="800px">
+          <VStack spacing={4} textAlign="center" maxW="800px">
             <MotionBox
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -129,9 +140,10 @@ const DigitalAlchemy = () => {
               viewport={{ once: true }}
             >
               <Text 
-                color="neon.cyan" 
-                fontSize="sm" 
-                fontWeight="600" 
+                color="brand.primary"
+                fontSize={{ base: "xs", md: "sm" }}
+                fontFamily="body"
+                fontWeight="semibold" 
                 letterSpacing="wider"
                 textTransform="uppercase"
               >
@@ -147,11 +159,12 @@ const DigitalAlchemy = () => {
             >
               <Heading
                 as="h2"
-                fontSize={{ base: "3xl", md: "5xl" }}
+                fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
+                fontFamily="heading"
                 fontWeight="bold"
-                color="white"
-                lineHeight="1.2"
-                letterSpacing="-0.02em"
+                color="text.primary"
+                lineHeight="tight"
+                letterSpacing="tight"
               >
                 We Turn Digital Lead into Gold
               </Heading>
@@ -164,21 +177,24 @@ const DigitalAlchemy = () => {
               viewport={{ once: true }}
             >
               <Text
-                fontSize={{ base: "lg", md: "xl" }}
-                color="gray.400"
+                fontSize={{ base: "md", md: "lg" }}
+                fontFamily="body"
+                color="text.secondary"
+                fontWeight="normal"
                 maxW="600px"
                 mx="auto"
+                lineHeight="relaxed"
               >
                 Feed your wildest ideas into the Burro. Watch digital magic happen.
               </Text>
             </MotionBox>
           </VStack>
 
-          {/* The Machine Container - Both Desktop and Mobile */}
+          {/* The Machine Container */}
           <Box 
             position="relative" 
             width="100%" 
-            minH={{ base: "180px", md: "250px" }}
+            minH={{ base: "160px", md: "220px" }}
           >
             {/* Pipeline Visualization */}
             <HStack 
@@ -189,40 +205,42 @@ const DigitalAlchemy = () => {
               width="100%"
               justify="space-between"
               align="center"
-              px={{ base: 0, md: 20 }}
+              px={{ base: 0, md: 16 }}
               spacing={{ base: 2, md: 8 }}
             >
-              {/* Mobile: Stack text vertically */}
-              <Box textAlign={{ base: "center", md: "left" }} minW={{ base: "60px", md: "auto" }}>
+              {/* Input Text */}
+              <Box textAlign={{ base: "center", md: "left" }} minW={{ base: "50px", md: "auto" }}>
                 <Text
-                  color="neon.cyan"
-                  fontSize={{ base: "xs", md: "2xl" }}
+                  color="brand.primary"
+                  fontSize={{ base: "2xs", md: "xl" }}
                   fontWeight="bold"
-                  fontFamily="monospace"
-                  display={{ base: "block", md: "inline" }}
+                  fontFamily="mono"
+                  display="block"
+                  opacity={0.9}
+                  letterSpacing="wider"
                 >
-                  RAW
-                </Text>
-                <Text
-                  color="neon.cyan"
-                  fontSize={{ base: "xs", md: "2xl" }}
-                  fontWeight="bold"
-                  fontFamily="monospace"
-                  display={{ base: "block", md: "inline" }}
-                  ml={{ base: 0, md: 2 }}
-                >
-                  IDEAS
+                  RAW IDEAS
                 </Text>
               </Box>
 
-              {/* Flowing Lines */}
+              {/* Flowing Lines Left */}
               <Box 
                 flex={1} 
                 position="relative" 
-                height={{ base: "2px", md: "2px" }}
-                bg="whiteAlpha.200"
+                height="2px"
+                bg="ui.border"
                 mx={{ base: 1, md: 4 }}
+                overflow="hidden"
               >
+                <Box
+                  position="absolute"
+                  top={0}
+                  left={0}
+                  right={0}
+                  bottom={0}
+                  background="linear-gradient(90deg, transparent 0%, rgba(0, 229, 229, 0.2) 50%, transparent 100%)"
+                  opacity={0.5}
+                />
                 {particles.map((particle) => (
                   <Box
                     key={particle.id}
@@ -230,38 +248,77 @@ const DigitalAlchemy = () => {
                     left={`${particle.progress}%`}
                     top="50%"
                     transform="translateY(-50%)"
-                    width={{ base: "10px", md: "20px" }}
-                    height={{ base: "3px", md: "4px" }}
-                    bg="neon.cyan"
+                    width={{ base: "15px", md: "25px" }}
+                    height="2px"
+                    bg="brand.primary"
                     borderRadius="full"
                     opacity={0.8}
-                    boxShadow="0 0 10px rgba(0, 255, 255, 0.8)"
-                    transition="left 0.1s linear"
+                    boxShadow="0 0 15px rgba(0, 229, 229, 0.6)"
+                    transition="left 0.05s linear"
                   />
                 ))}
               </Box>
 
               {/* Central Burro */}
-              <Box position="relative" zIndex={10} flexShrink={0}>
+              <MotionBox 
+                position="relative" 
+                zIndex={10} 
+                flexShrink={0}
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.3 }}
+              >
                 <Image
                   src="/burro-head-neon-sign.png"
                   alt="Neon Burro"
-                  width={{ base: "80px", md: "140px" }}
-                  height={{ base: "80px", md: "140px" }}
+                  width={{ base: "70px", md: "120px" }}
+                  height={{ base: "70px", md: "120px" }}
                   objectFit="contain"
-                  filter={activeService ? 'drop-shadow(0 0 30px rgba(0, 255, 255, 0.9))' : 'drop-shadow(0 0 15px rgba(0, 255, 255, 0.6))'}
+                  filter={activeService 
+                    ? 'drop-shadow(0 0 40px rgba(0, 229, 229, 0.8)) brightness(1.2)' 
+                    : 'drop-shadow(0 0 20px rgba(0, 229, 229, 0.5))'
+                  }
                   transition="all 0.3s"
                 />
-              </Box>
+                {/* Pulsing glow */}
+                <Box
+                  position="absolute"
+                  top="50%"
+                  left="50%"
+                  transform="translate(-50%, -50%)"
+                  width="100%"
+                  height="100%"
+                  borderRadius="full"
+                  bg="brand.primary"
+                  opacity={0.2}
+                  filter="blur(20px)"
+                  animation="pulse 2s ease-in-out infinite"
+                  sx={{
+                    '@keyframes pulse': {
+                      '0%, 100%': { transform: 'translate(-50%, -50%) scale(1)', opacity: 0.2 },
+                      '50%': { transform: 'translate(-50%, -50%) scale(1.3)', opacity: 0.1 }
+                    }
+                  }}
+                />
+              </MotionBox>
 
-              {/* Flowing Lines */}
+              {/* Flowing Lines Right */}
               <Box 
                 flex={1} 
                 position="relative" 
-                height={{ base: "2px", md: "2px" }}
-                bg="whiteAlpha.200"
+                height="2px"
+                bg="ui.border"
                 mx={{ base: 1, md: 4 }}
+                overflow="hidden"
               >
+                <Box
+                  position="absolute"
+                  top={0}
+                  left={0}
+                  right={0}
+                  bottom={0}
+                  background="linear-gradient(90deg, transparent 0%, rgba(0, 229, 229, 0.2) 50%, transparent 100%)"
+                  opacity={0.5}
+                />
                 {particles.map((particle) => (
                   <Box
                     key={`${particle.id}-2`}
@@ -269,46 +326,38 @@ const DigitalAlchemy = () => {
                     left={`${particle.progress}%`}
                     top="50%"
                     transform="translateY(-50%)"
-                    width={{ base: "10px", md: "20px" }}
-                    height={{ base: "3px", md: "4px" }}
-                    bg="neon.cyan"
+                    width={{ base: "15px", md: "25px" }}
+                    height="2px"
+                    bg="brand.primary"
                     borderRadius="full"
                     opacity={0.8}
-                    boxShadow="0 0 10px rgba(0, 255, 255, 0.8)"
-                    transition="left 0.1s linear"
+                    boxShadow="0 0 15px rgba(0, 229, 229, 0.6)"
+                    transition="left 0.05s linear"
                   />
                 ))}
               </Box>
 
-              {/* Mobile: Stack text vertically */}
-              <Box textAlign={{ base: "center", md: "right" }} minW={{ base: "60px", md: "auto" }}>
+              {/* Output Text */}
+              <Box textAlign={{ base: "center", md: "right" }} minW={{ base: "50px", md: "auto" }}>
                 <Text
-                  color="neon.cyan"
-                  fontSize={{ base: "xs", md: "2xl" }}
+                  color="brand.primary"
+                  fontSize={{ base: "2xs", md: "xl" }}
                   fontWeight="bold"
-                  fontFamily="monospace"
-                  display={{ base: "block", md: "inline" }}
+                  fontFamily="mono"
+                  display="block"
+                  opacity={0.9}
+                  letterSpacing="wider"
                 >
-                  DIGITAL
-                </Text>
-                <Text
-                  color="neon.cyan"
-                  fontSize={{ base: "xs", md: "2xl" }}
-                  fontWeight="bold"
-                  fontFamily="monospace"
-                  display={{ base: "block", md: "inline" }}
-                  ml={{ base: 0, md: 2 }}
-                >
-                  GOLD
+                  DIGITAL GOLD
                 </Text>
               </Box>
             </HStack>
           </Box>
 
-          {/* Service Grid - Below the machine */}
+          {/* Service Grid */}
           <Grid
             templateColumns={{ base: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }}
-            gap={{ base: 4, md: 5 }}
+            gap={{ base: 3, md: 4 }}
             width="100%"
           >
             {services.map((service, index) => (
@@ -316,34 +365,95 @@ const DigitalAlchemy = () => {
                 key={service.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                transition={{ duration: 0.5, delay: index * 0.05 }}
                 viewport={{ once: true }}
+                whileHover={{ y: -6 }}
+                whileTap={{ scale: 0.98 }}
               >
                 <Box
                   p={{ base: 4, md: 5 }}
-                  borderRadius="lg"
-                  bg={activeService === service.id ? 'whiteAlpha.200' : 'whiteAlpha.50'}
+                  borderRadius="xl"
+                  bg={activeService === service.id ? 'whiteAlpha.100' : 'whiteAlpha.50'}
                   backdropFilter="blur(10px)"
                   border="2px solid"
-                  borderColor={activeService === service.id ? service.color : 'whiteAlpha.100'}
+                  borderColor={activeService === service.id ? service.color : 'ui.border'}
                   cursor="pointer"
                   height="100%"
+                  position="relative"
+                  overflow="hidden"
                   onMouseEnter={() => setActiveService(service.id)}
                   onMouseLeave={() => setActiveService(null)}
+                  onClick={() => setActiveService(activeService === service.id ? null : service.id)}
                   _hover={{
-                    transform: 'translateY(-4px)',
                     borderColor: service.color,
-                    boxShadow: `0 10px 30px ${service.color}33`
+                    boxShadow: '0 10px 30px rgba(0, 229, 229, 0.15)'
                   }}
                   transition="all 0.3s"
                 >
-                  <Box as={service.icon} size={24} color={service.color} mb={3} />
-                  <Text color="white" fontWeight="600" fontSize="md" mb={1}>
-                    {service.title}
-                  </Text>
-                  <Text color="gray.400" fontSize="xs" lineHeight="1.4">
-                    {service.description}
-                  </Text>
+                  {/* Subtle gradient overlay */}
+                  <Box
+                    position="absolute"
+                    top={0}
+                    left={0}
+                    right={0}
+                    bottom={0}
+                    bgGradient="linear(to-br, brand.primaryAlpha.10, transparent)"
+                    opacity={activeService === service.id ? 1 : 0}
+                    transition="opacity 0.3s"
+                    pointerEvents="none"
+                  />
+                  
+                  {/* Stat badge */}
+                  <Box
+                    position="absolute"
+                    top={{ base: 2, md: 3 }}
+                    right={{ base: 2, md: 3 }}
+                    px={2}
+                    py={0.5}
+                    borderRadius="full"
+                    bg="brand.primaryAlpha.20"
+                    border="1px solid"
+                    borderColor="brand.primaryAlpha.30"
+                    opacity={activeService === service.id ? 1 : 0}
+                    transform={activeService === service.id ? "translateY(0)" : "translateY(-10px)"}
+                    transition="all 0.3s"
+                  >
+                    <Text
+                      fontSize="2xs"
+                      fontWeight="bold"
+                      color="brand.primary"
+                      fontFamily="mono"
+                    >
+                      {service.stat}
+                    </Text>
+                  </Box>
+                  
+                  <VStack align="start" spacing={3} position="relative">
+                    <Box 
+                      as={service.icon} 
+                      w={{ base: 5, md: 6 }}
+                      h={{ base: 5, md: 6 }}
+                      color={activeService === service.id ? 'brand.primary' : 'text.muted'}
+                      transition="all 0.3s"
+                    />
+                    <Text 
+                      color="text.primary"
+                      fontFamily="heading"
+                      fontWeight="semibold" 
+                      fontSize={{ base: "sm", md: "md" }}
+                      lineHeight="tight"
+                    >
+                      {service.title}
+                    </Text>
+                    <Text 
+                      color="text.secondary"
+                      fontFamily="body"
+                      fontSize={{ base: "2xs", md: "xs" }}
+                      lineHeight="base"
+                    >
+                      {service.description}
+                    </Text>
+                  </VStack>
                 </Box>
               </MotionBox>
             ))}
@@ -358,20 +468,25 @@ const DigitalAlchemy = () => {
           >
             <Button
               size="lg"
-              px={8}
-              py={6}
+              px={10}
+              py={7}
               fontSize="md"
-              fontWeight="600"
+              fontFamily="body"
+              fontWeight="semibold"
               bg="transparent"
-              color="neon.cyan"
+              color="brand.primary"
               border="2px solid"
-              borderColor="neon.cyan"
+              borderColor="brand.primary"
               borderRadius="full"
+              onClick={() => navigate('/services/')}
               _hover={{
-                bg: 'neon.cyan',
-                color: 'dark.black',
+                bg: 'brand.primary',
+                color: 'text.inverse',
                 transform: 'scale(1.05)',
-                boxShadow: '0 0 30px rgba(0, 255, 255, 0.6)'
+                boxShadow: '0 0 30px rgba(0, 229, 229, 0.4)'
+              }}
+              _active={{
+                transform: 'scale(0.98)'
               }}
               transition="all 0.3s"
             >

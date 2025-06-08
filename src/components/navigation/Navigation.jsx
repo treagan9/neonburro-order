@@ -55,7 +55,7 @@ const Navigation = () => {
         bg={isScrolled ? "rgba(10, 10, 10, 0.95)" : "transparent"}
         backdropFilter={isScrolled ? "blur(10px)" : "none"}
         borderBottom={isScrolled ? "1px solid" : "none"}
-        borderColor="whiteAlpha.100"
+        borderColor="ui.border"
         sx={{
           transition: "all 0.3s ease"
         }}
@@ -76,7 +76,7 @@ const Navigation = () => {
                 width="auto"
                 filter="brightness(1.8) contrast(1.2) saturate(1.5)"
                 _hover={{ 
-                  filter: 'brightness(2) contrast(1.3) saturate(1.6) drop-shadow(0 0 25px rgba(0, 255, 255, 0.9))'
+                  filter: 'brightness(2) contrast(1.3) saturate(1.6) drop-shadow(0 0 25px rgba(0, 229, 229, 0.9))'
                 }}
                 transition="all 0.3s"
               />
@@ -89,9 +89,10 @@ const Navigation = () => {
                   key={item.label}
                   onClick={() => handleNavClick(item.href)}
                   fontSize="md"
-                  color={location.pathname === item.href ? 'neon.cyan' : 'gray.300'}
-                  fontWeight="500"
-                  _hover={{ color: 'neon.cyan' }}
+                  fontFamily="body"
+                  color={location.pathname === item.href ? 'brand.primary' : 'text.secondary'}
+                  fontWeight="medium"
+                  _hover={{ color: 'brand.primary' }}
                   transition="color 0.2s"
                   cursor="pointer"
                 >
@@ -104,25 +105,28 @@ const Navigation = () => {
             <HStack spacing={4} display={{ base: 'none', md: 'flex' }}>
               <Button
                 variant="ghost"
-                color="gray.300"
+                color="text.secondary"
                 fontSize="md"
-                fontWeight="500"
+                fontFamily="body"
+                fontWeight="medium"
                 onClick={() => navigate('/contact')}
-                _hover={{ color: 'white', bg: 'whiteAlpha.100' }}
+                _hover={{ color: 'text.primary', bg: 'whiteAlpha.100' }}
               >
                 Free Consultation
               </Button>
               <Button
-                bg="neon.cyan"
-                color="dark.black"
+                bg="brand.primary"
+                color="text.inverse"
                 fontSize="md"
-                fontWeight="600"
+                fontFamily="body"
+                fontWeight="semibold"
                 px={6}
                 borderRadius="full"
                 onClick={() => navigate('/invoice')}
                 _hover={{
+                  bg: 'brand.primaryDark',
                   transform: 'scale(1.05)',
-                  boxShadow: '0 0 20px rgba(0, 255, 255, 0.5)'
+                  boxShadow: '0 0 20px rgba(0, 229, 229, 0.5)'
                 }}
                 transition="all 0.3s"
               >
@@ -134,7 +138,7 @@ const Navigation = () => {
             <IconButton
               icon={<FiMenu size={24} />}
               variant="ghost"
-              color="white"
+              color="text.primary"
               onClick={onOpen}
               display={{ base: 'flex', lg: 'none' }}
               _hover={{ bg: 'whiteAlpha.100' }}
@@ -149,7 +153,7 @@ const Navigation = () => {
         <DrawerOverlay />
         <DrawerContent bg="dark.black">
           <DrawerCloseButton 
-            color="white" 
+            color="text.primary" 
             size="lg"
             mt={4}
             mr={4}
@@ -187,10 +191,11 @@ const Navigation = () => {
                   variant="ghost"
                   size="lg"
                   fontSize="xl"
-                  color={location.pathname === item.href ? 'neon.cyan' : 'white'}
+                  fontFamily="body"
+                  color={location.pathname === item.href ? 'brand.primary' : 'text.primary'}
                   onClick={() => handleNavClick(item.href)}
                   justifyContent="center"
-                  _hover={{ bg: 'whiteAlpha.100', color: 'neon.cyan' }}
+                  _hover={{ bg: 'whiteAlpha.100', color: 'brand.primary' }}
                   transition="all 0.2s"
                 >
                   {item.label}
@@ -202,18 +207,20 @@ const Navigation = () => {
                 <Button
                   size="lg"
                   width="full"
-                  bg="neon.cyan"
-                  color="dark.black"
+                  bg="brand.primary"
+                  color="text.inverse"
                   fontSize="md"
-                  fontWeight="600"
+                  fontFamily="body"
+                  fontWeight="semibold"
                   borderRadius="full"
                   onClick={() => {
                     navigate('/invoice');
                     onClose();
                   }}
                   _hover={{
+                    bg: 'brand.primaryDark',
                     transform: 'scale(1.02)',
-                    boxShadow: '0 0 20px rgba(0, 255, 255, 0.5)'
+                    boxShadow: '0 0 20px rgba(0, 229, 229, 0.5)'
                   }}
                   transition="all 0.3s"
                 >
@@ -224,17 +231,18 @@ const Navigation = () => {
                   size="lg"
                   width="full"
                   variant="outline"
-                  borderColor="neon.cyan"
-                  color="neon.cyan"
+                  borderColor="brand.primary"
+                  color="brand.primary"
                   fontSize="md"
-                  fontWeight="600"
+                  fontFamily="body"
+                  fontWeight="semibold"
                   borderRadius="full"
                   onClick={() => {
                     navigate('/contact');
                     onClose();
                   }}
                   _hover={{
-                    bg: 'whiteAlpha.100',
+                    bg: 'brand.primaryAlpha.10',
                     transform: 'scale(1.02)'
                   }}
                   transition="all 0.3s"
@@ -248,8 +256,9 @@ const Navigation = () => {
                 spacing={2} 
                 mt="auto" 
                 pb={8}
-                color="gray.500"
+                color="text.muted"
                 fontSize="sm"
+                fontFamily="body"
               >
                 <Text>Ridgway, Colorado</Text>
                 <Text>hello@neonburro.com</Text>

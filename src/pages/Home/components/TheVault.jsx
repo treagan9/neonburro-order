@@ -1,511 +1,494 @@
-import { Box, Container, Heading, Text, VStack, HStack, Grid, Button, Input, Textarea, Progress, keyframes } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, VStack, HStack, Grid, Button, keyframes } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { FiArrowRight, FiClock, FiTool, FiPenTool, FiZap, FiHeart, FiAlertCircle } from 'react-icons/fi';
+import { FiLock, FiUnlock, FiCode, FiCoffee, FiZap, FiHeart, FiAward } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 
 const MotionBox = motion(Box);
 
-// Subtle pulse for progress indicators
-const subtlePulse = keyframes`
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.6; }
+// Subtle glitch effect
+const glitch = keyframes`
+  0%, 100% { 
+    text-shadow: 0 0 20px rgba(0, 229, 229, 0.3);
+  }
+  50% { 
+    text-shadow: 1px 0 20px rgba(0, 229, 229, 0.4), -1px 0 20px rgba(255, 107, 0, 0.2);
+  }
 `;
 
+// Simplified code rain
+const CodeRain = ({ active }) => {
+  if (!active) return null;
+  
+  const codeSnippets = ['{ }', '< />', '[ ]', '( )'];
+  
+  return (
+    <Box position="absolute" inset={0} overflow="hidden" pointerEvents="none">
+      {[0, 1, 2].map(i => (
+        <Text
+          key={i}
+          position="absolute"
+          left={`${30 + i * 20}%`}
+          top="-20px"
+          color="brand.primary"
+          fontSize="xs"
+          fontFamily="mono"
+          opacity={0.2}
+          animation={`fall ${3 + i}s ${i * 0.5}s infinite linear`}
+          sx={{
+            '@keyframes fall': {
+              '0%': { transform: 'translateY(-20px)', opacity: 0 },
+              '10%': { opacity: 0.2 },
+              '90%': { opacity: 0.2 },
+              '100%': { transform: 'translateY(120px)', opacity: 0 }
+            }
+          }}
+        >
+          {codeSnippets[i]}
+        </Text>
+      ))}
+    </Box>
+  );
+};
+
 const TheVault = () => {
-  const [activeProject, setActiveProject] = useState(null);
-  const [email, setEmail] = useState('');
-  const [businessName, setBusinessName] = useState('');
-  const [businessStory, setBusinessStory] = useState('');
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [hoveredStat, setHoveredStat] = useState(null);
+  const [codeCount, setCodeCount] = useState(0);
+  const navigate = useNavigate();
 
-  const neonColors = {
-    orange: '#FF6B35',
-    cyan: '#00D9FF',
-    purple: '#8B5CF6',
-    green: '#48BB78'
-  };
+  // Smooth counter animation
+  useEffect(() => {
+    const target = 847293;
+    const duration = 2000;
+    const increment = target / (duration / 16);
+    
+    const timer = setInterval(() => {
+      setCodeCount(prev => {
+        const next = prev + increment;
+        if (next >= target) {
+          clearInterval(timer);
+          return target;
+        }
+        return Math.floor(next);
+      });
+    }, 16);
+    
+    return () => clearInterval(timer);
+  }, []);
 
-  const concepts = [
+  const stats = [
     {
-      id: 'gnarly-tacos',
-      title: 'Gnarly Tacos',
-      category: 'Restaurant Tech',
-      status: 'In Development',
-      statusIcon: FiTool,
-      progress: 67,
-      description: 'Ditching generic platforms for a custom ordering experience built for locals.',
-      current: 'PopMenu limitations',
-      vision: 'Mobile-first local ordering',
-      features: ['Custom UI', 'Local perks', 'Smart ordering'],
-      color: neonColors.orange,
-      link: '/lab/gnarly-tacos'
+      icon: FiCode,
+      value: codeCount.toLocaleString(),
+      label: 'Lines Written',
+      color: 'brand.primary'
     },
     {
-      id: 'trace-gallery',
-      title: 'TRACE Gallery',
-      category: 'Digital Gallery',
-      status: 'Design Phase',
-      statusIcon: FiPenTool,
-      progress: 34,
-      description: 'Transforming a Facebook page into an immersive digital art experience.',
-      current: 'Social media only',
-      vision: 'Virtual gallery space',
-      features: ['3D exhibitions', 'Artist profiles', 'Event booking'],
-      color: neonColors.purple,
-      link: '/lab/trace-gallery'
+      icon: FiCoffee,
+      value: '∞',
+      label: 'Coffees Consumed',
+      color: 'accent.warm'
     },
     {
-      id: 'colorado-boy',
-      title: 'Colorado Boy',
-      category: 'Brewery Digital',
-      status: 'Early Concepts',
-      statusIcon: FiClock,
-      progress: 12,
-      description: 'Creating a digital taproom as smooth as their brews.',
-      current: 'Basic website',
-      vision: 'Interactive experience',
-      features: ['Live tap list', 'Event sync', 'Order ahead'],
-      color: neonColors.green,
-      link: '/lab/colorado-boy'
+      icon: FiZap,
+      value: '24/7',
+      label: 'Brain Activity',
+      color: 'accent.neon'
     },
     {
-      id: 'your-business',
-      title: 'Next Project?',
-      category: 'Community Choice',
-      status: 'Accepting Nominations',
-      statusIcon: FiHeart,
-      progress: 0,
-      description: 'Know a local business that needs a digital boost? Nominate them.',
-      current: '???',
-      vision: 'Your vision here',
-      features: ['Full rebuild', 'No cost', 'Community driven'],
-      color: neonColors.cyan,
-      isNomination: true
+      icon: FiHeart,
+      value: '100%',
+      label: 'Passion Level',
+      color: 'brand.primary'
     }
   ];
 
-  const handleNominate = (e) => {
-    e.preventDefault();
-    console.log({ email, businessName, businessStory });
-  };
+  const processSteps = [
+    {
+      phase: 'IDEATION',
+      description: 'Wild concepts meet mountain air',
+      icon: '🧠',
+      color: 'brand.primary'
+    },
+    {
+      phase: 'CAFFEINATION',
+      description: 'Fuel the creative engine',
+      icon: '☕',
+      color: 'accent.warm'
+    },
+    {
+      phase: 'CREATION',
+      description: 'Code flows like mountain streams',
+      icon: '⚡',
+      color: 'accent.neon'
+    },
+    {
+      phase: 'ELEVATION',
+      description: 'Launch at 7,200ft altitude',
+      icon: '🚀',
+      color: 'brand.primary'
+    }
+  ];
 
   return (
     <Box 
       position="relative" 
-      py={{ base: 20, md: 24 }} 
+      py={{ base: 16, md: 20 }} 
       bg="dark.black"
       overflow="hidden"
     >
-      {/* Subtle gradient background */}
+      {/* Subtle animated background */}
       <Box
         position="absolute"
-        top={0}
-        left={0}
-        right={0}
-        bottom={0}
+        inset={0}
         opacity={0.03}
-        bgGradient="radial(ellipse at top left, #FF6B3522 0%, transparent 40%),
-                     radial(ellipse at bottom right, #00D9FF22 0%, transparent 40%)"
-        pointerEvents="none"
+        backgroundImage="linear-gradient(rgba(0, 229, 229, 0.15) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 229, 229, 0.15) 1px, transparent 1px)"
+        backgroundSize="50px 50px"
+        animation="drift 30s linear infinite"
+        sx={{
+          '@keyframes drift': {
+            '0%': { transform: 'translate(0, 0)' },
+            '100%': { transform: 'translate(50px, 50px)' }
+          }
+        }}
       />
 
       <Container maxW="1400px" px={{ base: 6, md: 8 }} position="relative">
-        <VStack spacing={{ base: 12, md: 16 }}>
+        <VStack spacing={{ base: 14, md: 20 }}>
           {/* Header */}
           <VStack spacing={6} textAlign="center" maxW="800px" mx="auto">
             <MotionBox
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <Text 
-                color={neonColors.cyan}
-                fontSize="sm" 
-                fontWeight="600" 
-                letterSpacing="0.1em"
-                textTransform="uppercase"
-                mb={2}
+              <HStack 
+                spacing={2} 
+                justify="center" 
+                cursor="pointer"
+                onClick={() => setIsUnlocked(!isUnlocked)}
+                role="button"
+                aria-label="Toggle vault lock"
+                _hover={{ opacity: 0.8 }}
+                transition="all 0.2s"
               >
-                The Vault • Projects Brewing
-              </Text>
+                <Box color="brand.primary" fontSize="xl">
+                  {isUnlocked ? <FiUnlock /> : <FiLock />}
+                </Box>
+                <Text 
+                  color="brand.primary"
+                  fontSize="xs"
+                  fontFamily="body"
+                  fontWeight="semibold" 
+                  letterSpacing="wider"
+                  textTransform="uppercase"
+                >
+                  The Vault {isUnlocked ? '• Unlocked' : '• Secured'}
+                </Text>
+              </HStack>
             </MotionBox>
 
             <MotionBox
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
               viewport={{ once: true }}
             >
               <Heading
                 as="h2"
-                fontSize={{ base: "3xl", md: "4xl", lg: "5xl" }}
-                fontWeight="700"
-                color="white"
-                lineHeight="1.1"
-                letterSpacing="-0.02em"
+                fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
+                fontFamily="heading"
+                fontWeight="bold"
+                color="text.primary"
+                lineHeight="tight"
+                letterSpacing="tight"
+                sx={isUnlocked ? { animation: `${glitch} 3s ease-in-out infinite` } : {}}
               >
-                Rebuilding Ridgway,
-                <Box as="span" color={neonColors.orange}> One Site at a Time</Box>
+                Where Mountain Magic
+                <Box as="span" color="brand.primary"> Meets Digital Craft</Box>
               </Heading>
             </MotionBox>
 
             <MotionBox
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
               viewport={{ once: true }}
             >
               <Text
                 fontSize={{ base: "md", md: "lg" }}
-                color="gray.400"
+                fontFamily="body"
+                color="text.secondary"
+                lineHeight="relaxed"
+                fontWeight="normal"
                 maxW="600px"
-                mx="auto"
-                lineHeight="1.6"
               >
-                Real local businesses getting real digital upgrades. 
-                One lucky business gets the full treatment, on us.
+                Deep in the Colorado mountains, we're cooking up digital experiences 
+                that defy gravity. This is where ideas crystallize at altitude.
               </Text>
             </MotionBox>
           </VStack>
 
-          {/* Projects Grid */}
+          {/* Stats Grid */}
           <Grid
-            templateColumns={{ base: '1fr', lg: 'repeat(2, 1fr)' }}
-            gap={6}
+            templateColumns={{ base: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }}
+            gap={{ base: 4, md: 6 }}
             width="100%"
+            maxW="900px"
+            mx="auto"
           >
-            {concepts.map((concept, index) => (
+            {stats.map((stat, index) => (
               <MotionBox
-                key={concept.id}
+                key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.05 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
+                onMouseEnter={() => setHoveredStat(index)}
+                onMouseLeave={() => setHoveredStat(null)}
               >
-                {concept.isNomination ? (
-                  // Nomination Card
-                  <Box
-                    borderRadius="xl"
-                    bg="rgba(0,0,0,0.4)"
-                    backdropFilter="blur(10px)"
-                    border="2px dashed"
-                    borderColor={`${concept.color}44`}
-                    p={8}
-                    height="100%"
-                    position="relative"
-                    _hover={{
-                      borderColor: `${concept.color}66`,
-                      bg: 'rgba(0,0,0,0.5)'
-                    }}
-                    transition="all 0.3s"
-                  >
-                    <VStack spacing={6} align="start" height="100%">
-                      {/* Header */}
-                      <Box>
-                        <HStack spacing={2} mb={3}>
-                          <Box 
-                            p={2} 
-                            borderRadius="md" 
-                            bg={`${concept.color}22`}
-                            color={concept.color}
-                          >
-                            <concept.statusIcon size={16} />
-                          </Box>
-                          <Text color={concept.color} fontSize="xs" fontWeight="600" letterSpacing="wider">
-                            {concept.status.toUpperCase()}
-                          </Text>
-                        </HStack>
-                        <Heading as="h3" fontSize="2xl" color="white" mb={2}>
-                          {concept.title}
-                        </Heading>
-                        <Text color="gray.400" fontSize="sm" lineHeight="1.6">
-                          {concept.description}
-                        </Text>
-                      </Box>
-
-                      {/* Nomination Form */}
-                      <Box as="form" onSubmit={handleNominate} width="100%" flex={1}>
-                        <VStack spacing={3} align="stretch">
-                          <Input
-                            placeholder="Business name"
-                            value={businessName}
-                            onChange={(e) => setBusinessName(e.target.value)}
-                            size="md"
-                            bg="whiteAlpha.50"
-                            border="1px solid"
-                            borderColor="whiteAlpha.100"
-                            color="white"
-                            _placeholder={{ color: 'gray.600' }}
-                            _hover={{ borderColor: 'whiteAlpha.200' }}
-                            _focus={{ 
-                              borderColor: concept.color, 
-                              boxShadow: 'none',
-                              bg: 'whiteAlpha.100'
-                            }}
-                          />
-                          <Textarea
-                            placeholder="Why do they need a digital makeover?"
-                            value={businessStory}
-                            onChange={(e) => setBusinessStory(e.target.value)}
-                            size="md"
-                            bg="whiteAlpha.50"
-                            border="1px solid"
-                            borderColor="whiteAlpha.100"
-                            color="white"
-                            _placeholder={{ color: 'gray.600' }}
-                            _hover={{ borderColor: 'whiteAlpha.200' }}
-                            _focus={{ 
-                              borderColor: concept.color, 
-                              boxShadow: 'none',
-                              bg: 'whiteAlpha.100'
-                            }}
-                            minH="80px"
-                            resize="none"
-                          />
-                          <Input
-                            type="email"
-                            placeholder="Your email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            size="md"
-                            bg="whiteAlpha.50"
-                            border="1px solid"
-                            borderColor="whiteAlpha.100"
-                            color="white"
-                            _placeholder={{ color: 'gray.600' }}
-                            _hover={{ borderColor: 'whiteAlpha.200' }}
-                            _focus={{ 
-                              borderColor: concept.color, 
-                              boxShadow: 'none',
-                              bg: 'whiteAlpha.100'
-                            }}
-                          />
-                          <Button
-                            type="submit"
-                            width="100%"
-                            size="md"
-                            bg={concept.color}
-                            color="white"
-                            fontWeight="600"
-                            _hover={{
-                              bg: concept.color,
-                              transform: 'translateY(-2px)',
-                              boxShadow: `0 10px 20px ${concept.color}33`
-                            }}
-                            _active={{
-                              transform: 'translateY(0)'
-                            }}
-                          >
-                            Submit Nomination
-                          </Button>
-                        </VStack>
-                      </Box>
-
-                      <HStack spacing={2} fontSize="xs" color="gray.500">
-                        <FiAlertCircle size={12} />
-                        <Text>Community votes influence but don't guarantee selection</Text>
-                      </HStack>
-                    </VStack>
-                  </Box>
-                ) : (
-                  // Project Card
-                  <Box
-                    as="a"
-                    href={concept.link}
-                    display="block"
-                    position="relative"
-                    borderRadius="xl"
-                    bg="rgba(0,0,0,0.4)"
-                    backdropFilter="blur(10px)"
-                    border="2px solid"
-                    borderColor="whiteAlpha.100"
-                    cursor="pointer"
-                    role="group"
-                    height="100%"
-                    onMouseEnter={() => setActiveProject(concept.id)}
-                    onMouseLeave={() => setActiveProject(null)}
-                    _hover={{
-                      borderColor: `${concept.color}66`,
-                      transform: 'translateY(-4px)',
-                      boxShadow: `0 20px 40px rgba(0,0,0,0.3)`,
-                      bg: 'rgba(0,0,0,0.5)'
-                    }}
-                    transition="all 0.3s"
-                  >
-                    {/* Progress Indicator */}
-                    <Box position="absolute" top={0} left={0} right={0} p={6} pb={0}>
-                      <Progress 
-                        value={concept.progress} 
-                        size="xs"
-                        colorScheme="none"
-                        bg="whiteAlpha.100"
-                        borderRadius="full"
-                        sx={{
-                          '& > div': {
-                            background: concept.color,
-                            transition: 'all 0.3s'
-                          }
-                        }}
-                      />
+                <Box
+                  p={{ base: 5, md: 6 }}
+                  borderRadius="xl"
+                  bg="ui.backdrop"
+                  backdropFilter="blur(10px)"
+                  border="2px solid"
+                  borderColor={hoveredStat === index ? stat.color : 'ui.border'}
+                  position="relative"
+                  overflow="hidden"
+                  cursor="pointer"
+                  transition="all 0.3s ease"
+                  _hover={{
+                    transform: 'translateY(-4px)',
+                    boxShadow: '0 12px 24px rgba(0, 229, 229, 0.1)'
+                  }}
+                >
+                  <CodeRain active={hoveredStat === index} />
+                  
+                  <VStack spacing={2} position="relative" zIndex={1}>
+                    <Box 
+                      color={stat.color}
+                      fontSize="2xl"
+                      p={2}
+                      borderRadius="lg"
+                      bg="whiteAlpha.50"
+                      transition="all 0.3s"
+                    >
+                      <stat.icon />
                     </Box>
-
-                    {/* Content */}
-                    <Box p={8} pt={10}>
-                      {/* Header */}
-                      <HStack justify="space-between" mb={4}>
-                        <VStack align="start" spacing={1}>
-                          <HStack spacing={2}>
-                            <Box 
-                              p={2} 
-                              borderRadius="md" 
-                              bg={`${concept.color}22`}
-                              color={concept.color}
-                            >
-                              <concept.statusIcon size={16} />
-                            </Box>
-                            <Text color={concept.color} fontSize="xs" fontWeight="600" letterSpacing="wider">
-                              {concept.status.toUpperCase()}
-                            </Text>
-                          </HStack>
-                          <Heading as="h3" fontSize="2xl" color="white">
-                            {concept.title}
-                          </Heading>
-                          <Text color="gray.500" fontSize="sm">
-                            {concept.category}
-                          </Text>
-                        </VStack>
-                        <Box
-                          bg="whiteAlpha.100"
-                          px={3}
-                          py={1}
-                          borderRadius="full"
-                          opacity={0.8}
-                        >
-                          <Text fontSize="xs" color="gray.300" fontWeight="600" fontFamily="mono">
-                            {concept.progress}%
-                          </Text>
-                        </Box>
-                      </HStack>
-
-                      {/* Description */}
-                      <Text color="gray.300" fontSize="sm" mb={6} lineHeight="1.6">
-                        {concept.description}
-                      </Text>
-
-                      {/* Current vs Vision */}
-                      <Grid templateColumns="1fr 1fr" gap={4} mb={6}>
-                        <Box>
-                          <Text color="gray.600" fontSize="xs" mb={1} fontWeight="600" letterSpacing="wider">
-                            NOW
-                          </Text>
-                          <Text color="gray.400" fontSize="sm">
-                            {concept.current}
-                          </Text>
-                        </Box>
-                        <Box>
-                          <Text color={concept.color} fontSize="xs" mb={1} fontWeight="600" letterSpacing="wider" opacity={0.8}>
-                            SOON
-                          </Text>
-                          <Text color="gray.300" fontSize="sm">
-                            {concept.vision}
-                          </Text>
-                        </Box>
-                      </Grid>
-
-                      {/* Features */}
-                      <HStack spacing={3} wrap="wrap" mb={6}>
-                        {concept.features.map((feature, i) => (
-                          <Text
-                            key={i}
-                            fontSize="xs"
-                            color="gray.400"
-                            bg="whiteAlpha.100"
-                            px={3}
-                            py={1}
-                            borderRadius="full"
-                            border="1px solid"
-                            borderColor="whiteAlpha.100"
-                          >
-                            {feature}
-                          </Text>
-                        ))}
-                      </HStack>
-
-                      {/* CTA */}
-                      <HStack
-                        spacing={2}
-                        color={concept.color}
-                        fontSize="sm"
-                        fontWeight="600"
-                        opacity={0}
-                        transform="translateX(-10px)"
-                        _groupHover={{
-                          opacity: 1,
-                          transform: 'translateX(0)'
-                        }}
-                        transition="all 0.3s"
-                      >
-                        <Text>View Progress</Text>
-                        <FiArrowRight />
-                      </HStack>
-
-                      {/* Active Build Indicator */}
-                      {concept.progress > 0 && concept.progress < 100 && (
-                        <Box
-                          position="absolute"
-                          bottom={2}
-                          right={6}
-                          animation={`${subtlePulse} 2s infinite`}
-                        >
-                          <HStack spacing={1}>
-                            <Box w={2} h={2} borderRadius="full" bg={concept.color} />
-                            <Text fontSize="xs" color={concept.color} fontWeight="600">
-                              ACTIVE
-                            </Text>
-                          </HStack>
-                        </Box>
-                      )}
-                    </Box>
-                  </Box>
-                )}
+                    <Text 
+                      fontSize="2xl" 
+                      fontWeight="bold" 
+                      color={stat.color}
+                      fontFamily="mono"
+                      letterSpacing="tight"
+                    >
+                      {stat.value}
+                    </Text>
+                    <Text 
+                      fontSize="xs" 
+                      color="text.muted"
+                      fontFamily="body"
+                      textTransform="uppercase"
+                      letterSpacing="wider"
+                    >
+                      {stat.label}
+                    </Text>
+                  </VStack>
+                </Box>
               </MotionBox>
             ))}
           </Grid>
 
-          {/* Bottom Section */}
-          <Box
-            p={8}
-            borderRadius="xl"
-            bg="whiteAlpha.50"
-            backdropFilter="blur(10px)"
-            border="1px solid"
-            borderColor="whiteAlpha.100"
-            textAlign="center"
+          {/* Creative Process */}
+          <Box width="100%" maxW="1000px" mx="auto">
+            <VStack spacing={8}>
+              <Heading
+                fontSize={{ base: "xl", md: "2xl" }}
+                fontFamily="heading"
+                fontWeight="bold"
+                color="text.primary"
+                textAlign="center"
+                letterSpacing="tight"
+              >
+                The Neon Burro Process™
+              </Heading>
+              
+              <Grid
+                templateColumns={{ base: '1fr', md: 'repeat(4, 1fr)' }}
+                gap={{ base: 4, md: 5 }}
+                width="100%"
+                position="relative"
+              >
+                {/* Simplified connection line */}
+                <Box
+                  display={{ base: 'none', md: 'block' }}
+                  position="absolute"
+                  top="50%"
+                  left="15%"
+                  right="15%"
+                  height="1px"
+                  bg="brand.primaryAlpha.20"
+                  zIndex={0}
+                />
+                
+                {processSteps.map((step, index) => (
+                  <MotionBox
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                    position="relative"
+                    zIndex={1}
+                  >
+                    <VStack
+                      spacing={3}
+                      p={5}
+                      borderRadius="xl"
+                      bg="ui.backdrop"
+                      backdropFilter="blur(10px)"
+                      border="2px solid"
+                      borderColor="ui.border"
+                      height="100%"
+                      transition="all 0.3s"
+                      _hover={{
+                        borderColor: step.color,
+                        transform: 'translateY(-4px)',
+                        boxShadow: '0 8px 16px rgba(0, 229, 229, 0.1)'
+                      }}
+                    >
+                      <Text fontSize="2xl">{step.icon}</Text>
+                      <Text
+                        color={step.color}
+                        fontSize="xs"
+                        fontFamily="body"
+                        fontWeight="bold"
+                        letterSpacing="wider"
+                        textTransform="uppercase"
+                      >
+                        {step.phase}
+                      </Text>
+                      <Text
+                        color="text.secondary"
+                        fontSize="xs"
+                        fontFamily="body"
+                        textAlign="center"
+                        lineHeight="base"
+                      >
+                        {step.description}
+                      </Text>
+                    </VStack>
+                  </MotionBox>
+                ))}
+              </Grid>
+            </VStack>
+          </Box>
+
+          {/* Community Impact - Simplified */}
+          <MotionBox
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            width="100%"
             maxW="700px"
             mx="auto"
           >
-            <Heading fontSize="xl" color="white" mb={3}>
-              The Ridgway Digital Restoration Project
-            </Heading>
-            <Text color="gray.400" fontSize="sm" mb={6} lineHeight="1.6">
-              Every quarter, one local business gets a complete digital transformation. 
-              No catch. No invoice. Just our investment in the community.
-            </Text>
-            <HStack spacing={12} justify="center" fontSize="sm">
-              <VStack spacing={1}>
-                <Text color={neonColors.orange} fontSize="2xl" fontWeight="700" fontFamily="mono">40%</Text>
-                <Text color="gray.500" fontSize="xs">Community Voice</Text>
+            <Box
+              p={{ base: 8, md: 10 }}
+              borderRadius="2xl"
+              bg="ui.backdrop"
+              backdropFilter="blur(20px)"
+              border="2px solid"
+              borderColor="brand.primaryAlpha.30"
+              textAlign="center"
+              position="relative"
+              overflow="hidden"
+            >
+              <VStack spacing={6}>
+                <Box color="brand.primary" fontSize="2xl">
+                  <FiAward />
+                </Box>
+                
+                <VStack spacing={3}>
+                  <Heading 
+                    fontSize="xl"
+                    fontFamily="heading"
+                    fontWeight="bold"
+                    color="text.primary"
+                    letterSpacing="tight"
+                  >
+                    Ridgway Digital Initiative
+                  </Heading>
+                  <Text 
+                    color="text.secondary"
+                    fontFamily="body"
+                    fontSize="sm"
+                    maxW="500px" 
+                    lineHeight="relaxed"
+                  >
+                    Every quarter, we transform one local business's digital presence. 
+                    No strings attached. Just our way of giving back.
+                  </Text>
+                </VStack>
+                
+                <HStack spacing={8} justify="center">
+                  <VStack spacing={0}>
+                    <Text color="brand.primary" fontSize="2xl" fontWeight="bold" fontFamily="mono">
+                      4
+                    </Text>
+                    <Text color="text.muted" fontSize="2xs" fontFamily="body" textTransform="uppercase" letterSpacing="wider">
+                      Per Year
+                    </Text>
+                  </VStack>
+                  <VStack spacing={0}>
+                    <Text color="accent.warm" fontSize="2xl" fontWeight="bold" fontFamily="mono">
+                      $0
+                    </Text>
+                    <Text color="text.muted" fontSize="2xs" fontFamily="body" textTransform="uppercase" letterSpacing="wider">
+                      Cost
+                    </Text>
+                  </VStack>
+                  <VStack spacing={0}>
+                    <Text color="accent.neon" fontSize="2xl" fontWeight="bold" fontFamily="mono">
+                      ∞
+                    </Text>
+                    <Text color="text.muted" fontSize="2xs" fontFamily="body" textTransform="uppercase" letterSpacing="wider">
+                      Impact
+                    </Text>
+                  </VStack>
+                </HStack>
+                
+                <Button
+                  size="lg"
+                  px={8}
+                  py={6}
+                  fontSize="md"
+                  fontFamily="body"
+                  fontWeight="semibold"
+                  bg="brand.primary"
+                  color="text.inverse"
+                  borderRadius="full"
+                  _hover={{
+                    bg: 'brand.primaryDark',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 10px 30px rgba(0, 229, 229, 0.3)'
+                  }}
+                  _active={{
+                    transform: 'translateY(0)'
+                  }}
+                  transition="all 0.2s"
+                  onClick={() => navigate('/contact/')}
+                >
+                  NOMINATE A BUSINESS
+                </Button>
               </VStack>
-              <VStack spacing={1}>
-                <Text color={neonColors.cyan} fontSize="2xl" fontWeight="700" fontFamily="mono">30%</Text>
-                <Text color="gray.500" fontSize="xs">Business Need</Text>
-              </VStack>
-              <VStack spacing={1}>
-                <Text color={neonColors.purple} fontSize="2xl" fontWeight="700" fontFamily="mono">30%</Text>
-                <Text color="gray.500" fontSize="xs">Impact Potential</Text>
-              </VStack>
-            </HStack>
-          </Box>
+            </Box>
+          </MotionBox>
         </VStack>
       </Container>
     </Box>

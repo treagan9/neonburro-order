@@ -11,16 +11,6 @@ const TheCrew = () => {
   const isMobile = useBreakpointValue({ base: true, lg: false });
   const scrollContainerRef = useRef(null);
 
-  // Neon colors inspired by the logo - orange and cyan
-  const neonColors = {
-    orange: '#FF6B35',
-    cyan: '#00D9FF',
-    orangeLight: '#FFA366',
-    cyanLight: '#66E5FF',
-    orangeDark: '#CC4410',
-    cyanDark: '#0099CC'
-  };
-
   const crew = [
     {
       id: 'tyler',
@@ -37,14 +27,14 @@ const TheCrew = () => {
         'Slack Messages': '24/7'
       },
       bio: 'Creative dreamer who thought "what if we built this?" Lives for connecting dots others don\'t see.',
-      color: neonColors.cyan
+      color: 'brand.primary'
     },
     {
-      id: 'bryan',
+      id: 'collin',
       handle: 'ShadowFounder',
-      name: 'Bryan',
+      name: 'Collin',
       role: 'Co-Founder • Visionary',
-      image: '/images/profiles/bryan.png',
+      image: '/images/profiles/collin.png',
       obsessions: ['Infrastructure', 'Distributed Systems', 'The Next Build'],
       favoriteSpots: ['The Million Dollar Restaurant', 'Colorado Boy Pub'],
       fuel: 'Problem Solving',
@@ -54,7 +44,7 @@ const TheCrew = () => {
         'Time Zone': 'Yes'
       },
       bio: 'The architect who makes it real. Here, there, everywhere. If it scales, he built it.',
-      color: neonColors.orange
+      color: 'accent.warm'
     },
     {
       id: 'ted',
@@ -71,7 +61,7 @@ const TheCrew = () => {
         'Scope Creep': 'Managed'
       },
       bio: 'Keeps the train on the tracks. Makes sure ideas become features.',
-      color: neonColors.cyanLight
+      color: 'brand.primaryLight'
     },
     {
       id: 'jared',
@@ -88,7 +78,7 @@ const TheCrew = () => {
         'Cool Tools': 'Weekly'
       },
       bio: 'Scouts the tech landscape so you don\'t have to.',
-      color: neonColors.orangeLight
+      color: 'accent.neon'
     },
     {
       id: 'sarah',
@@ -105,7 +95,7 @@ const TheCrew = () => {
         'User Joy': 'The Goal'
       },
       bio: 'Makes interfaces feel like home. Believes good design is invisible.',
-      color: neonColors.cyan
+      color: 'brand.primary'
     },
     {
       id: 'maria',
@@ -122,7 +112,7 @@ const TheCrew = () => {
         'Yoga': 'Daily'
       },
       bio: 'Helps people find you online. Balances algorithms with authenticity.',
-      color: neonColors.orange
+      color: 'accent.warm'
     },
     {
       id: 'ken',
@@ -139,7 +129,7 @@ const TheCrew = () => {
         'Feedback': 'Constructive'
       },
       bio: 'Less is more, but better. Makes complex things feel simple.',
-      color: neonColors.cyanDark
+      color: 'brand.primaryDark'
     },
     {
       id: 'jake',
@@ -156,7 +146,7 @@ const TheCrew = () => {
         'Coffee Shops': 'All Local'
       },
       bio: 'Finds your brand\'s voice. Makes content people actually read.',
-      color: neonColors.orangeDark
+      color: 'accent.neon'
     },
     {
       id: 'marcus',
@@ -173,7 +163,7 @@ const TheCrew = () => {
         'Trail Miles': 'Weekend Goal'
       },
       bio: 'Makes the magic happen behind the scenes.',
-      color: neonColors.cyanLight
+      color: 'brand.primaryLight'
     },
     {
       id: 'phil',
@@ -190,7 +180,7 @@ const TheCrew = () => {
         'Wine IQ': 'Expanding'
       },
       bio: 'Automates the boring stuff. Makes workflows actually flow.',
-      color: neonColors.orangeLight
+      color: 'accent.warm'
     },
     {
       id: 'alex',
@@ -207,7 +197,7 @@ const TheCrew = () => {
         'Ideas': 'Visualized'
       },
       bio: 'Brings static to life. Tells stories in seconds.',
-      color: neonColors.cyan
+      color: 'brand.primary'
     },
     {
       id: 'nicole',
@@ -224,7 +214,7 @@ const TheCrew = () => {
         'Plants': 'Thriving'
       },
       bio: 'Keeps the lights on. Your infrastructure\'s guardian angel.',
-      color: neonColors.orange
+      color: 'accent.warm'
     }
   ];
 
@@ -237,13 +227,11 @@ const TheCrew = () => {
   const handleCardHover = (id, isHovering) => {
     if (!isMobile) {
       if (isHovering) {
-        // Add delay before flipping to prevent glitchy behavior
         const timeout = setTimeout(() => {
           setFlippedCards(prev => ({ ...prev, [id]: true }));
         }, 150);
         setHoverTimeout(prev => ({ ...prev, [id]: timeout }));
       } else {
-        // Clear timeout if user leaves before delay
         if (hoverTimeout[id]) {
           clearTimeout(hoverTimeout[id]);
           setHoverTimeout(prev => {
@@ -252,7 +240,6 @@ const TheCrew = () => {
             return newTimeouts;
           });
         }
-        // Add small delay before flipping back
         setTimeout(() => {
           setFlippedCards(prev => ({ ...prev, [id]: false }));
         }, 100);
@@ -260,13 +247,12 @@ const TheCrew = () => {
     }
   };
 
-  // Desktop grid or mobile scroll
   const isDesktop = useBreakpointValue({ base: false, lg: true });
 
   return (
     <Box 
       position="relative" 
-      py={{ base: 16, md: 24 }} 
+      py={{ base: 16, md: 20 }} 
       bg="dark.black"
       overflow="hidden"
     >
@@ -281,9 +267,10 @@ const TheCrew = () => {
               viewport={{ once: true }}
             >
               <Text 
-                color={neonColors.cyan}
-                fontSize="sm" 
-                fontWeight="600" 
+                color="brand.primary"
+                fontSize={{ base: "xs", md: "sm" }}
+                fontFamily="body"
+                fontWeight="semibold"
                 letterSpacing="wider"
                 textTransform="uppercase"
               >
@@ -299,10 +286,12 @@ const TheCrew = () => {
             >
               <Heading
                 as="h2"
-                fontSize={{ base: "3xl", md: "5xl" }}
+                fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
+                fontFamily="heading"
                 fontWeight="bold"
-                color="white"
-                lineHeight="1.2"
+                color="text.primary"
+                lineHeight="tight"
+                letterSpacing="tight"
               >
                 The Digital Outlaws
               </Heading>
@@ -315,8 +304,11 @@ const TheCrew = () => {
               viewport={{ once: true }}
             >
               <Text
-                fontSize={{ base: "md", md: "lg" }}
-                color="gray.400"
+                fontSize={{ base: "sm", md: "md", lg: "lg" }}
+                fontFamily="body"
+                fontWeight="normal"
+                color="text.secondary"
+                lineHeight="relaxed"
                 maxW="600px"
                 mx="auto"
               >
@@ -371,7 +363,7 @@ const TheCrew = () => {
                     borderRadius: '3px',
                   },
                   '&::-webkit-scrollbar-thumb': {
-                    background: `${neonColors.cyan}33`,
+                    background: 'rgba(0, 229, 229, 0.3)',
                     borderRadius: '3px',
                   },
                   scrollSnapType: 'x mandatory',
@@ -433,19 +425,19 @@ const CrewCard = ({ member, isFlipped, onCardClick, onCardHover, isMobile }) => 
         style={{ backfaceVisibility: 'hidden' }}
         borderRadius="xl"
         overflow="hidden"
-        bg="rgba(0,0,0,0.7)"
+        bg="ui.backdrop"
         backdropFilter="blur(10px)"
         border="2px solid"
-        borderColor="whiteAlpha.100"
+        borderColor="ui.border"
         _hover={{ 
           borderColor: member.color,
-          boxShadow: `0 0 20px ${member.color}33`
+          boxShadow: `0 0 20px rgba(0, 229, 229, 0.2)`
         }}
         transition="all 0.3s ease"
         willChange="transform"
       >
         <VStack height="100%" spacing={0}>
-          {/* Profile Image - Full height to show entire image */}
+          {/* Profile Image */}
           <Box
             width="100%"
             height="75%"
@@ -485,23 +477,26 @@ const CrewCard = ({ member, isFlipped, onCardClick, onCardHover, isMobile }) => 
               color={member.color}
               fontSize="xs"
               fontFamily="mono"
-              fontWeight="600"
-              textShadow={`0 0 10px ${member.color}`}
+              fontWeight="semibold"
+              textShadow={`0 0 10px rgba(0, 229, 229, 0.5)`}
             >
               @{member.handle}
             </Text>
             <Heading
               as="h3"
-              color="white"
+              color="text.primary"
               fontSize="xl"
-              fontWeight="600"
+              fontFamily="heading"
+              fontWeight="semibold"
+              letterSpacing="tight"
             >
               {member.name}
             </Heading>
             <Text
-              color="gray.400"
+              color="text.secondary"
               fontSize="xs"
-              fontWeight="500"
+              fontFamily="body"
+              fontWeight="medium"
             >
               {member.role}
             </Text>
@@ -522,14 +517,19 @@ const CrewCard = ({ member, isFlipped, onCardClick, onCardHover, isMobile }) => 
         bg="rgba(0,0,0,0.95)"
         border="2px solid"
         borderColor={member.color}
-        boxShadow={`0 0 30px ${member.color}44`}
+        boxShadow={`0 0 30px rgba(0, 229, 229, 0.3)`}
         p={6}
         overflow="auto"
       >
         <VStack align="start" spacing={4} height="100%">
           {/* Bio */}
           <Box>
-            <Text color="white" fontSize="sm" lineHeight="1.6">
+            <Text 
+              color="text.primary" 
+              fontSize="sm" 
+              fontFamily="body"
+              lineHeight="relaxed"
+            >
               {member.bio}
             </Text>
           </Box>
@@ -539,17 +539,19 @@ const CrewCard = ({ member, isFlipped, onCardClick, onCardHover, isMobile }) => 
             <Text 
               color={member.color} 
               fontSize="xs" 
-              fontWeight="600" 
+              fontFamily="body"
+              fontWeight="semibold"
+              letterSpacing="wider"
               mb={2}
-              textShadow={`0 0 10px ${member.color}`}
+              textShadow={`0 0 10px rgba(0, 229, 229, 0.5)`}
             >
               STATS
             </Text>
             <VStack align="start" spacing={1}>
               {Object.entries(member.stats).map(([key, value]) => (
                 <HStack key={key} width="100%" justify="space-between">
-                  <Text color="gray.500" fontSize="xs">{key}</Text>
-                  <Text color="gray.300" fontSize="xs" fontFamily="mono">{value}</Text>
+                  <Text color="text.muted" fontSize="xs" fontFamily="body">{key}</Text>
+                  <Text color="text.secondary" fontSize="xs" fontFamily="mono">{value}</Text>
                 </HStack>
               ))}
             </VStack>
@@ -560,9 +562,11 @@ const CrewCard = ({ member, isFlipped, onCardClick, onCardHover, isMobile }) => 
             <Text 
               color={member.color} 
               fontSize="xs" 
-              fontWeight="600" 
+              fontFamily="body"
+              fontWeight="semibold"
+              letterSpacing="wider"
               mb={2}
-              textShadow={`0 0 10px ${member.color}`}
+              textShadow={`0 0 10px rgba(0, 229, 229, 0.5)`}
             >
               CURRENTLY OBSESSED WITH
             </Text>
@@ -572,7 +576,8 @@ const CrewCard = ({ member, isFlipped, onCardClick, onCardHover, isMobile }) => 
                   key={i}
                   display="inline-block"
                   fontSize="xs"
-                  color="gray.300"
+                  fontFamily="body"
+                  color="text.secondary"
                   bg="whiteAlpha.100"
                   px={2}
                   py={1}
@@ -589,14 +594,14 @@ const CrewCard = ({ member, isFlipped, onCardClick, onCardHover, isMobile }) => 
           {/* Favorites */}
           <VStack align="start" spacing={2} mt="auto" width="100%">
             <HStack spacing={2}>
-              <FiMapPin size={14} color={member.color} />
-              <Text color="gray.400" fontSize="xs">
+              <FiMapPin size={14} color="#00E5E5" />
+              <Text color="text.secondary" fontSize="xs" fontFamily="body">
                 {member.favoriteSpots.join(', ')}
               </Text>
             </HStack>
             <HStack spacing={2}>
-              <FiCoffee size={14} color={member.color} />
-              <Text color="gray.400" fontSize="xs">{member.fuel}</Text>
+              <FiCoffee size={14} color="#00E5E5" />
+              <Text color="text.secondary" fontSize="xs" fontFamily="body">{member.fuel}</Text>
             </HStack>
           </VStack>
         </VStack>
