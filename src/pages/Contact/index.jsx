@@ -2,7 +2,6 @@ import { Box, Container } from '@chakra-ui/react';
 import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import Navigation from '../../components/navigation/Navigation';
-import Footer from '../../components/common/Footer';
 import ContactHero from './components/ContactHero';
 import FormProgress from './components/FormProgress';
 import StepAboutYou from './components/StepAboutYou';
@@ -148,8 +147,6 @@ const Contact = () => {
           />
         )}
       </Container>
-      
-      <Footer />
     </Box>
   );
 };
