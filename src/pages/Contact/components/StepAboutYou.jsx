@@ -1,37 +1,36 @@
 import { Box, VStack, Input, Select, Text, Button, FormControl, FormLabel, InputGroup, InputLeftElement, HStack } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { FiUser, FiMail, FiBriefcase, FiGlobe } from 'react-icons/fi';
 
 const MotionBox = motion(Box);
 
 const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched }) => {
-  const [suggestions, setSuggestions] = useState({});
-  
   const colors = {
     brand: { primary: '#00E5E5' }
   };
 
-  // Smart detection for domain-based company names
+  // Memoize handleChange to prevent infinite loops
+  const memoizedHandleChange = useCallback((field, value) => {
+    handleChange(field, value);
+  }, [handleChange]);
+
+  // Auto-detect location based on timezone (only run once)
   useEffect(() => {
-    if (formData.email && isFieldValid('email')) {
-      const domain = formData.email.split('@')[1];
-      if (domain && !domain.includes('gmail') && !domain.includes('yahoo') && !domain.includes('hotmail')) {
-        const companyName = domain.split('.')[0];
-        setSuggestions({
-          company: companyName.charAt(0).toUpperCase() + companyName.slice(1)
-        });
+    if (!formData.source) {
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (timezone.includes('Denver') || timezone.includes('Mountain')) {
+        memoizedHandleChange('source', 'local');
       }
     }
-  }, [formData.email, isFieldValid]);
+  }, []); // Empty dependency array - only run on mount
 
-  // Auto-detect location based on timezone
+  // Save email to localStorage when valid
   useEffect(() => {
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (timezone.includes('Denver') || timezone.includes('Mountain')) {
-      handleChange('source', 'local');
+    if (formData.email && isFieldValid('email')) {
+      localStorage.setItem('userEmail', formData.email);
     }
-  }, [handleChange]);
+  }, [formData.email, isFieldValid]);
 
   return (
     <MotionBox
@@ -57,7 +56,7 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
               <FiUser color={formData.name ? colors.brand.primary : 'gray'} />
             </InputLeftElement>
             <Input
-              value={formData.name}
+              value={formData.name || ''}
               onChange={(e) => handleChange('name', e.target.value)}
               placeholder="John Doe"
               bg="whiteAlpha.50"
@@ -75,24 +74,23 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
               autoComplete="name"
             />
           </InputGroup>
+          {touched.name && !isFieldValid('name') && (
+            <Text fontSize="xs" color="red.400" mt={1}>
+              Please enter at least 2 characters
+            </Text>
+          )}
         </FormControl>
 
         <FormControl isRequired isInvalid={touched.email && !isFieldValid('email')}>
           <FormLabel color="gray.300" fontSize="sm" fontWeight="600">Email Address</FormLabel>
           <InputGroup size="lg">
             <InputLeftElement pointerEvents="none">
-              <FiMail color={isFieldValid('email') ? colors.brand.primary : 'gray'} />
+              <FiMail color={formData.email && isFieldValid('email') ? colors.brand.primary : 'gray'} />
             </InputLeftElement>
             <Input
               type="email"
-              value={formData.email}
-              onChange={(e) => {
-                handleChange('email', e.target.value);
-                const emailValue = e.target.value;
-                if (emailValue && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
-                  localStorage.setItem('userEmail', emailValue);
-                }
-              }}
+              value={formData.email || ''}
+              onChange={(e) => handleChange('email', e.target.value)}
               placeholder="Your email here"
               bg="whiteAlpha.50"
               border="2px solid"
@@ -109,6 +107,11 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
               autoComplete="email"
             />
           </InputGroup>
+          {touched.email && !isFieldValid('email') && formData.email && (
+            <Text fontSize="xs" color="red.400" mt={1}>
+              Please enter a valid email address
+            </Text>
+          )}
           {touched.email && isFieldValid('email') && (
             <Text fontSize="xs" color={colors.brand.primary} mt={1}>
               ✓ Valid email format
@@ -127,7 +130,7 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
             <Input
               value={formData.company || ''}
               onChange={(e) => handleChange('company', e.target.value)}
-              placeholder={suggestions.company ? `${suggestions.company} (detected)` : "Awesome Company Inc."}
+              placeholder="Your Company Info"
               bg="whiteAlpha.50"
               border="2px solid"
               borderColor="whiteAlpha.200"
@@ -143,17 +146,6 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
               autoComplete="organization"
             />
           </InputGroup>
-          {suggestions.company && !formData.company && (
-            <Text 
-              fontSize="xs" 
-              color={colors.brand.primary} 
-              mt={1}
-              cursor="pointer"
-              onClick={() => handleChange('company', suggestions.company)}
-            >
-              Click to use: {suggestions.company}
-            </Text>
-          )}
         </FormControl>
 
         <FormControl>
@@ -164,7 +156,7 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
             </HStack>
           </FormLabel>
           <Select
-            value={formData.source}
+            value={formData.source || ''}
             onChange={(e) => handleChange('source', e.target.value)}
             placeholder="Select one..."
             size="lg"
@@ -190,7 +182,7 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
             <option value="referral">Friend/Referral</option>
             <option value="social">Social Media</option>
             <option value="local">Local Community</option>
-            <option value="burro-spotting">Saw a Neon Burro ��</option>
+            <option value="burro-spotting">Saw a Neon Burro 🦙</option>
             <option value="other">Other</option>
           </Select>
         </FormControl>
@@ -209,6 +201,7 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
           }}
           _active={{ transform: 'translateY(0)' }}
           mt={4}
+          borderRadius="full"
         >
           Continue →
         </Button>

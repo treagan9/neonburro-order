@@ -175,7 +175,7 @@ const ContactHero = () => {
               <Text color="gray.300" fontSize="sm">
                 Projects starting from{' '}
                 <Text as="span" color={colors.accent.neon} fontWeight="700">
-                  $999
+                  $399
                 </Text>
                 {' '}• Payment plans available
               </Text>

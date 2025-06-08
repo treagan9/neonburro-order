@@ -19,6 +19,19 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit }) => {
     setShowBestTime(values.includes('phone') || values.includes('video'));
   };
 
+  const toggleContactMethod = (method) => {
+    const currentMethods = formData.contactMethod || [];
+    let newMethods;
+    
+    if (currentMethods.includes(method)) {
+      newMethods = currentMethods.filter(m => m !== method);
+    } else {
+      newMethods = [...currentMethods, method];
+    }
+    
+    handleContactMethodChange(newMethods);
+  };
+
   const isStepValid = () => {
     const hasContactMethod = formData.contactMethod && formData.contactMethod.length > 0;
     const hasPhoneIfNeeded = !showPhoneField || formData.phone;
@@ -82,17 +95,30 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit }) => {
                   bg={(formData.contactMethod || []).includes(method.value) ? 'whiteAlpha.100' : 'whiteAlpha.50'}
                   cursor="pointer"
                   transition="all 0.2s"
-                  _hover={{ borderColor: colors.accent.purple, bg: 'whiteAlpha.100' }}
+                  onClick={() => toggleContactMethod(method.value)}
+                  _hover={{ 
+                    borderColor: colors.accent.purple, 
+                    bg: 'whiteAlpha.100',
+                    transform: 'translateY(-2px)'
+                  }}
+                  _active={{
+                    transform: 'translateY(0)'
+                  }}
                 >
-                  <Checkbox value={method.value} colorScheme="purple">
-                    <HStack spacing={3} ml={2}>
-                      <Text fontSize="xl">{method.icon}</Text>
-                      <VStack align="start" spacing={0}>
-                        <Text color="white" fontWeight="600">{method.label}</Text>
-                        <Text color="gray.400" fontSize="sm">{method.desc}</Text>
-                      </VStack>
-                    </HStack>
-                  </Checkbox>
+                  <HStack spacing={3}>
+                    <Checkbox 
+                      value={method.value} 
+                      colorScheme="purple"
+                      isChecked={(formData.contactMethod || []).includes(method.value)}
+                      onChange={() => {}} // Handled by parent Box onClick
+                      pointerEvents="none" // Prevent checkbox from intercepting clicks
+                    />
+                    <Text fontSize="xl">{method.icon}</Text>
+                    <VStack align="start" spacing={0} flex={1}>
+                      <Text color="white" fontWeight="600">{method.label}</Text>
+                      <Text color="gray.400" fontSize="sm">{method.desc}</Text>
+                    </VStack>
+                  </HStack>
                 </Box>
               ))}
             </Stack>
@@ -216,6 +242,7 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit }) => {
             onClick={onBack}
             _hover={{ bg: 'whiteAlpha.100' }}
             height="56px"
+            borderRadius="full"
           >
             ← Back
           </Button>
@@ -227,6 +254,7 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit }) => {
             isDisabled={!isStepValid()}
             fontWeight="600"
             height="56px"
+            borderRadius="full"
             _hover={{
               transform: 'translateY(-2px)',
               boxShadow: `0 10px 30px ${colors.accent.purple}66`

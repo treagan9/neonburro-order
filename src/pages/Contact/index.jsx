@@ -1,5 +1,5 @@
 import { Box, Container } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import Navigation from '../../components/navigation/Navigation';
 import ContactHero from './components/ContactHero';
@@ -31,6 +31,11 @@ const Contact = () => {
   const [touched, setTouched] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
 
+  // Scroll to top when step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentStep]);
+
   const handleChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
     setTouched({ ...touched, [field]: true });
@@ -52,12 +57,16 @@ const Contact = () => {
   const handleNext = () => {
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
+      // Scroll to top of page
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
+      // Scroll to top of page
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -74,6 +83,8 @@ const Contact = () => {
       // });
       
       setIsSubmitted(true);
+      // Scroll to top for success message
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
       console.error('Submission error:', error);
     }
