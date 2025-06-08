@@ -1,26 +1,37 @@
+// Services/index.jsx
 import { Box } from '@chakra-ui/react';
+import Navigation from '../../components/navigation/Navigation';
 import ServicesHero from './components/ServicesHero';
-import FoundationPackage from './components/FoundationPackage';
-import CarePackage from './components/CarePackage';
+import StarterPackages from './components/StarterPackages';
 import EnhancementMenu from './components/EnhancementMenu';
+import PowerUpHours from './components/PowerUpHours';
 import ProcessSection from './components/ProcessSection';
-import PriceCalculator from './components/PriceCalculator';
-import FAQSection from './components/FAQSection';
 import ServicesCTA from './components/ServicesCTA';
 
-const ServicesPage = () => {
+const Services = () => {
   return (
-    <Box bg="dark.black" minH="100vh">
+    <Box minH="100vh" bg="#0A0A0A">
+      <Navigation />
+      
+      {/* Hero Section */}
       <ServicesHero />
-      <FoundationPackage />
-      <CarePackage />
+      
+      {/* Starter Packages - The 3 tiers */}
+      <StarterPackages />
+      
+      {/* Enhancement Menu - Add-on features */}
       <EnhancementMenu />
+      
+      {/* Power Up Hours - Hour packages */}
+      <PowerUpHours />
+      
+      {/* Process Section - How we work */}
       <ProcessSection />
-      <PriceCalculator />
-      <FAQSection />
+      
+      {/* CTA Section - Final call to action */}
       <ServicesCTA />
     </Box>
   );
 };
 
-export default ServicesPage;
+export default Services;

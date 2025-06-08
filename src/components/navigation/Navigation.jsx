@@ -130,7 +130,7 @@ const Navigation = () => {
                 }}
                 transition="all 0.3s"
               >
-                Make a Payment
+                Fuel Up
               </Button>
             </HStack>
 
@@ -224,7 +224,7 @@ const Navigation = () => {
                   }}
                   transition="all 0.3s"
                 >
-                  Make a Payment
+                  Fuel Up
                 </Button>
                 
                 <Button
