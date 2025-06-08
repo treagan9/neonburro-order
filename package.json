@@ -19,6 +19,7 @@
     "@react-three/drei": "9.92.7",
     "@react-three/fiber": "8.15.12",
     "@react-three/postprocessing": "^3.0.4",
+    "canvas-confetti": "^1.9.3",
     "framer-motion": "10.16.16",
     "geist": "^1.4.2",
     "leva": "^0.10.0",

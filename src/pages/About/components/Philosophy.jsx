@@ -1,144 +1,206 @@
-import { Box, Container, Heading, Text, VStack, Grid, Tag } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, VStack, Grid, HStack } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
+import { FiZap, FiHeart, FiTrendingUp, FiUsers } from 'react-icons/fi';
 
 const MotionBox = motion(Box);
 
 const Philosophy = () => {
+  const colors = {
+    brand: { primary: '#00E5E5' },
+    accent: { neon: '#39FF14', warm: '#FF6B00' },
+    dark: { black: '#0A0A0A' }
+  };
+
   const values = [
     {
-      title: "Build in the Open",
-      description: "Share knowledge freely. Document everything. Your wins help everyone level up.",
-      gradient: "linear(to-br, neon.cyan, neon.blue)"
+      icon: FiZap,
+      title: 'Move Fast, Build Better',
+      description: 'Speed without sacrifice. We believe in rapid iteration with rock-solid foundations.',
+      color: colors.brand.primary
     },
     {
-      title: "Continuous Learning",
-      description: "Stay curious. Experiment boldly. The best developers never stop growing.",
-      gradient: "linear(to-br, neon.blue, matrix.500)"
+      icon: FiHeart,
+      title: 'Passion Over Process',
+      description: 'We hire for fire in the belly, not bullet points on a resume. Enthusiasm is contagious.',
+      color: colors.accent.warm
     },
     {
-      title: "Ownership Mindset",
-      description: "Take pride in your work. Every project gets the same care as if it were your own.",
-      gradient: "linear(to-br, matrix.500, mountain.400)"
+      icon: FiTrendingUp,
+      title: 'Always Be Learning',
+      description: 'The moment you think you know it all is the moment you start falling behind.',
+      color: colors.accent.neon
     },
     {
-      title: "Radical Transparency",
-      description: "Clear communication, honest timelines, no surprises. Trust is earned through openness.",
-      gradient: "linear(to-br, mountain.400, neon.pink)"
+      icon: FiUsers,
+      title: 'Collective Intelligence',
+      description: 'The best ideas come from unexpected collisions. We create space for creative chaos.',
+      color: colors.brand.primary
     }
   ];
 
   return (
-    <Box py={20} bg="dark.black">
-      <Container maxW="1200px">
-        <VStack spacing={12}>
-          <VStack spacing={4} textAlign="center" maxW="700px" mx="auto">
-            <Tag colorScheme="cyan" size="sm" fontWeight="600">
-              OUR PHILOSOPHY
-            </Tag>
-            <Heading
-              as="h2"
-              fontSize={{ base: "3xl", md: "4xl" }}
-              fontWeight="700"
-              color="white"
-              lineHeight="1.2"
+    <Box py={{ base: 16, md: 20 }} bg={colors.dark.black} position="relative" overflow="hidden">
+      {/* Background pattern */}
+      <Box
+        position="absolute"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        opacity={0.02}
+        backgroundImage={`
+          linear-gradient(${colors.brand.primary}22 1px, transparent 1px),
+          linear-gradient(90deg, ${colors.brand.primary}22 1px, transparent 1px)
+        `}
+        backgroundSize="50px 50px"
+      />
+
+      <Container maxW="1200px" px={{ base: 6, md: 8 }} position="relative">
+        <VStack spacing={{ base: 12, md: 16 }}>
+          {/* Header */}
+          <VStack spacing={4} textAlign="center" maxW="800px" mx="auto">
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
             >
-              The Burro Way
-            </Heading>
-            <Text color="gray.300" fontSize="lg">
-              These aren't just words on a wall. They're how we work, 
-              how we live, and how we build.
-            </Text>
+              <Text 
+                color={colors.brand.primary}
+                fontSize="sm" 
+                fontWeight="600" 
+                letterSpacing="0.1em"
+                textTransform="uppercase"
+              >
+                Our Philosophy
+              </Text>
+            </MotionBox>
+
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              viewport={{ once: true }}
+            >
+              <Heading
+                as="h2"
+                fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
+                fontFamily="'Geist Sans', 'Inter', sans-serif"
+                fontWeight="700"
+                color="white"
+                lineHeight="1.1"
+                letterSpacing="-0.02em"
+              >
+                The Burro Way
+              </Heading>
+            </MotionBox>
+
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
+              <Text
+                fontSize={{ base: "md", md: "lg" }}
+                color="gray.300"
+                maxW="600px"
+              >
+                Four principles that guide everything we do, from the code we write 
+                to the culture we build.
+              </Text>
+            </MotionBox>
           </VStack>
 
-          <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={6} width="100%">
-            {values.map((value, i) => (
+          {/* Values Grid */}
+          <Grid
+            templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
+            gap={{ base: 8, md: 10 }}
+            width="100%"
+          >
+            {values.map((value, index) => (
               <MotionBox
-                key={i}
+                key={value.title}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
               >
-                <Box
-                  p={8}
-                  borderRadius="xl"
-                  bg="whiteAlpha.50"
-                  backdropFilter="blur(10px)"
-                  border="2px solid"
-                  borderColor="whiteAlpha.100"
-                  position="relative"
-                  overflow="hidden"
-                  _hover={{
-                    borderColor: 'neon.cyan',
-                    transform: 'translateY(-4px)'
-                  }}
-                  transition="all 0.3s"
-                  height="100%"
-                >
-                  {/* Gradient accent */}
+                <HStack spacing={6} align="start">
                   <Box
-                    position="absolute"
-                    top={0}
-                    left={0}
-                    right={0}
-                    height="3px"
-                    bgGradient={value.gradient}
-                  />
-                  
+                    p={4}
+                    borderRadius="full"
+                    bg={`${value.color}11`}
+                    border="2px solid"
+                    borderColor={value.color}
+                    flexShrink={0}
+                  >
+                    <Box
+                      as={value.icon}
+                      size={32}
+                      color={value.color}
+                    />
+                  </Box>
                   <VStack align="start" spacing={3}>
-                    <Heading as="h3" size="md" color="white" fontWeight="600">
+                    <Heading
+                      as="h3"
+                      fontSize="xl"
+                      color="white"
+                      fontWeight="600"
+                    >
                       {value.title}
                     </Heading>
-                    <Text color="gray.300" lineHeight="1.7">
+                    <Text
+                      color="gray.400"
+                      fontSize="md"
+                      lineHeight="1.6"
+                    >
                       {value.description}
                     </Text>
                   </VStack>
-                </Box>
+                </HStack>
               </MotionBox>
             ))}
           </Grid>
 
-          {/* Mission Statement */}
-          <Box
-            mt={12}
-            p={12}
-            borderRadius="2xl"
-            bgGradient="linear(to-br, whiteAlpha.100, whiteAlpha.50)"
-            backdropFilter="blur(10px)"
-            border="2px solid"
-            borderColor="neon.cyan"
-            position="relative"
-            overflow="hidden"
-            maxW="900px"
-            mx="auto"
+          {/* Quote */}
+          <MotionBox
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            width="100%"
+            textAlign="center"
+            pt={8}
           >
             <Box
-              position="absolute"
-              top="50%"
-              left="50%"
-              transform="translate(-50%, -50%)"
-              width="300px"
-              height="300px"
-              bg="neon.cyan"
-              filter="blur(150px)"
-              opacity={0.1}
-            />
-            
-            <VStack spacing={6} position="relative" zIndex={1}>
-              <Heading as="h3" size="lg" color="white" textAlign="center">
-                Our Mission
-              </Heading>
-              <Text color="gray.300" fontSize="lg" lineHeight="1.8" textAlign="center">
-                To build a sustainable model for technology careers that values people 
-                as much as products. We're creating a space where developers can do their 
-                best work while living their best lives—proving that balance and excellence 
-                aren't mutually exclusive.
+              p={8}
+              borderRadius="xl"
+              bg="rgba(255,255,255,0.02)"
+              backdropFilter="blur(10px)"
+              border="2px solid"
+              borderColor={colors.accent.neon + '44'}
+              maxW="800px"
+              mx="auto"
+            >
+              <Text
+                fontSize="xl"
+                color="white"
+                fontStyle="italic"
+                mb={4}
+              >
+                "We're not building a company. We're building a movement of digital 
+                craftspeople who give a damn."
               </Text>
-              <Text color="neon.cyan" fontWeight="600" fontSize="xl" textAlign="center">
-                Code with purpose. Live with intention.
+              <Text
+                color={colors.accent.neon}
+                fontSize="sm"
+                fontWeight="600"
+              >
+                - Tyler, Founder
               </Text>
-            </VStack>
-          </Box>
+            </Box>
+          </MotionBox>
         </VStack>
       </Container>
     </Box>

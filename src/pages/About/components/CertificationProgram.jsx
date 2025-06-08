@@ -1,177 +1,217 @@
-import { Box, Container, Heading, Text, VStack, HStack, Grid, Tag, Button, Divider } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, VStack, HStack, Grid, Button, Badge } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { FiZap, FiArrowRight, FiCalendar, FiMapPin, FiUsers, FiBook } from 'react-icons/fi';
+import { FiAward, FiCode, FiUsers, FiTrendingUp, FiArrowRight } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 
 const MotionBox = motion(Box);
 
 const CertificationProgram = () => {
+  const navigate = useNavigate();
+  
+  const colors = {
+    brand: { primary: '#00E5E5' },
+    accent: { neon: '#39FF14', warm: '#FF6B00' },
+    dark: { black: '#0A0A0A' }
+  };
+
+  const benefits = [
+    {
+      icon: FiCode,
+      title: 'Real Project Experience',
+      description: 'Work on live client projects in development and staging environments',
+      color: colors.brand.primary
+    },
+    {
+      icon: FiUsers,
+      title: 'Mentorship & Collaboration',
+      description: 'Learn directly from our core team in a hands-on, collaborative setting',
+      color: colors.accent.neon
+    },
+    {
+      icon: FiTrendingUp,
+      title: 'Skill Acceleration',
+      description: 'Level up your coding skills with cutting-edge tech and best practices',
+      color: colors.accent.warm
+    },
+    {
+      icon: FiAward,
+      title: 'Burro Certification',
+      description: 'Earn your official "Visiting Burro" certification and join our network',
+      color: colors.brand.primary
+    }
+  ];
+
   return (
-    <Box py={20} bg="dark.900">
-      <Container maxW="1200px">
-        <MotionBox
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          width="100%"
-        >
-          <Box
-            p={12}
-            borderRadius="2xl"
-            bgGradient="linear(to-br, whiteAlpha.100, whiteAlpha.50)"
-            backdropFilter="blur(10px)"
-            border="1px solid"
-            borderColor="whiteAlpha.200"
-            position="relative"
-            overflow="hidden"
-          >
-            {/* Accent line */}
-            <Box
-              position="absolute"
-              top={0}
-              left={0}
-              right={0}
-              height="4px"
-              bgGradient="linear(to-r, neon.cyan, neon.blue, neon.pink)"
-            />
+    <Box py={{ base: 16, md: 20 }} bg={colors.dark.black} position="relative" overflow="hidden">
+      {/* Background gradient */}
+      <Box
+        position="absolute"
+        top="50%"
+        left="50%"
+        transform="translate(-50%, -50%)"
+        width="150%"
+        height="150%"
+        opacity={0.03}
+        bgGradient={`radial(circle at center, ${colors.accent.neon} 0%, transparent 60%)`}
+        pointerEvents="none"
+      />
 
-            <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={12} alignItems="center">
-              <VStack align="flex-start" spacing={6}>
-                <HStack>
-                  <FiZap color="#00FFFF" size={24} />
-                  <Tag colorScheme="cyan" size="sm" fontWeight="600">
-                    BURRO BOOTCAMP
-                  </Tag>
-                </HStack>
-                <Heading
-                  as="h2"
-                  fontSize={{ base: "2xl", md: "3xl" }}
-                  fontWeight="700"
-                  color="white"
-                  lineHeight="1.2"
-                >
-                  Become a Certified Burro
-                </Heading>
-                <Text color="gray.300" fontSize="lg" lineHeight="1.8">
-                  Join our 3-month residency program. Live in Ridgway, work on real 
-                  client projects, and graduate with a portfolio that actually matters.
-                </Text>
-                
-                <VStack align="flex-start" spacing={3}>
-                  {[
-                    "Free housing in our mountain domes",
-                    "Mentorship from senior developers",
-                    "Real client work experience",
-                    "Neon Burro certification",
-                    "Job placement assistance"
-                  ].map((benefit, i) => (
-                    <HStack key={i} spacing={3}>
-                      <Box
-                        w={2}
-                        h={2}
-                        borderRadius="full"
-                        bg="neon.cyan"
-                      />
-                      <Text color="gray.300">{benefit}</Text>
-                    </HStack>
-                  ))}
-                </VStack>
-                
-                <Button
-                  size="lg"
-                  rightIcon={<FiArrowRight />}
-                  variant="outline"
-                  borderColor="neon.cyan"
-                  color="neon.cyan"
-                  _hover={{
-                    bg: 'neon.cyan',
-                    color: 'dark.black'
-                  }}
-                  fontWeight="600"
-                >
-                  Apply for Next Cohort
-                </Button>
-              </VStack>
-
-              <Box
-                p={8}
-                borderRadius="xl"
-                bg="dark.black"
-                border="1px solid"
-                borderColor="whiteAlpha.200"
+      <Container maxW="1200px" px={{ base: 6, md: 8 }} position="relative">
+        <VStack spacing={{ base: 12, md: 16 }}>
+          {/* Header */}
+          <VStack spacing={4} textAlign="center" maxW="800px" mx="auto">
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <Badge
+                bg={colors.accent.neon}
+                color={colors.dark.black}
+                px={3}
+                py={1}
+                borderRadius="full"
+                fontSize="xs"
+                fontWeight="600"
+                textTransform="uppercase"
               >
-                <VStack spacing={4}>
-                  <Text color="neon.cyan" fontWeight="600" fontSize="sm">
-                    NEXT COHORT STARTS
-                  </Text>
-                  <Heading as="h3" size="xl" color="white">
-                    June 2025
-                  </Heading>
-                  <Text color="gray.400" textAlign="center">
-                    Applications open March 1st
-                  </Text>
-                  <Divider borderColor="whiteAlpha.200" my={4} />
-                  <VStack spacing={2} align="stretch" width="100%">
-                    <HStack justify="space-between">
-                      <Text color="gray.400">Duration:</Text>
-                      <Text color="white" fontWeight="600">3 Months</Text>
-                    </HStack>
-                    <HStack justify="space-between">
-                      <Text color="gray.400">Location:</Text>
-                      <Text color="white" fontWeight="600">Ridgway, CO</Text>
-                    </HStack>
-                    <HStack justify="space-between">
-                      <Text color="gray.400">Cost:</Text>
-                      <Text color="neon.cyan" fontWeight="600">Free</Text>
-                    </HStack>
-                    <HStack justify="space-between">
-                      <Text color="gray.400">Spots:</Text>
-                      <Text color="white" fontWeight="600">12 Available</Text>
-                    </HStack>
-                  </VStack>
-                </VStack>
-              </Box>
-            </Grid>
+                Now Accepting Applications
+              </Badge>
+            </MotionBox>
 
-            {/* Program Structure */}
-            <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={6} mt={12}>
-              {[
-                {
-                  icon: FiCalendar,
-                  title: "Month 1: Foundation",
-                  description: "Learn our stack, contribute to internal tools, pair program with seniors"
-                },
-                {
-                  icon: FiBook,
-                  title: "Month 2: Client Work",
-                  description: "Work on real client projects, attend meetings, ship production code"
-                },
-                {
-                  icon: FiUsers,
-                  title: "Month 3: Leadership",
-                  description: "Lead a project, mentor newcomers, prepare for job placement"
-                }
-              ].map((phase, i) => (
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              viewport={{ once: true }}
+            >
+              <Heading
+                as="h2"
+                fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
+                fontFamily="'Geist Sans', 'Inter', sans-serif"
+                fontWeight="700"
+                color="white"
+                lineHeight="1.1"
+                letterSpacing="-0.02em"
+              >
+                Become a Visiting Burro
+              </Heading>
+            </MotionBox>
+
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
+              <Text
+                fontSize={{ base: "md", md: "lg" }}
+                color="gray.300"
+                maxW="700px"
+              >
+                Join our adventure retreat for talented developers. Work on real projects, 
+                learn from the best, and experience the perfect blend of coding and Colorado living.
+              </Text>
+            </MotionBox>
+          </VStack>
+
+          {/* Benefits Grid */}
+          <Grid
+            templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
+            gap={{ base: 6, md: 8 }}
+            width="100%"
+          >
+            {benefits.map((benefit, index) => (
+              <MotionBox
+                key={benefit.title}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+              >
                 <Box
-                  key={i}
-                  p={6}
-                  borderRadius="lg"
-                  bg="whiteAlpha.50"
-                  border="1px solid"
+                  p={8}
+                  borderRadius="xl"
+                  bg="rgba(255,255,255,0.02)"
+                  backdropFilter="blur(10px)"
+                  border="2px solid"
                   borderColor="whiteAlpha.100"
+                  height="100%"
+                  _hover={{
+                    borderColor: benefit.color,
+                    boxShadow: `0 20px 40px ${benefit.color}22`
+                  }}
+                  transition="all 0.3s"
                 >
-                  <phase.icon size={24} color="#00FFFF" />
-                  <Heading as="h4" size="sm" color="white" mt={3} mb={2}>
-                    {phase.title}
-                  </Heading>
-                  <Text color="gray.300" fontSize="sm" lineHeight="1.6">
-                    {phase.description}
-                  </Text>
+                  <HStack spacing={4} align="start">
+                    <Box
+                      p={3}
+                      borderRadius="lg"
+                      bg={`${benefit.color}22`}
+                      color={benefit.color}
+                      flexShrink={0}
+                    >
+                      <benefit.icon size={24} />
+                    </Box>
+                    <VStack align="start" spacing={2}>
+                      <Heading
+                        as="h3"
+                        fontSize="xl"
+                        color="white"
+                        fontWeight="600"
+                      >
+                        {benefit.title}
+                      </Heading>
+                      <Text
+                        color="gray.400"
+                        fontSize="sm"
+                        lineHeight="1.6"
+                      >
+                        {benefit.description}
+                      </Text>
+                    </VStack>
+                  </HStack>
                 </Box>
-              ))}
-            </Grid>
-          </Box>
-        </MotionBox>
+              </MotionBox>
+            ))}
+          </Grid>
+
+          {/* CTA */}
+          <MotionBox
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            textAlign="center"
+          >
+            <VStack spacing={4}>
+              <Text color="gray.300" fontSize="lg">
+                Ready to level up your skills in paradise?
+              </Text>
+              <Button
+                size="lg"
+                px={10}
+                py={7}
+                bg={colors.accent.neon}
+                color={colors.dark.black}
+                fontSize="md"
+                fontWeight="600"
+                borderRadius="full"
+                rightIcon={<FiArrowRight />}
+                onClick={() => navigate('/contact')}
+                _hover={{
+                  bg: colors.accent.neon,
+                  transform: 'scale(1.05)',
+                  boxShadow: `0 20px 40px ${colors.accent.neon}44`
+                }}
+                transition="all 0.3s"
+              >
+                Apply to Visit
+              </Button>
+            </VStack>
+          </MotionBox>
+        </VStack>
       </Container>
     </Box>
   );

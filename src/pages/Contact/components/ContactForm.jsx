@@ -1,26 +1,36 @@
-import { Box, VStack, Input, Select, Textarea, Button, HStack, FormControl, FormLabel, RadioGroup, Radio, Stack, Text, Checkbox, CheckboxGroup, InputGroup, InputLeftElement, keyframes } from '@chakra-ui/react';
+import { Box, VStack, Input, Select, Textarea, Button, HStack, FormControl, FormLabel, RadioGroup, Radio, Stack, Text, Checkbox, CheckboxGroup, InputGroup, InputLeftElement, keyframes, FormErrorMessage } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { FiUser, FiMail, FiBriefcase, FiDollarSign, FiClock, FiPhone, FiMessageSquare } from 'react-icons/fi';
+import { FiUser, FiMail, FiBriefcase, FiDollarSign, FiClock, FiPhone, FiMessageSquare, FiTarget, FiCalendar } from 'react-icons/fi';
 
 const MotionBox = motion(Box);
 
 // Pulse animation for required fields
 const pulseAnimation = keyframes`
-  0% { box-shadow: 0 0 0 0 rgba(0, 217, 255, 0.4); }
-  70% { box-shadow: 0 0 0 6px rgba(0, 217, 255, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(0, 217, 255, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(0, 229, 229, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(0, 229, 229, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 229, 229, 0); }
 `;
 
 const ContactForm = ({ currentStep, formData, setFormData, onNext, onBack, onSubmit }) => {
   const [showPhoneField, setShowPhoneField] = useState(false);
   const [showBestTime, setShowBestTime] = useState(false);
   const [touched, setTouched] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const neonColors = {
-    cyan: '#00D9FF',
-    orange: '#FF6B35',
-    purple: '#8B5CF6'
+  // Theme colors
+  const colors = {
+    brand: {
+      primary: '#00E5E5',
+    },
+    accent: {
+      neon: '#39FF14',
+      warm: '#FF6B00',
+      purple: '#8B5CF6'
+    },
+    dark: {
+      black: '#0A0A0A',
+    }
   };
 
   const handleChange = (field, value) => {
@@ -71,38 +81,48 @@ const ContactForm = ({ currentStep, formData, setFormData, onNext, onBack, onSub
     }
   };
 
+  const handleSubmitForm = async () => {
+    setIsSubmitting(true);
+    await onSubmit();
+    setIsSubmitting(false);
+  };
+
   const projectTypes = [
     { value: 'new-website', label: 'Brand New Website', icon: '🌟' },
     { value: 'redesign', label: 'Website Redesign', icon: '✨' },
     { value: 'ecommerce', label: 'E-commerce Store', icon: '🛒' },
-    { value: 'inventory-system', label: 'Inventory & Operations', icon: '📊' },
     { value: 'web-app', label: 'Custom Web Application', icon: '⚡' },
     { value: 'content-seo', label: 'Content & SEO Strategy', icon: '📈' },
-    { value: 'digital-marketing', label: 'Digital Marketing', icon: '🎯' },
-    { value: 'media-production', label: 'Video & Photo Production', icon: '🎬' },
     { value: 'brand-identity', label: 'Complete Brand Identity', icon: '🎨' },
-    { value: 'consulting', label: 'Strategy Consulting', icon: '🧠' },
     { value: 'other', label: 'Something Else Amazing', icon: '🚀' }
   ];
 
   const budgetRanges = [
-    { value: '1-5k', label: '$1,000 - $5,000', desc: 'Perfect for getting started' },
-    { value: '5-10k', label: '$5,000 - $10,000', desc: 'Professional solutions' },
-    { value: '10-25k', label: '$10,000 - $25,000', desc: 'Comprehensive projects' },
-    { value: '25-50k', label: '$25,000 - $50,000', desc: 'Enterprise-level builds' },
-    { value: '50k+', label: '$50,000+', desc: 'Sky\'s the limit' },
-    { value: 'flexible', label: 'Let\'s discuss', desc: 'Budget is flexible' }
+    { value: 'under-5k', label: 'Under $5,000', desc: 'Perfect for starting out' },
+    { value: '5-15k', label: '$5,000 - $15,000', desc: 'Professional solutions' },
+    { value: '15-50k', label: '$15,000 - $50,000', desc: 'Comprehensive projects' },
+    { value: '50k+', label: '$50,000+', desc: 'Enterprise solutions' },
+    { value: 'flexible', label: 'Let\'s discuss', desc: 'Open to options' }
   ];
+
+  const getStepColor = () => {
+    switch (currentStep) {
+      case 1: return colors.brand.primary;
+      case 2: return colors.accent.warm;
+      case 3: return colors.accent.purple;
+      default: return colors.brand.primary;
+    }
+  };
 
   return (
     <Box
-      bg="rgba(0,0,0,0.6)"
+      bg="rgba(0,0,0,0.4)"
       backdropFilter="blur(20px)"
       border="2px solid"
-      borderColor="whiteAlpha.100"
+      borderColor={`${getStepColor()}22`}
       borderRadius="2xl"
       p={{ base: 6, md: 10 }}
-      boxShadow="0 20px 40px rgba(0,0,0,0.4)"
+      boxShadow={`0 20px 40px rgba(0,0,0,0.4), 0 0 60px ${getStepColor()}11`}
       position="relative"
       overflow="hidden"
     >
@@ -113,11 +133,7 @@ const ContactForm = ({ currentStep, formData, setFormData, onNext, onBack, onSub
         left="-50%"
         width="200%"
         height="200%"
-        bg={`radial-gradient(circle, ${
-          currentStep === 1 ? neonColors.cyan : 
-          currentStep === 2 ? neonColors.orange : 
-          neonColors.purple
-        }11 0%, transparent 70%)`}
+        bg={`radial-gradient(circle, ${getStepColor()}08 0%, transparent 70%)`}
         pointerEvents="none"
       />
 
@@ -134,19 +150,24 @@ const ContactForm = ({ currentStep, formData, setFormData, onNext, onBack, onSub
           >
             <VStack spacing={6} align="stretch">
               <VStack align="start" spacing={2}>
-                <Text fontSize="3xl" fontWeight="bold" color="white">
-                  Hello there! 👋
-                </Text>
-                <Text color="gray.400" fontSize="lg">
-                  Let's start with the basics
+                <HStack spacing={2}>
+                  <FiUser size={24} color={colors.brand.primary} />
+                  <Text fontSize="2xl" fontWeight="bold" color="white">
+                    Let's get acquainted
+                  </Text>
+                </HStack>
+                <Text color="gray.400">
+                  First things first - who are we talking to?
                 </Text>
               </VStack>
 
               <FormControl isRequired isInvalid={touched.name && !isFieldValid('name')}>
-                <FormLabel color="gray.300" fontSize="sm" fontWeight="600">Your Name</FormLabel>
+                <FormLabel color="gray.300" fontSize="sm" fontWeight="600">
+                  Your Name
+                </FormLabel>
                 <InputGroup size="lg">
                   <InputLeftElement pointerEvents="none">
-                    <FiUser color={formData.name ? neonColors.cyan : 'gray'} />
+                    <FiUser color={formData.name ? colors.brand.primary : 'gray'} />
                   </InputLeftElement>
                   <Input
                     value={formData.name}
@@ -159,20 +180,25 @@ const ContactForm = ({ currentStep, formData, setFormData, onNext, onBack, onSub
                     _placeholder={{ color: 'gray.500' }}
                     _hover={{ borderColor: 'whiteAlpha.300', bg: 'whiteAlpha.100' }}
                     _focus={{ 
-                      borderColor: neonColors.cyan, 
-                      boxShadow: `0 0 0 1px ${neonColors.cyan}`,
+                      borderColor: colors.brand.primary, 
+                      boxShadow: `0 0 0 1px ${colors.brand.primary}`,
                       bg: 'whiteAlpha.100'
                     }}
                     pl="3rem"
                   />
                 </InputGroup>
+                {touched.name && !isFieldValid('name') && (
+                  <FormErrorMessage>Please enter your name</FormErrorMessage>
+                )}
               </FormControl>
 
               <FormControl isRequired isInvalid={touched.email && !isFieldValid('email')}>
-                <FormLabel color="gray.300" fontSize="sm" fontWeight="600">Email Address</FormLabel>
+                <FormLabel color="gray.300" fontSize="sm" fontWeight="600">
+                  Email Address
+                </FormLabel>
                 <InputGroup size="lg">
                   <InputLeftElement pointerEvents="none">
-                    <FiMail color={isFieldValid('email') ? neonColors.cyan : 'gray'} />
+                    <FiMail color={isFieldValid('email') ? colors.brand.primary : 'gray'} />
                   </InputLeftElement>
                   <Input
                     type="email"
@@ -191,27 +217,25 @@ const ContactForm = ({ currentStep, formData, setFormData, onNext, onBack, onSub
                     _placeholder={{ color: 'gray.500' }}
                     _hover={{ borderColor: 'whiteAlpha.300', bg: 'whiteAlpha.100' }}
                     _focus={{ 
-                      borderColor: neonColors.cyan, 
-                      boxShadow: `0 0 0 1px ${neonColors.cyan}`,
+                      borderColor: colors.brand.primary, 
+                      boxShadow: `0 0 0 1px ${colors.brand.primary}`,
                       bg: 'whiteAlpha.100'
                     }}
                     pl="3rem"
                   />
                 </InputGroup>
-                {isFieldValid('email') && (
-                  <Text fontSize="xs" color={neonColors.cyan} mt={1}>
-                    ✓ Valid email format
-                  </Text>
+                {touched.email && !isFieldValid('email') && (
+                  <FormErrorMessage>Please enter a valid email</FormErrorMessage>
                 )}
               </FormControl>
 
               <FormControl>
                 <FormLabel color="gray.300" fontSize="sm" fontWeight="600">
-                  Company <Text as="span" color="gray.500">(Optional)</Text>
+                  Company <Text as="span" color="gray.500" fontSize="xs">(Optional)</Text>
                 </FormLabel>
                 <InputGroup size="lg">
                   <InputLeftElement pointerEvents="none">
-                    <FiBriefcase color={formData.company ? neonColors.cyan : 'gray'} />
+                    <FiBriefcase color={formData.company ? colors.brand.primary : 'gray'} />
                   </InputLeftElement>
                   <Input
                     value={formData.company}
@@ -224,8 +248,8 @@ const ContactForm = ({ currentStep, formData, setFormData, onNext, onBack, onSub
                     _placeholder={{ color: 'gray.500' }}
                     _hover={{ borderColor: 'whiteAlpha.300', bg: 'whiteAlpha.100' }}
                     _focus={{ 
-                      borderColor: neonColors.cyan, 
-                      boxShadow: `0 0 0 1px ${neonColors.cyan}`,
+                      borderColor: colors.brand.primary, 
+                      boxShadow: `0 0 0 1px ${colors.brand.primary}`,
                       bg: 'whiteAlpha.100'
                     }}
                     pl="3rem"
@@ -233,52 +257,19 @@ const ContactForm = ({ currentStep, formData, setFormData, onNext, onBack, onSub
                 </InputGroup>
               </FormControl>
 
-              <FormControl>
-                <FormLabel color="gray.300" fontSize="sm" fontWeight="600">How did you find us?</FormLabel>
-                <Select
-                  value={formData.source}
-                  onChange={(e) => handleChange('source', e.target.value)}
-                  placeholder="Select one..."
-                  size="lg"
-                  bg="whiteAlpha.50"
-                  border="2px solid"
-                  borderColor="whiteAlpha.200"
-                  color={formData.source ? 'white' : 'gray.500'}
-                  _hover={{ borderColor: 'whiteAlpha.300', bg: 'whiteAlpha.100' }}
-                  _focus={{ 
-                    borderColor: neonColors.cyan, 
-                    boxShadow: `0 0 0 1px ${neonColors.cyan}`,
-                    bg: 'whiteAlpha.100'
-                  }}
-                  sx={{
-                    option: {
-                      bg: 'gray.900',
-                      color: 'white',
-                      _hover: { bg: 'gray.800' }
-                    }
-                  }}
-                >
-                  <option value="google">Google Search</option>
-                  <option value="referral">Friend/Referral</option>
-                  <option value="social">Social Media</option>
-                  <option value="local">Local Community</option>
-                  <option value="burro-spotting">Saw a Neon Burro 🦙</option>
-                  <option value="other">Other</option>
-                </Select>
-              </FormControl>
-
               <Button
                 size="lg"
-                bg={neonColors.cyan}
+                bg={colors.brand.primary}
                 color="black"
                 onClick={onNext}
                 isDisabled={!isStepValid()}
                 fontWeight="600"
                 height="56px"
+                borderRadius="full"
                 animation={isStepValid() ? `${pulseAnimation} 2s infinite` : 'none'}
                 _hover={{
                   transform: 'translateY(-2px)',
-                  boxShadow: `0 10px 30px ${neonColors.cyan}66`
+                  boxShadow: `0 10px 30px ${colors.brand.primary}66`
                 }}
                 _active={{ transform: 'translateY(0)' }}
                 _disabled={{ 
@@ -305,20 +296,25 @@ const ContactForm = ({ currentStep, formData, setFormData, onNext, onBack, onSub
           >
             <VStack spacing={6} align="stretch">
               <VStack align="start" spacing={2}>
-                <Text fontSize="3xl" fontWeight="bold" color="white">
-                  Your Vision 🎯
-                </Text>
-                <Text color="gray.400" fontSize="lg">
-                  Tell us what you're building
+                <HStack spacing={2}>
+                  <FiTarget size={24} color={colors.accent.warm} />
+                  <Text fontSize="2xl" fontWeight="bold" color="white">
+                    About Your Project
+                  </Text>
+                </HStack>
+                <Text color="gray.400">
+                  Help us understand your vision and goals
                 </Text>
               </VStack>
 
               <FormControl isRequired>
-                <FormLabel color="gray.300" fontSize="sm" fontWeight="600">Project Type</FormLabel>
+                <FormLabel color="gray.300" fontSize="sm" fontWeight="600">
+                  What are we building?
+                </FormLabel>
                 <Select
                   value={formData.projectType}
                   onChange={(e) => handleChange('projectType', e.target.value)}
-                  placeholder="What are we creating?"
+                  placeholder="Select project type"
                   size="lg"
                   bg="whiteAlpha.50"
                   border="2px solid"
@@ -326,8 +322,8 @@ const ContactForm = ({ currentStep, formData, setFormData, onNext, onBack, onSub
                   color={formData.projectType ? 'white' : 'gray.500'}
                   _hover={{ borderColor: 'whiteAlpha.300', bg: 'whiteAlpha.100' }}
                   _focus={{ 
-                    borderColor: neonColors.orange, 
-                    boxShadow: `0 0 0 1px ${neonColors.orange}`,
+                    borderColor: colors.accent.warm, 
+                    boxShadow: `0 0 0 1px ${colors.accent.warm}`,
                     bg: 'whiteAlpha.100'
                   }}
                   sx={{
@@ -361,11 +357,11 @@ const ContactForm = ({ currentStep, formData, setFormData, onNext, onBack, onSub
                         p={4}
                         borderRadius="lg"
                         border="2px solid"
-                        borderColor={formData.budget === range.value ? neonColors.orange : 'whiteAlpha.200'}
+                        borderColor={formData.budget === range.value ? colors.accent.warm : 'whiteAlpha.200'}
                         bg={formData.budget === range.value ? 'whiteAlpha.100' : 'whiteAlpha.50'}
                         cursor="pointer"
                         transition="all 0.2s"
-                        _hover={{ borderColor: neonColors.orange, bg: 'whiteAlpha.100' }}
+                        _hover={{ borderColor: colors.accent.warm, bg: 'whiteAlpha.100' }}
                         onClick={() => handleChange('budget', range.value)}
                       >
                         <Radio value={range.value} colorScheme="orange">
@@ -383,23 +379,20 @@ const ContactForm = ({ currentStep, formData, setFormData, onNext, onBack, onSub
               <FormControl isRequired>
                 <FormLabel color="gray.300" fontSize="sm" fontWeight="600">
                   <HStack spacing={2}>
-                    <FiClock />
+                    <FiCalendar />
                     <Text>Timeline</Text>
                   </HStack>
                 </FormLabel>
                 <RadioGroup value={formData.timeline} onChange={(value) => handleChange('timeline', value)}>
                   <Stack direction="column" spacing={3}>
                     {[
-                      { value: 'asap', label: 'ASAP - Yesterday would be great', color: 'red.400' },
-                      { value: '2-weeks', label: 'Within 2 weeks', color: 'orange.400' },
-                      { value: '1-month', label: 'Within a month', color: 'yellow.400' },
-                      { value: '2-months', label: 'Within 2 months', color: 'green.400' },
-                      { value: 'flexible', label: "I'm flexible", color: 'cyan.400' }
+                      { value: 'asap', label: 'ASAP - Ready to start now' },
+                      { value: '1-month', label: 'Within a month' },
+                      { value: '2-3-months', label: 'Next 2-3 months' },
+                      { value: 'flexible', label: 'I\'m flexible' }
                     ].map(time => (
                       <Radio key={time.value} value={time.value} colorScheme="orange">
-                        <Text color="white">
-                          {time.label} {time.value === formData.timeline && '✓'}
-                        </Text>
+                        <Text color="white">{time.label}</Text>
                       </Radio>
                     ))}
                   </Stack>
@@ -408,12 +401,12 @@ const ContactForm = ({ currentStep, formData, setFormData, onNext, onBack, onSub
 
               <FormControl>
                 <FormLabel color="gray.300" fontSize="sm" fontWeight="600">
-                  Project Details <Text as="span" color="gray.500">(Optional but helpful)</Text>
+                  Tell us more <Text as="span" color="gray.500" fontSize="xs">(Optional)</Text>
                 </FormLabel>
                 <Textarea
                   value={formData.description}
                   onChange={(e) => handleChange('description', e.target.value)}
-                  placeholder="Tell us your grand vision... What problems are we solving? What makes you excited about this project?"
+                  placeholder="Share your vision, goals, or any specific requirements..."
                   size="lg"
                   rows={4}
                   bg="whiteAlpha.50"
@@ -423,16 +416,11 @@ const ContactForm = ({ currentStep, formData, setFormData, onNext, onBack, onSub
                   _placeholder={{ color: 'gray.500' }}
                   _hover={{ borderColor: 'whiteAlpha.300', bg: 'whiteAlpha.100' }}
                   _focus={{ 
-                    borderColor: neonColors.orange, 
-                    boxShadow: `0 0 0 1px ${neonColors.orange}`,
+                    borderColor: colors.accent.warm, 
+                    boxShadow: `0 0 0 1px ${colors.accent.warm}`,
                     bg: 'whiteAlpha.100'
                   }}
                 />
-                {formData.description && (
-                  <Text fontSize="xs" color="gray.400" mt={1}>
-                    {formData.description.length} characters
-                  </Text>
-                )}
               </FormControl>
 
               <HStack spacing={4} mt={4}>
@@ -444,21 +432,23 @@ const ContactForm = ({ currentStep, formData, setFormData, onNext, onBack, onSub
                   onClick={onBack}
                   _hover={{ bg: 'whiteAlpha.100' }}
                   height="56px"
+                  borderRadius="full"
                 >
                   ← Back
                 </Button>
                 <Button
                   size="lg"
-                  bg={neonColors.orange}
-                  color="black"
+                  bg={colors.accent.warm}
+                  color="white"
                   onClick={onNext}
                   isDisabled={!isStepValid()}
                   fontWeight="600"
                   height="56px"
+                  borderRadius="full"
                   animation={isStepValid() ? `${pulseAnimation} 2s infinite` : 'none'}
                   _hover={{
                     transform: 'translateY(-2px)',
-                    boxShadow: `0 10px 30px ${neonColors.orange}66`
+                    boxShadow: `0 10px 30px ${colors.accent.warm}66`
                   }}
                   _active={{ transform: 'translateY(0)' }}
                   _disabled={{ 
@@ -468,7 +458,7 @@ const ContactForm = ({ currentStep, formData, setFormData, onNext, onBack, onSub
                   }}
                   flex={1}
                 >
-                  Almost There →
+                  Final Step →
                 </Button>
               </HStack>
             </VStack>
@@ -486,20 +476,20 @@ const ContactForm = ({ currentStep, formData, setFormData, onNext, onBack, onSub
           >
             <VStack spacing={6} align="stretch">
               <VStack align="start" spacing={2}>
-                <Text fontSize="3xl" fontWeight="bold" color="white">
-                  Let's Talk 💬
-                </Text>
-                <Text color="gray.400" fontSize="lg">
-                  How should we reach you?
+                <HStack spacing={2}>
+                  <FiMessageSquare size={24} color={colors.accent.purple} />
+                  <Text fontSize="2xl" fontWeight="bold" color="white">
+                    How should we connect?
+                  </Text>
+                </HStack>
+                <Text color="gray.400">
+                  Choose your preferred communication method
                 </Text>
               </VStack>
 
               <FormControl isRequired>
                 <FormLabel color="gray.300" fontSize="sm" fontWeight="600">
-                  <HStack spacing={2}>
-                    <FiMessageSquare />
-                    <Text>Preferred Contact Method(s)</Text>
-                  </HStack>
+                  Contact Preferences
                 </FormLabel>
                 <CheckboxGroup 
                   value={formData.contactMethod || []} 
@@ -507,31 +497,26 @@ const ContactForm = ({ currentStep, formData, setFormData, onNext, onBack, onSub
                 >
                   <Stack direction="column" spacing={3}>
                     {[
-                      { value: 'email', label: 'Email', desc: 'Classic & reliable', icon: '📧' },
-                      { value: 'phone', label: 'Phone Call', desc: 'Let\'s have a chat', icon: '📞' },
-                      { value: 'video', label: 'Video Call', desc: 'Face to face', icon: '🎥' },
-                      { value: 'text', label: 'Text Message', desc: 'Quick & easy', icon: '💬' },
-                      { value: 'in-person', label: 'In-Person Meeting', desc: 'Coffee\'s on us!', icon: '☕' }
+                      { value: 'email', label: 'Email', desc: 'Get detailed responses' },
+                      { value: 'phone', label: 'Phone Call', desc: 'Quick discussion' },
+                      { value: 'video', label: 'Video Call', desc: 'Face-to-face meeting' }
                     ].map(method => (
                       <Box
                         key={method.value}
                         p={4}
                         borderRadius="lg"
                         border="2px solid"
-                        borderColor={(formData.contactMethod || []).includes(method.value) ? neonColors.purple : 'whiteAlpha.200'}
+                        borderColor={(formData.contactMethod || []).includes(method.value) ? colors.accent.purple : 'whiteAlpha.200'}
                         bg={(formData.contactMethod || []).includes(method.value) ? 'whiteAlpha.100' : 'whiteAlpha.50'}
                         cursor="pointer"
                         transition="all 0.2s"
-                        _hover={{ borderColor: neonColors.purple, bg: 'whiteAlpha.100' }}
+                        _hover={{ borderColor: colors.accent.purple, bg: 'whiteAlpha.100' }}
                       >
                         <Checkbox value={method.value} colorScheme="purple">
-                          <HStack spacing={3} ml={2}>
-                            <Text fontSize="xl">{method.icon}</Text>
-                            <VStack align="start" spacing={0}>
-                              <Text color="white" fontWeight="600">{method.label}</Text>
-                              <Text color="gray.400" fontSize="sm">{method.desc}</Text>
-                            </VStack>
-                          </HStack>
+                          <VStack align="start" spacing={0} ml={2}>
+                            <Text color="white" fontWeight="600">{method.label}</Text>
+                            <Text color="gray.400" fontSize="sm">{method.desc}</Text>
+                          </VStack>
                         </Checkbox>
                       </Box>
                     ))}
@@ -549,10 +534,12 @@ const ContactForm = ({ currentStep, formData, setFormData, onNext, onBack, onSub
                     transition={{ duration: 0.3 }}
                   >
                     <FormControl isRequired>
-                      <FormLabel color="gray.300" fontSize="sm" fontWeight="600">Phone Number</FormLabel>
+                      <FormLabel color="gray.300" fontSize="sm" fontWeight="600">
+                        Phone Number
+                      </FormLabel>
                       <InputGroup size="lg">
                         <InputLeftElement pointerEvents="none">
-                          <FiPhone color={formData.phone ? neonColors.purple : 'gray'} />
+                          <FiPhone color={formData.phone ? colors.accent.purple : 'gray'} />
                         </InputLeftElement>
                         <Input
                           type="tel"
@@ -566,8 +553,8 @@ const ContactForm = ({ currentStep, formData, setFormData, onNext, onBack, onSub
                           _placeholder={{ color: 'gray.500' }}
                           _hover={{ borderColor: 'whiteAlpha.300', bg: 'whiteAlpha.100' }}
                           _focus={{ 
-                            borderColor: neonColors.purple, 
-                            boxShadow: `0 0 0 1px ${neonColors.purple}`,
+                            borderColor: colors.accent.purple, 
+                            boxShadow: `0 0 0 1px ${colors.accent.purple}`,
                             bg: 'whiteAlpha.100'
                           }}
                           pl="3rem"
@@ -578,76 +565,6 @@ const ContactForm = ({ currentStep, formData, setFormData, onNext, onBack, onSub
                 )}
               </AnimatePresence>
 
-              {/* Dynamic Best Time Field */}
-              <AnimatePresence>
-                {showBestTime && (
-                  <MotionBox
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <FormControl isRequired>
-                      <FormLabel color="gray.300" fontSize="sm" fontWeight="600">
-                        Best Time to Call <Text as="span" color="gray.500">(Mountain Time)</Text>
-                      </FormLabel>
-                      <Select
-                        value={formData.bestTime || ''}
-                        onChange={(e) => handleChange('bestTime', e.target.value)}
-                        placeholder="When works for you?"
-                        size="lg"
-                        bg="whiteAlpha.50"
-                        border="2px solid"
-                        borderColor="whiteAlpha.200"
-                        color={formData.bestTime ? 'white' : 'gray.500'}
-                        _hover={{ borderColor: 'whiteAlpha.300', bg: 'whiteAlpha.100' }}
-                        _focus={{ 
-                          borderColor: neonColors.purple, 
-                          boxShadow: `0 0 0 1px ${neonColors.purple}`,
-                          bg: 'whiteAlpha.100'
-                        }}
-                        sx={{
-                          option: {
-                            bg: 'gray.900',
-                            color: 'white',
-                            _hover: { bg: 'gray.800' }
-                          }
-                        }}
-                      >
-                        <option value="morning">Morning (9AM - 12PM)</option>
-                        <option value="afternoon">Afternoon (12PM - 5PM)</option>
-                        <option value="evening">Evening (5PM - 8PM)</option>
-                        <option value="flexible">I'm flexible</option>
-                      </Select>
-                    </FormControl>
-                  </MotionBox>
-                )}
-              </AnimatePresence>
-
-              <FormControl>
-                <FormLabel color="gray.300" fontSize="sm" fontWeight="600">
-                  Anything else? <Text as="span" color="gray.500">(Optional)</Text>
-                </FormLabel>
-                <Textarea
-                  value={formData.additionalInfo || ''}
-                  onChange={(e) => handleChange('additionalInfo', e.target.value)}
-                  placeholder="Special requests, questions, or just say hi..."
-                  size="lg"
-                  rows={3}
-                  bg="whiteAlpha.50"
-                  border="2px solid"
-                  borderColor="whiteAlpha.200"
-                  color="white"
-                  _placeholder={{ color: 'gray.500' }}
-                  _hover={{ borderColor: 'whiteAlpha.300', bg: 'whiteAlpha.100' }}
-                  _focus={{ 
-                    borderColor: neonColors.purple, 
-                    boxShadow: `0 0 0 1px ${neonColors.purple}`,
-                    bg: 'whiteAlpha.100'
-                  }}
-                />
-              </FormControl>
-
               <HStack spacing={4} mt={6}>
                 <Button
                   size="lg"
@@ -657,21 +574,25 @@ const ContactForm = ({ currentStep, formData, setFormData, onNext, onBack, onSub
                   onClick={onBack}
                   _hover={{ bg: 'whiteAlpha.100' }}
                   height="56px"
+                  borderRadius="full"
                 >
                   ← Back
                 </Button>
                 <Button
                   size="lg"
-                  bg={neonColors.purple}
+                  bg={colors.accent.purple}
                   color="white"
-                  onClick={onSubmit}
+                  onClick={handleSubmitForm}
+                  isLoading={isSubmitting}
+                  loadingText="Sending..."
                   isDisabled={!isStepValid()}
                   fontWeight="600"
                   height="56px"
-                  animation={isStepValid() ? `${pulseAnimation} 2s infinite` : 'none'}
+                  borderRadius="full"
+                  animation={isStepValid() && !isSubmitting ? `${pulseAnimation} 2s infinite` : 'none'}
                   _hover={{
                     transform: 'translateY(-2px)',
-                    boxShadow: `0 10px 30px ${neonColors.purple}66`
+                    boxShadow: `0 10px 30px ${colors.accent.purple}66`
                   }}
                   _active={{ transform: 'translateY(0)' }}
                   _disabled={{ 

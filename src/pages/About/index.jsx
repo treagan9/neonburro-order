@@ -1,24 +1,26 @@
 import { Box } from '@chakra-ui/react';
+import Navigation from '../../components/navigation/Navigation';
 import OurStory from './components/OurStory';
 import CoreTeam from './components/CoreTeam';
 import CertificationProgram from './components/CertificationProgram';
-import Philosophy from './components/Philosophy';
 import BurroAlumni from './components/BurroAlumni';
 import LifeAtTheBurro from './components/LifeAtTheBurro';
+import Philosophy from './components/Philosophy';
 import JoinTheHerd from './components/JoinTheHerd';
 
-const AboutPage = () => {
+const About = () => {
   return (
-    <Box bg="dark.black" minH="100vh">
+    <Box bg="#0A0A0A" minH="100vh">
+      <Navigation />
       <OurStory />
       <CoreTeam />
       <CertificationProgram />
-      <BurroAlumni />
       <LifeAtTheBurro />
+      <BurroAlumni />
       <Philosophy />
       <JoinTheHerd />
     </Box>
   );
 };
 
-export default AboutPage;
+export default About;

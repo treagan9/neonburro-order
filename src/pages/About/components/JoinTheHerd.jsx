@@ -1,184 +1,181 @@
 import { Box, Container, Heading, Text, VStack, HStack, Button, Grid } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { FiArrowRight, FiCode, FiUsers, FiBriefcase, FiMail } from 'react-icons/fi';
+import { FiArrowRight, FiUsers, FiMapPin, FiHeart } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 
 const MotionBox = motion(Box);
 
 const JoinTheHerd = () => {
-  const pathways = [
+  const navigate = useNavigate();
+  
+  const colors = {
+    brand: { primary: '#00E5E5' },
+    accent: { neon: '#39FF14', warm: '#FF6B00' },
+    dark: { black: '#0A0A0A' }
+  };
+
+  const opportunities = [
     {
-      icon: FiCode,
-      title: "Start a Project",
-      description: "Need a website, app, or digital transformation? Let's build something amazing together.",
-      buttonText: "Get Started",
-      buttonColor: "neon.cyan"
-    },
-    {
+      type: 'Full-Time Burro',
+      description: 'Join our core team and help shape the future of digital experiences',
       icon: FiUsers,
-      title: "Join the Bootcamp",
-      description: "Ready to level up? Apply for our next cohort and become a certified Burro.",
-      buttonText: "Apply Now",
-      buttonColor: "neon.blue"
+      color: colors.brand.primary,
+      cta: 'View Open Positions'
     },
     {
-      icon: FiBriefcase,
-      title: "Hire a Burro",
-      description: "Need talented developers? Our certified alumni are ready to join your team.",
-      buttonText: "View Talent",
-      buttonColor: "neon.pink"
+      type: 'Visiting Burro',
+      description: 'Level up your skills with our certification program',
+      icon: FiMapPin,
+      color: colors.accent.neon,
+      cta: 'Apply to Visit'
     },
     {
-      icon: FiMail,
-      title: "Stay Connected",
-      description: "Get updates on new cohorts, tech insights, and life at the Burro.",
-      buttonText: "Subscribe",
-      buttonColor: "matrix.500"
+      type: 'Project Partner',
+      description: 'Have a wild idea? Let\'s build something extraordinary together',
+      icon: FiHeart,
+      color: colors.accent.warm,
+      cta: 'Start a Project'
     }
   ];
 
   return (
-    <Box py={32} bg="dark.900" position="relative" overflow="hidden">
-      {/* Background decoration */}
-      <Box
-        position="absolute"
-        top="50%"
-        left="50%"
-        transform="translate(-50%, -50%)"
-        width="600px"
-        height="600px"
-        bg="neon.cyan"
-        filter="blur(200px)"
-        opacity={0.05}
-      />
+    <Box py={{ base: 16, md: 20 }} bg={colors.dark.black} position="relative">
+      <Container maxW="1200px" px={{ base: 6, md: 8 }}>
+        <VStack spacing={{ base: 12, md: 16 }}>
+          {/* Header */}
+          <VStack spacing={4} textAlign="center" maxW="800px" mx="auto">
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <Text 
+                color={colors.brand.primary}
+                fontSize="sm" 
+                fontWeight="600" 
+                letterSpacing="0.1em"
+                textTransform="uppercase"
+              >
+                Ready to Ride?
+              </Text>
+            </MotionBox>
 
-      <Container maxW="1200px" position="relative" zIndex={1}>
-        <VStack spacing={16}>
-          {/* Main CTA */}
-          <MotionBox
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              viewport={{ once: true }}
+            >
+              <Heading
+                as="h2"
+                fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
+                fontFamily="'Geist Sans', 'Inter', sans-serif"
+                fontWeight="700"
+                color="white"
+                lineHeight="1.1"
+                letterSpacing="-0.02em"
+              >
+                Join the Herd
+              </Heading>
+            </MotionBox>
+
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
+              <Text
+                fontSize={{ base: "md", md: "lg" }}
+                color="gray.300"
+                maxW="600px"
+              >
+                Whether you're looking to join our team, visit the ranch, or build something 
+                amazing—there's a place for you in the collective.
+              </Text>
+            </MotionBox>
+          </VStack>
+
+          {/* Opportunities Grid */}
+          <Grid
+            templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }}
+            gap={{ base: 6, md: 8 }}
             width="100%"
           >
-            <Box
-              p={16}
-              borderRadius="2xl"
-              bg="whiteAlpha.50"
-              backdropFilter="blur(20px)"
-              border="2px solid"
-              borderColor="neon.cyan"
-              textAlign="center"
-              position="relative"
-              overflow="hidden"
-            >
-              <Box
-                position="absolute"
-                top="50%"
-                left="50%"
-                transform="translate(-50%, -50%)"
-                width="200px"
-                height="200px"
-                bg="neon.cyan"
-                filter="blur(100px)"
-                opacity={0.2}
-              />
-
-              <VStack spacing={6} position="relative" zIndex={1}>
-                <Heading
-                  as="h2"
-                  fontSize={{ base: "3xl", md: "4xl" }}
-                  fontWeight="700"
-                  color="white"
-                  lineHeight="1.2"
-                >
-                  Ready to Join the Herd?
-                </Heading>
-                <Text
-                  color="gray.300"
-                  fontSize="xl"
-                  maxW="600px"
-                  mx="auto"
-                  lineHeight="1.8"
-                >
-                  Whether you're looking to hire certified developers, join our 
-                  residency program, or bring your project to life—we're ready.
-                </Text>
-                <HStack spacing={4} flexWrap="wrap" justify="center">
-                  <Button
-                    size="lg"
-                    bg="neon.cyan"
-                    color="dark.black"
-                    _hover={{ bg: 'neon.blue' }}
-                    fontWeight="600"
-                    rightIcon={<FiArrowRight />}
-                  >
-                    Start a Project
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    borderColor="white"
-                    color="white"
-                    _hover={{
-                      borderColor: 'neon.cyan',
-                      color: 'neon.cyan'
-                    }}
-                    fontWeight="600"
-                  >
-                    Apply to Bootcamp
-                  </Button>
-                </HStack>
-              </VStack>
-            </Box>
-          </MotionBox>
-
-          {/* Pathways Grid */}
-          <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={8} width="100%">
-            {pathways.map((pathway, i) => (
+            {opportunities.map((opp, index) => (
               <MotionBox
-                key={i}
+                key={opp.type}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
               >
                 <Box
                   p={8}
                   borderRadius="xl"
-                  bg="whiteAlpha.50"
+                  bg="rgba(255,255,255,0.02)"
                   backdropFilter="blur(10px)"
-                  border="1px solid"
+                  border="2px solid"
                   borderColor="whiteAlpha.100"
                   height="100%"
+                  display="flex"
+                  flexDirection="column"
                   _hover={{
-                    borderColor: pathway.buttonColor,
-                    transform: 'translateY(-4px)'
+                    borderColor: opp.color,
+                    transform: 'translateY(-4px)',
+                    boxShadow: `0 20px 40px ${opp.color}22`
                   }}
                   transition="all 0.3s"
                 >
-                  <VStack align="start" spacing={4}>
+                  <VStack spacing={6} align="center" textAlign="center" flex={1}>
                     <Box
-                      p={3}
-                      borderRadius="lg"
-                      bg={pathway.buttonColor}
-                      color="dark.black"
+                      p={4}
+                      borderRadius="full"
+                      bg={`${opp.color}22`}
+                      color={opp.color}
                     >
-                      <pathway.icon size={24} />
+                      <opp.icon size={32} />
                     </Box>
-                    <Heading as="h3" size="md" color="white">
-                      {pathway.title}
-                    </Heading>
-                    <Text color="gray.300" lineHeight="1.6">
-                      {pathway.description}
-                    </Text>
+                    
+                    <VStack spacing={3}>
+                      <Heading
+                        as="h3"
+                        fontSize="xl"
+                        color="white"
+                        fontWeight="600"
+                      >
+                        {opp.type}
+                      </Heading>
+                      <Text
+                        color="gray.400"
+                        fontSize="sm"
+                        lineHeight="1.6"
+                      >
+                        {opp.description}
+                      </Text>
+                    </VStack>
+
                     <Button
-                      variant="link"
-                      color={pathway.buttonColor}
-                      rightIcon={<FiArrowRight />}
+                      size="md"
+                      bg="transparent"
+                      color={opp.color}
+                      border="2px solid"
+                      borderColor={opp.color}
+                      borderRadius="full"
+                      px={6}
                       fontWeight="600"
+                      rightIcon={<FiArrowRight />}
+                      onClick={() => navigate('/contact')}
+                      _hover={{
+                        bg: opp.color,
+                        color: colors.dark.black,
+                        transform: 'scale(1.05)'
+                      }}
+                      transition="all 0.3s"
+                      mt="auto"
                     >
-                      {pathway.buttonText}
+                      {opp.cta}
                     </Button>
                   </VStack>
                 </Box>
@@ -186,17 +183,30 @@ const JoinTheHerd = () => {
             ))}
           </Grid>
 
-          {/* Contact Info */}
-          <VStack spacing={4} textAlign="center">
-            <Text color="gray.400" fontSize="sm">
-              Questions? Let's talk.
+          {/* Final CTA */}
+          <MotionBox
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            textAlign="center"
+            pt={8}
+          >
+            <Text
+              fontSize="2xl"
+              color="white"
+              fontWeight="600"
+              mb={2}
+            >
+              Ready to saddle up?
             </Text>
-            <HStack spacing={6}>
-              <Text color="gray.300">hello@neonburro.com</Text>
-              <Text color="gray.500">•</Text>
-              <Text color="gray.300">Ridgway, Colorado</Text>
-            </HStack>
-          </VStack>
+            <Text
+              color="gray.400"
+              fontSize="lg"
+            >
+              The future of web development is being written at 7,200 feet.
+            </Text>
+          </MotionBox>
         </VStack>
       </Container>
     </Box>

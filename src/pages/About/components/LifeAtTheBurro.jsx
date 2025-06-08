@@ -1,234 +1,207 @@
-import { Box, Container, Heading, Text, VStack, HStack, Grid, Tag, Image } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, VStack, Grid, Image } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { FiSunrise, FiCoffee, FiCode, FiUsers, FiMoon, FiHeart } from 'react-icons/fi';
+import { FiCoffee, FiMonitor, FiSun } from 'react-icons/fi';
 
 const MotionBox = motion(Box);
 
 const LifeAtTheBurro = () => {
-  const dailySchedule = [
-    {
-      time: "6:00 AM",
-      icon: FiSunrise,
-      activity: "Sunrise & Coffee",
-      description: "Start the day with mountain views and fresh coffee"
-    },
-    {
-      time: "9:00 AM",
-      icon: FiCode,
-      activity: "Deep Work",
-      description: "Focus time for coding and client projects"
-    },
-    {
-      time: "12:00 PM",
-      icon: FiCoffee,
-      activity: "Lunch at Local Spots",
-      description: "Team lunch at Taco Del Gnar or Thai Paradise"
-    },
-    {
-      time: "2:00 PM",
-      icon: FiUsers,
-      activity: "Collaboration",
-      description: "Pair programming, code reviews, and mentorship"
-    },
-    {
-      time: "5:00 PM",
-      icon: FiHeart,
-      activity: "Mountain Time",
-      description: "Hiking, biking, or hot spring sessions"
-    },
-    {
-      time: "7:00 PM",
-      icon: FiMoon,
-      activity: "Community",
-      description: "Dinner, game night, or live music at the Digital Saloon"
-    }
-  ];
+  const colors = {
+    brand: { primary: '#00E5E5' },
+    accent: { neon: '#39FF14', warm: '#FF6B00' },
+    dark: { black: '#0A0A0A' }
+  };
 
-  const perks = [
+  const spaces = [
     {
-      title: "Mountain Dome Living",
-      description: "Private geodesic domes with panoramic mountain views",
-      image: "/dome-living.jpg"
+      name: 'The Digital Saloon',
+      icon: FiMonitor,
+      description: 'Our main co-working space where code meets creativity. Dual monitors, standing desks, and enough caffeine to power a small city.',
+      features: ['High-speed fiber', 'Dual 4K monitors', 'Herman Miller chairs', 'Unlimited coffee'],
+      color: colors.brand.primary,
+      image: '/images/spaces/digital-saloon.jpg'
     },
     {
-      title: "Hot Spring Office",
-      description: "Code while soaking in natural hot springs",
-      image: "/hot-springs.jpg"
+      name: 'The StackHouse',
+      icon: FiCoffee,
+      description: 'Where developers stack technologies and pancakes. Our kitchen/collaboration space for brainstorming and breakfast.',
+      features: ['Full kitchen', 'Collaboration zones', 'Whiteboard walls', 'Snack paradise'],
+      color: colors.accent.neon,
+      image: '/images/spaces/stackhouse.jpg'
     },
     {
-      title: "Local Food Scene",
-      description: "Farm-to-table restaurants and craft breweries",
-      image: "/food-scene.jpg"
-    },
-    {
-      title: "Outdoor Paradise",
-      description: "World-class skiing, hiking, and mountain biking",
-      image: "/outdoor.jpg"
+      name: 'The Zen Den',
+      icon: FiSun,
+      description: 'Coming soon: Our ultimate relaxation space. Because even digital outlaws need to unwind.',
+      features: ['Hot springs access', 'Lazy river', 'Meditation deck', 'Mountain views'],
+      color: colors.accent.warm,
+      image: '/images/spaces/zen-den.jpg',
+      comingSoon: true
     }
   ];
 
   return (
-    <Box py={20} bg="dark.900">
-      <Container maxW="1200px">
-        <VStack spacing={16}>
-          <VStack spacing={4} textAlign="center" maxW="700px" mx="auto">
-            <Tag colorScheme="cyan" size="sm" fontWeight="600">
-              LIFE AT THE BURRO
-            </Tag>
-            <Heading
-              as="h2"
-              fontSize={{ base: "3xl", md: "4xl" }}
-              fontWeight="700"
-              color="white"
-              lineHeight="1.2"
+    <Box id="life-at-burro" py={{ base: 16, md: 20 }} bg={colors.dark.black} position="relative">
+      <Container maxW="1400px" px={{ base: 6, md: 8 }}>
+        <VStack spacing={{ base: 12, md: 16 }}>
+          {/* Header */}
+          <VStack spacing={4} textAlign="center" maxW="800px" mx="auto">
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
             >
-              Work Hard, Live Better
-            </Heading>
-            <Text color="gray.300" fontSize="lg">
-              Experience what work-life integration actually means. Code with purpose, 
-              live with passion, build community.
-            </Text>
+              <Text 
+                color={colors.brand.primary}
+                fontSize="sm" 
+                fontWeight="600" 
+                letterSpacing="0.1em"
+                textTransform="uppercase"
+              >
+                The Neon Burro Collective
+              </Text>
+            </MotionBox>
+
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              viewport={{ once: true }}
+            >
+              <Heading
+                as="h2"
+                fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
+                fontFamily="'Geist Sans', 'Inter', sans-serif"
+                fontWeight="700"
+                color="white"
+                lineHeight="1.1"
+                letterSpacing="-0.02em"
+              >
+                Life at the Ranch
+              </Heading>
+            </MotionBox>
+
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
+              <Text
+                fontSize={{ base: "md", md: "lg" }}
+                color="gray.300"
+                maxW="700px"
+              >
+                Where hot springs meet hotkeys. Our ranch in Ridgway isn't just an office—it's 
+                a creative compound designed for deep work and deeper relaxation.
+              </Text>
+            </MotionBox>
           </VStack>
 
-          {/* A Day in the Life */}
-          <Box width="100%">
-            <Heading as="h3" size="lg" color="white" mb={8} textAlign="center">
-              A Typical Day
-            </Heading>
-            <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }} gap={6}>
-              {dailySchedule.map((item, i) => (
-                <MotionBox
-                  key={i}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
+          {/* Spaces Grid */}
+          <Grid
+            templateColumns={{ base: '1fr', lg: 'repeat(3, 1fr)' }}
+            gap={{ base: 8, md: 10 }}
+            width="100%"
+          >
+            {spaces.map((space, index) => (
+              <MotionBox
+                key={space.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+              >
+                <Box
+                  borderRadius="xl"
+                  overflow="hidden"
+                  bg="rgba(255,255,255,0.02)"
+                  backdropFilter="blur(10px)"
+                  border="2px solid"
+                  borderColor="whiteAlpha.100"
+                  height="100%"
+                  position="relative"
+                  _hover={{
+                    borderColor: space.color,
+                    transform: 'translateY(-4px)',
+                    boxShadow: `0 20px 40px ${space.color}22`
+                  }}
+                  transition="all 0.3s"
                 >
-                  <HStack
-                    p={4}
-                    borderRadius="lg"
-                    bg="whiteAlpha.50"
-                    backdropFilter="blur(10px)"
-                    border="1px solid"
-                    borderColor="whiteAlpha.100"
-                    spacing={4}
-                    align="start"
-                    _hover={{
-                      borderColor: 'neon.cyan',
-                      bg: 'whiteAlpha.100'
-                    }}
-                    transition="all 0.3s"
-                  >
-                    <Box
-                      p={3}
-                      borderRadius="lg"
-                      bg="neon.cyan"
-                      color="dark.black"
-                    >
-                      <item.icon size={20} />
-                    </Box>
-                    <VStack align="start" spacing={1} flex={1}>
-                      <Text color="neon.cyan" fontSize="sm" fontWeight="600">
-                        {item.time}
-                      </Text>
-                      <Text color="white" fontWeight="600">
-                        {item.activity}
-                      </Text>
-                      <Text color="gray.400" fontSize="sm">
-                        {item.description}
-                      </Text>
-                    </VStack>
-                  </HStack>
-                </MotionBox>
-              ))}
-            </Grid>
-          </Box>
-
-          {/* Living Perks */}
-          <Box width="100%">
-            <Heading as="h3" size="lg" color="white" mb={8} textAlign="center">
-              The Perks of Altitude
-            </Heading>
-            <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={8}>
-              {perks.map((perk, i) => (
-                <MotionBox
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                >
+                  {/* Image placeholder */}
                   <Box
-                    borderRadius="xl"
-                    overflow="hidden"
-                    bg="whiteAlpha.50"
-                    backdropFilter="blur(10px)"
-                    border="1px solid"
-                    borderColor="whiteAlpha.100"
-                    _hover={{
-                      borderColor: 'neon.cyan',
-                      transform: 'translateY(-4px)'
-                    }}
-                    transition="all 0.3s"
+                    height="200px"
+                    bg={`linear-gradient(135deg, ${space.color}22 0%, ${space.color}11 100%)`}
+                    position="relative"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
                   >
-                    {/* Image placeholder */}
                     <Box
-                      height="200px"
-                      bg="mountain.600"
-                      position="relative"
-                      overflow="hidden"
-                    >
+                      as={space.icon}
+                      size={60}
+                      color={space.color}
+                      opacity={0.5}
+                    />
+                    {space.comingSoon && (
                       <Box
                         position="absolute"
-                        top="50%"
-                        left="50%"
-                        transform="translate(-50%, -50%)"
-                        fontSize="3xl"
-                        color="whiteAlpha.300"
+                        top={4}
+                        right={4}
+                        bg={colors.accent.warm}
+                        color={colors.dark.black}
+                        px={3}
+                        py={1}
+                        borderRadius="full"
+                        fontSize="xs"
+                        fontWeight="600"
                       >
-                        🏔️
+                        COMING SOON
                       </Box>
-                    </Box>
-                    <Box p={6}>
-                      <Heading as="h4" size="md" color="white" mb={2}>
-                        {perk.title}
-                      </Heading>
-                      <Text color="gray.300" lineHeight="1.6">
-                        {perk.description}
-                      </Text>
-                    </Box>
+                    )}
                   </Box>
-                </MotionBox>
-              ))}
-            </Grid>
-          </Box>
 
-          {/* Culture Quote */}
-          <Box
-            p={8}
-            borderRadius="xl"
-            bgGradient="linear(to-r, whiteAlpha.100, whiteAlpha.50)"
-            backdropFilter="blur(10px)"
-            border="1px solid"
-            borderColor="whiteAlpha.200"
-            maxW="800px"
-            mx="auto"
-            textAlign="center"
-          >
-            <VStack spacing={4}>
-              <Text color="neon.cyan" fontSize="xl" fontWeight="600">
-                Our Philosophy
-              </Text>
-              <Text color="gray.300" fontSize="lg" lineHeight="1.8">
-                "We believe the best code comes from developers who are inspired, 
-                rested, and connected to their community. That's why we built the 
-                Burro—to prove that you can do your best work while living your best life."
-              </Text>
-              <Text color="gray.400">
-                — Tyler & Bryan, Founders
-              </Text>
-            </VStack>
-          </Box>
+                  {/* Content */}
+                  <VStack p={6} spacing={4} align="start">
+                    <Heading
+                      as="h3"
+                      fontSize="xl"
+                      color="white"
+                      fontWeight="600"
+                    >
+                      {space.name}
+                    </Heading>
+                    
+                    <Text
+                      color="gray.400"
+                      fontSize="sm"
+                      lineHeight="1.6"
+                    >
+                      {space.description}
+                    </Text>
+
+                    {/* Features */}
+                    <VStack align="start" spacing={2} pt={2}>
+                      {space.features.map((feature, idx) => (
+                        <Text
+                          key={idx}
+                          color="gray.500"
+                          fontSize="xs"
+                          _before={{
+                            content: '"→"',
+                            color: space.color,
+                            marginRight: '8px'
+                          }}
+                        >
+                          {feature}
+                        </Text>
+                      ))}
+                    </VStack>
+                  </VStack>
+                </Box>
+              </MotionBox>
+            ))}
+          </Grid>
         </VStack>
       </Container>
     </Box>
