@@ -25,7 +25,7 @@ const HourPurchaseForm = ({ onSuccess }) => {
   const [hours, setHours] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
-  const hourlyRate = 25;
+  const hourlyRate = 33;
   const total = hours ? parseInt(hours) * hourlyRate : 0;
 
   // Hour options from 1 to 100

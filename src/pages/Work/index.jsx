@@ -1,14 +1,18 @@
-import { Box, Container, Heading, Text, VStack } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
+import Navigation from '../../components/navigation/Navigation';
+import Footer from '../../components/common/Footer';
+import WorkHero from './components/WorkHero';
+import WorkVault from './components/WorkVault';
+import WorkForm from './components/WorkForm';
 
 const Work = () => {
   return (
-    <Box minH="100vh" bg="dark.black" pt={32}>
-      <Container maxW="1200px">
-        <VStack spacing={8}>
-          <Heading color="white">Our Work</Heading>
-          <Text color="gray.300">Portfolio coming soon...</Text>
-        </VStack>
-      </Container>
+    <Box bg="dark.black" minH="100vh">
+      <Navigation />
+      <WorkHero />
+      <WorkVault />
+      <WorkForm />
+      <Footer />
     </Box>
   );
 };
