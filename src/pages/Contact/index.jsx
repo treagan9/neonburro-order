@@ -1,5 +1,5 @@
 import { Box, Container } from '@chakra-ui/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import Navigation from '../../components/navigation/Navigation';
 import ContactHero from './components/ContactHero';
@@ -14,7 +14,7 @@ const Contact = () => {
   const [formData, setFormData] = useState({
     // Step 1
     name: '',
-    email: localStorage.getItem('userEmail') || '',
+    email: '', // Removed localStorage usage
     company: '',
     source: '',
     // Step 2
@@ -31,10 +31,20 @@ const Contact = () => {
   const [touched, setTouched] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Ref for form section
+  const formSectionRef = useRef(null);
 
-  // Scroll to top when step changes
+  // Scroll to form when step changes
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (formSectionRef.current && currentStep > 1) {
+      // Scroll to form with offset for navigation
+      const yOffset = -20; // Adjust this value based on your needs
+      const element = formSectionRef.current;
+      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
   }, [currentStep]);
 
   const handleChange = (field, value) => {
@@ -58,33 +68,35 @@ const Contact = () => {
   const handleNext = () => {
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  };
+
+  // Proper encoding function for form data
+  const encode = (data) => {
+    return Object.keys(data)
+      .map(key => encodeURIComponent(key) + "=" + encodeURIComponent(data[key]))
+      .join("&");
   };
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
     
-    // Prepare form data for Netlify
-    const netlifyData = {
-      'form-name': 'contact-form',
-      ...formData,
-      contactMethod: formData.contactMethod.join(', '), // Convert array to string
-    };
-
     try {
-      // Submit to Netlify
+      // Submit to Netlify with proper encoding
       const response = await fetch('/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(netlifyData).toString()
+        body: encode({
+          'form-name': 'contact-form',
+          ...formData,
+          contactMethod: formData.contactMethod.join(', '), // Convert array to string
+        })
       });
 
       if (response.ok) {
@@ -92,9 +104,11 @@ const Contact = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         console.error('Form submission failed');
+        // You might want to add toast notification here
       }
     } catch (error) {
       console.error('Submission error:', error);
+      // You might want to add toast notification here
     } finally {
       setIsSubmitting(false);
     }
@@ -114,28 +128,10 @@ const Contact = () => {
       <Container maxW="800px" pb={20} px={{ base: 6, md: 8 }}>
         {!isSubmitted ? (
           <>
-            <FormProgress currentStep={currentStep} />
-            
-            {/* Hidden form for Netlify to detect */}
-            <form
-              name="contact-form"
-              data-netlify="true"
-              hidden
-            >
-              <input type="hidden" name="form-name" value="contact-form" />
-              <input type="text" name="name" />
-              <input type="email" name="email" />
-              <input type="text" name="company" />
-              <input type="text" name="source" />
-              <input type="text" name="projectType" />
-              <input type="text" name="budget" />
-              <input type="text" name="timeline" />
-              <textarea name="description" />
-              <input type="text" name="contactMethod" />
-              <input type="tel" name="phone" />
-              <input type="text" name="bestTime" />
-              <textarea name="additionalInfo" />
-            </form>
+            {/* Form Progress with ref for scroll target */}
+            <Box ref={formSectionRef}>
+              <FormProgress currentStep={currentStep} />
+            </Box>
             
             <Box
               bg="rgba(0,0,0,0.6)"
