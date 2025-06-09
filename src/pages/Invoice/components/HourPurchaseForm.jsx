@@ -1,4 +1,3 @@
-// /invoice/components/HourPurchaseForm.jsx
 import { Box, VStack, Input, Button, Text, Heading, Select, HStack, InputGroup, InputLeftElement } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
@@ -31,6 +30,13 @@ const HourPurchaseForm = ({ onSuccess }) => {
   // Hour options from 1 to 100
   const hourOptions = Array.from({ length: 100 }, (_, i) => i + 1);
 
+  // Encoding function for form data
+  const encode = (data) => {
+    return Object.keys(data)
+      .map(key => encodeURIComponent(key) + "=" + encodeURIComponent(data[key]))
+      .join("&");
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -40,22 +46,19 @@ const HourPurchaseForm = ({ onSuccess }) => {
 
     setIsLoading(true);
     
-    // Prepare data for Netlify
-    const netlifyData = {
-      'form-name': 'hour-purchase-form',
-      firstName,
-      projectName,
-      hours,
-      total: total.toString(),
-      hourlyRate: hourlyRate.toString(),
-    };
-
     try {
-      // Submit to Netlify Forms
+      // Submit to Netlify Forms with proper encoding
       const response = await fetch('/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(netlifyData).toString()
+        body: encode({
+          'form-name': 'hour-purchase-form',
+          firstName,
+          projectName,
+          hours,
+          total: total.toString(),
+          hourlyRate: hourlyRate.toString(),
+        })
       });
 
       if (response.ok) {
@@ -102,20 +105,6 @@ const HourPurchaseForm = ({ onSuccess }) => {
             Purchase development hours at ${hourlyRate}/hour
           </Text>
         </VStack>
-
-        {/* Hidden form for Netlify detection */}
-        <form
-          name="hour-purchase-form"
-          data-netlify="true"
-          hidden
-        >
-          <input type="hidden" name="form-name" value="hour-purchase-form" />
-          <input type="text" name="firstName" />
-          <input type="text" name="projectName" />
-          <input type="text" name="hours" />
-          <input type="text" name="total" />
-          <input type="text" name="hourlyRate" />
-        </form>
 
         {/* Main Form Card */}
         <Box
