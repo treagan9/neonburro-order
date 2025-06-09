@@ -1,7 +1,7 @@
 import { Box, Container, Heading, Text, VStack, HStack, Grid, Image, useBreakpointValue } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { useState, useRef } from 'react';
-import { FiMapPin, FiCoffee } from 'react-icons/fi';
+import { FiMapPin, FiCoffee, FiUsers } from 'react-icons/fi';
 
 const MotionBox = motion(Box);
 
@@ -61,7 +61,7 @@ const TheCrew = () => {
         'Scope Creep': 'Managed'
       },
       bio: 'Keeps the train on the tracks. Makes sure ideas become features.',
-      color: 'brand.primaryLight'
+      color: 'accent.banana'
     },
     {
       id: 'jared',
@@ -129,7 +129,7 @@ const TheCrew = () => {
         'Feedback': 'Constructive'
       },
       bio: 'Less is more, but better. Makes complex things feel simple.',
-      color: 'brand.primaryDark'
+      color: 'accent.purple'
     },
     {
       id: 'jake',
@@ -163,7 +163,7 @@ const TheCrew = () => {
         'Trail Miles': 'Weekend Goal'
       },
       bio: 'Makes the magic happen behind the scenes.',
-      color: 'brand.primaryLight'
+      color: 'brand.primary'
     },
     {
       id: 'phil',
@@ -180,7 +180,7 @@ const TheCrew = () => {
         'Wine IQ': 'Expanding'
       },
       bio: 'Automates the boring stuff. Makes workflows actually flow.',
-      color: 'accent.warm'
+      color: 'accent.banana'
     },
     {
       id: 'alex',
@@ -197,7 +197,7 @@ const TheCrew = () => {
         'Ideas': 'Visualized'
       },
       bio: 'Brings static to life. Tells stories in seconds.',
-      color: 'brand.primary'
+      color: 'accent.warm'
     },
     {
       id: 'nicole',
@@ -214,7 +214,7 @@ const TheCrew = () => {
         'Plants': 'Thriving'
       },
       bio: 'Keeps the lights on. Your infrastructure\'s guardian angel.',
-      color: 'accent.warm'
+      color: 'accent.purple'
     }
   ];
 
@@ -229,7 +229,7 @@ const TheCrew = () => {
       if (isHovering) {
         const timeout = setTimeout(() => {
           setFlippedCards(prev => ({ ...prev, [id]: true }));
-        }, 150);
+        }, 300); // Slightly longer delay for smoother UX
         setHoverTimeout(prev => ({ ...prev, [id]: timeout }));
       } else {
         if (hoverTimeout[id]) {
@@ -242,7 +242,7 @@ const TheCrew = () => {
         }
         setTimeout(() => {
           setFlippedCards(prev => ({ ...prev, [id]: false }));
-        }, 100);
+        }, 150);
       }
     }
   };
@@ -256,26 +256,68 @@ const TheCrew = () => {
       bg="dark.black"
       overflow="hidden"
     >
-      <Container maxW="1400px" px={{ base: 4, lg: 8 }} position="relative">
+      {/* Subtle background gradient */}
+      <Box
+        position="absolute"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        opacity={0.02}
+      >
+        <Box
+          position="absolute"
+          top="30%"
+          left="20%"
+          width="600px"
+          height="600px"
+          borderRadius="full"
+          bg="brand.primary"
+          filter="blur(200px)"
+        />
+        <Box
+          position="absolute"
+          bottom="30%"
+          right="20%"
+          width="500px"
+          height="500px"
+          borderRadius="full"
+          bg="accent.banana"
+          filter="blur(200px)"
+        />
+      </Box>
+
+      <Container maxW="1400px" px={{ base: 4, md: 8 }} position="relative">
         <VStack spacing={{ base: 12, md: 16 }}>
           {/* Header */}
-          <VStack spacing={6} textAlign="center" maxW="800px" mx="auto">
+          <VStack spacing={4} textAlign="center" maxW="800px" mx="auto">
             <MotionBox
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <Text 
-                color="brand.primary"
-                fontSize={{ base: "xs", md: "sm" }}
-                fontFamily="body"
-                fontWeight="semibold"
-                letterSpacing="wider"
-                textTransform="uppercase"
+              <HStack
+                spacing={2}
+                px={4}
+                py={2}
+                borderRadius="full"
+                bg="rgba(0, 229, 229, 0.1)"
+                backdropFilter="blur(10px)"
+                border="1px solid"
+                borderColor="rgba(0, 229, 229, 0.2)"
               >
-                Meet the Crew
-              </Text>
+                <FiUsers size={14} color="var(--chakra-colors-brand-primary)" />
+                <Text 
+                  color="brand.primary"
+                  fontSize={{ base: "xs", md: "sm" }}
+                  fontWeight="semibold"
+                  letterSpacing="wider"
+                  textTransform="uppercase"
+                >
+                  Meet the Crew
+                </Text>
+              </HStack>
             </MotionBox>
 
             <MotionBox
@@ -286,14 +328,20 @@ const TheCrew = () => {
             >
               <Heading
                 as="h2"
-                fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
-                fontFamily="heading"
-                fontWeight="bold"
+                fontSize={{ base: "26px", sm: "3xl", md: "4xl", lg: "5xl" }}
+                fontWeight="extrabold"
                 color="text.primary"
-                lineHeight="tight"
+                lineHeight={{ base: "1.3", md: "1.2" }}
                 letterSpacing="tight"
               >
-                The Digital Outlaws
+                The Digital{' '}
+                <Box
+                  as="span"
+                  bgGradient="linear(to-r, brand.primary, accent.banana)"
+                  bgClip="text"
+                >
+                  Outlaws
+                </Box>
               </Heading>
             </MotionBox>
 
@@ -305,8 +353,6 @@ const TheCrew = () => {
             >
               <Text
                 fontSize={{ base: "sm", md: "md", lg: "lg" }}
-                fontFamily="body"
-                fontWeight="normal"
                 color="text.secondary"
                 lineHeight="relaxed"
                 maxW="600px"
@@ -322,7 +368,7 @@ const TheCrew = () => {
             // Desktop Grid - 3 rows of 4
             <Grid
               templateColumns="repeat(4, 1fr)"
-              gap={8}
+              gap={6}
               width="100%"
             >
               {crew.map((member, index) => (
@@ -333,7 +379,7 @@ const TheCrew = () => {
                   transition={{ duration: 0.5, delay: Math.min(index * 0.05, 0.3) }}
                   viewport={{ once: true }}
                   style={{ perspective: '1000px' }}
-                  height="420px"
+                  height="450px"
                 >
                   <CrewCard 
                     member={member} 
@@ -347,26 +393,30 @@ const TheCrew = () => {
             </Grid>
           ) : (
             // Mobile Horizontal Scroll
-            <Box width="100vw" ml="-1rem" mr="-1rem">
+            <Box width="100vw" ml={{ base: "-1rem", sm: "-2rem" }} mr={{ base: "-1rem", sm: "-2rem" }}>
               <HStack
                 ref={scrollContainerRef}
                 spacing={4}
                 overflowX="auto"
-                py={4}
-                px={4}
+                py={6}
+                px={{ base: 4, sm: 8 }}
                 css={{
                   '&::-webkit-scrollbar': {
-                    height: '6px',
+                    height: '8px',
                   },
                   '&::-webkit-scrollbar-track': {
                     background: 'rgba(255, 255, 255, 0.05)',
-                    borderRadius: '3px',
+                    borderRadius: '4px',
                   },
                   '&::-webkit-scrollbar-thumb': {
                     background: 'rgba(0, 229, 229, 0.3)',
-                    borderRadius: '3px',
+                    borderRadius: '4px',
+                    '&:hover': {
+                      background: 'rgba(0, 229, 229, 0.5)',
+                    }
                   },
                   scrollSnapType: 'x mandatory',
+                  scrollBehavior: 'smooth',
                 }}
               >
                 {crew.map((member, index) => (
@@ -377,8 +427,8 @@ const TheCrew = () => {
                     transition={{ duration: 0.5, delay: Math.min(index * 0.05, 0.3) }}
                     viewport={{ once: true }}
                     style={{ perspective: '1000px' }}
-                    height="480px"
-                    minW="280px"
+                    height="500px"
+                    minW="300px"
                     scrollSnapAlign="start"
                   >
                     <CrewCard 
@@ -399,7 +449,7 @@ const TheCrew = () => {
   );
 };
 
-// Separate Card Component for cleaner code
+// Enhanced Card Component with smoother flip
 const CrewCard = ({ member, isFlipped, onCardClick, onCardHover, isMobile }) => {
   return (
     <Box
@@ -408,7 +458,7 @@ const CrewCard = ({ member, isFlipped, onCardClick, onCardHover, isMobile }) => 
       height="100%"
       style={{
         transformStyle: 'preserve-3d',
-        transition: 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+        transition: 'transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)', // Spring effect
         transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
         transformOrigin: 'center center',
       }}
@@ -422,18 +472,23 @@ const CrewCard = ({ member, isFlipped, onCardClick, onCardHover, isMobile }) => 
         position="absolute"
         width="100%"
         height="100%"
-        style={{ backfaceVisibility: 'hidden' }}
+        style={{ 
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
+          transform: 'rotateY(0deg)',
+        }}
         borderRadius="xl"
         overflow="hidden"
-        bg="ui.backdrop"
-        backdropFilter="blur(10px)"
+        bg="rgba(255, 255, 255, 0.02)"
+        backdropFilter="blur(20px)"
         border="2px solid"
-        borderColor="ui.border"
+        borderColor="rgba(255, 255, 255, 0.08)"
+        transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
         _hover={{ 
           borderColor: member.color,
-          boxShadow: `0 0 20px rgba(0, 229, 229, 0.2)`
+          boxShadow: `0 20px 40px ${member.color}22`,
+          transform: 'translateZ(10px)',
         }}
-        transition="all 0.3s ease"
         willChange="transform"
       >
         <VStack height="100%" spacing={0}>
@@ -443,6 +498,7 @@ const CrewCard = ({ member, isFlipped, onCardClick, onCardHover, isMobile }) => 
             height="75%"
             position="relative"
             overflow="hidden"
+            bg="dark.gray"
           >
             <Image
               src={member.image}
@@ -452,15 +508,39 @@ const CrewCard = ({ member, isFlipped, onCardClick, onCardHover, isMobile }) => 
               objectFit="cover"
               objectPosition="center top"
               loading="lazy"
+              fallbackSrc="/images/profiles/placeholder.png"
             />
             <Box
               position="absolute"
               bottom={0}
               left={0}
               right={0}
-              height="80px"
-              bgGradient="linear(to-t, rgba(0,0,0,0.9), transparent)"
+              height="100px"
+              bgGradient="linear(to-t, rgba(0,0,0,0.95), transparent)"
             />
+            
+            {/* Handle badge */}
+            <Box
+              position="absolute"
+              top={3}
+              right={3}
+              px={3}
+              py={1}
+              borderRadius="full"
+              bg={`${member.color}22`}
+              backdropFilter="blur(10px)"
+              border="1px solid"
+              borderColor={`${member.color}44`}
+            >
+              <Text
+                color={member.color}
+                fontSize="2xs"
+                fontFamily="mono"
+                fontWeight="bold"
+              >
+                @{member.handle}
+              </Text>
+            </Box>
           </Box>
 
           {/* Basic Info */}
@@ -468,37 +548,34 @@ const CrewCard = ({ member, isFlipped, onCardClick, onCardHover, isMobile }) => 
             flex={1}
             width="100%"
             p={5}
-            spacing={1}
+            spacing={2}
             justify="center"
             align="start"
-            bg="rgba(0,0,0,0.8)"
+            bg="rgba(0,0,0,0.4)"
           >
-            <Text
-              color={member.color}
-              fontSize="xs"
-              fontFamily="mono"
-              fontWeight="semibold"
-              textShadow={`0 0 10px rgba(0, 229, 229, 0.5)`}
-            >
-              @{member.handle}
-            </Text>
             <Heading
               as="h3"
               color="text.primary"
-              fontSize="xl"
-              fontFamily="heading"
-              fontWeight="semibold"
+              fontSize={{ base: "lg", md: "xl" }}
+              fontWeight="bold"
               letterSpacing="tight"
             >
               {member.name}
             </Heading>
             <Text
               color="text.secondary"
-              fontSize="xs"
-              fontFamily="body"
+              fontSize={{ base: "xs", md: "sm" }}
               fontWeight="medium"
             >
               {member.role}
+            </Text>
+            <Text
+              color={member.color}
+              fontSize="xs"
+              fontWeight="semibold"
+              mt={1}
+            >
+              {isMobile ? 'Tap' : 'Hover'} to flip
             </Text>
           </VStack>
         </VStack>
@@ -511,24 +588,37 @@ const CrewCard = ({ member, isFlipped, onCardClick, onCardHover, isMobile }) => 
         height="100%"
         style={{
           backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
           transform: 'rotateY(180deg)',
         }}
         borderRadius="xl"
         bg="rgba(0,0,0,0.95)"
+        backdropFilter="blur(20px)"
         border="2px solid"
         borderColor={member.color}
-        boxShadow={`0 0 30px rgba(0, 229, 229, 0.3)`}
+        boxShadow={`0 0 40px ${member.color}33`}
         p={6}
-        overflow="auto"
+        overflow="hidden"
       >
-        <VStack align="start" spacing={4} height="100%">
+        {/* Gradient overlay */}
+        <Box
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          height="150px"
+          bgGradient={`linear(to-b, ${member.color}11, transparent)`}
+          pointerEvents="none"
+        />
+        
+        <VStack align="start" spacing={4} height="100%" position="relative">
           {/* Bio */}
           <Box>
             <Text 
               color="text.primary" 
-              fontSize="sm" 
-              fontFamily="body"
+              fontSize={{ base: "sm", md: "md" }}
               lineHeight="relaxed"
+              fontWeight="medium"
             >
               {member.bio}
             </Text>
@@ -539,19 +629,18 @@ const CrewCard = ({ member, isFlipped, onCardClick, onCardHover, isMobile }) => 
             <Text 
               color={member.color} 
               fontSize="xs" 
-              fontFamily="body"
-              fontWeight="semibold"
+              fontWeight="bold"
               letterSpacing="wider"
-              mb={2}
-              textShadow={`0 0 10px rgba(0, 229, 229, 0.5)`}
+              mb={3}
+              textTransform="uppercase"
             >
               STATS
             </Text>
-            <VStack align="start" spacing={1}>
+            <VStack align="start" spacing={2}>
               {Object.entries(member.stats).map(([key, value]) => (
                 <HStack key={key} width="100%" justify="space-between">
-                  <Text color="text.muted" fontSize="xs" fontFamily="body">{key}</Text>
-                  <Text color="text.secondary" fontSize="xs" fontFamily="mono">{value}</Text>
+                  <Text color="text.muted" fontSize="xs">{key}</Text>
+                  <Text color={member.color} fontSize="xs" fontFamily="mono" fontWeight="bold">{value}</Text>
                 </HStack>
               ))}
             </VStack>
@@ -562,11 +651,10 @@ const CrewCard = ({ member, isFlipped, onCardClick, onCardHover, isMobile }) => 
             <Text 
               color={member.color} 
               fontSize="xs" 
-              fontFamily="body"
-              fontWeight="semibold"
+              fontWeight="bold"
               letterSpacing="wider"
-              mb={2}
-              textShadow={`0 0 10px rgba(0, 229, 229, 0.5)`}
+              mb={3}
+              textTransform="uppercase"
             >
               CURRENTLY OBSESSED WITH
             </Text>
@@ -576,14 +664,20 @@ const CrewCard = ({ member, isFlipped, onCardClick, onCardHover, isMobile }) => 
                   key={i}
                   display="inline-block"
                   fontSize="xs"
-                  fontFamily="body"
                   color="text.secondary"
-                  bg="whiteAlpha.100"
-                  px={2}
+                  bg={`${member.color}11`}
+                  border="1px solid"
+                  borderColor={`${member.color}22`}
+                  px={3}
                   py={1}
-                  borderRadius="md"
+                  borderRadius="full"
                   mr={2}
                   mb={2}
+                  transition="all 0.2s"
+                  _hover={{
+                    bg: `${member.color}22`,
+                    borderColor: member.color,
+                  }}
                 >
                   {item}
                 </Text>
@@ -594,14 +688,20 @@ const CrewCard = ({ member, isFlipped, onCardClick, onCardHover, isMobile }) => 
           {/* Favorites */}
           <VStack align="start" spacing={2} mt="auto" width="100%">
             <HStack spacing={2}>
-              <FiMapPin size={14} color="#00E5E5" />
-              <Text color="text.secondary" fontSize="xs" fontFamily="body">
-                {member.favoriteSpots.join(', ')}
+              <Box color={member.color}>
+                <FiMapPin size={14} />
+              </Box>
+              <Text color="text.secondary" fontSize="xs">
+                {member.favoriteSpots.join(' • ')}
               </Text>
             </HStack>
             <HStack spacing={2}>
-              <FiCoffee size={14} color="#00E5E5" />
-              <Text color="text.secondary" fontSize="xs" fontFamily="body">{member.fuel}</Text>
+              <Box color={member.color}>
+                <FiCoffee size={14} />
+              </Box>
+              <Text color="text.secondary" fontSize="xs" fontWeight="medium">
+                {member.fuel}
+              </Text>
             </HStack>
           </VStack>
         </VStack>

@@ -1,68 +1,80 @@
-import { Box, VStack, Heading, Text, Button, HStack, Badge, keyframes } from '@chakra-ui/react';
+import { Box, VStack, Heading, Text, Button, HStack, Badge, keyframes, Image } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { FiCheckCircle, FiHome, FiCalendar, FiCoffee } from 'react-icons/fi';
-import { useState, useEffect } from 'react';
+import { FiCheck, FiHome, FiCalendar, FiMail, FiClock } from 'react-icons/fi';
+import { useEffect } from 'react';
 import confetti from 'canvas-confetti';
 
 const MotionBox = motion(Box);
+const MotionVStack = motion(VStack);
 
 const floatAnimation = keyframes`
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(5deg); }
+`;
+
+const pulseAnimation = keyframes`
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.05); }
 `;
 
 const FormSuccessEnhanced = ({ formData, onNavigateHome }) => {
-  const [timeOfDay, setTimeOfDay] = useState('');
-  
   const colors = {
-    brand: { primary: '#00E5E5' },
+    brand: { primary: '#00FFFF' },
     accent: { 
-      neon: '#39FF14',
+      green: '#39FF14',
       warm: '#FF6B00',
       purple: '#8B5CF6'
     }
   };
 
   useEffect(() => {
-    // Trigger confetti
-    const colors = ['#00E5E5', '#39FF14', '#FF6B00', '#8B5CF6'];
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: colors
-    });
+    // Trigger confetti with your brand colors
+    const colors = ['#00FFFF', '#39FF14'];
+    const duration = 3000;
+    const end = Date.now() + duration;
 
-    // Determine time-based greeting
-    const hour = new Date().getHours();
-    if (hour < 12) setTimeOfDay('morning');
-    else if (hour < 17) setTimeOfDay('afternoon');
-    else setTimeOfDay('evening');
+    (function frame() {
+      confetti({
+        particleCount: 3,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0 },
+        colors: colors
+      });
+      confetti({
+        particleCount: 3,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1 },
+        colors: colors
+      });
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    }());
   }, []);
 
-  const getTimeGreeting = () => {
-    switch(timeOfDay) {
-      case 'morning': return 'Good morning';
-      case 'afternoon': return 'Good afternoon';
-      case 'evening': return 'Good evening';
-      default: return 'Hello';
+  const nextSteps = [
+    { 
+      icon: FiMail,
+      title: 'Confirmation Email',
+      description: 'Check your inbox',
+      color: colors.brand.primary
+    },
+    { 
+      icon: FiClock,
+      title: 'Quick Review',
+      description: 'Within 2 hours',
+      color: colors.accent.green
+    },
+    { 
+      icon: FiCalendar,
+      title: 'We\'ll Connect',
+      description: 'Within 24 hours',
+      color: colors.accent.warm
     }
-  };
-
-  const getProjectEmoji = () => {
-    const projectMap = {
-      'new-website': '🌟',
-      'redesign': '✨',
-      'ecommerce': '🛒',
-      'web-app': '⚡',
-      'seo-content': '📈',
-      'branding': '🎨',
-      'maintenance': '🔧',
-      'consultation': '💡',
-      'other': '🚀'
-    };
-    return projectMap[formData.projectType] || '🎯';
-  };
+  ];
 
   return (
     <MotionBox
@@ -70,41 +82,41 @@ const FormSuccessEnhanced = ({ formData, onNavigateHome }) => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
       position="relative"
+      width="100%"
     >
-      <VStack spacing={8} maxW="700px" w="100%" mx="auto">
+      <VStack spacing={{ base: 6, md: 8 }} maxW="600px" w="100%" mx="auto">
         <MotionBox
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.5, type: "spring" }}
+          initial={{ scale: 0.9, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.6, type: "spring" }}
           width="100%"
         >
           <Box
-            p={{ base: 8, md: 12 }}
-            bg="rgba(0,0,0,0.6)"
+            p={{ base: 6, md: 10 }}
+            bg="rgba(10, 10, 10, 0.8)"
             backdropFilter="blur(20px)"
-            border="2px solid"
-            borderColor={colors.brand.primary}
+            border="1.5px solid"
+            borderColor="whiteAlpha.200"
             borderRadius="2xl"
-            boxShadow={`0 20px 40px rgba(0,0,0,0.4), 0 0 80px ${colors.brand.primary}22`}
-            textAlign="center"
+            boxShadow="0 20px 40px rgba(0,0,0,0.4)"
             position="relative"
             overflow="hidden"
           >
-            {/* Animated gradient background */}
+            {/* Subtle background glow */}
             <Box
               position="absolute"
               top="50%"
               left="50%"
               transform="translate(-50%, -50%)"
-              width="600px"
-              height="600px"
-              background={`radial-gradient(circle, ${colors.accent.neon}22 0%, ${colors.brand.primary}11 30%, transparent 70%)`}
+              width="400px"
+              height="400px"
+              background={`radial-gradient(circle, ${colors.accent.green}08 0%, transparent 60%)`}
               pointerEvents="none"
-              animation={`${floatAnimation} 6s ease-in-out infinite`}
+              animation={`${pulseAnimation} 4s ease-in-out infinite`}
             />
 
-            <VStack spacing={8} position="relative">
-              {/* Success Icon */}
+            <VStack spacing={{ base: 6, md: 8 }} position="relative">
+              {/* Success Animation with Favicon */}
               <MotionBox
                 initial={{ scale: 0, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
@@ -116,164 +128,216 @@ const FormSuccessEnhanced = ({ formData, onNavigateHome }) => {
                 }}
               >
                 <Box position="relative">
-                  <FiCheckCircle size={80} color={colors.accent.neon} />
+                  {/* Checkmark background */}
                   <Box
                     position="absolute"
-                    top="50%"
-                    left="50%"
-                    transform="translate(-50%, -50%)"
-                    fontSize="4xl"
+                    top="-10px"
+                    right="-10px"
+                    width="40px"
+                    height="40px"
+                    borderRadius="full"
+                    bg={colors.accent.green}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    boxShadow={`0 0 20px ${colors.accent.green}66`}
                   >
-                    {getProjectEmoji()}
+                    <FiCheck size={24} color="#0A0A0A" strokeWidth={3} />
+                  </Box>
+                  
+                  {/* Neon Burro Favicon */}
+                  <Box
+                    p={4}
+                    borderRadius="2xl"
+                    bg="whiteAlpha.100"
+                    border="1px solid"
+                    borderColor="whiteAlpha.200"
+                    animation={`${floatAnimation} 4s ease-in-out infinite`}
+                  >
+                    <Image
+                      src="/favicon.svg"
+                      alt="Neon Burro"
+                      width={{ base: "60px", md: "80px" }}
+                      height={{ base: "60px", md: "80px" }}
+                      filter="drop-shadow(0 0 20px rgba(0, 255, 255, 0.5))"
+                    />
                   </Box>
                 </Box>
               </MotionBox>
 
-              {/* Personalized Greeting */}
-              <VStack spacing={4}>
+              {/* Success Message */}
+              <MotionVStack
+                spacing={3}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+              >
                 <Heading 
-                  size="2xl" 
+                  size={{ base: "lg", md: "xl" }}
                   color="white"
                   fontWeight="800"
                   letterSpacing="-0.02em"
+                  textAlign="center"
                 >
-                  {getTimeGreeting()}, {formData.name}! 🎉
+                  Success! Your project is in motion.
                 </Heading>
-                <Text color="gray.300" fontSize="xl" maxW="500px">
-                  Your project inquiry for{' '}
-                  <Text as="span" color={colors.brand.primary} fontWeight="600">
-                    {formData.projectType?.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                  </Text>
-                  {' '}has been received!
+                <Text 
+                  color="gray.400" 
+                  fontSize={{ base: "sm", md: "md" }}
+                  textAlign="center"
+                  maxW="400px"
+                >
+                  Thank you, <Text as="span" color="white" fontWeight="600">{formData.name}</Text>.
+                  We've received your project inquiry and can't wait to bring your vision to life.
                 </Text>
-              </VStack>
+              </MotionVStack>
 
-              {/* Next Steps */}
-              <Box
-                p={6}
-                bg="whiteAlpha.50"
-                borderRadius="xl"
-                border="1px solid"
-                borderColor="whiteAlpha.100"
+              {/* Next Steps - Clean Cards */}
+              <MotionVStack
+                spacing={3}
                 width="100%"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7, duration: 0.5 }}
               >
-                <VStack spacing={4}>
+                <Text 
+                  fontSize={{ base: "xs", md: "sm" }}
+                  color="gray.500"
+                  fontWeight="600"
+                  textTransform="uppercase"
+                  letterSpacing="wider"
+                >
+                  What happens next
+                </Text>
+                
+                <VStack spacing={2} width="100%">
+                  {nextSteps.map((step, index) => {
+                    const Icon = step.icon;
+                    return (
+                      <HStack
+                        key={index}
+                        width="100%"
+                        p={{ base: 3, md: 4 }}
+                        bg="rgba(255, 255, 255, 0.03)"
+                        borderRadius="xl"
+                        border="1px solid"
+                        borderColor="whiteAlpha.100"
+                        spacing={4}
+                        transition="all 0.2s"
+                        _hover={{
+                          bg: 'rgba(255, 255, 255, 0.05)',
+                          borderColor: 'whiteAlpha.200'
+                        }}
+                      >
+                        <Box
+                          p={2}
+                          borderRadius="lg"
+                          bg={`${step.color}22`}
+                          color={step.color}
+                        >
+                          <Icon size={20} />
+                        </Box>
+                        <VStack align="start" spacing={0} flex={1}>
+                          <Text 
+                            color="white" 
+                            fontSize={{ base: "sm", md: "md" }}
+                            fontWeight="600"
+                          >
+                            {step.title}
+                          </Text>
+                          <Text 
+                            color="gray.500" 
+                            fontSize={{ base: "xs", md: "sm" }}
+                          >
+                            {step.description}
+                          </Text>
+                        </VStack>
+                      </HStack>
+                    );
+                  })}
+                </VStack>
+              </MotionVStack>
+
+              {/* Project Summary Badge */}
+              <MotionBox
+                width="100%"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.9, duration: 0.5 }}
+              >
+                <HStack
+                  p={{ base: 3, md: 4 }}
+                  bg={`${colors.accent.purple}11`}
+                  borderRadius="xl"
+                  border="1px solid"
+                  borderColor={`${colors.accent.purple}33`}
+                  justify="center"
+                  spacing={4}
+                >
                   <Badge
                     px={3}
                     py={1}
                     borderRadius="full"
-                    bg={`${colors.accent.warm}22`}
-                    color={colors.accent.warm}
-                    fontSize="sm"
+                    bg={`${colors.accent.purple}22`}
+                    color={colors.accent.purple}
+                    fontSize="xs"
                     fontWeight="600"
                   >
-                    WHAT'S NEXT?
+                    {formData.projectType?.replace(/-/g, ' ').toUpperCase()}
                   </Badge>
-                  
-                  <VStack spacing={3} align="stretch">
-                    {[
-                      { 
-                        icon: '📧', 
-                        text: 'Check your email for confirmation',
-                        time: 'Just sent'
-                      },
-                      { 
-                        icon: '��', 
-                        text: "We'll review your project details",
-                        time: 'Within 2 hours'
-                      },
-                      { 
-                        icon: '📞', 
-                        text: `We'll reach out via ${formData.contactMethod?.[0] || 'email'}`,
-                        time: 'Within 24 hours'
-                      },
-                      { 
-                        icon: '🚀', 
-                        text: 'Start bringing your vision to life!',
-                        time: 'Soon'
-                      }
-                    ].map((step, index) => (
-                      <HStack key={index} justify="space-between" p={3} bg="whiteAlpha.50" borderRadius="lg">
-                        <HStack spacing={3}>
-                          <Text fontSize="xl">{step.icon}</Text>
-                          <Text color="white" fontSize="sm">{step.text}</Text>
-                        </HStack>
-                        <Text color="gray.400" fontSize="xs">{step.time}</Text>
-                      </HStack>
-                    ))}
-                  </VStack>
-                </VStack>
-              </Box>
+                  <Text color="gray.400" fontSize="xs">•</Text>
+                  <Text color="gray.400" fontSize="xs" fontWeight="500">
+                    {formData.timeline?.replace(/-/g, ' ')}
+                  </Text>
+                  <Text color="gray.400" fontSize="xs">•</Text>
+                  <Text color="gray.400" fontSize="xs" fontWeight="500">
+                    {formData.budget?.replace(/-/g, ' ')}
+                  </Text>
+                </HStack>
+              </MotionBox>
 
-              {/* Quick Actions */}
-              <VStack spacing={3} width="100%">
-                <HStack spacing={3} width="100%">
+              {/* Action Buttons */}
+              <MotionBox
+                width="100%"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1, duration: 0.5 }}
+              >
+                <VStack spacing={3} width="100%">
                   <Button
-                    flex={1}
                     size="lg"
+                    width="100%"
                     bg={colors.brand.primary}
                     color="black"
-                    leftIcon={<FiCalendar />}
-                    onClick={() => window.open('https://calendly.com/neonburro', '_blank')}
-                    fontWeight="600"
+                    fontWeight="700"
+                    fontSize={{ base: "sm", md: "md" }}
+                    height={{ base: "52px", md: "56px" }}
+                    onClick={onNavigateHome}
                     _hover={{
+                      bg: colors.brand.primary,
                       transform: 'translateY(-2px)',
                       boxShadow: `0 10px 30px ${colors.brand.primary}66`
                     }}
-                  >
-                    Schedule Call
-                  </Button>
-                  <Button
-                    flex={1}
-                    size="lg"
-                    variant="outline"
-                    borderColor="whiteAlpha.300"
-                    color="white"
+                    _active={{ transform: 'translateY(0)' }}
+                    borderRadius="full"
                     leftIcon={<FiHome />}
-                    onClick={onNavigateHome}
-                    _hover={{
-                      bg: 'whiteAlpha.100',
-                      borderColor: colors.brand.primary
-                    }}
+                    transition="all 0.2s"
                   >
-                    Back Home
+                    Back to Home
                   </Button>
-                </HStack>
-                
-                {/* Fun suggestion based on time */}
-                <HStack spacing={2} color="gray.400" fontSize="sm">
-                  <FiCoffee />
-                  <Text>
-                    {timeOfDay === 'morning' && "Grab a coffee while we review your project!"}
-                    {timeOfDay === 'afternoon' && "Perfect timing! We'll get on this right away."}
-                    {timeOfDay === 'evening' && "Rest easy, we'll tackle this first thing tomorrow!"}
+                  
+                  <Text 
+                    color="gray.500" 
+                    fontSize={{ base: "xs", md: "sm" }}
+                    textAlign="center"
+                  >
+                    Reference ID: <Text as="span" color="gray.400">{Date.now()}</Text>
                   </Text>
-                </HStack>
-              </VStack>
-
-              {/* Budget-based message */}
-              {formData.budget === 'under-1k' && (
-                <Box
-                  p={4}
-                  bg={`${colors.accent.purple}11`}
-                  borderRadius="lg"
-                  border="1px solid"
-                  borderColor={`${colors.accent.purple}33`}
-                >
-                  <Text color="white" fontSize="sm">
-                    💡 <Text as="span" fontWeight="600">Pro tip:</Text> We have special packages 
-                    starting at $999 that pack a serious punch!
-                  </Text>
-                </Box>
-              )}
+                </VStack>
+              </MotionBox>
             </VStack>
           </Box>
         </MotionBox>
-
-        {/* Fun footer message */}
-        <Text color="gray.500" fontSize="sm" textAlign="center" fontStyle="italic">
-          P.S. We're already excited about your project! {getProjectEmoji()}
-        </Text>
       </VStack>
     </MotionBox>
   );

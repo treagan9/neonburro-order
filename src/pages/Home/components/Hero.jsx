@@ -109,6 +109,8 @@ const Hero = () => {
       alignItems="center"
       overflow="hidden"
       bg={colors.dark.void}
+      pt={{ base: 20, md: 28, lg: 32 }}
+      pb={{ base: 8, md: 12, lg: 16 }}
     >
       {/* Matrix Rain Effect */}
       <MatrixRain />
@@ -148,24 +150,24 @@ const Hero = () => {
       
       <Container 
         maxW="1400px"
-        px={{ base: 6, md: 8 }}
+        px={{ base: 4, md: 8 }}
         position="relative"
         zIndex={10}
       >
-        <VStack spacing={8} align="flex-start" maxW="900px">
+        <VStack spacing={{ base: 6, md: 8 }} align={{ base: "center", md: "flex-start" }} textAlign={{ base: "center", md: "left" }} maxW="900px">
           {/* Main Title */}
           <MotionBox
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.6 }}
           >
             <Heading
               as="h1"
-              fontSize={{ base: "3xl", md: "4xl", lg: "5xl" }}
-              fontWeight="bold"
+              fontSize={{ base: "2xl", sm: "3xl", md: "4xl", lg: "5xl", xl: "6xl" }}
+              fontWeight="800"
               fontFamily="'Inter', sans-serif"
               color="white"
-              lineHeight="1.1"
+              lineHeight={{ base: "1.2", md: "1.1" }}
               letterSpacing="-0.02em"
             >
               Built to{' '}
@@ -199,14 +201,13 @@ const Hero = () => {
           <MotionBox
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-            maxW="700px"
+            transition={{ duration: 0.6, delay: 0.1 }}
+            maxW={{ base: "100%", md: "700px" }}
           >
             <Text
-              fontSize={{ base: "md", md: "lg" }}
+              fontSize={{ base: "sm", md: "md", lg: "lg" }}
               color="gray.300"
-              lineHeight="1.7"
-              fontWeight="300"
+              lineHeight={{ base: "1.6", md: "1.7" }}
             >
               We're the digital misfits behind high-performing websites that are fast, beautiful, 
               and a little rebellious. From slick UI to SEO-savvy builds, we bring big energy, 
@@ -218,13 +219,15 @@ const Hero = () => {
           <MotionBox
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
             width="100%"
+            maxW={{ base: "100%", md: "700px" }}
           >
             <HStack 
               spacing={{ base: 4, md: 10 }} 
               flexWrap="wrap"
               divider={<Box height="40px" width="1px" bg={`${colors.neon.cyan}22`} />}
+              justify={{ base: "center", md: "flex-start" }}
             >
               <VStack align="start" spacing={0}>
                 <HStack spacing={1} align="baseline">
@@ -290,9 +293,10 @@ const Hero = () => {
           <MotionBox
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.8 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            width={{ base: "100%", sm: "auto" }}
           >
-            <HStack spacing={4} flexDirection={{ base: "column", sm: "row" }} w="full">
+            <HStack spacing={4} flexDirection={{ base: "column", sm: "row" }} w={{ base: "full", sm: "auto" }}>
               <Button
                 size="lg"
                 px={10}
@@ -305,6 +309,7 @@ const Hero = () => {
                 position="relative"
                 overflow="hidden"
                 onClick={handleContactClick}
+                width={{ base: "100%", sm: "auto" }}
                 _hover={{
                   bg: colors.neon.cyan,
                   transform: 'translateY(-2px)',
@@ -339,6 +344,7 @@ const Hero = () => {
                 borderColor={colors.neon.cyan}
                 borderRadius="full"
                 onClick={handlePaymentClick}
+                width={{ base: "100%", sm: "auto" }}
                 _hover={{
                   bg: `${colors.neon.cyan}22`,
                   transform: 'translateY(-2px)',

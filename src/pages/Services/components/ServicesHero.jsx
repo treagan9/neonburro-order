@@ -1,135 +1,118 @@
-// Services/components/ServicesHero.jsx
-import { Box, Container, Heading, Text, VStack, HStack, Button } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, VStack, HStack, Button, Badge } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { FiArrowRight, FiZap } from 'react-icons/fi';
+import { FiArrowRight, FiZap, FiPackage, FiTrendingUp } from 'react-icons/fi';
 
 const MotionBox = motion(Box);
-const MotionText = motion(Text);
 
 const ServicesHero = () => {
-  // Using your brand colors
   const colors = {
-    brand: {
-      primary: '#00E5E5',
-      primaryDark: '#00B8B8',
-    },
-    accent: {
-      neon: '#39FF14',
-      warm: '#FF6B00',
-    },
-    dark: {
-      black: '#0A0A0A',
+    brand: { primary: '#00FFFF' },
+    accent: { 
+      green: '#39FF14',
+      warm: '#FF6B00'
     }
   };
+
+  const stats = [
+    { value: '3', label: 'Starter Packages', icon: FiPackage },
+    { value: '12+', label: 'Power Features', icon: FiTrendingUp },
+    { value: '∞', label: 'Possibilities', icon: FiZap }
+  ];
 
   return (
     <Box
       position="relative"
-      minH={{ base: "60vh", md: "70vh" }}
+      minH={{ base: '85vh', md: '90vh' }}
       display="flex"
       alignItems="center"
       overflow="hidden"
-      bg={colors.dark.black}
-      pt={{ base: 20, md: 24 }}
+      bg="#0A0A0A"
+      pt={{ base: 20, md: 28, lg: 32 }}
+      pb={{ base: 8, md: 12, lg: 16 }}
     >
-      {/* Subtle background gradient */}
+      {/* Subtle gradient - desktop only */}
       <Box
+        display={{ base: 'none', md: 'block' }}
         position="absolute"
         top={0}
         left={0}
         right={0}
         bottom={0}
-        opacity={0.03}
-        bgGradient={`radial(circle at 30% 20%, ${colors.brand.primary} 0%, transparent 40%),
-                     radial(circle at 70% 80%, ${colors.accent.warm} 0%, transparent 40%)`}
-      />
+        opacity={0.05}
+      >
+        <Box
+          position="absolute"
+          top="30%"
+          left="20%"
+          width="400px"
+          height="400px"
+          borderRadius="full"
+          bg={colors.brand.primary}
+          filter="blur(120px)"
+        />
+        <Box
+          position="absolute"
+          bottom="20%"
+          right="20%"
+          width="300px"
+          height="300px"
+          borderRadius="full"
+          bg={colors.accent.warm}
+          filter="blur(120px)"
+        />
+      </Box>
 
-      {/* Animated grid background */}
-      <Box
-        position="absolute"
-        top={0}
-        left={0}
-        right={0}
-        bottom={0}
-        opacity={0.02}
-        backgroundImage={`
-          linear-gradient(${colors.brand.primary}22 1px, transparent 1px),
-          linear-gradient(90deg, ${colors.brand.primary}22 1px, transparent 1px)
-        `}
-        backgroundSize="50px 50px"
-      />
-
-      <Container maxW="1400px" px={{ base: 6, md: 8 }} position="relative">
-        <VStack spacing={8} align="flex-start" maxW="900px">
+      <Container maxW="1400px" px={{ base: 4, md: 8 }} position="relative">
+        <VStack spacing={{ base: 6, md: 8 }} align={{ base: "center", md: "flex-start" }} textAlign={{ base: "center", md: "left" }}>
           {/* Badge */}
           <MotionBox
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <HStack spacing={2}>
-              <Box
-                p={2}
-                borderRadius="full"
-                bg={`${colors.brand.primary}22`}
-                color={colors.brand.primary}
-              >
-                <FiZap size={16} />
-              </Box>
-              <Text
-                color={colors.brand.primary}
-                fontSize="sm"
-                fontWeight="600"
-                letterSpacing="0.1em"
-                textTransform="uppercase"
-              >
-                Services & Solutions
-              </Text>
-            </HStack>
+            <Badge
+              px={{ base: 3, md: 4 }}
+              py={{ base: 1.5, md: 2 }}
+              borderRadius="full"
+              bg="whiteAlpha.100"
+              backdropFilter="blur(10px)"
+              border="1px solid"
+              borderColor="whiteAlpha.200"
+              color={colors.brand.primary}
+              fontSize={{ base: "xs", md: "sm" }}
+              fontWeight="600"
+              letterSpacing="0.05em"
+              boxShadow={`0 0 20px ${colors.brand.primary}22`}
+            >
+              SERVICES & SOLUTIONS
+            </Badge>
           </MotionBox>
 
           {/* Main Heading */}
           <MotionBox
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            maxW="900px"
           >
             <Heading
               as="h1"
-              fontSize={{ base: "3xl", md: "4xl", lg: "5xl" }}
-              fontWeight="bold"
-              fontFamily="'Geist Sans', 'Inter', sans-serif"
+              fontSize={{ base: "2xl", sm: "3xl", md: "4xl", lg: "5xl", xl: "6xl" }}
+              fontFamily="'Inter', sans-serif"
+              fontWeight="800"
               color="white"
-              lineHeight="1.1"
+              lineHeight={{ base: "1.2", md: "1.1" }}
               letterSpacing="-0.02em"
             >
               Digital Solutions That
               <Box
                 as="span"
                 display="block"
-                position="relative"
-                mt={2}
+                bgGradient={`linear(to-r, ${colors.brand.primary}, ${colors.accent.green})`}
+                bgClip="text"
+                mt={1}
               >
-                <Box
-                  as="span"
-                  position="relative"
-                  display="inline-block"
-                  sx={{
-                    background: `linear-gradient(135deg, ${colors.brand.primary} 0%, ${colors.brand.primaryDark} 50%, ${colors.accent.neon} 100%)`,
-                    backgroundClip: 'text',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundSize: '200% 200%',
-                    animation: 'gradientShift 4s ease infinite',
-                    '@keyframes gradientShift': {
-                      '0%': { backgroundPosition: '0% 50%' },
-                      '50%': { backgroundPosition: '100% 50%' },
-                      '100%': { backgroundPosition: '0% 50%' }
-                    }
-                  }}
-                >
-                  Elevate Your Business
-                </Box>
+                Elevate Your Business
               </Box>
             </Heading>
           </MotionBox>
@@ -138,75 +121,87 @@ const ServicesHero = () => {
           <MotionBox
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            maxW="700px"
+            transition={{ duration: 0.6, delay: 0.2 }}
+            maxW={{ base: "100%", md: "700px" }}
           >
             <Text
-              fontSize={{ base: "md", md: "lg" }}
+              fontSize={{ base: "sm", md: "md", lg: "lg" }}
               color="gray.300"
-              lineHeight="1.7"
-              fontWeight="300"
+              lineHeight={{ base: "1.6", md: "1.7" }}
+              px={{ base: 2, md: 0 }}
             >
               From quick-start packages to enterprise solutions, we build digital experiences 
-              that convert visitors into customers. No templates, no compromises—just 
-              pure digital craftsmanship from the Colorado mountains.
+              that convert visitors into customers. No templates, no compromises.
             </Text>
           </MotionBox>
 
-          {/* Stats Bar */}
+          {/* Stats Cards */}
           <MotionBox
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
             width="100%"
+            maxW={{ base: "100%", md: "700px" }}
           >
-            <HStack 
-              spacing={{ base: 6, md: 10 }} 
-              flexWrap="wrap"
-              divider={<Box height="30px" width="1px" bg={`${colors.brand.primary}22`} />}
+            <HStack
+              spacing={{ base: 3, md: 4 }}
+              justify={{ base: "center", md: "flex-start" }}
+              flexWrap={{ base: "wrap", md: "nowrap" }}
+              gap={{ base: 3, md: 0 }}
             >
-              <VStack align="start" spacing={0}>
-                <Text 
-                  color={colors.accent.neon} 
-                  fontSize="2xl" 
-                  fontWeight="700" 
-                  fontFamily="'Geist Mono', monospace"
-                  textShadow={`0 0 10px ${colors.accent.neon}66`}
-                >
-                  3
-                </Text>
-                <Text color="gray.500" fontSize="xs" textTransform="uppercase" letterSpacing="0.05em">
-                  Starter Packages
-                </Text>
-              </VStack>
-              <VStack align="start" spacing={0}>
-                <Text 
-                  color={colors.brand.primary} 
-                  fontSize="2xl" 
-                  fontWeight="700" 
-                  fontFamily="'Geist Mono', monospace"
-                  textShadow={`0 0 10px ${colors.brand.primary}66`}
-                >
-                  12+
-                </Text>
-                <Text color="gray.500" fontSize="xs" textTransform="uppercase" letterSpacing="0.05em">
-                  Power-Up Features
-                </Text>
-              </VStack>
-              <VStack align="start" spacing={0}>
-                <Text 
-                  color={colors.accent.warm} 
-                  fontSize="2xl" 
-                  fontWeight="700" 
-                  fontFamily="'Geist Mono', monospace"
-                  textShadow={`0 0 10px ${colors.accent.warm}66`}
-                >
-                  ∞
-                </Text>
-                <Text color="gray.500" fontSize="xs" textTransform="uppercase" letterSpacing="0.05em">
-                  Possibilities
-                </Text>
-              </VStack>
+              {stats.map((stat, index) => {
+                const Icon = stat.icon;
+                return (
+                  <Box
+                    key={index}
+                    flex={{ base: "1 1 calc(33.333% - 12px)", md: 1 }}
+                    minW={{ base: "90px", md: "auto" }}
+                  >
+                    <VStack
+                      p={{ base: 2.5, md: 3 }}
+                      borderRadius="xl"
+                      bg="whiteAlpha.50"
+                      backdropFilter="blur(10px)"
+                      border="1px solid"
+                      borderColor="whiteAlpha.100"
+                      transition="all 0.3s"
+                      cursor="pointer"
+                      spacing={0.5}
+                      align="center"
+                      _hover={{
+                        bg: { base: 'whiteAlpha.50', md: 'whiteAlpha.100' },
+                        borderColor: { base: 'whiteAlpha.100', md: colors.brand.primary },
+                        transform: { base: 'none', md: 'translateY(-4px)' },
+                        boxShadow: { base: 'none', md: `0 10px 30px ${colors.brand.primary}22` }
+                      }}
+                    >
+                      <HStack spacing={2} align="center">
+                        <Box color={colors.brand.primary}>
+                          <Icon size={14} />
+                        </Box>
+                        <Text 
+                          color="white" 
+                          fontSize={{ base: "lg", md: "xl" }}
+                          fontWeight="800"
+                          lineHeight="1"
+                        >
+                          {stat.value}
+                        </Text>
+                      </HStack>
+                      <Text 
+                        color="gray.500" 
+                        fontSize="2xs"
+                        fontWeight="600"
+                        textTransform="uppercase"
+                        letterSpacing="wider"
+                        whiteSpace="nowrap"
+                      >
+                        {stat.label}
+                      </Text>
+                    </VStack>
+                  </Box>
+                );
+              })}
             </HStack>
           </MotionBox>
 
@@ -214,49 +209,57 @@ const ServicesHero = () => {
           <MotionBox
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            width={{ base: "100%", sm: "auto" }}
           >
-            <HStack spacing={4} flexDirection={{ base: "column", sm: "row" }} w="full">
+            <HStack 
+              spacing={3} 
+              flexDirection={{ base: "column", sm: "row" }} 
+              width={{ base: "100%", sm: "auto" }}
+            >
               <Button
                 size="lg"
-                px={10}
-                py={7}
-                fontSize="md"
-                fontWeight="600"
                 bg={colors.brand.primary}
-                color={colors.dark.black}
-                borderRadius="full"
+                color="black"
+                fontWeight="700"
+                fontSize={{ base: "sm", md: "md" }}
+                height={{ base: "48px", md: "52px" }}
+                px={{ base: 6, md: 8 }}
+                width={{ base: "100%", sm: "auto" }}
                 rightIcon={<FiArrowRight />}
-                onClick={() => document.getElementById('packages').scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => document.getElementById('packages')?.scrollIntoView({ behavior: 'smooth' })}
                 _hover={{
-                  bg: colors.brand.primaryDark,
+                  bg: colors.brand.primary,
                   transform: 'translateY(-2px)',
-                  boxShadow: `0 10px 40px ${colors.brand.primary}66`
+                  boxShadow: `0 10px 30px ${colors.brand.primary}66`
                 }}
-                transition="all 0.3s"
+                _active={{
+                  transform: 'translateY(0)'
+                }}
+                borderRadius="full"
+                transition="all 0.2s"
               >
                 View Packages
               </Button>
               <Button
                 size="lg"
-                px={10}
-                py={7}
-                fontSize="md"
+                variant="outline"
+                borderColor="whiteAlpha.300"
+                borderWidth="2px"
+                color="white"
                 fontWeight="600"
-                bg="transparent"
-                color={colors.brand.primary}
-                border="2px solid"
-                borderColor={colors.brand.primary}
-                borderRadius="full"
+                fontSize={{ base: "sm", md: "md" }}
+                height={{ base: "48px", md: "52px" }}
+                px={{ base: 6, md: 8 }}
+                width={{ base: "100%", sm: "auto" }}
                 onClick={() => window.location.href = '/contact/'}
                 _hover={{
-                  bg: `${colors.brand.primary}22`,
-                  transform: 'translateY(-2px)',
+                  bg: 'whiteAlpha.100',
                   borderColor: colors.brand.primary,
-                  color: 'white',
-                  boxShadow: `0 10px 40px ${colors.brand.primary}44`
+                  color: colors.brand.primary
                 }}
-                transition="all 0.3s"
+                borderRadius="full"
+                transition="all 0.2s"
               >
                 Get Quote
               </Button>

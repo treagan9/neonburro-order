@@ -11,6 +11,7 @@ const Features = () => {
       title: "Lightning Fast",
       description: "Sub-second load times with cutting-edge optimization",
       color: 'brand.primary',
+      glow: 'cyan',
       stat: "< 0.8s"
     },
     {
@@ -18,13 +19,15 @@ const Features = () => {
       title: "Clean Code",
       description: "Maintainable, scalable architecture built to last",
       color: 'accent.warm',
+      glow: 'warm',
       stat: "100/100"
     },
     {
       icon: FiTarget,
       title: "Conversion Focused",
       description: "Every pixel designed to drive real business results",
-      color: 'brand.primaryLight',
+      color: 'accent.banana',
+      glow: 'banana',
       stat: "+47%"
     },
     {
@@ -32,20 +35,23 @@ const Features = () => {
       title: "AI Enhanced",
       description: "Smart integrations that adapt to your users",
       color: 'accent.neon',
+      glow: 'neon',
       stat: "GPT-4"
     },
     {
       icon: FiLayers,
       title: "Modular Design",
       description: "Flexible systems that grow with your business",
-      color: 'brand.primary',
+      color: 'accent.purple',
+      glow: 'purple',
       stat: "∞"
     },
     {
       icon: FiGlobe,
       title: "SEO Optimized",
       description: "Built for visibility and organic growth",
-      color: 'accent.warm',
+      color: 'brand.primary',
+      glow: 'cyan',
       stat: "Top 3"
     }
   ];
@@ -57,25 +63,50 @@ const Features = () => {
       bg="dark.black"
       overflow="hidden"
     >
-      {/* Subtle animated background gradient */}
+      {/* Enhanced animated background gradient */}
       <Box
         position="absolute"
         top={0}
         left={0}
         right={0}
         bottom={0}
-        opacity={0.02}
-        bgImage="radial-gradient(circle at 20% 50%, #00E5E5 0%, transparent 50%),
-                 radial-gradient(circle at 80% 80%, #FF6B00 0%, transparent 50%)"
-        animation="float 20s ease-in-out infinite"
-        sx={{
-          '@keyframes float': {
-            '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
-            '33%': { transform: 'translate(-10px, -10px) scale(1.05)' },
-            '66%': { transform: 'translate(10px, -5px) scale(0.95)' }
-          }
-        }}
-      />
+        opacity={0.03}
+      >
+        <Box
+          position="absolute"
+          top="20%"
+          left="10%"
+          width="500px"
+          height="500px"
+          borderRadius="full"
+          bg="brand.primary"
+          filter="blur(150px)"
+          opacity={0.6}
+        />
+        <Box
+          position="absolute"
+          bottom="20%"
+          right="10%"
+          width="400px"
+          height="400px"
+          borderRadius="full"
+          bg="accent.banana"
+          filter="blur(150px)"
+          opacity={0.4}
+        />
+        <Box
+          position="absolute"
+          top="50%"
+          left="50%"
+          transform="translate(-50%, -50%)"
+          width="300px"
+          height="300px"
+          borderRadius="full"
+          bg="accent.purple"
+          filter="blur(120px)"
+          opacity={0.3}
+        />
+      </Box>
 
       <Container maxW="1400px" px={{ base: 4, md: 8 }} position="relative">
         <Grid templateColumns={{ base: '1fr', lg: '1fr 1fr' }} gap={{ base: 12, lg: 20 }} alignItems="center">
@@ -90,11 +121,15 @@ const Features = () => {
                 viewport={{ once: true }}
               >
                 <HStack spacing={3}>
-                  <Box width="40px" height="2px" bg="brand.primary" />
+                  <Box 
+                    width="40px" 
+                    height="2px" 
+                    bg="accent.banana"
+                    boxShadow="0 0 10px var(--chakra-colors-accent-banana)"
+                  />
                   <Text 
-                    color="brand.primary"
+                    color="accent.banana"
                     fontSize={{ base: "xs", md: "sm" }}
-                    fontFamily="body"
                     fontWeight="semibold" 
                     letterSpacing="wider"
                     textTransform="uppercase"
@@ -112,18 +147,17 @@ const Features = () => {
               >
                 <Heading
                   as="h2"
-                  fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
-                  fontFamily="heading"
-                  fontWeight="bold"
+                  fontSize={{ base: "26px", sm: "3xl", md: "4xl", lg: "5xl" }}
+                  fontWeight="extrabold"
                   color="text.primary"
-                  lineHeight="tight"
+                  lineHeight={{ base: "1.3", md: "1.2" }}
                   letterSpacing="tight"
                 >
                   Built Different.
                   <Box 
                     as="span" 
                     display="block"
-                    bgGradient="linear(to-r, brand.primary, accent.warm)"
+                    bgGradient="linear(to-r, accent.warm, accent.banana, accent.neon)"
                     bgClip="text"
                     mt={1}
                   >
@@ -140,10 +174,8 @@ const Features = () => {
               >
                 <Text
                   fontSize={{ base: "sm", md: "md", lg: "lg" }}
-                  fontFamily="body"
                   color="text.secondary"
                   lineHeight="relaxed"
-                  fontWeight="normal"
                   maxW="500px"
                 >
                   We don't just build websites. We craft digital experiences that load in milliseconds, 
@@ -159,29 +191,40 @@ const Features = () => {
                 mt={{ base: 2, md: 4 }}
               >
                 <Box
-                  px={{ base: 4, md: 6 }}
+                  px={{ base: 5, md: 6 }}
                   py={{ base: 3, md: 4 }}
-                  borderRadius="lg"
-                  bg="whiteAlpha.50"
-                  backdropFilter="blur(10px)"
-                  border="1px solid"
-                  borderColor="brand.primaryAlpha.30"
+                  borderRadius="xl"
+                  bg="rgba(255, 229, 0, 0.03)"
+                  backdropFilter="blur(20px)"
+                  border="2px solid"
+                  borderColor="rgba(255, 229, 0, 0.2)"
                   position="relative"
                   overflow="hidden"
-                  _before={{
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    bgGradient: 'linear(135deg, brand.primaryAlpha.10, accent.warm)',
-                    opacity: 0.1
+                  transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                  role="group"
+                  cursor="pointer"
+                  _hover={{
+                    borderColor: 'accent.banana',
+                    bg: 'rgba(255, 229, 0, 0.05)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 20px 40px rgba(255, 229, 0, 0.15)'
                   }}
                 >
+                  {/* Animated gradient overlay */}
+                  <Box
+                    position="absolute"
+                    top={0}
+                    left="-100%"
+                    width="100%"
+                    height="100%"
+                    bgGradient="linear(90deg, transparent, rgba(255, 229, 0, 0.2), transparent)"
+                    transition="left 0.8s ease"
+                    _groupHover={{ left: '100%' }}
+                    pointerEvents="none"
+                  />
+                  
                   <Text
                     fontSize={{ base: "md", md: "lg" }}
-                    fontFamily="body"
                     color="text.primary"
                     fontWeight="semibold"
                     fontStyle="italic"
@@ -199,116 +242,123 @@ const Features = () => {
           <GridItem>
             <Grid 
               templateColumns="repeat(2, 1fr)" 
-              gap={{ base: 3, md: 5 }}
+              gap={{ base: 4, md: 5 }}
             >
               {features.map((feature, index) => (
                 <MotionBox
                   key={index}
-                  initial={{ opacity: 0, scale: 0.95 }}
+                  initial={{ opacity: 0, scale: 0.9 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.5, delay: 0.05 * index }}
                   viewport={{ once: true }}
-                  whileHover={{ y: -6, scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ y: -8 }}
                 >
                   <Box
-                    p={{ base: 4, md: 6 }}
+                    p={{ base: 4, md: 5 }}
                     borderRadius="xl"
-                    bg="ui.backdrop"
+                    bg="rgba(255, 255, 255, 0.02)"
                     backdropFilter="blur(20px)"
                     border="2px solid"
-                    borderColor="ui.border"
+                    borderColor="rgba(255, 255, 255, 0.08)"
                     position="relative"
                     overflow="hidden"
                     role="group"
+                    cursor="pointer"
+                    height="100%"
+                    transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                     _hover={{
                       borderColor: feature.color,
-                      bg: 'rgba(0,0,0,0.8)',
-                      boxShadow: `0 20px 40px rgba(0, 229, 229, 0.15)`,
+                      bg: 'rgba(255, 255, 255, 0.04)',
+                      boxShadow: `0 20px 40px ${feature.color}22`,
                       '& .feature-icon': {
-                        transform: 'scale(1.1) rotate(5deg)',
+                        transform: 'scale(1.15) rotate(5deg)',
                         color: feature.color
                       },
                       '& .feature-stat': {
                         opacity: 1,
-                        transform: 'translateY(0)'
+                        transform: 'translateY(0) scale(1)'
+                      },
+                      '& .feature-glow': {
+                        opacity: 1
                       }
                     }}
-                    _active={{
-                      transform: 'scale(0.98)',
-                    }}
-                    transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-                    cursor="pointer"
-                    height="100%"
                   >
-                    {/* Subtle glow effect */}
+                    {/* Dynamic glow effect */}
                     <Box
+                      className="feature-glow"
                       position="absolute"
-                      top="-50%"
-                      left="-50%"
-                      width="200%"
-                      height="200%"
-                      bg="radial-gradient(circle, rgba(0, 229, 229, 0.05) 0%, transparent 70%)"
+                      top="50%"
+                      left="50%"
+                      transform="translate(-50%, -50%)"
+                      width="150%"
+                      height="150%"
+                      bg={`radial-gradient(circle, ${feature.color}15 0%, transparent 70%)`}
                       opacity={0}
-                      _groupHover={{ opacity: 1 }}
-                      transition="opacity 0.3s"
+                      transition="opacity 0.5s"
                       pointerEvents="none"
                     />
                     
-                    {/* Stat badge - visible on mobile by default */}
+                    {/* Stat badge - enhanced */}
                     <Box
                       className="feature-stat"
                       position="absolute"
-                      top={{ base: 3, md: 4 }}
-                      right={{ base: 3, md: 4 }}
-                      px={{ base: 2, md: 3 }}
+                      top={3}
+                      right={3}
+                      px={3}
                       py={1}
                       borderRadius="full"
-                      bg="brand.primaryAlpha.20"
+                      bg={`${feature.color}22`}
                       border="1px solid"
-                      borderColor="brand.primaryAlpha.30"
-                      opacity={{ base: 0.7, md: 0 }}
-                      transform={{ base: "translateY(0)", md: "translateY(-10px)" }}
-                      transition="all 0.3s"
+                      borderColor={`${feature.color}44`}
+                      opacity={{ base: 0.8, md: 0 }}
+                      transform={{ base: "translateY(0) scale(1)", md: "translateY(-10px) scale(0.9)" }}
+                      transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                     >
                       <Text
                         fontSize="2xs"
                         fontFamily="mono"
-                        fontWeight="bold"
-                        color="brand.primary"
+                        fontWeight="extrabold"
+                        color={feature.color}
                       >
                         {feature.stat}
                       </Text>
                     </Box>
 
-                    <VStack align="start" spacing={{ base: 2, md: 3 }} position="relative">
+                    <VStack align="start" spacing={3} position="relative">
                       <Box
-                        className="feature-icon"
-                        as={feature.icon}
-                        w={{ base: 4, md: 5 }}
-                        h={{ base: 4, md: 5 }}
-                        color="text.muted"
-                        transition="all 0.3s"
-                      />
-                      <Text
-                        fontSize={{ base: "md", md: "lg" }}
-                        fontFamily="heading"
-                        fontWeight="bold"
-                        color="text.primary"
-                        letterSpacing="tight"
-                        lineHeight="tight"
+                        p={2.5}
+                        borderRadius="lg"
+                        bg={`${feature.color}11`}
+                        position="relative"
                       >
-                        {feature.title}
-                      </Text>
-                      <Text
-                        fontSize={{ base: "xs", md: "sm" }}
-                        fontFamily="body"
-                        fontWeight="normal"
-                        color="text.secondary"
-                        lineHeight="base"
-                      >
-                        {feature.description}
-                      </Text>
+                        <Box
+                          className="feature-icon"
+                          as={feature.icon}
+                          w={5}
+                          h={5}
+                          color="text.muted"
+                          transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                        />
+                      </Box>
+                      
+                      <VStack align="start" spacing={1}>
+                        <Text
+                          fontSize={{ base: "md", md: "lg" }}
+                          fontWeight="bold"
+                          color="text.primary"
+                          letterSpacing="tight"
+                          lineHeight="tight"
+                        >
+                          {feature.title}
+                        </Text>
+                        <Text
+                          fontSize={{ base: "xs", md: "sm" }}
+                          color="text.secondary"
+                          lineHeight="snug"
+                        >
+                          {feature.description}
+                        </Text>
+                      </VStack>
                     </VStack>
                   </Box>
                 </MotionBox>

@@ -1,256 +1,215 @@
-import { Box, Container, Heading, Text, VStack, HStack, Button } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, VStack, SimpleGrid, Image } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { FiArrowRight, FiMapPin } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
 
 const MotionBox = motion(Box);
 
 const OurStory = () => {
-  const navigate = useNavigate();
-  
   const colors = {
-    brand: { primary: '#00E5E5' },
-    accent: { neon: '#39FF14', warm: '#FF6B00' },
+    brand: { primary: '#00FFFF' },
+    accent: { green: '#39FF14', warm: '#FF6B00' },
     dark: { black: '#0A0A0A' }
   };
 
+  const storyPoints = [
+    {
+      year: '2019',
+      title: 'The Spark',
+      description: 'Started in a converted barn with nothing but laptops, big dreams, and way too much coffee.',
+      color: colors.brand.primary
+    },
+    {
+      year: '2020',
+      title: 'The Evolution',
+      description: 'Survived the chaos, thrived in the remote revolution, and discovered our true calling.',
+      color: colors.accent.green
+    },
+    {
+      year: '2023',
+      title: 'The Ranch',
+      description: 'Established our headquarters where code meets cattle, and pixels meet peaks.',
+      color: colors.accent.warm
+    }
+  ];
+
   return (
     <Box
+      id="our-story"
       position="relative"
-      minH="100vh"
-      display="flex"
-      alignItems="center"
-      overflow="hidden"
+      py={{ base: 16, md: 24 }}
       bg={colors.dark.black}
+      overflow="hidden"
     >
-      {/* Background elements */}
-      <Box
-        position="absolute"
-        top={0}
-        left={0}
-        right={0}
-        bottom={0}
-        opacity={0.03}
-        bgGradient={`radial(circle at 20% 50%, ${colors.brand.primary} 0%, transparent 40%),
-                     radial(circle at 80% 80%, ${colors.accent.neon} 0%, transparent 40%)`}
-      />
-
-      <Container 
-        maxW="1400px"
-        px={{ base: 6, md: 8 }}
-        position="relative"
-        zIndex={10}
-      >
-        <VStack spacing={8} align="flex-start" maxW="900px">
-          {/* Location Badge */}
+      <Container maxW="1200px" px={{ base: 4, md: 6, lg: 8 }}>
+        <VStack spacing={{ base: 12, md: 16 }}>
+          {/* Section Header */}
           <MotionBox
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-          >
-            <HStack spacing={2} color={colors.brand.primary}>
-              <FiMapPin />
-              <Text
-                fontSize="sm"
-                fontWeight="600"
-                letterSpacing="0.1em"
-                textTransform="uppercase"
-              >
-                Ridgway, Colorado • 7,200ft
-              </Text>
-            </HStack>
-          </MotionBox>
-
-          {/* Main Heading - matching Hero sizing */}
-          <MotionBox
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            textAlign="center"
+            maxW="800px"
+            mx="auto"
           >
             <Heading
-              as="h1"
-              fontSize={{ base: "3xl", md: "4xl", lg: "5xl" }}
-              fontWeight="bold"
-              fontFamily="'Inter', sans-serif"
+              as="h2"
+              fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
+              fontWeight="800"
               color="white"
-              lineHeight="1.1"
+              mb={4}
               letterSpacing="-0.02em"
             >
-              We're Not Your Average
+              From Mountain Town to
               <Box
                 as="span"
-                display="block"
-                position="relative"
-                mt={2}
+                display="inline-block"
+                ml={2}
+                bgGradient={`linear(135deg, ${colors.brand.primary} 0%, ${colors.accent.green} 100%)`}
+                bgClip="text"
               >
-                <Box
-                  as="span"
-                  bgGradient={`linear(135deg, ${colors.brand.primary} 0%, ${colors.accent.neon} 100%)`}
-                  bgClip="text"
-                  WebkitBackgroundClip="text"
-                  WebkitTextFillColor="transparent"
-                >
-                  Digital Agency
-                </Box>
+                Digital Frontier
               </Box>
             </Heading>
+            <Text
+              fontSize={{ base: "md", md: "lg" }}
+              color="gray.400"
+              maxW="600px"
+              mx="auto"
+            >
+              Our journey from a crazy idea to Colorado's most unconventional digital agency.
+            </Text>
           </MotionBox>
 
-          {/* Story - matching Hero description sizing */}
-          <MotionBox
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-            maxW="700px"
-          >
-            <VStack spacing={4} align="start">
-              <Text
-                fontSize={{ base: "md", md: "lg" }}
-                color="gray.300"
-                lineHeight="1.7"
-                fontWeight="300"
-              >
-                Born in the Colorado mountains, we're a collective of digital outlaws who 
-                believe the best code is written with mountain air in your lungs and 
-                creativity in your veins.
-              </Text>
-              <Text
-                fontSize={{ base: "sm", md: "md" }}
-                color="gray.400"
-                lineHeight="1.7"
-              >
-                We started Neon Burro because we were tired of the same old agency playbook. 
-                No stuffy offices, no corporate BS—just pure talent, radical collaboration, 
-                and a commitment to building digital experiences that actually matter.
-              </Text>
-              <Text
-                fontSize={{ base: "sm", md: "md" }}
-                color="gray.400"
-                lineHeight="1.7"
-              >
-                From our ranch headquarters in Ridgway, we've assembled a crew of builders, 
-                dreamers, and digital renegades who transform wild ideas into pixel-perfect reality.
-              </Text>
-            </VStack>
-          </MotionBox>
+          {/* Story Content */}
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={{ base: 8, md: 12 }} width="100%">
+            {/* Story Text */}
+            <MotionBox
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            >
+              <VStack spacing={6} align="start">
+                <Text
+                  fontSize={{ base: "md", md: "lg" }}
+                  color="gray.300"
+                  lineHeight="1.8"
+                >
+                  We started Neon Burro because we were tired of the same old agency playbook. 
+                  No corner offices in glass towers, no suits telling creatives what to do, 
+                  no BS metrics that don't matter.
+                </Text>
+                <Text
+                  fontSize={{ base: "md", md: "lg" }}
+                  color="gray.300"
+                  lineHeight="1.8"
+                >
+                  Instead, we built something different. A place where the best talent could 
+                  do their best work, where clients become partners, and where every project 
+                  is a chance to push boundaries.
+                </Text>
+                <Text
+                  fontSize={{ base: "md", md: "lg" }}
+                  color="gray.300"
+                  lineHeight="1.8"
+                >
+                  From our ranch in Ridgway, we've assembled a crew that spans timezones but 
+                  shares one vision: building digital experiences that make people say "damn."
+                </Text>
+              </VStack>
+            </MotionBox>
 
-          {/* Stats - matching Hero stats sizing */}
+            {/* Timeline */}
+            <MotionBox
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            >
+              <VStack spacing={6} align="stretch">
+                {storyPoints.map((point, index) => (
+                  <MotionBox
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1, duration: 0.5 }}
+                  >
+                    <Box
+                      p={6}
+                      borderLeft="3px solid"
+                      borderColor={point.color}
+                      bg="rgba(255, 255, 255, 0.02)"
+                      borderRadius="lg"
+                      position="relative"
+                      _hover={{
+                        bg: 'rgba(255, 255, 255, 0.04)',
+                        transform: 'translateX(4px)'
+                      }}
+                      transition="all 0.3s"
+                    >
+                      <Text
+                        color={point.color}
+                        fontSize={{ base: "2xl", md: "3xl" }}
+                        fontWeight="700"
+                        fontFamily="mono"
+                        mb={1}
+                      >
+                        {point.year}
+                      </Text>
+                      <Text
+                        color="white"
+                        fontSize={{ base: "lg", md: "xl" }}
+                        fontWeight="600"
+                        mb={2}
+                      >
+                        {point.title}
+                      </Text>
+                      <Text
+                        color="gray.400"
+                        fontSize={{ base: "sm", md: "md" }}
+                        lineHeight="1.6"
+                      >
+                        {point.description}
+                      </Text>
+                    </Box>
+                  </MotionBox>
+                ))}
+              </VStack>
+            </MotionBox>
+          </SimpleGrid>
+
+          {/* Ranch Image Placeholder */}
           <MotionBox
             initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
             width="100%"
           >
-            <HStack 
-              spacing={{ base: 4, md: 10 }} 
-              flexWrap="wrap"
-              divider={<Box height="40px" width="1px" bg={`${colors.brand.primary}22`} />}
+            <Box
+              position="relative"
+              borderRadius="2xl"
+              overflow="hidden"
+              height={{ base: "300px", md: "500px" }}
+              bg="whiteAlpha.100"
+              border="1px solid"
+              borderColor="whiteAlpha.200"
             >
-              <VStack align="start" spacing={0}>
-                <HStack spacing={1} align="baseline">
-                  <Text 
-                    color={colors.brand.primary} 
-                    fontSize={{ base: "xl", md: "2xl" }}
-                    fontWeight="700" 
-                    fontFamily="mono"
-                    textShadow={`0 0 10px ${colors.brand.primary}66`}
-                  >
-                    2019
-                  </Text>
-                </HStack>
-                <Text color="gray.500" fontSize="2xs" letterSpacing="0.05em" display={{ base: "none", md: "block" }}>
-                  Founded
-                </Text>
-              </VStack>
-              <VStack align="start" spacing={0}>
-                <HStack spacing={1} align="baseline">
-                  <Text 
-                    color={colors.accent.neon} 
-                    fontSize={{ base: "xl", md: "2xl" }}
-                    fontWeight="700" 
-                    fontFamily="mono"
-                    textShadow={`0 0 10px ${colors.accent.neon}66`}
-                  >
-                    12+
-                  </Text>
-                  <Text color={colors.accent.neon} fontSize={{ base: "sm", md: "md" }} fontWeight="600">
-                    Team
-                  </Text>
-                </HStack>
-                <Text color="gray.500" fontSize="2xs" letterSpacing="0.05em" display={{ base: "none", md: "block" }}>
-                  Core Crew Members
-                </Text>
-              </VStack>
-              <VStack align="start" spacing={0}>
-                <HStack spacing={1} align="baseline">
-                  <Text 
-                    color={colors.accent.warm} 
-                    fontSize={{ base: "xl", md: "2xl" }}
-                    fontWeight="700" 
-                    fontFamily="mono"
-                    textShadow={`0 0 10px ${colors.accent.warm}66`}
-                  >
-                    ∞
-                  </Text>
-                </HStack>
-                <Text color="gray.500" fontSize="2xs" letterSpacing="0.05em" display={{ base: "none", md: "block" }}>
-                  Possibilities
-                </Text>
-              </VStack>
-            </HStack>
-          </MotionBox>
-
-          {/* CTAs - matching Hero button sizing */}
-          <MotionBox
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.8 }}
-          >
-            <HStack spacing={4} flexDirection={{ base: "column", sm: "row" }} w="full">
-              <Button
-                size="lg"
-                px={10}
-                py={7}
-                fontSize="md"
-                fontWeight="600"
-                bg={colors.brand.primary}
-                color={colors.dark.black}
-                borderRadius="full"
-                rightIcon={<FiArrowRight />}
-                onClick={() => navigate('/contact')}
-                _hover={{
-                  bg: colors.brand.primary,
-                  transform: 'translateY(-2px)',
-                  boxShadow: `0 10px 40px ${colors.brand.primary}66, 0 20px 80px ${colors.brand.primary}33`
-                }}
-                transition="all 0.3s"
+              {/* You can add an actual image here */}
+              <Box
+                position="absolute"
+                inset={0}
+                bg={`linear-gradient(135deg, ${colors.brand.primary}22 0%, ${colors.accent.green}22 100%)`}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
               >
-                Join the Collective
-              </Button>
-              <Button
-                size="lg"
-                px={10}
-                py={7}
-                fontSize="md"
-                fontWeight="600"
-                bg="transparent"
-                color={colors.brand.primary}
-                border="2px solid"
-                borderColor={colors.brand.primary}
-                borderRadius="full"
-                onClick={() => document.getElementById('life-at-burro').scrollIntoView({ behavior: 'smooth' })}
-                _hover={{
-                  bg: `${colors.brand.primary}22`,
-                  transform: 'translateY(-2px)',
-                  borderColor: colors.brand.primary,
-                  color: 'white',
-                  boxShadow: `0 10px 40px ${colors.brand.primary}44, inset 0 0 20px ${colors.brand.primary}33`
-                }}
-                transition="all 0.3s"
-              >
-                Explore the Ranch
-              </Button>
-            </HStack>
+                <Text color="gray.500" fontSize="lg">
+                  Ranch HQ Image
+                </Text>
+              </Box>
+            </Box>
           </MotionBox>
         </VStack>
       </Container>

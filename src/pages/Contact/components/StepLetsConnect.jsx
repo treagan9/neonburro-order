@@ -1,25 +1,35 @@
-import { Box, VStack, Input, Select, Textarea, Button, HStack, FormControl, FormLabel, CheckboxGroup, Checkbox, Stack, Text, InputGroup, InputLeftElement } from '@chakra-ui/react';
+import { Box, VStack, Input, Select, Textarea, Button, HStack, FormControl, FormLabel, Text, InputGroup, InputLeftElement, SimpleGrid } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { FiMessageSquare, FiPhone } from 'react-icons/fi';
+import { FiMail, FiPhone, FiVideo, FiMessageSquare, FiClock, FiArrowLeft, FiSend } from 'react-icons/fi';
 
 const MotionBox = motion(Box);
+const MotionVStack = motion(VStack);
 
 const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmitting }) => {
   const [showPhoneField, setShowPhoneField] = useState(false);
   const [showBestTime, setShowBestTime] = useState(false);
   
   const colors = {
+    brand: { primary: '#00FFFF' },
     accent: { purple: '#8B5CF6' }
   };
 
-  const handleContactMethodChange = (values) => {
-    handleChange('contactMethod', values);
-    setShowPhoneField(values.includes('phone') || values.includes('video') || values.includes('text'));
-    setShowBestTime(values.includes('phone') || values.includes('video'));
-  };
+  const contactMethods = [
+    { value: 'email', label: 'Email', icon: FiMail },
+    { value: 'phone', label: 'Phone', icon: FiPhone },
+    { value: 'video', label: 'Video', icon: FiVideo },
+    { value: 'text', label: 'Text', icon: FiMessageSquare }
+  ];
 
-  const toggleContactMethod = (method) => {
+  const timeSlots = [
+    { value: 'morning', label: 'Morning', time: '9AM-12PM' },
+    { value: 'afternoon', label: 'Afternoon', time: '12PM-5PM' },
+    { value: 'evening', label: 'Evening', time: '5PM-8PM' },
+    { value: 'flexible', label: 'Flexible', time: 'Any time' }
+  ];
+
+  const handleContactMethodChange = (method) => {
     const currentMethods = formData.contactMethod || [];
     let newMethods;
     
@@ -29,246 +39,382 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmittin
       newMethods = [...currentMethods, method];
     }
     
-    handleContactMethodChange(newMethods);
+    handleChange('contactMethod', newMethods);
+    setShowPhoneField(newMethods.includes('phone') || newMethods.includes('video') || newMethods.includes('text'));
+    setShowBestTime(newMethods.includes('phone') || newMethods.includes('video'));
   };
 
   const isStepValid = () => {
     const hasContactMethod = formData.contactMethod && formData.contactMethod.length > 0;
-    const hasPhoneIfNeeded = !showPhoneField || formData.phone;
+    const hasPhoneIfNeeded = !showPhoneField || (formData.phone && formData.phone.length >= 10);
     const hasTimeIfNeeded = !showBestTime || formData.bestTime;
     return hasContactMethod && hasPhoneIfNeeded && hasTimeIfNeeded;
   };
 
   // Auto-detect timezone for best time suggestion
   useEffect(() => {
-    const hour = new Date().getHours();
-    if (hour >= 9 && hour < 12) {
-      handleChange('bestTime', 'morning');
-    } else if (hour >= 12 && hour < 17) {
-      handleChange('bestTime', 'afternoon');
-    } else {
-      handleChange('bestTime', 'flexible');
+    if (!formData.bestTime) {
+      const hour = new Date().getHours();
+      if (hour >= 9 && hour < 12) {
+        handleChange('bestTime', 'morning');
+      } else if (hour >= 12 && hour < 17) {
+        handleChange('bestTime', 'afternoon');
+      } else if (hour >= 17 && hour < 20) {
+        handleChange('bestTime', 'evening');
+      } else {
+        handleChange('bestTime', 'flexible');
+      }
     }
   }, []);
 
+  const inputVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: (i) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: i * 0.1,
+        duration: 0.5,
+        ease: "easeOut"
+      }
+    })
+  };
+
   return (
     <MotionBox
-      initial={{ opacity: 0, x: 50 }}
+      initial={{ opacity: 0, x: 30 }}
       animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -50 }}
-      transition={{ duration: 0.3 }}
+      exit={{ opacity: 0, x: -30 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
     >
-      <VStack spacing={6} align="stretch">
+      <VStack spacing={{ base: 5, md: 6 }} align="stretch">
+        {/* Header */}
         <VStack align="start" spacing={2}>
-          <Text fontSize="3xl" fontWeight="bold" color="white">
+          <Text 
+            fontSize={{ base: "2xl", md: "3xl" }}
+            fontWeight="800" 
+            color="white"
+            letterSpacing="-0.02em"
+          >
             Let's Connect 💬
           </Text>
-          <Text color="gray.400" fontSize="lg">
+          <Text 
+            color="gray.400" 
+            fontSize={{ base: "sm", md: "lg" }}
+            fontWeight="500"
+          >
             How should we reach you?
           </Text>
         </VStack>
 
-        <FormControl isRequired>
-          <FormLabel color="gray.300" fontSize="sm" fontWeight="600">
-            <HStack spacing={2}>
-              <FiMessageSquare />
-              <Text>Preferred Contact Method(s)</Text>
-            </HStack>
-          </FormLabel>
-          <CheckboxGroup 
-            value={formData.contactMethod || []} 
-            onChange={handleContactMethodChange}
+        {/* Form Fields */}
+        <MotionVStack
+          spacing={4}
+          align="stretch"
+          initial="hidden"
+          animate="visible"
+        >
+          {/* Contact Methods - Grid Layout */}
+          <MotionBox
+            custom={1}
+            variants={inputVariants}
           >
-            <Stack direction="column" spacing={3}>
-              {[
-                { value: 'email', label: 'Email', desc: 'Classic & reliable', icon: '📧' },
-                { value: 'phone', label: 'Phone Call', desc: 'Let\'s chat', icon: '📞' },
-                { value: 'video', label: 'Video Call', desc: 'Face to face', icon: '🎥' },
-                { value: 'text', label: 'Text Message', desc: 'Quick & easy', icon: '💬' }
-              ].map(method => (
-                <Box
-                  key={method.value}
-                  p={4}
-                  borderRadius="lg"
-                  border="2px solid"
-                  borderColor={(formData.contactMethod || []).includes(method.value) ? colors.accent.purple : 'whiteAlpha.200'}
-                  bg={(formData.contactMethod || []).includes(method.value) ? 'whiteAlpha.100' : 'whiteAlpha.50'}
-                  cursor="pointer"
-                  transition="all 0.2s"
-                  onClick={() => toggleContactMethod(method.value)}
-                  _hover={{ 
-                    borderColor: colors.accent.purple, 
-                    bg: 'whiteAlpha.100',
-                    transform: 'translateY(-2px)'
-                  }}
-                  _active={{
-                    transform: 'translateY(0)'
-                  }}
-                >
-                  <HStack spacing={3}>
-                    <Checkbox 
-                      value={method.value} 
-                      colorScheme="purple"
-                      isChecked={(formData.contactMethod || []).includes(method.value)}
-                      onChange={() => {}} // Handled by parent Box onClick
-                      pointerEvents="none" // Prevent checkbox from intercepting clicks
+            <FormControl isRequired>
+              <FormLabel 
+                color="gray.300" 
+                fontSize={{ base: "xs", md: "sm" }}
+                fontWeight="600"
+                mb={2}
+              >
+                Preferred Contact Method(s)
+              </FormLabel>
+              <SimpleGrid columns={2} spacing={{ base: 2, md: 3 }}>
+                {contactMethods.map(method => {
+                  const Icon = method.icon;
+                  const isSelected = (formData.contactMethod || []).includes(method.value);
+                  
+                  return (
+                    <Box
+                      key={method.value}
+                      p={{ base: 3, md: 4 }}
+                      borderRadius="xl"
+                      border="1.5px solid"
+                      borderColor={isSelected ? colors.accent.purple : 'whiteAlpha.200'}
+                      bg={isSelected ? 'rgba(139, 92, 246, 0.1)' : 'rgba(255, 255, 255, 0.03)'}
+                      cursor="pointer"
+                      transition="all 0.2s"
+                      onClick={() => handleContactMethodChange(method.value)}
+                      _hover={{ 
+                        borderColor: colors.accent.purple,
+                        bg: isSelected ? 'rgba(139, 92, 246, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                        transform: 'translateY(-2px)'
+                      }}
+                      _active={{
+                        transform: 'translateY(0)'
+                      }}
+                    >
+                      <VStack spacing={2}>
+                        <Box
+                          p={2}
+                          borderRadius="lg"
+                          bg={isSelected ? colors.accent.purple : 'whiteAlpha.100'}
+                          color={isSelected ? 'white' : 'gray.400'}
+                          transition="all 0.2s"
+                        >
+                          <Icon size={20} />
+                        </Box>
+                        <Text 
+                          color={isSelected ? 'white' : 'gray.300'}
+                          fontSize={{ base: "xs", md: "sm" }}
+                          fontWeight="600"
+                        >
+                          {method.label}
+                        </Text>
+                      </VStack>
+                    </Box>
+                  );
+                })}
+              </SimpleGrid>
+            </FormControl>
+          </MotionBox>
+
+          {/* Phone Field - Conditional */}
+          <AnimatePresence>
+            {showPhoneField && (
+              <MotionBox
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <FormControl isRequired>
+                  <FormLabel 
+                    color="gray.300" 
+                    fontSize={{ base: "xs", md: "sm" }}
+                    fontWeight="600"
+                    mb={2}
+                  >
+                    Phone Number
+                  </FormLabel>
+                  <InputGroup size="lg">
+                    <InputLeftElement 
+                      pointerEvents="none"
+                      pl={1}
+                    >
+                      <Box
+                        color={formData.phone ? colors.accent.purple : 'gray.500'}
+                        transition="color 0.2s"
+                      >
+                        <FiPhone size={18} />
+                      </Box>
+                    </InputLeftElement>
+                    <Input
+                      type="tel"
+                      value={formData.phone || ''}
+                      onChange={(e) => handleChange('phone', e.target.value)}
+                      placeholder="(555) 123-4567"
+                      bg="rgba(255, 255, 255, 0.03)"
+                      border="1.5px solid"
+                      borderColor="whiteAlpha.200"
+                      color="white"
+                      fontSize={{ base: "sm", md: "md" }}
+                      height={{ base: "48px", md: "52px" }}
+                      _placeholder={{ color: 'gray.600' }}
+                      _hover={{ 
+                        borderColor: 'whiteAlpha.300', 
+                        bg: 'rgba(255, 255, 255, 0.05)' 
+                      }}
+                      _focus={{ 
+                        borderColor: colors.accent.purple, 
+                        boxShadow: `0 0 0 1px ${colors.accent.purple}`,
+                        bg: 'rgba(255, 255, 255, 0.05)'
+                      }}
+                      pl="3rem"
+                      borderRadius="xl"
+                      autoComplete="tel"
+                      transition="all 0.2s"
                     />
-                    <Text fontSize="xl">{method.icon}</Text>
-                    <VStack align="start" spacing={0} flex={1}>
-                      <Text color="white" fontWeight="600">{method.label}</Text>
-                      <Text color="gray.400" fontSize="sm">{method.desc}</Text>
-                    </VStack>
-                  </HStack>
-                </Box>
-              ))}
-            </Stack>
-          </CheckboxGroup>
-        </FormControl>
+                  </InputGroup>
+                </FormControl>
+              </MotionBox>
+            )}
+          </AnimatePresence>
 
-        <AnimatePresence>
-          {showPhoneField && (
-            <MotionBox
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <FormControl isRequired>
-                <FormLabel color="gray.300" fontSize="sm" fontWeight="600">Phone Number</FormLabel>
-                <InputGroup size="lg">
-                  <InputLeftElement pointerEvents="none">
-                    <FiPhone color={formData.phone ? colors.accent.purple : 'gray'} />
-                  </InputLeftElement>
-                  <Input
-                    name="phone"
-                    type="tel"
-                    value={formData.phone || ''}
-                    onChange={(e) => handleChange('phone', e.target.value)}
-                    placeholder="(970) 555-0123"
-                    bg="whiteAlpha.50"
-                    border="2px solid"
-                    borderColor="whiteAlpha.200"
-                    color="white"
-                    _placeholder={{ color: 'gray.500' }}
-                    _hover={{ borderColor: 'whiteAlpha.300', bg: 'whiteAlpha.100' }}
-                    _focus={{ 
-                      borderColor: colors.accent.purple, 
-                      boxShadow: `0 0 0 1px ${colors.accent.purple}`,
-                      bg: 'whiteAlpha.100'
-                    }}
-                    pl="3rem"
-                    autoComplete="tel"
-                  />
-                </InputGroup>
-              </FormControl>
-            </MotionBox>
-          )}
-        </AnimatePresence>
+          {/* Best Time - Conditional */}
+          <AnimatePresence>
+            {showBestTime && (
+              <MotionBox
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <FormControl isRequired>
+                  <FormLabel 
+                    color="gray.300" 
+                    fontSize={{ base: "xs", md: "sm" }}
+                    fontWeight="600"
+                    mb={2}
+                    display="flex"
+                    alignItems="center"
+                    gap={2}
+                  >
+                    <FiClock size={16} />
+                    Best Time to Call{' '}
+                    <Text as="span" color="gray.600" fontWeight="400" fontSize="xs">
+                      (Mountain Time)
+                    </Text>
+                  </FormLabel>
+                  <SimpleGrid columns={2} spacing={{ base: 2, md: 3 }}>
+                    {timeSlots.map(slot => {
+                      const isSelected = formData.bestTime === slot.value;
+                      
+                      return (
+                        <Box
+                          key={slot.value}
+                          p={{ base: 3, md: 4 }}
+                          borderRadius="xl"
+                          border="1.5px solid"
+                          borderColor={isSelected ? colors.accent.purple : 'whiteAlpha.200'}
+                          bg={isSelected ? 'rgba(139, 92, 246, 0.1)' : 'rgba(255, 255, 255, 0.03)'}
+                          cursor="pointer"
+                          transition="all 0.2s"
+                          onClick={() => handleChange('bestTime', slot.value)}
+                          _hover={{ 
+                            borderColor: colors.accent.purple,
+                            bg: isSelected ? 'rgba(139, 92, 246, 0.1)' : 'rgba(255, 255, 255, 0.05)'
+                          }}
+                        >
+                          <VStack spacing={0.5} align="center">
+                            <Text 
+                              color={isSelected ? 'white' : 'gray.300'}
+                              fontSize={{ base: "sm", md: "md" }}
+                              fontWeight="600"
+                            >
+                              {slot.label}
+                            </Text>
+                            <Text 
+                              color={isSelected ? 'gray.300' : 'gray.500'}
+                              fontSize={{ base: "2xs", md: "xs" }}
+                            >
+                              {slot.time}
+                            </Text>
+                          </VStack>
+                        </Box>
+                      );
+                    })}
+                  </SimpleGrid>
+                </FormControl>
+              </MotionBox>
+            )}
+          </AnimatePresence>
 
-        <AnimatePresence>
-          {showBestTime && (
-            <MotionBox
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <FormControl isRequired>
-                <FormLabel color="gray.300" fontSize="sm" fontWeight="600">
-                  Best Time to Call <Text as="span" color="gray.500">(Mountain Time)</Text>
-                </FormLabel>
-                <Select
-                  name="bestTime"
-                  value={formData.bestTime || ''}
-                  onChange={(e) => handleChange('bestTime', e.target.value)}
-                  placeholder="When works for you?"
-                  size="lg"
-                  bg="whiteAlpha.50"
-                  border="2px solid"
-                  borderColor="whiteAlpha.200"
-                  color={formData.bestTime ? 'white' : 'gray.500'}
-                  _hover={{ borderColor: 'whiteAlpha.300', bg: 'whiteAlpha.100' }}
-                  _focus={{ 
-                    borderColor: colors.accent.purple, 
-                    boxShadow: `0 0 0 1px ${colors.accent.purple}`,
-                    bg: 'whiteAlpha.100'
-                  }}
-                  sx={{
-                    option: {
-                      bg: 'gray.900',
-                      color: 'white',
-                      _hover: { bg: 'gray.800' }
-                    }
-                  }}
-                >
-                  <option value="morning">Morning (9AM - 12PM)</option>
-                  <option value="afternoon">Afternoon (12PM - 5PM)</option>
-                  <option value="evening">Evening (5PM - 8PM)</option>
-                  <option value="flexible">I'm flexible</option>
-                </Select>
-              </FormControl>
-            </MotionBox>
-          )}
-        </AnimatePresence>
-
-        <FormControl>
-          <FormLabel color="gray.300" fontSize="sm" fontWeight="600">
-            Anything else? <Text as="span" color="gray.500">(Optional)</Text>
-          </FormLabel>
-          <Textarea
-            name="additionalInfo"
-            value={formData.additionalInfo || ''}
-            onChange={(e) => handleChange('additionalInfo', e.target.value)}
-            placeholder="Special requests, deadlines, or just say hi..."
-            size="lg"
-            rows={3}
-            bg="whiteAlpha.50"
-            border="2px solid"
-            borderColor="whiteAlpha.200"
-            color="white"
-            _placeholder={{ color: 'gray.500' }}
-            _hover={{ borderColor: 'whiteAlpha.300', bg: 'whiteAlpha.100' }}
-            _focus={{ 
-              borderColor: colors.accent.purple, 
-              boxShadow: `0 0 0 1px ${colors.accent.purple}`,
-              bg: 'whiteAlpha.100'
-            }}
-          />
-        </FormControl>
-
-        <HStack spacing={4} mt={6}>
-          <Button
-            size="lg"
-            variant="outline"
-            borderColor="whiteAlpha.300"
-            color="white"
-            onClick={onBack}
-            _hover={{ bg: 'whiteAlpha.100' }}
-            height="56px"
-            borderRadius="full"
+          {/* Additional Info */}
+          <MotionBox
+            custom={2}
+            variants={inputVariants}
           >
-            ← Back
-          </Button>
-          <Button
-            size="lg"
-            bg={colors.accent.purple}
-            color="white"
-            onClick={onSubmit}
-            isLoading={isSubmitting}
-            loadingText="Sending..."
-            isDisabled={!isStepValid() || isSubmitting}
-            fontWeight="600"
-            height="56px"
-            borderRadius="full"
-            _hover={{
-              transform: 'translateY(-2px)',
-              boxShadow: `0 10px 30px ${colors.accent.purple}66`
-            }}
-            flex={1}
-          >
-            Launch Project 🚀
-          </Button>
-        </HStack>
+            <FormControl>
+              <FormLabel 
+                color="gray.300" 
+                fontSize={{ base: "xs", md: "sm" }}
+                fontWeight="600"
+                mb={2}
+              >
+                Anything else?{' '}
+                <Text as="span" color="gray.600" fontWeight="400">
+                  (Optional)
+                </Text>
+              </FormLabel>
+              <Textarea
+                value={formData.additionalInfo || ''}
+                onChange={(e) => handleChange('additionalInfo', e.target.value)}
+                placeholder="Special requests, questions, or just say hi..."
+                size="lg"
+                rows={{ base: 3, md: 4 }}
+                bg="rgba(255, 255, 255, 0.03)"
+                border="1.5px solid"
+                borderColor="whiteAlpha.200"
+                color="white"
+                fontSize={{ base: "sm", md: "md" }}
+                _placeholder={{ color: 'gray.600' }}
+                _hover={{ 
+                  borderColor: 'whiteAlpha.300', 
+                  bg: 'rgba(255, 255, 255, 0.05)' 
+                }}
+                _focus={{ 
+                  borderColor: colors.accent.purple, 
+                  boxShadow: `0 0 0 1px ${colors.accent.purple}`,
+                  bg: 'rgba(255, 255, 255, 0.05)'
+                }}
+                borderRadius="xl"
+                resize="none"
+                transition="all 0.2s"
+              />
+            </FormControl>
+          </MotionBox>
+        </MotionVStack>
+
+        {/* Navigation Buttons */}
+        <MotionBox
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+          mt={2}
+        >
+          <HStack spacing={3}>
+            <Button
+              size="lg"
+              variant="outline"
+              borderColor="whiteAlpha.300"
+              color="white"
+              onClick={onBack}
+              fontWeight="600"
+              fontSize={{ base: "sm", md: "md" }}
+              height={{ base: "52px", md: "56px" }}
+              px={{ base: 4, md: 6 }}
+              _hover={{ 
+                bg: 'whiteAlpha.100',
+                borderColor: 'whiteAlpha.400'
+              }}
+              borderRadius="full"
+              leftIcon={<FiArrowLeft />}
+              transition="all 0.2s"
+            >
+              Back
+            </Button>
+            <Button
+              size="lg"
+              bg={colors.accent.purple}
+              color="white"
+              onClick={onSubmit}
+              isLoading={isSubmitting}
+              loadingText="Sending..."
+              isDisabled={!isStepValid() || isSubmitting}
+              fontWeight="700"
+              fontSize={{ base: "sm", md: "md" }}
+              height={{ base: "52px", md: "56px" }}
+              _hover={{
+                bg: colors.accent.purple,
+                transform: 'translateY(-2px)',
+                boxShadow: `0 10px 30px ${colors.accent.purple}66`
+              }}
+              _active={{ transform: 'translateY(0)' }}
+              _disabled={{
+                opacity: 0.5,
+                cursor: 'not-allowed',
+                transform: 'none',
+                boxShadow: 'none'
+              }}
+              flex={1}
+              borderRadius="full"
+              rightIcon={!isSubmitting && <FiSend />}
+              transition="all 0.2s"
+            >
+              {isSubmitting ? 'Sending...' : 'Launch Project'}
+            </Button>
+          </HStack>
+        </MotionBox>
       </VStack>
     </MotionBox>
   );

@@ -1,4 +1,3 @@
-// Services/components/StarterPackages.jsx
 import { Box, Container, Heading, Text, VStack, HStack, Grid, Button, Badge } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { FiCheck, FiZap, FiTrendingUp, FiStar } from 'react-icons/fi';
@@ -6,26 +5,13 @@ import { FiCheck, FiZap, FiTrendingUp, FiStar } from 'react-icons/fi';
 const MotionBox = motion(Box);
 
 const StarterPackages = () => {
-  const colors = {
-    brand: {
-      primary: '#00E5E5',
-      primaryDark: '#00B8B8',
-    },
-    accent: {
-      neon: '#39FF14',
-      warm: '#FF6B00',
-    },
-    dark: {
-      black: '#0A0A0A',
-    }
-  };
-
   const packages = [
     {
       id: 'spark',
       name: 'Spark',
       icon: FiZap,
-      color: colors.brand.primary,
+      color: 'brand.primary',
+      glow: 'cyan',
       description: 'Perfect for getting started with a professional web presence',
       features: [
         'Initial consultation & strategy',
@@ -42,7 +28,8 @@ const StarterPackages = () => {
       id: 'ignite',
       name: 'Ignite',
       icon: FiTrendingUp,
-      color: colors.accent.warm,
+      color: 'accent.warm',
+      glow: 'warm',
       description: 'Everything in Spark plus tools to accelerate your growth',
       features: [
         'Everything in Spark',
@@ -61,7 +48,8 @@ const StarterPackages = () => {
       id: 'burro',
       name: 'Burro',
       icon: FiStar,
-      color: colors.accent.neon,
+      color: 'accent.banana',
+      glow: 'banana',
       description: 'The complete digital transformation package',
       features: [
         'Everything in Ignite',
@@ -83,10 +71,43 @@ const StarterPackages = () => {
       id="packages"
       position="relative" 
       py={{ base: 16, md: 20 }} 
-      bg={colors.dark.black}
+      bg="dark.black"
       overflow="hidden"
     >
-      <Container maxW="1400px" px={{ base: 6, md: 8 }} position="relative">
+      {/* Background gradients */}
+      <Box
+        position="absolute"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        opacity={0.03}
+      >
+        <Box
+          position="absolute"
+          top="10%"
+          left="20%"
+          width="400px"
+          height="400px"
+          borderRadius="full"
+          bg="brand.primary"
+          filter="blur(150px)"
+          opacity={0.5}
+        />
+        <Box
+          position="absolute"
+          bottom="10%"
+          right="20%"
+          width="400px"
+          height="400px"
+          borderRadius="full"
+          bg="accent.banana"
+          filter="blur(150px)"
+          opacity={0.4}
+        />
+      </Box>
+
+      <Container maxW="1400px" px={{ base: 4, md: 8 }} position="relative">
         <VStack spacing={{ base: 12, md: 16 }}>
           {/* Header */}
           <VStack spacing={4} textAlign="center" maxW="800px" mx="auto">
@@ -96,15 +117,27 @@ const StarterPackages = () => {
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <Text 
-                color={colors.brand.primary}
-                fontSize="sm" 
-                fontWeight="600" 
-                letterSpacing="0.1em"
-                textTransform="uppercase"
+              <HStack
+                spacing={2}
+                px={4}
+                py={2}
+                borderRadius="full"
+                bg="rgba(0, 229, 229, 0.1)"
+                backdropFilter="blur(10px)"
+                border="1px solid"
+                borderColor="rgba(0, 229, 229, 0.2)"
               >
-                Let's Start Building
-              </Text>
+                <FiZap size={14} color="var(--chakra-colors-brand-primary)" />
+                <Text 
+                  color="brand.primary"
+                  fontSize={{ base: "xs", md: "sm" }}
+                  fontWeight="semibold" 
+                  letterSpacing="wider"
+                  textTransform="uppercase"
+                >
+                  Let's Start Building
+                </Text>
+              </HStack>
             </MotionBox>
 
             <MotionBox
@@ -115,14 +148,20 @@ const StarterPackages = () => {
             >
               <Heading
                 as="h2"
-                fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
-                fontFamily="'Geist Sans', 'Inter', sans-serif"
-                fontWeight="700"
-                color="white"
-                lineHeight="1.1"
-                letterSpacing="-0.02em"
+                fontSize={{ base: "26px", sm: "3xl", md: "4xl", lg: "5xl" }}
+                fontWeight="extrabold"
+                color="text.primary"
+                lineHeight={{ base: "1.3", md: "1.2" }}
+                letterSpacing="tight"
               >
-                Choose Your Starting Point
+                Choose Your{' '}
+                <Box
+                  as="span"
+                  bgGradient="linear(to-r, brand.primary, accent.banana)"
+                  bgClip="text"
+                >
+                  Starting Point
+                </Box>
               </Heading>
             </MotionBox>
 
@@ -133,10 +172,11 @@ const StarterPackages = () => {
               viewport={{ once: true }}
             >
               <Text
-                fontSize={{ base: "md", md: "lg" }}
-                color="gray.300"
+                fontSize={{ base: "sm", md: "md", lg: "lg" }}
+                color="text.secondary"
                 maxW="600px"
                 mx="auto"
+                lineHeight="relaxed"
               >
                 Every journey begins with a single step. Pick your package and let's build something extraordinary.
               </Text>
@@ -145,7 +185,7 @@ const StarterPackages = () => {
 
           {/* Packages Grid */}
           <Grid
-            templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }}
+            templateColumns={{ base: '1fr', lg: 'repeat(3, 1fr)' }}
             gap={{ base: 6, md: 8 }}
             width="100%"
           >
@@ -157,44 +197,56 @@ const StarterPackages = () => {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
                 position="relative"
+                whileHover={{ y: -8 }}
               >
+                {/* Popular badge */}
                 {pkg.popular && (
-                  <Badge
+                  <Box
                     position="absolute"
                     top="-12px"
                     left="50%"
                     transform="translateX(-50%)"
-                    bg={colors.accent.warm}
-                    color="white"
-                    px={3}
-                    py={1}
-                    borderRadius="full"
-                    fontSize="xs"
-                    fontWeight="600"
-                    zIndex={1}
+                    zIndex={2}
                   >
-                    MOST POPULAR
-                  </Badge>
+                    <HStack
+                      spacing={1}
+                      px={3}
+                      py={1}
+                      borderRadius="full"
+                      bg="accent.warm"
+                      boxShadow="0 0 20px rgba(255, 107, 0, 0.4)"
+                    >
+                      <FiStar size={12} color="var(--chakra-colors-dark-black)" />
+                      <Text
+                        color="dark.black"
+                        fontSize="xs"
+                        fontWeight="bold"
+                        letterSpacing="wider"
+                      >
+                        MOST POPULAR
+                      </Text>
+                    </HStack>
+                  </Box>
                 )}
                 
                 <Box
                   p={{ base: 6, md: 8 }}
                   borderRadius="xl"
-                  bg="rgba(255,255,255,0.02)"
-                  backdropFilter="blur(10px)"
+                  bg="rgba(255, 255, 255, 0.02)"
+                  backdropFilter="blur(20px)"
                   border="2px solid"
-                  borderColor={pkg.popular ? pkg.color : 'whiteAlpha.100'}
+                  borderColor={pkg.popular ? pkg.color : 'rgba(255, 255, 255, 0.08)'}
                   height="100%"
                   position="relative"
                   overflow="hidden"
+                  transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                   _hover={{
                     borderColor: pkg.color,
-                    transform: 'translateY(-4px)',
+                    bg: 'rgba(255, 255, 255, 0.04)',
                     boxShadow: `0 20px 40px ${pkg.color}22`
                   }}
-                  transition="all 0.3s"
                 >
-                  {/* Gradient overlay */}
+                  {/* Top gradient overlay */}
                   <Box
                     position="absolute"
                     top={0}
@@ -206,59 +258,82 @@ const StarterPackages = () => {
                     pointerEvents="none"
                   />
 
+                  {/* Glow effect */}
+                  <Box
+                    position="absolute"
+                    top="50%"
+                    left="50%"
+                    transform="translate(-50%, -50%)"
+                    width="200%"
+                    height="200%"
+                    bg={`radial-gradient(circle, ${pkg.color}08 0%, transparent 70%)`}
+                    opacity={pkg.popular ? 1 : 0}
+                    pointerEvents="none"
+                  />
+
                   <VStack align="start" spacing={6} position="relative">
                     {/* Icon and Name */}
-                    <HStack spacing={3}>
-                      <Box
-                        p={3}
-                        borderRadius="lg"
-                        bg={`${pkg.color}22`}
-                        color={pkg.color}
-                      >
-                        <pkg.icon size={24} />
-                      </Box>
-                      <Box>
-                        <Heading
-                          as="h3"
-                          fontSize="2xl"
-                          color="white"
-                          fontWeight="700"
+                    <HStack spacing={4} width="100%" justify="space-between" align="start">
+                      <HStack spacing={3}>
+                        <Box
+                          p={3}
+                          borderRadius="lg"
+                          bg={`${pkg.color}11`}
+                          color={pkg.color}
+                          transition="all 0.3s"
+                          _groupHover={{
+                            transform: 'scale(1.1) rotate(5deg)',
+                            bg: `${pkg.color}22`
+                          }}
                         >
-                          {pkg.name}
-                        </Heading>
-                        <Text
-                          fontSize="xs"
-                          color="gray.500"
-                          textTransform="uppercase"
-                          letterSpacing="wider"
-                        >
-                          {pkg.ideal}
-                        </Text>
-                      </Box>
+                          <pkg.icon size={24} />
+                        </Box>
+                        <Box>
+                          <Heading
+                            as="h3"
+                            fontSize={{ base: "xl", md: "2xl" }}
+                            color="text.primary"
+                            fontWeight="bold"
+                          >
+                            {pkg.name}
+                          </Heading>
+                          <Text
+                            fontSize="xs"
+                            color="text.muted"
+                            textTransform="uppercase"
+                            letterSpacing="wider"
+                            fontWeight="semibold"
+                          >
+                            {pkg.ideal}
+                          </Text>
+                        </Box>
+                      </HStack>
                     </HStack>
 
                     {/* Description */}
                     <Text
-                      color="gray.300"
-                      fontSize="sm"
-                      lineHeight="1.6"
+                      color="text.secondary"
+                      fontSize={{ base: "sm", md: "md" }}
+                      lineHeight="relaxed"
                     >
                       {pkg.description}
                     </Text>
 
                     {/* Features */}
-                    <VStack align="start" spacing={2} flex={1}>
+                    <VStack align="start" spacing={2.5} flex={1} width="100%">
                       {pkg.features.map((feature, idx) => (
-                        <HStack key={idx} spacing={2}>
+                        <HStack key={idx} spacing={3} align="start">
                           <Box
                             color={pkg.color}
                             flexShrink={0}
+                            mt={0.5}
                           >
-                            <FiCheck size={16} />
+                            <FiCheck size={16} strokeWidth={3} />
                           </Box>
                           <Text
-                            color="gray.400"
-                            fontSize="sm"
+                            color="text.secondary"
+                            fontSize={{ base: "xs", md: "sm" }}
+                            lineHeight="tall"
                           >
                             {feature}
                           </Text>
@@ -270,20 +345,40 @@ const StarterPackages = () => {
                     <Button
                       width="100%"
                       size="lg"
+                      height={{ base: "48px", md: "52px" }}
                       bg={pkg.popular ? pkg.color : 'transparent'}
-                      color={pkg.popular ? colors.dark.black : pkg.color}
+                      color={pkg.popular ? 'dark.black' : pkg.color}
                       border="2px solid"
                       borderColor={pkg.color}
                       borderRadius="full"
-                      fontWeight="600"
+                      fontWeight="bold"
+                      fontSize={{ base: "sm", md: "md" }}
                       onClick={() => window.location.href = '/contact/'}
-                      _hover={{
+                      position="relative"
+                      overflow="hidden"
+                      _before={{
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: '-100%',
+                        width: '100%',
+                        height: '100%',
                         bg: pkg.color,
-                        color: colors.dark.black,
-                        transform: 'scale(1.02)',
-                        boxShadow: `0 10px 30px ${pkg.color}44`
+                        transition: 'left 0.3s',
+                        zIndex: -1
                       }}
-                      transition="all 0.3s"
+                      _hover={{
+                        color: 'dark.black',
+                        transform: 'translateY(-2px)',
+                        boxShadow: `0 10px 30px ${pkg.color}44`,
+                        _before: {
+                          left: 0
+                        }
+                      }}
+                      _active={{
+                        transform: 'translateY(0)'
+                      }}
+                      transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                     >
                       {pkg.cta}
                     </Button>
@@ -301,12 +396,21 @@ const StarterPackages = () => {
             viewport={{ once: true }}
             textAlign="center"
           >
-            <Text
-              color="gray.500"
-              fontSize="sm"
-            >
-              All packages include a free consultation. Pricing varies based on project scope.
-            </Text>
+            <VStack spacing={2}>
+              <Text
+                color="text.muted"
+                fontSize={{ base: "xs", md: "sm" }}
+                fontWeight="medium"
+              >
+                All packages include a free consultation
+              </Text>
+              <HStack spacing={2}>
+                <Box w={1.5} h={1.5} borderRadius="full" bg="accent.neon" />
+                <Text color="text.muted" fontSize="xs">
+                  Custom solutions available
+                </Text>
+              </HStack>
+            </VStack>
           </MotionBox>
         </VStack>
       </Container>
