@@ -30,6 +30,7 @@ const Contact = () => {
   });
   const [touched, setTouched] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Scroll to top when step changes
   useEffect(() => {
@@ -57,7 +58,6 @@ const Contact = () => {
   const handleNext = () => {
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
-      // Scroll to top of page
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -65,28 +65,38 @@ const Contact = () => {
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
-      // Scroll to top of page
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   const handleSubmit = async () => {
-    // Here you would integrate with your backend
-    console.log('Form submitted:', formData);
+    setIsSubmitting(true);
     
-    // Send to your API
+    // Prepare form data for Netlify
+    const netlifyData = {
+      'form-name': 'contact-form',
+      ...formData,
+      contactMethod: formData.contactMethod.join(', '), // Convert array to string
+    };
+
     try {
-      // const response = await fetch('/api/contact', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // });
-      
-      setIsSubmitted(true);
-      // Scroll to top for success message
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Submit to Netlify
+      const response = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(netlifyData).toString()
+      });
+
+      if (response.ok) {
+        setIsSubmitted(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        console.error('Form submission failed');
+      }
     } catch (error) {
       console.error('Submission error:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -105,6 +115,27 @@ const Contact = () => {
         {!isSubmitted ? (
           <>
             <FormProgress currentStep={currentStep} />
+            
+            {/* Hidden form for Netlify to detect */}
+            <form
+              name="contact-form"
+              data-netlify="true"
+              hidden
+            >
+              <input type="hidden" name="form-name" value="contact-form" />
+              <input type="text" name="name" />
+              <input type="email" name="email" />
+              <input type="text" name="company" />
+              <input type="text" name="source" />
+              <input type="text" name="projectType" />
+              <input type="text" name="budget" />
+              <input type="text" name="timeline" />
+              <textarea name="description" />
+              <input type="text" name="contactMethod" />
+              <input type="tel" name="phone" />
+              <input type="text" name="bestTime" />
+              <textarea name="additionalInfo" />
+            </form>
             
             <Box
               bg="rgba(0,0,0,0.6)"
@@ -146,6 +177,7 @@ const Contact = () => {
                     handleChange={handleChange}
                     onBack={handleBack}
                     onSubmit={handleSubmit}
+                    isSubmitting={isSubmitting}
                   />
                 )}
               </AnimatePresence>

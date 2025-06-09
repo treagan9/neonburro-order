@@ -40,24 +40,45 @@ const HourPurchaseForm = ({ onSuccess }) => {
 
     setIsLoading(true);
     
-    // Simulate payment processing
-    // In production, this would be your Stripe integration
-    setTimeout(() => {
-      setIsLoading(false);
-      const formData = {
-        firstName,
-        projectName,
-        hours,
-        total: total.toLocaleString()
-      };
-      onSuccess(formData);
-    }, 2000);
-  };
+    // Prepare data for Netlify
+    const netlifyData = {
+      'form-name': 'hour-purchase-form',
+      firstName,
+      projectName,
+      hours,
+      total: total.toString(),
+      hourlyRate: hourlyRate.toString(),
+    };
 
-  const resetForm = () => {
-    setFirstName('');
-    setProjectName('');
-    setHours('');
+    try {
+      // Submit to Netlify Forms
+      const response = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(netlifyData).toString()
+      });
+
+      if (response.ok) {
+        // In production, you would integrate Stripe here
+        // For now, we'll just record the inquiry
+        const formData = {
+          firstName,
+          projectName,
+          hours,
+          total: total.toLocaleString()
+        };
+        onSuccess(formData);
+        
+        // Reset form
+        setFirstName('');
+        setProjectName('');
+        setHours('');
+      }
+    } catch (error) {
+      console.error('Form submission error:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -81,6 +102,20 @@ const HourPurchaseForm = ({ onSuccess }) => {
             Purchase development hours at ${hourlyRate}/hour
           </Text>
         </VStack>
+
+        {/* Hidden form for Netlify detection */}
+        <form
+          name="hour-purchase-form"
+          data-netlify="true"
+          hidden
+        >
+          <input type="hidden" name="form-name" value="hour-purchase-form" />
+          <input type="text" name="firstName" />
+          <input type="text" name="projectName" />
+          <input type="text" name="hours" />
+          <input type="text" name="total" />
+          <input type="text" name="hourlyRate" />
+        </form>
 
         {/* Main Form Card */}
         <Box
@@ -119,6 +154,7 @@ const HourPurchaseForm = ({ onSuccess }) => {
                   <FiUser color={firstName ? colors.neon.cyan : 'gray'} />
                 </InputLeftElement>
                 <Input
+                  name="firstName"
                   placeholder="John"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
@@ -136,6 +172,7 @@ const HourPurchaseForm = ({ onSuccess }) => {
                     boxShadow: `0 0 0 1px ${colors.neon.cyan}`,
                     bg: 'whiteAlpha.100'
                   }}
+                  required
                 />
               </InputGroup>
             </Box>
@@ -150,6 +187,7 @@ const HourPurchaseForm = ({ onSuccess }) => {
                   <FiFolder color={projectName ? colors.neon.cyan : 'gray'} />
                 </InputLeftElement>
                 <Input
+                  name="projectName"
                   placeholder="Website Redesign"
                   value={projectName}
                   onChange={(e) => setProjectName(e.target.value)}
@@ -167,6 +205,7 @@ const HourPurchaseForm = ({ onSuccess }) => {
                     boxShadow: `0 0 0 1px ${colors.neon.cyan}`,
                     bg: 'whiteAlpha.100'
                   }}
+                  required
                 />
               </InputGroup>
             </Box>
@@ -181,6 +220,7 @@ const HourPurchaseForm = ({ onSuccess }) => {
                   <FiClock color={hours ? colors.neon.cyan : 'gray'} />
                 </InputLeftElement>
                 <Select
+                  name="hours"
                   placeholder="Select hours"
                   value={hours}
                   onChange={(e) => setHours(e.target.value)}
@@ -208,6 +248,7 @@ const HourPurchaseForm = ({ onSuccess }) => {
                       }
                     }
                   }}
+                  required
                 >
                   {hourOptions.map(hour => (
                     <option key={hour} value={hour}>
@@ -285,19 +326,29 @@ const HourPurchaseForm = ({ onSuccess }) => {
               }}
               transition="all 0.2s"
             >
-              Pay ${total}
+              Reserve ${total} Worth of Hours
             </Button>
           </VStack>
         </Box>
 
-        {/* Security Note */}
-        <Text 
-          color="gray.500" 
-          fontSize="xs" 
-          textAlign="center"
-        >
-          🔒 Secure payment processing • 256-bit encryption • Powered by Stripe
-        </Text>
+        {/* Updated Note */}
+        <VStack spacing={2}>
+          <Text 
+            color="gray.500" 
+            fontSize="xs" 
+            textAlign="center"
+          >
+            🔒 Your information is secure • We'll contact you to arrange payment
+          </Text>
+          <Text 
+            color="gray.600" 
+            fontSize="xs" 
+            textAlign="center"
+            fontStyle="italic"
+          >
+            * Payment processing coming soon. Submit to reserve your hours.
+          </Text>
+        </VStack>
       </VStack>
     </MotionBox>
   );

@@ -26,28 +26,60 @@ const WorkForm = () => {
     }
   };
 
+  const encode = (data) => {
+    return Object.keys(data)
+      .map(key => encodeURIComponent(key) + "=" + encodeURIComponent(data[key]))
+      .join("&");
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    setTimeout(() => {
+    try {
+      // Submit to Netlify Forms with proper encoding
+      const response = await fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: encode({
+          "form-name": "work-access-form",
+          ...formData,
+          hasNDA: formData.hasNDA ? "yes" : "no"
+        })
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Access Request Received",
+          description: "We'll review your clearance and get back to you within 24 hours.",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+        
+        // Reset form
+        setFormData({
+          name: '',
+          email: '',
+          company: '',
+          reason: '',
+          hasNDA: false,
+        });
+      } else {
+        throw new Error('Form submission failed');
+      }
+    } catch (error) {
+      console.error('Form submission error:', error);
       toast({
-        title: "Access Request Received",
-        description: "We'll review your clearance and get back to you within 24 hours.",
-        status: "success",
+        title: "Submission Error",
+        description: "Please try again later.",
+        status: "error",
         duration: 5000,
         isClosable: true,
       });
-      setFormData({
-        name: '',
-        email: '',
-        company: '',
-        reason: '',
-        hasNDA: false,
-      });
+    } finally {
       setIsSubmitting(false);
-    }, 2000);
+    }
   };
 
   const handleChange = (e) => {
@@ -147,6 +179,10 @@ const WorkForm = () => {
           >
             <Box
               as="form"
+              name="work-access-form"
+              method="POST"
+              data-netlify="true"
+              data-netlify-honeypot="bot-field"
               onSubmit={handleSubmit}
               p={{ base: 6, md: 8 }}
               borderRadius="xl"
@@ -155,6 +191,9 @@ const WorkForm = () => {
               border="2px solid"
               borderColor="whiteAlpha.100"
             >
+              {/* Hidden Netlify input */}
+              <input type="hidden" name="form-name" value="work-access-form" />
+              
               <VStack spacing={6}>
                 {/* Name Input */}
                 <Box width="100%">

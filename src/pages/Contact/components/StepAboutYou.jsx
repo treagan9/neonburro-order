@@ -25,13 +25,6 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
     }
   }, []); // Empty dependency array - only run on mount
 
-  // Save email to localStorage when valid
-  useEffect(() => {
-    if (formData.email && isFieldValid('email')) {
-      localStorage.setItem('userEmail', formData.email);
-    }
-  }, [formData.email, isFieldValid]);
-
   return (
     <MotionBox
       initial={{ opacity: 0, x: 50 }}

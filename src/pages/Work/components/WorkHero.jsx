@@ -1,35 +1,49 @@
 import { Box, Container, Heading, Text, VStack, HStack, keyframes } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { FiLock, FiUnlock } from 'react-icons/fi';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const MotionBox = motion(Box);
 
-const glitch = keyframes`
-  0% { 
-    clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
-    transform: translate(0);
+// Subtle wave effect
+const wave = keyframes`
+  0%, 100% { 
+    background-position: 0% 50%;
   }
-  10% { 
-    clip-path: polygon(0 60%, 100% 60%, 100% 100%, 0 100%);
-    transform: translate(-5px);
+  50% { 
+    background-position: 100% 50%;
   }
-  20% { 
-    clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
-    transform: translate(5px);
+`;
+
+// Typewriter effect
+const typewriter = keyframes`
+  0% { width: 0; }
+  100% { width: 100%; }
+`;
+
+// Scan line effect
+const scan = keyframes`
+  0% {
+    transform: translateX(-100%);
   }
-  30% { 
-    clip-path: polygon(0 70%, 100% 70%, 100% 100%, 0 100%);
-    transform: translate(-2px);
+  100% {
+    transform: translateX(100%);
   }
-  40% { 
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-    transform: translate(0);
+`;
+
+// Redact effect
+const redact = keyframes`
+  0%, 100% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
   }
 `;
 
 const WorkHero = () => {
   const [isHovered, setIsHovered] = useState(false);
+  const [textEffect, setTextEffect] = useState(0);
 
   const colors = {
     neon: {
@@ -41,6 +55,135 @@ const WorkHero = () => {
     }
   };
 
+  // Cycle through different effects every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTextEffect((prev) => (prev + 1) % 3);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Different text effects for "Classified"
+  const renderClassifiedText = () => {
+    switch (textEffect) {
+      case 0:
+        // Gradient wave effect
+        return (
+          <Text
+            as="span"
+            fontSize="inherit"
+            fontWeight="inherit"
+            background={`linear-gradient(135deg, ${colors.neon.cyan} 0%, ${colors.neon.pink} 25%, ${colors.neon.cyan} 50%, ${colors.neon.pink} 75%, ${colors.neon.cyan} 100%)`}
+            backgroundSize="200% 200%"
+            backgroundClip="text"
+            WebkitBackgroundClip="text"
+            WebkitTextFillColor="transparent"
+            animation={`${wave} 3s ease infinite`}
+            position="relative"
+          >
+            Classified
+            {/* Subtle scan line */}
+            <Box
+              position="absolute"
+              top="0"
+              left="0"
+              right="0"
+              bottom="0"
+              overflow="hidden"
+              pointerEvents="none"
+              _after={{
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '30%',
+                height: '100%',
+                background: `linear-gradient(90deg, transparent, ${colors.neon.cyan}44, transparent)`,
+                animation: `${scan} 4s linear infinite`,
+              }}
+            />
+          </Text>
+        );
+      
+      case 1:
+        // Redacted bars effect
+        return (
+          <Box position="relative" display="inline-block">
+            <Text
+              as="span"
+              fontSize="inherit"
+              fontWeight="inherit"
+              color={colors.neon.cyan}
+              position="relative"
+              zIndex={1}
+            >
+              Classified
+            </Text>
+            <Box
+              position="absolute"
+              top="20%"
+              left="-5%"
+              right="-5%"
+              height="3px"
+              bg={colors.neon.pink}
+              opacity={0.6}
+              transform="rotate(-1deg)"
+            />
+            <Box
+              position="absolute"
+              top="50%"
+              left="-3%"
+              right="-3%"
+              height="3px"
+              bg={colors.neon.cyan}
+              opacity={0.6}
+              transform="rotate(0.5deg)"
+            />
+            <Box
+              position="absolute"
+              top="75%"
+              left="-4%"
+              right="-4%"
+              height="3px"
+              bg={colors.neon.pink}
+              opacity={0.6}
+              transform="rotate(-0.5deg)"
+            />
+          </Box>
+        );
+      
+      case 2:
+        // Encrypted/decoded effect
+        return (
+          <Box position="relative" display="inline-block">
+            <Text
+              as="span"
+              fontSize="inherit"
+              fontWeight="inherit"
+              color={colors.neon.cyan}
+              filter={`drop-shadow(0 0 20px ${colors.neon.cyan}66)`}
+              position="relative"
+              _before={{
+                content: '"[REDACTED]"',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                color: colors.neon.pink,
+                opacity: 0.3,
+                filter: 'blur(2px)',
+                animation: 'pulse 2s ease-in-out infinite',
+              }}
+            >
+              Classified
+            </Text>
+          </Box>
+        );
+      
+      default:
+        return <Text as="span">Classified</Text>;
+    }
+  };
+
   return (
     <Box 
       position="relative" 
@@ -48,6 +191,26 @@ const WorkHero = () => {
       bg={colors.dark.black}
       overflow="hidden"
     >
+      {/* Animated background pattern */}
+      <Box
+        position="absolute"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        opacity={0.03}
+        backgroundImage={`
+          repeating-linear-gradient(
+            45deg,
+            ${colors.neon.cyan}11,
+            ${colors.neon.cyan}11 10px,
+            transparent 10px,
+            transparent 20px
+          )
+        `}
+        animation={`${scan} 20s linear infinite`}
+      />
+
       <Container maxW="1200px" px={{ base: 6, md: 8 }} position="relative">
         <VStack spacing={8} textAlign="center">
           {/* Lock Icon Animation */}
@@ -110,30 +273,7 @@ const WorkHero = () => {
                 position="relative"
                 mt={2}
               >
-                <Text
-                  as="span"
-                  background={`linear-gradient(135deg, ${colors.neon.cyan} 0%, ${colors.neon.pink} 100%)`}
-                  backgroundClip="text"
-                  WebkitBackgroundClip="text"
-                  WebkitTextFillColor="transparent"
-                  position="relative"
-                  _before={{
-                    content: '"Classified"',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    background: `linear-gradient(135deg, ${colors.neon.pink} 0%, ${colors.neon.cyan} 100%)`,
-                    backgroundClip: 'text',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    animation: `${glitch} 3s infinite`,
-                    animationDelay: '2s',
-                  }}
-                >
-                  Classified
-                </Text>
+                {renderClassifiedText()}
               </Box>
             </Heading>
           </MotionBox>
@@ -169,6 +309,18 @@ const WorkHero = () => {
               borderColor={`${colors.neon.cyan}44`}
               bg="whiteAlpha.50"
               backdropFilter="blur(10px)"
+              position="relative"
+              overflow="hidden"
+              _before={{
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: '-100%',
+                width: '100%',
+                height: '100%',
+                background: `linear-gradient(90deg, transparent, ${colors.neon.cyan}22, transparent)`,
+                animation: `${scan} 3s linear infinite`,
+              }}
             >
               <Box
                 w={2}

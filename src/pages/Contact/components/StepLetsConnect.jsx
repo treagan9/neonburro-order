@@ -5,7 +5,7 @@ import { FiMessageSquare, FiPhone } from 'react-icons/fi';
 
 const MotionBox = motion(Box);
 
-const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit }) => {
+const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmitting }) => {
   const [showPhoneField, setShowPhoneField] = useState(false);
   const [showBestTime, setShowBestTime] = useState(false);
   
@@ -140,6 +140,7 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit }) => {
                     <FiPhone color={formData.phone ? colors.accent.purple : 'gray'} />
                   </InputLeftElement>
                   <Input
+                    name="phone"
                     type="tel"
                     value={formData.phone || ''}
                     onChange={(e) => handleChange('phone', e.target.value)}
@@ -177,6 +178,7 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit }) => {
                   Best Time to Call <Text as="span" color="gray.500">(Mountain Time)</Text>
                 </FormLabel>
                 <Select
+                  name="bestTime"
                   value={formData.bestTime || ''}
                   onChange={(e) => handleChange('bestTime', e.target.value)}
                   placeholder="When works for you?"
@@ -214,6 +216,7 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit }) => {
             Anything else? <Text as="span" color="gray.500">(Optional)</Text>
           </FormLabel>
           <Textarea
+            name="additionalInfo"
             value={formData.additionalInfo || ''}
             onChange={(e) => handleChange('additionalInfo', e.target.value)}
             placeholder="Special requests, deadlines, or just say hi..."
@@ -251,7 +254,9 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit }) => {
             bg={colors.accent.purple}
             color="white"
             onClick={onSubmit}
-            isDisabled={!isStepValid()}
+            isLoading={isSubmitting}
+            loadingText="Sending..."
+            isDisabled={!isStepValid() || isSubmitting}
             fontWeight="600"
             height="56px"
             borderRadius="full"
