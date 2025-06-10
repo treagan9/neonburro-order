@@ -289,70 +289,60 @@ const Hero = () => {
             </HStack>
           </MotionBox>
           
-          {/* CTA Buttons */}
+          {/* CTA Buttons - Updated to match ServicesHero exactly */}
           <MotionBox
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             width={{ base: "100%", sm: "auto" }}
           >
-            <HStack spacing={4} flexDirection={{ base: "column", sm: "row" }} w={{ base: "full", sm: "auto" }}>
+            <HStack 
+              spacing={3} 
+              flexDirection={{ base: "column", sm: "row" }} 
+              width={{ base: "100%", sm: "auto" }}
+            >
               <Button
                 size="lg"
-                px={10}
-                py={7}
-                fontSize="md"
-                fontWeight="600"
                 bg={colors.neon.cyan}
-                color={colors.dark.black}
-                borderRadius="full"
-                position="relative"
-                overflow="hidden"
-                onClick={handleContactClick}
+                color="black"
+                fontWeight="700"
+                fontSize={{ base: "sm", md: "md" }}
+                height={{ base: "48px", md: "52px" }}
+                px={{ base: 6, md: 8 }}
                 width={{ base: "100%", sm: "auto" }}
+                onClick={handleContactClick}
                 _hover={{
                   bg: colors.neon.cyan,
                   transform: 'translateY(-2px)',
-                  boxShadow: `0 10px 40px ${colors.neon.cyan}66, 0 20px 80px ${colors.neon.cyan}33`
+                  boxShadow: `0 10px 30px ${colors.neon.cyan}66`
                 }}
-                _after={{
-                  content: '""',
-                  position: 'absolute',
-                  top: 0,
-                  left: '-100%',
-                  width: '100%',
-                  height: '100%',
-                  background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)`,
-                  transition: 'left 0.5s',
+                _active={{
+                  transform: 'translateY(0)'
                 }}
-                _hover_after={{
-                  left: '100%',
-                }}
-                transition="all 0.3s"
+                borderRadius="full"
+                transition="all 0.2s"
               >
                 LETS BUILD
               </Button>
               <Button
                 size="lg"
-                px={10}
-                py={7}
-                fontSize="md"
+                variant="outline"
+                borderColor="whiteAlpha.300"
+                borderWidth="2px"
+                color="white"
                 fontWeight="600"
-                bg="transparent"
-                color={colors.neon.cyan}
-                border="2px solid"
-                borderColor={colors.neon.cyan}
-                borderRadius="full"
-                onClick={handlePaymentClick}
+                fontSize={{ base: "sm", md: "md" }}
+                height={{ base: "48px", md: "52px" }}
+                px={{ base: 6, md: 8 }}
                 width={{ base: "100%", sm: "auto" }}
+                onClick={handlePaymentClick}
                 _hover={{
-                  bg: `${colors.neon.cyan}22`,
-                  transform: 'translateY(-2px)',
+                  bg: 'whiteAlpha.100',
                   borderColor: colors.neon.cyan,
-                  color: 'white',
-                  boxShadow: `0 10px 40px ${colors.neon.cyan}44, inset 0 0 20px ${colors.neon.cyan}33`
+                  color: colors.neon.cyan
                 }}
-                transition="all 0.3s"
+                borderRadius="full"
+                transition="all 0.2s"
               >
                 FUEL UP
               </Button>
