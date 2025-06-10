@@ -216,22 +216,9 @@ const DigitalAlchemy = () => {
           <Box 
             position="relative" 
             width="100%" 
-            minH={{ base: "180px", md: "240px" }}
+            minH={{ base: "200px", md: "260px" }}
             py={4}
           >
-            {/* Background glow for machine */}
-            <Box
-              position="absolute"
-              top="50%"
-              left="50%"
-              transform="translate(-50%, -50%)"
-              width={{ base: "300px", md: "500px" }}
-              height={{ base: "150px", md: "200px" }}
-              bg="radial-gradient(ellipse at center, rgba(255, 229, 0, 0.1) 0%, transparent 70%)"
-              filter="blur(40px)"
-              opacity={0.6}
-            />
-
             {/* Pipeline Visualization */}
             <HStack 
               position="absolute"
@@ -295,7 +282,7 @@ const DigitalAlchemy = () => {
                 ))}
               </Box>
 
-              {/* Central Burro - Enhanced */}
+              {/* Central Burro - Enhanced with Fixed Glow */}
               <MotionBox 
                 position="relative" 
                 zIndex={10} 
@@ -303,6 +290,56 @@ const DigitalAlchemy = () => {
                 whileHover={{ scale: 1.1, rotate: 5 }}
                 transition={{ duration: 0.3 }}
               >
+                {/* Multiple layered glows for intense effect */}
+                <Box
+                  position="absolute"
+                  top="50%"
+                  left="50%"
+                  transform="translate(-50%, -50%)"
+                  width={{ base: "200px", md: "300px" }}
+                  height={{ base: "200px", md: "300px" }}
+                  borderRadius="full"
+                  bg="brand.primary"
+                  filter="blur(80px)"
+                  opacity={0.4}
+                  pointerEvents="none"
+                />
+                <Box
+                  position="absolute"
+                  top="50%"
+                  left="50%"
+                  transform="translate(-50%, -50%)"
+                  width={{ base: "150px", md: "250px" }}
+                  height={{ base: "150px", md: "250px" }}
+                  borderRadius="full"
+                  bg="accent.banana"
+                  filter="blur(60px)"
+                  opacity={0.3}
+                  pointerEvents="none"
+                  animation="pulse 3s ease-in-out infinite"
+                  sx={{
+                    '@keyframes pulse': {
+                      '0%, 100%': { transform: 'translate(-50%, -50%) scale(1)', opacity: 0.3 },
+                      '50%': { transform: 'translate(-50%, -50%) scale(1.2)', opacity: 0.2 }
+                    }
+                  }}
+                />
+                <Box
+                  position="absolute"
+                  top="50%"
+                  left="50%"
+                  transform="translate(-50%, -50%)"
+                  width={{ base: "120px", md: "200px" }}
+                  height={{ base: "120px", md: "200px" }}
+                  borderRadius="full"
+                  bgGradient="radial(circle at center, var(--chakra-colors-accent-neon) 0%, transparent 70%)"
+                  opacity={activeService ? 0.5 : 0.3}
+                  filter="blur(40px)"
+                  pointerEvents="none"
+                  transition="all 0.5s"
+                />
+                
+                {/* The Burro Image */}
                 <Image
                   src="/burro-head-neon-sign.png"
                   alt="Neon Burro"
@@ -310,28 +347,31 @@ const DigitalAlchemy = () => {
                   height={{ base: "80px", md: "140px" }}
                   objectFit="contain"
                   filter={activeService 
-                    ? 'drop-shadow(0 0 50px rgba(255, 229, 0, 0.8)) brightness(1.3)' 
-                    : 'drop-shadow(0 0 30px rgba(0, 229, 229, 0.6)) brightness(1.1)'
+                    ? 'drop-shadow(0 0 40px rgba(255, 229, 0, 1)) drop-shadow(0 0 80px rgba(255, 229, 0, 0.6)) brightness(1.3) contrast(1.2)' 
+                    : 'drop-shadow(0 0 30px rgba(0, 229, 229, 1)) drop-shadow(0 0 60px rgba(0, 229, 229, 0.6)) brightness(1.2) contrast(1.1)'
                   }
                   transition="all 0.3s"
+                  position="relative"
+                  zIndex={1}
                 />
-                {/* Pulsing glow */}
+                
+                {/* Inner pulsing core */}
                 <Box
                   position="absolute"
                   top="50%"
                   left="50%"
                   transform="translate(-50%, -50%)"
-                  width="120%"
-                  height="120%"
+                  width={{ base: "40px", md: "70px" }}
+                  height={{ base: "40px", md: "70px" }}
                   borderRadius="full"
                   bg={activeService ? 'accent.banana' : 'brand.primary'}
-                  opacity={0.2}
-                  filter="blur(30px)"
-                  animation="pulse 2s ease-in-out infinite"
+                  opacity={0.6}
+                  filter="blur(20px)"
+                  animation="coreGlow 2s ease-in-out infinite"
                   sx={{
-                    '@keyframes pulse': {
-                      '0%, 100%': { transform: 'translate(-50%, -50%) scale(1)', opacity: 0.2 },
-                      '50%': { transform: 'translate(-50%, -50%) scale(1.4)', opacity: 0.1 }
+                    '@keyframes coreGlow': {
+                      '0%, 100%': { transform: 'translate(-50%, -50%) scale(1)', opacity: 0.6 },
+                      '50%': { transform: 'translate(-50%, -50%) scale(1.3)', opacity: 0.3 }
                     }
                   }}
                 />

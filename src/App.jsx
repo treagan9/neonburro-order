@@ -12,6 +12,10 @@ import Contact from './pages/Contact';
 import Invoice from './pages/Invoice';
 import Lab from './pages/Lab';
 import FAQ from './pages/FAQ';
+import ApplyToBurro from './pages/ApplyToBurro';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
+import Sitemap from './pages/Sitemap';
 import GnarlyTacos from './pages/Lab/GnarlyTacos';
 import TraceGallery from './pages/Lab/TraceGallery';
 import ColoradoBoy from './pages/Lab/ColoradoBoy';
@@ -42,6 +46,10 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/invoice" element={<Invoice />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/apply-to-burro" element={<ApplyToBurro />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/sitemap" element={<Sitemap />} />
           <Route path="/lab" element={<Lab />} />
           <Route path="/lab/gnarly-tacos" element={<GnarlyTacos />} />
           <Route path="/lab/trace-gallery" element={<TraceGallery />} />

@@ -1,9 +1,14 @@
-import { Box, Container, Heading, Text, VStack, HStack, Input, Textarea, Button, Checkbox, useToast } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, VStack, HStack, Input, Textarea, Button, Checkbox, useToast, keyframes } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { FiUser, FiMail, FiShield, FiBriefcase, FiSend } from 'react-icons/fi';
+import { FiUser, FiMail, FiShield, FiBriefcase, FiSend, FiLock } from 'react-icons/fi';
 
 const MotionBox = motion(Box);
+
+const pulse = keyframes`
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.1); }
+`;
 
 const WorkForm = () => {
   const [formData, setFormData] = useState({
@@ -15,16 +20,6 @@ const WorkForm = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
-
-  const colors = {
-    neon: {
-      cyan: '#00FFFF',
-      green: '#39FF14',
-    },
-    dark: {
-      black: '#0A0A0A',
-    }
-  };
 
   const encode = (data) => {
     return Object.keys(data)
@@ -55,6 +50,11 @@ const WorkForm = () => {
           status: "success",
           duration: 5000,
           isClosable: true,
+          position: "top",
+          containerStyle: {
+            background: 'accent.banana',
+            color: 'dark.black'
+          }
         });
         
         // Reset form
@@ -94,24 +94,44 @@ const WorkForm = () => {
     <Box 
       position="relative" 
       py={{ base: 16, md: 20 }} 
-      bg={colors.dark.black}
+      bg="dark.black"
       overflow="hidden"
     >
-      {/* Background Effect */}
+      {/* Enhanced Background Effects */}
       <Box
         position="absolute"
-        top="50%"
-        left="50%"
-        transform="translate(-50%, -50%)"
-        width="100%"
-        height="100%"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
         opacity={0.03}
-        bgGradient={`radial(circle at center, ${colors.neon.cyan} 0%, transparent 50%)`}
-        pointerEvents="none"
-      />
+      >
+        <Box
+          position="absolute"
+          top="20%"
+          left="10%"
+          width="400px"
+          height="400px"
+          borderRadius="full"
+          bg="accent.banana"
+          filter="blur(150px)"
+          animation={`${pulse} 4s ease-in-out infinite`}
+        />
+        <Box
+          position="absolute"
+          bottom="20%"
+          right="10%"
+          width="300px"
+          height="300px"
+          borderRadius="full"
+          bg="brand.primary"
+          filter="blur(120px)"
+          animation={`${pulse} 4s ease-in-out infinite 2s`}
+        />
+      </Box>
 
-      <Container maxW="700px" px={{ base: 6, md: 8 }} position="relative">
-        <VStack spacing={10}>
+      <Container maxW="700px" px={{ base: 4, md: 8 }} position="relative">
+        <VStack spacing={{ base: 10, md: 12 }}>
           {/* Header */}
           <VStack spacing={4} textAlign="center">
             <MotionBox
@@ -121,12 +141,17 @@ const WorkForm = () => {
               viewport={{ once: true }}
             >
               <HStack spacing={2} justify="center">
-                <FiShield size={20} color={colors.neon.cyan} />
+                <Box 
+                  as={FiShield} 
+                  size={20} 
+                  color="accent.banana"
+                  filter="drop-shadow(0 0 10px var(--chakra-colors-accent-banana))"
+                />
                 <Text 
-                  color={colors.neon.cyan}
+                  color="accent.banana"
                   fontSize={{ base: "xs", md: "sm" }}
-                  fontWeight="600" 
-                  letterSpacing="0.2em"
+                  fontWeight="semibold" 
+                  letterSpacing="wider"
                   textTransform="uppercase"
                 >
                   Request Access
@@ -142,14 +167,22 @@ const WorkForm = () => {
             >
               <Heading
                 as="h2"
-                fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
-                fontFamily="'Inter', sans-serif"
-                fontWeight="bold"
-                color="white"
-                lineHeight="1.2"
-                letterSpacing="-0.02em"
+                fontSize={{ base: "26px", sm: "3xl", md: "4xl", lg: "5xl" }}
+                fontWeight="extrabold"
+                color="text.primary"
+                lineHeight={{ base: "1.3", md: "1.2" }}
+                letterSpacing="tight"
               >
-                Apply for Security Clearance
+                Apply for Security
+                <Box 
+                  as="span" 
+                  display="block"
+                  bgGradient="linear(to-r, accent.banana, brand.primary)"
+                  bgClip="text"
+                  mt={1}
+                >
+                  Clearance
+                </Box>
               </Heading>
             </MotionBox>
 
@@ -160,16 +193,17 @@ const WorkForm = () => {
               viewport={{ once: true }}
             >
               <Text
-                fontSize={{ base: "md", md: "lg" }}
-                color="gray.300"
+                fontSize={{ base: "sm", md: "md", lg: "lg" }}
+                color="text.secondary"
                 maxW="500px"
+                lineHeight="relaxed"
               >
                 Tell us why you need to see behind the curtain, and we'll consider granting you access to our portfolio vault.
               </Text>
             </MotionBox>
           </VStack>
 
-          {/* Form */}
+          {/* Enhanced Form */}
           <MotionBox
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -186,20 +220,39 @@ const WorkForm = () => {
               onSubmit={handleSubmit}
               p={{ base: 6, md: 8 }}
               borderRadius="xl"
-              bg="whiteAlpha.50"
+              bg="rgba(255, 255, 255, 0.02)"
               backdropFilter="blur(20px)"
               border="2px solid"
-              borderColor="whiteAlpha.100"
+              borderColor="rgba(255, 229, 0, 0.15)"
+              position="relative"
+              overflow="hidden"
+              transition="all 0.3s"
+              _hover={{
+                borderColor: 'rgba(255, 229, 0, 0.3)',
+                boxShadow: '0 20px 40px rgba(255, 229, 0, 0.1)'
+              }}
             >
+              {/* Subtle gradient overlay */}
+              <Box
+                position="absolute"
+                top={0}
+                left={0}
+                right={0}
+                bottom={0}
+                bgGradient="linear(135deg, accent.bananaAlpha.10, transparent)"
+                opacity={0.3}
+                pointerEvents="none"
+              />
+              
               {/* Hidden Netlify input */}
               <input type="hidden" name="form-name" value="work-access-form" />
               
-              <VStack spacing={6}>
+              <VStack spacing={6} position="relative">
                 {/* Name Input */}
                 <Box width="100%">
                   <HStack spacing={2} mb={2}>
-                    <FiUser size={14} color={colors.neon.cyan} />
-                    <Text color="gray.400" fontSize="sm" fontWeight="600">
+                    <Box as={FiUser} size={14} color="accent.banana" />
+                    <Text color="text.muted" fontSize="sm" fontWeight="semibold">
                       Your Name
                     </Text>
                   </HStack>
@@ -209,16 +262,19 @@ const WorkForm = () => {
                     onChange={handleChange}
                     placeholder="John Doe"
                     size="lg"
-                    bg="whiteAlpha.50"
+                    bg="rgba(255, 255, 255, 0.02)"
                     border="2px solid"
-                    borderColor="whiteAlpha.200"
-                    color="white"
-                    _placeholder={{ color: 'gray.600' }}
-                    _hover={{ borderColor: 'whiteAlpha.300' }}
+                    borderColor="rgba(255, 255, 255, 0.1)"
+                    borderRadius="lg"
+                    color="text.primary"
+                    _placeholder={{ color: 'text.muted' }}
+                    _hover={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
                     _focus={{ 
-                      borderColor: colors.neon.cyan, 
-                      boxShadow: `0 0 0 1px ${colors.neon.cyan}`,
+                      borderColor: 'accent.banana', 
+                      boxShadow: '0 0 0 1px var(--chakra-colors-accent-banana)',
+                      bg: 'rgba(255, 229, 0, 0.02)'
                     }}
+                    transition="all 0.2s"
                     required
                   />
                 </Box>
@@ -226,8 +282,8 @@ const WorkForm = () => {
                 {/* Email Input */}
                 <Box width="100%">
                   <HStack spacing={2} mb={2}>
-                    <FiMail size={14} color={colors.neon.cyan} />
-                    <Text color="gray.400" fontSize="sm" fontWeight="600">
+                    <Box as={FiMail} size={14} color="accent.banana" />
+                    <Text color="text.muted" fontSize="sm" fontWeight="semibold">
                       Email Address
                     </Text>
                   </HStack>
@@ -238,16 +294,19 @@ const WorkForm = () => {
                     onChange={handleChange}
                     placeholder="john@company.com"
                     size="lg"
-                    bg="whiteAlpha.50"
+                    bg="rgba(255, 255, 255, 0.02)"
                     border="2px solid"
-                    borderColor="whiteAlpha.200"
-                    color="white"
-                    _placeholder={{ color: 'gray.600' }}
-                    _hover={{ borderColor: 'whiteAlpha.300' }}
+                    borderColor="rgba(255, 255, 255, 0.1)"
+                    borderRadius="lg"
+                    color="text.primary"
+                    _placeholder={{ color: 'text.muted' }}
+                    _hover={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
                     _focus={{ 
-                      borderColor: colors.neon.cyan, 
-                      boxShadow: `0 0 0 1px ${colors.neon.cyan}`,
+                      borderColor: 'accent.banana', 
+                      boxShadow: '0 0 0 1px var(--chakra-colors-accent-banana)',
+                      bg: 'rgba(255, 229, 0, 0.02)'
                     }}
+                    transition="all 0.2s"
                     required
                   />
                 </Box>
@@ -255,8 +314,8 @@ const WorkForm = () => {
                 {/* Company Input */}
                 <Box width="100%">
                   <HStack spacing={2} mb={2}>
-                    <FiBriefcase size={14} color={colors.neon.cyan} />
-                    <Text color="gray.400" fontSize="sm" fontWeight="600">
+                    <Box as={FiBriefcase} size={14} color="accent.banana" />
+                    <Text color="text.muted" fontSize="sm" fontWeight="semibold">
                       Company
                     </Text>
                   </HStack>
@@ -266,25 +325,31 @@ const WorkForm = () => {
                     onChange={handleChange}
                     placeholder="Awesome Corp"
                     size="lg"
-                    bg="whiteAlpha.50"
+                    bg="rgba(255, 255, 255, 0.02)"
                     border="2px solid"
-                    borderColor="whiteAlpha.200"
-                    color="white"
-                    _placeholder={{ color: 'gray.600' }}
-                    _hover={{ borderColor: 'whiteAlpha.300' }}
+                    borderColor="rgba(255, 255, 255, 0.1)"
+                    borderRadius="lg"
+                    color="text.primary"
+                    _placeholder={{ color: 'text.muted' }}
+                    _hover={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
                     _focus={{ 
-                      borderColor: colors.neon.cyan, 
-                      boxShadow: `0 0 0 1px ${colors.neon.cyan}`,
+                      borderColor: 'accent.banana', 
+                      boxShadow: '0 0 0 1px var(--chakra-colors-accent-banana)',
+                      bg: 'rgba(255, 229, 0, 0.02)'
                     }}
+                    transition="all 0.2s"
                     required
                   />
                 </Box>
 
                 {/* Reason Textarea */}
                 <Box width="100%">
-                  <Text color="gray.400" fontSize="sm" fontWeight="600" mb={2}>
-                    Why do you need access?
-                  </Text>
+                  <HStack spacing={2} mb={2}>
+                    <Box as={FiLock} size={14} color="accent.banana" />
+                    <Text color="text.muted" fontSize="sm" fontWeight="semibold">
+                      Why do you need access?
+                    </Text>
+                  </HStack>
                   <Textarea
                     name="reason"
                     value={formData.reason}
@@ -292,30 +357,41 @@ const WorkForm = () => {
                     placeholder="I'm looking for a development partner who has experience with..."
                     size="lg"
                     rows={4}
-                    bg="whiteAlpha.50"
+                    bg="rgba(255, 255, 255, 0.02)"
                     border="2px solid"
-                    borderColor="whiteAlpha.200"
-                    color="white"
-                    _placeholder={{ color: 'gray.600' }}
-                    _hover={{ borderColor: 'whiteAlpha.300' }}
+                    borderColor="rgba(255, 255, 255, 0.1)"
+                    borderRadius="lg"
+                    color="text.primary"
+                    _placeholder={{ color: 'text.muted' }}
+                    _hover={{ borderColor: 'rgba(255, 255, 255, 0.2)' }}
                     _focus={{ 
-                      borderColor: colors.neon.cyan, 
-                      boxShadow: `0 0 0 1px ${colors.neon.cyan}`,
+                      borderColor: 'accent.banana', 
+                      boxShadow: '0 0 0 1px var(--chakra-colors-accent-banana)',
+                      bg: 'rgba(255, 229, 0, 0.02)'
                     }}
+                    transition="all 0.2s"
+                    resize="vertical"
                     required
                   />
                 </Box>
 
                 {/* NDA Checkbox */}
-                <Box width="100%">
+                <Box 
+                  width="100%" 
+                  p={4}
+                  borderRadius="lg"
+                  bg="rgba(255, 229, 0, 0.03)"
+                  border="1px solid"
+                  borderColor="rgba(255, 229, 0, 0.1)"
+                >
                   <Checkbox
                     name="hasNDA"
                     isChecked={formData.hasNDA}
                     onChange={handleChange}
-                    colorScheme="cyan"
-                    borderColor="whiteAlpha.300"
+                    colorScheme="yellow"
+                    borderColor="rgba(255, 229, 0, 0.3)"
                   >
-                    <Text color="gray.300" fontSize="sm">
+                    <Text color="text.secondary" fontSize="sm">
                       I'm willing to sign an NDA to see specific case studies
                     </Text>
                   </Checkbox>
@@ -326,22 +402,37 @@ const WorkForm = () => {
                   type="submit"
                   size="lg"
                   width="100%"
-                  bg={colors.neon.cyan}
-                  color={colors.dark.black}
-                  fontWeight="600"
+                  bg="accent.banana"
+                  color="dark.black"
+                  fontWeight="bold"
                   borderRadius="full"
                   rightIcon={<FiSend />}
                   isLoading={isSubmitting}
                   loadingText="Submitting Request..."
+                  position="relative"
+                  overflow="hidden"
+                  _before={{
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    left: '-100%',
+                    width: '100%',
+                    height: '100%',
+                    background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
+                    transition: 'left 0.5s',
+                  }}
                   _hover={{
-                    bg: colors.neon.cyan,
+                    bg: 'accent.bananaDark',
                     transform: 'scale(1.02)',
-                    boxShadow: `0 0 30px ${colors.neon.cyan}66`,
+                    boxShadow: '0 0 30px rgba(255, 229, 0, 0.5)',
+                    _before: {
+                      left: '100%',
+                    }
                   }}
                   _active={{
                     transform: 'scale(0.98)',
                   }}
-                  transition="all 0.3s"
+                  transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                 >
                   Request Portfolio Access
                 </Button>
@@ -349,7 +440,7 @@ const WorkForm = () => {
             </Box>
           </MotionBox>
 
-          {/* Security Note */}
+          {/* Enhanced Security Note */}
           <MotionBox
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -357,12 +448,21 @@ const WorkForm = () => {
             viewport={{ once: true }}
           >
             <HStack 
-              spacing={2} 
-              color="gray.500" 
-              fontSize="xs"
+              spacing={3}
+              p={3}
+              borderRadius="full"
+              bg="rgba(255, 229, 0, 0.05)"
+              border="1px solid"
+              borderColor="rgba(255, 229, 0, 0.1)"
+              color="text.muted"
+              fontSize={{ base: "xs", md: "sm" }}
               justify="center"
             >
-              <FiShield />
+              <Box 
+                as={FiShield} 
+                color="accent.banana"
+                filter="drop-shadow(0 0 5px var(--chakra-colors-accent-banana))"
+              />
               <Text>Your information is encrypted and never shared</Text>
             </HStack>
           </MotionBox>
