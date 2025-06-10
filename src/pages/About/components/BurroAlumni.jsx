@@ -195,7 +195,7 @@ const BurroAlumni = () => {
                   transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                   _hover={{
                     borderColor: alum.color,
-                    boxShadow: `0 20px 40px ${alum.color}22`,
+                    boxShadow: `0 20px 40px var(--chakra-colors-${alum.color.replace('.', '-')})22`,
                     bg: 'rgba(255, 255, 255, 0.04)',
                     transform: 'translateY(-4px)'
                   }}
@@ -207,7 +207,7 @@ const BurroAlumni = () => {
                     left={0}
                     right={0}
                     height="100px"
-                    bgGradient={`linear(to-b, ${alum.color}08, transparent)`}
+                    bgGradient={`linear(to-b, var(--chakra-colors-${alum.color.replace('.', '-')})08, transparent)`}
                     opacity={0}
                     _groupHover={{ opacity: 1 }}
                     transition="opacity 0.3s"
@@ -222,7 +222,12 @@ const BurroAlumni = () => {
                         src={alum.image}
                         name={alum.name}
                         border="3px solid"
-                        borderColor={`${alum.color}44`}
+                        borderColor={`var(--chakra-colors-${alum.color.replace('.', '-')})44`}
+                        sx={{
+                          '.chakra-ui-light &, .chakra-ui-dark &': {
+                            bg: 'gray.700'
+                          }
+                        }}
                         _groupHover={{
                           borderColor: alum.color
                         }}
@@ -239,7 +244,7 @@ const BurroAlumni = () => {
                             {alum.name}
                           </Heading>
                           <Badge
-                            bg={`${alum.color}22`}
+                            bg={`var(--chakra-colors-${alum.color.replace('.', '-')})22`}
                             color={alum.color}
                             fontSize="2xs"
                             px={2}
@@ -274,19 +279,18 @@ const BurroAlumni = () => {
                     </VStack>
 
                     {/* Testimonial */}
-                    <Box
-                      position="relative"
-                      _before={{
-                        content: '"""',
-                        position: 'absolute',
-                        top: '-10px',
-                        left: '-5px',
-                        fontSize: '3xl',
-                        color: alum.color,
-                        opacity: 0.3,
-                        fontFamily: 'serif'
-                      }}
-                    >
+                    <Box position="relative">
+                      <Box
+                        position="absolute"
+                        top="-10px"
+                        left="-5px"
+                        fontSize="3xl"
+                        color={alum.color}
+                        opacity={0.3}
+                        fontFamily="serif"
+                      >
+                        "
+                      </Box>
                       <Text
                         color="text.secondary"
                         fontSize={{ base: "xs", md: "sm" }}
@@ -306,8 +310,10 @@ const BurroAlumni = () => {
                           as={FiStar}
                           size={14}
                           color="accent.banana"
-                          fill="accent.banana"
-                          animation={`${sparkle} ${1.5 + i * 0.2}s ease-in-out infinite`}
+                          fill="var(--chakra-colors-accent-banana)"
+                          sx={{
+                            animation: `${sparkle} ${1.5 + i * 0.2}s ease-in-out infinite`
+                          }}
                           _groupHover={{
                             transform: 'scale(1.2)'
                           }}
