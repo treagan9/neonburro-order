@@ -1,7 +1,6 @@
 import { Box, Container } from '@chakra-ui/react';
 import { useState, useEffect, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import Navigation from '../../components/navigation/Navigation';
 import ContactHero from './components/ContactHero';
 import FormProgress from './components/FormProgress';
 import StepAboutYou from './components/StepAboutYou';
@@ -120,7 +119,6 @@ const Contact = () => {
 
   return (
     <Box minH="100vh" bg="#0A0A0A">
-      <Navigation />
       
       {/* Hero Section */}
       <ContactHero />

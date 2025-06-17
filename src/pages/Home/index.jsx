@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react';
-import MatrixRain from '../../components/effects/MatrixRain';
+// Removed the MatrixRain import since Hero has its own
 import Hero from './components/Hero';
 import Features from './components/Features';
 import DigitalAlchemy from './components/DigitalAlchemy';
@@ -10,7 +10,7 @@ import JackIn from './components/JackIn';
 const Home = () => {
   return (
     <Box position="relative" minH="100vh">
-      <MatrixRain />
+      {/* Removed MatrixRain here since Hero component already has it */}
       <Hero />
       <Features />
       <DigitalAlchemy />

@@ -6,7 +6,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 const MotionBox = motion(Box);
 
-const Navigation = () => {
+const Navigation = ({ isAuthenticated, onLogout }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const navigate = useNavigate();
@@ -35,6 +35,19 @@ const Navigation = () => {
 
   const handleNavClick = (href) => {
     navigate(href);
+  };
+
+  const handleMembersClick = () => {
+    if (isAuthenticated) {
+      navigate('/members');
+    } else {
+      navigate('/members/login');
+    }
+  };
+
+  const handleLogout = () => {
+    onLogout();
+    navigate('/');
   };
 
   return (
@@ -125,6 +138,57 @@ const Navigation = () => {
 
               {/* Desktop CTA */}
               <HStack spacing={3} display={{ base: 'none', md: 'flex' }}>
+                {/* Base Camp Button - Consistent styling */}
+                <Button
+                  variant="outline"
+                  borderColor="accent.neon"
+                  color="accent.neon"
+                  fontSize="sm"
+                  fontWeight="medium"
+                  height="40px"
+                  px={5}
+                  onClick={handleMembersClick}
+                  position="relative"
+                  overflow="hidden"
+                  borderRadius="full"
+                  _hover={{ 
+                    borderColor: 'accent.neon',
+                    bg: 'rgba(57, 255, 20, 0.1)',
+                    transform: 'translateY(-1px)',
+                    boxShadow: '0 4px 20px rgba(57, 255, 20, 0.3)'
+                  }}
+                  transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                >
+                  Base Camp
+                  {isAuthenticated && (
+                    <Box
+                      as="span"
+                      ml={2}
+                      fontSize="xs"
+                      opacity={0.8}
+                    >
+                      •
+                    </Box>
+                  )}
+                </Button>
+
+                {isAuthenticated && (
+                  <Button
+                    variant="ghost"
+                    color="whiteAlpha.700"
+                    fontSize="sm"
+                    onClick={handleLogout}
+                    height="40px"
+                    px={4}
+                    _hover={{
+                      color: 'accent.warm',
+                      bg: 'whiteAlpha.100'
+                    }}
+                  >
+                    Logout
+                  </Button>
+                )}
+
                 <Button
                   variant="ghost"
                   color="whiteAlpha.700"
@@ -140,6 +204,7 @@ const Navigation = () => {
                 >
                   Get Started
                 </Button>
+                
                 <Button
                   bg="white"
                   color="dark.black"
@@ -179,7 +244,7 @@ const Navigation = () => {
         </Box>
       </Box>
 
-      {/* Mobile Drawer - Refined */}
+      {/* Mobile Drawer */}
       <Drawer isOpen={isOpen} onClose={onClose} placement="right" size="full">
         <DrawerOverlay bg="blackAlpha.800" backdropFilter="blur(10px)" />
         <DrawerContent bg="dark.black">
@@ -207,11 +272,6 @@ const Navigation = () => {
                 onClick={() => {
                   navigate('/');
                   onClose();
-                }}
-                transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-                _hover={{ 
-                  transform: 'translateY(-1px)',
-                  opacity: 0.9
                 }}
               >
                 <Image 
@@ -269,6 +329,81 @@ const Navigation = () => {
                     </Button>
                   </MotionBox>
                 ))}
+
+                {/* Mobile Base Camp Button */}
+                <MotionBox
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                  width="100%"
+                >
+                  <Button
+                    variant="ghost"
+                    size="lg"
+                    width="100%"
+                    height="60px"
+                    fontSize="2xl"
+                    fontWeight="medium"
+                    color="accent.neon"
+                    onClick={() => {
+                      handleMembersClick();
+                      onClose();
+                    }}
+                    justifyContent="center"
+                    borderRadius="xl"
+                    position="relative"
+                    overflow="hidden"
+                    _hover={{ 
+                      bg: 'whiteAlpha.50',
+                      transform: 'translateX(10px)'
+                    }}
+                    transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                  >
+                    Base Camp
+                    {isAuthenticated && (
+                      <Box
+                        as="span"
+                        ml={2}
+                        fontSize="lg"
+                        opacity={0.8}
+                      >
+                        •
+                      </Box>
+                    )}
+                  </Button>
+                </MotionBox>
+
+                {isAuthenticated && (
+                  <MotionBox
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.35 }}
+                    width="100%"
+                  >
+                    <Button
+                      variant="ghost"
+                      size="lg"
+                      width="100%"
+                      height="60px"
+                      fontSize="xl"
+                      fontWeight="medium"
+                      color="accent.warm"
+                      onClick={() => {
+                        handleLogout();
+                        onClose();
+                      }}
+                      justifyContent="center"
+                      borderRadius="xl"
+                      _hover={{ 
+                        bg: 'whiteAlpha.50',
+                        transform: 'translateX(10px)'
+                      }}
+                      transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                    >
+                      Logout
+                    </Button>
+                  </MotionBox>
+                )}
               </VStack>
 
               {/* Mobile CTA */}
@@ -289,9 +424,6 @@ const Navigation = () => {
                   _hover={{
                     transform: 'scale(1.02)',
                     boxShadow: '0 10px 30px rgba(255, 255, 255, 0.2)'
-                  }}
-                  _active={{
-                    transform: 'scale(0.98)'
                   }}
                   transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                 >
@@ -316,9 +448,6 @@ const Navigation = () => {
                     bg: 'whiteAlpha.50',
                     borderColor: 'whiteAlpha.500',
                     transform: 'scale(1.02)'
-                  }}
-                  _active={{
-                    transform: 'scale(0.98)'
                   }}
                   transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                 >

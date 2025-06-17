@@ -22,7 +22,9 @@
     "canvas-confetti": "^1.9.3",
     "framer-motion": "10.16.16",
     "geist": "^1.4.2",
+    "howler": "^2.2.4",
     "leva": "^0.10.0",
+    "lottie-react": "^2.4.1",
     "react": "^19.1.0",
     "react-confetti": "^6.4.0",
     "react-dom": "^19.1.0",
@@ -31,6 +33,7 @@
     "react-parallax-tilt": "^1.7.296",
     "react-router-dom": "6.21.1",
     "react-typed": "^2.0.12",
+    "react-use": "^17.6.0",
     "three": "0.160.0"
   },
   "devDependencies": {

@@ -1,5 +1,4 @@
 import { Box } from '@chakra-ui/react';
-import Navigation from '../../components/navigation/Navigation';
 import AboutHero from './components/AboutHero';
 import OurStory from './components/OurStory';
 import CoreTeam from './components/CoreTeam';
@@ -12,7 +11,6 @@ import JoinTheHerd from './components/JoinTheHerd';
 const About = () => {
   return (
     <Box bg="#0A0A0A" minH="100vh">
-      <Navigation />
       <AboutHero />
       <OurStory />
       <CoreTeam />

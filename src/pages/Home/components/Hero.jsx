@@ -170,7 +170,8 @@ const Hero = () => {
               lineHeight={{ base: "1.2", md: "1.1" }}
               letterSpacing="-0.02em"
             >
-              Built to{' '}
+              Exceptional Websites.
+              <br />
               <Box
                 as="span"
                 position="relative"
@@ -189,11 +190,8 @@ const Hero = () => {
                   }
                 }}
               >
-                Stand Out
+                Built to Perform.
               </Box>
-              .
-              <br />
-              Coded to Last.
             </Heading>
           </MotionBox>
           
@@ -209,13 +207,13 @@ const Hero = () => {
               color="gray.300"
               lineHeight={{ base: "1.6", md: "1.7" }}
             >
-              We're the digital misfits behind high-performing websites that are fast, beautiful, 
-              and a little rebellious. From slick UI to SEO-savvy builds, we bring big energy, 
-              sharp strategy, and a signature touch you won't find anywhere else.
+              We craft fast, elegant, and scalable websites that elevate your brand. 
+              From clean design to smart SEO architecture, every project is built for 
+              impact and growth.
             </Text>
           </MotionBox>
 
-          {/* Stats */}
+          {/* Stats Cards - WorkHero Style */}
           <MotionBox
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -223,73 +221,81 @@ const Hero = () => {
             width="100%"
             maxW={{ base: "100%", md: "700px" }}
           >
-            <HStack 
-              spacing={{ base: 4, md: 10 }} 
-              flexWrap="wrap"
-              divider={<Box height="40px" width="1px" bg={`${colors.neon.cyan}22`} />}
+            <HStack
+              spacing={{ base: 3, md: 4 }}
               justify={{ base: "center", md: "flex-start" }}
+              flexWrap={{ base: "wrap", md: "nowrap" }}
+              gap={{ base: 3, md: 0 }}
             >
-              <VStack align="start" spacing={0}>
-                <HStack spacing={1} align="baseline">
-                  <Text 
-                    color={colors.neon.cyan} 
-                    fontSize={{ base: "xl", md: "2xl" }}
-                    fontWeight="700" 
-                    fontFamily="mono"
-                    textShadow={`0 0 10px ${colors.neon.cyan}66`}
+              {[
+                { value: '24+', label: 'Years', subtext: 'of proven expertise' },
+                { value: '200+', label: 'Projects', subtext: 'delivered on time' },
+                { value: '98%', label: 'Score', subtext: 'client satisfaction' }
+              ].map((stat, index) => (
+                <Box
+                  key={index}
+                  flex={{ base: "1 1 calc(33.333% - 12px)", md: 1 }}
+                  minW={{ base: "90px", md: "auto" }}
+                >
+                  <VStack
+                    p={{ base: 2.5, md: 3 }}
+                    borderRadius="xl"
+                    bg="whiteAlpha.50"
+                    backdropFilter="blur(10px)"
+                    border="1px solid"
+                    borderColor="whiteAlpha.100"
+                    transition="all 0.3s"
+                    cursor="pointer"
+                    role="group"
+                    spacing={0.5}
+                    align="center"
+                    _hover={{
+                      bg: { base: 'whiteAlpha.50', md: 'whiteAlpha.100' },
+                      borderColor: { base: 'whiteAlpha.100', md: colors.neon.cyan },
+                      transform: { base: 'none', md: 'translateY(-4px)' },
+                      boxShadow: { base: 'none', md: `0 10px 30px ${colors.neon.cyan}22` }
+                    }}
                   >
-                    24+
-                  </Text>
-                  <Text color={colors.neon.cyan} fontSize={{ base: "sm", md: "md" }} fontWeight="600">
-                    Years
-                  </Text>
-                </HStack>
-                <Text color="gray.500" fontSize="2xs" letterSpacing="0.05em" display={{ base: "none", md: "block" }}>
-                  of hands-on web experience
-                </Text>
-              </VStack>
-              <VStack align="start" spacing={0}>
-                <HStack spacing={1} align="baseline">
-                  <Text 
-                    color={colors.neon.cyan} 
-                    fontSize={{ base: "xl", md: "2xl" }}
-                    fontWeight="700" 
-                    fontFamily="mono"
-                    textShadow={`0 0 10px ${colors.neon.cyan}66`}
-                  >
-                    200+
-                  </Text>
-                  <Text color={colors.neon.cyan} fontSize={{ base: "sm", md: "md" }} fontWeight="600">
-                    Projects
-                  </Text>
-                </HStack>
-                <Text color="gray.500" fontSize="2xs" letterSpacing="0.05em" display={{ base: "none", md: "block" }}>
-                  launched, loved, and live
-                </Text>
-              </VStack>
-              <VStack align="start" spacing={0}>
-                <HStack spacing={1} align="baseline">
-                  <Text 
-                    color={colors.neon.cyan} 
-                    fontSize={{ base: "xl", md: "2xl" }}
-                    fontWeight="700" 
-                    fontFamily="mono"
-                    textShadow={`0 0 10px ${colors.neon.cyan}66`}
-                  >
-                    7,200
-                  </Text>
-                  <Text color={colors.neon.cyan} fontSize={{ base: "sm", md: "md" }} fontWeight="600">
-                    ft
-                  </Text>
-                </HStack>
-                <Text color="gray.500" fontSize="2xs" letterSpacing="0.05em" display={{ base: "none", md: "block" }}>
-                  closer to the cloud
-                </Text>
-              </VStack>
+                    <HStack spacing={1} align="baseline">
+                      <Text 
+                        color={colors.neon.cyan} 
+                        fontSize={{ base: "lg", md: "xl" }}
+                        fontWeight="800"
+                        fontFamily="mono"
+                        lineHeight="1"
+                        transition="all 0.3s"
+                        _groupHover={{
+                          textShadow: `0 0 20px ${colors.neon.cyan}`,
+                        }}
+                      >
+                        {stat.value}
+                      </Text>
+                      <Text 
+                        color="white" 
+                        fontSize={{ base: "xs", md: "sm" }}
+                        fontWeight="600"
+                        textTransform="uppercase"
+                        letterSpacing="wider"
+                      >
+                        {stat.label}
+                      </Text>
+                    </HStack>
+                    <Text 
+                      color="gray.500" 
+                      fontSize="2xs" 
+                      letterSpacing="0.05em" 
+                      display={{ base: "none", md: "block" }}
+                      textAlign="center"
+                    >
+                      {stat.subtext}
+                    </Text>
+                  </VStack>
+                </Box>
+              ))}
             </HStack>
           </MotionBox>
           
-          {/* CTA Buttons - Updated to match ServicesHero exactly */}
+          {/* CTA Buttons - Updated copy for professional tone */}
           <MotionBox
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -322,7 +328,7 @@ const Hero = () => {
                 borderRadius="full"
                 transition="all 0.2s"
               >
-                LETS BUILD
+                START PROJECT
               </Button>
               <Button
                 size="lg"
@@ -344,57 +350,9 @@ const Hero = () => {
                 borderRadius="full"
                 transition="all 0.2s"
               >
-                FUEL UP
+                VIEW PRICING
               </Button>
             </HStack>
-          </MotionBox>
-
-          {/* Scroll indicator */}
-          <MotionBox
-            position="absolute"
-            bottom="40px"
-            left="50%"
-            transform="translateX(-50%)"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1, duration: 0.8 }}
-            display={{ base: 'none', md: 'block' }}
-          >
-            <VStack spacing={2}>
-              <Text 
-                color={colors.neon.cyan} 
-                fontSize="xs" 
-                letterSpacing="0.2em" 
-                textTransform="uppercase"
-                opacity={0.8}
-              >
-                Scroll
-              </Text>
-              <Box
-                width="2px"
-                height="40px"
-                bg={`${colors.neon.cyan}22`}
-                position="relative"
-                overflow="hidden"
-                _after={{
-                  content: '""',
-                  position: 'absolute',
-                  top: '-10px',
-                  left: 0,
-                  width: '100%',
-                  height: '10px',
-                  bg: colors.neon.cyan,
-                  animation: 'scrollDown 2s infinite',
-                  boxShadow: `0 0 10px ${colors.neon.cyan}`,
-                }}
-                sx={{
-                  '@keyframes scrollDown': {
-                    '0%': { top: '-10px' },
-                    '100%': { top: '40px' }
-                  }
-                }}
-              />
-            </VStack>
           </MotionBox>
         </VStack>
       </Container>

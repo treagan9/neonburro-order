@@ -1,6 +1,5 @@
 // Services/index.jsx
 import { Box } from '@chakra-ui/react';
-import Navigation from '../../components/navigation/Navigation';
 import ServicesHero from './components/ServicesHero';
 import StarterPackages from './components/StarterPackages';
 import EnhancementMenu from './components/EnhancementMenu';
@@ -11,7 +10,7 @@ import ServicesCTA from './components/ServicesCTA';
 const Services = () => {
   return (
     <Box minH="100vh" bg="#0A0A0A">
-      <Navigation />
+      {/* Removed Navigation component - it's already rendered globally in App.jsx */}
       
       {/* Hero Section */}
       <ServicesHero />
