@@ -37,7 +37,7 @@ const BurroGateKeeper = ({ onAuthenticated }) => {
 
     // Simulate authentication delay
     setTimeout(() => {
-      if (accessCode === 'BURRO2024' || accessCode === 'DEMO') {
+      if (accessCode === 'BURRO2049' || accessCode === 'DEMO') {
         toast({
           title: "Access Granted",
           description: "Welcome to the Neon Burro Valley",
