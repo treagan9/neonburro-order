@@ -596,7 +596,7 @@ const InteractiveValleyScene = () => {
     saloon: '/images/scenes/digital-saloon-interior.jpg',
     devzen: '/images/scenes/dev-zen-interior.jpg',
     river: '/images/scenes/lazy-river-night.jpg',
-    neonpod: '/images/scenes/neon-pod-interior.jpg'
+    neonpod: '/images/scenes/the-neon-pod.jpg'
   };
 
   return (
@@ -743,48 +743,73 @@ const InteractiveValleyScene = () => {
               />
             )}
 
-            {/* Hover/Mobile tooltip with edge detection */}
+            {/* Hover/Mobile tooltip with enhanced edge detection */}
             <AnimatePresence>
               {(hoveredArea === area.id || mobileSelectedArea?.id === area.id) && (
                 <MotionBox
                   position="absolute"
-                  top={
-                    // If near top of screen, show below
-                    parseInt(area.position.top) < 30 
-                      ? "100px" 
-                      : tooltipTop
-                  }
-                  left={
-                    // If near right edge, align to right
-                    parseInt(area.position.left) > 70 
-                      ? "auto" 
-                      : parseInt(area.position.left) < 30 
-                        ? "0" 
-                        : "50%"
-                  }
-                  right={
-                    // If near right edge, position from right
-                    parseInt(area.position.left) > 70 
-                      ? "0" 
-                      : "auto"
-                  }
-                  transform={
-                    // Only center transform if not near edges
-                    parseInt(area.position.left) >= 30 && parseInt(area.position.left) <= 70 
-                      ? "translateX(-50%)" 
-                      : "none"
-                  }
+                  top={(() => {
+                    const areaTop = parseInt(area.position.top);
+                    // For mobile, always position below the dot to avoid header
+                    if (isMobile) {
+                      return areaTop < 40 ? "80px" : "50px";
+                    }
+                    // Desktop positioning
+                    if (areaTop < 25) {
+                      return "80px"; // Below the dot
+                    } else if (areaTop > 75) {
+                      return "-180px"; // Well above the dot
+                    } else {
+                      return tooltipTop; // Default above positioning
+                    }
+                  })()}
+                  left={(() => {
+                    const areaLeft = parseInt(area.position.left);
+                    // Far right - align to right edge
+                    if (areaLeft > 75) {
+                      return "auto";
+                    }
+                    // Far left - align to left edge
+                    else if (areaLeft < 25) {
+                      return isMobile ? "10px" : "0";
+                    }
+                    // Center - use transform for centering
+                    else {
+                      return "50%";
+                    }
+                  })()}
+                  right={(() => {
+                    const areaLeft = parseInt(area.position.left);
+                    // Only set right when on the right edge
+                    if (areaLeft > 75) {
+                      return isMobile ? "10px" : "0";
+                    }
+                    return "auto";
+                  })()}
+                  transform={(() => {
+                    const areaLeft = parseInt(area.position.left);
+                    // Only center transform when in the middle area
+                    if (areaLeft >= 25 && areaLeft <= 75) {
+                      return "translateX(-50%)";
+                    }
+                    return "none";
+                  })()}
                   initial={{ opacity: 0, y: 20, scale: 0.8 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 20, scale: 0.8 }}
                   transition={{ duration: 0.2 }}
-                  zIndex={10}
+                  zIndex={50}
                   pointerEvents="none"
-                  minW={isMobile ? "280px" : "350px"}
-                  maxW={isMobile ? "90vw" : "400px"}
-                  mx={isMobile ? 2 : 4}
+                  minW={isMobile ? "260px" : "350px"}
+                  maxW={isMobile ? "calc(100vw - 40px)" : "400px"}
+                  mx={0}
+                  // Add padding to ensure content doesn't touch screen edges on mobile
+                  px={isMobile ? 2 : 0}
                 >
-                  <VStack spacing={1} align="center">
+                  <VStack 
+                    spacing={1} 
+                    align="center"
+                  >
                     {/* Neon sign - consistent size */}
                     <Box h={neonSignSize} display="flex" alignItems="center" justifyContent="center">
                       {area.neonSign ? (
@@ -902,26 +927,6 @@ const InteractiveValleyScene = () => {
           </Button>
         </MotionBox>
       )}
-
-      {/* Navigation hint */}
-      <MotionBox
-        position="absolute"
-        bottom={8}
-        left="50%"
-        transform="translateX(-50%)"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1 }}
-      >
-        <Text
-          color="gray.400"
-          fontSize={{ base: "xs", md: "sm" }}
-          textAlign="center"
-          px={4}
-        >
-          {isMobile ? 'Tap on glowing areas to explore' : 'Click on glowing areas to explore'}
-        </Text>
-      </MotionBox>
 
       {/* Services Menu Modal */}
       <Modal isOpen={isOpen} onClose={onClose} size="xl">
