@@ -21,7 +21,8 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Howl } from 'howler';
-import { FiHome } from 'react-icons/fi';
+import { FiHome, FiMapPin } from 'react-icons/fi';
+import { GiMountainRoad } from 'react-icons/gi';
 import colors from '../../theme/colors';
 
 const MotionBox = motion(Box);
@@ -38,9 +39,9 @@ const InteractiveValleyScene = () => {
   // Responsive values
   const isMobile = useBreakpointValue({ base: true, md: false });
   const tooltipTop = useBreakpointValue({ base: '-100px', md: '-140px' });
-  const neonSignSize = useBreakpointValue({ base: '80px', md: '120px' });
-  const titleSize = useBreakpointValue({ base: '3xl', md: '4xl' });
-  const taglineSize = useBreakpointValue({ base: 'md', md: 'xl' });
+  const neonSignSize = useBreakpointValue({ base: '60px', md: '120px' });
+  const titleSize = useBreakpointValue({ base: '2xl', md: '4xl' });
+  const taglineSize = useBreakpointValue({ base: 'sm', md: 'xl' });
 
   // Sound effects (we'll add these files later)
   const sounds = useRef({
@@ -517,8 +518,30 @@ const InteractiveValleyScene = () => {
         proceedWithAction(area);
         setMobileSelectedArea(null);
       } else {
-        // First tap - show info
+        // First tap - show info and center the element
         setMobileSelectedArea(area);
+        
+        // Better centering for mobile
+        setTimeout(() => {
+          const element = document.getElementById(`hotspot-${area.id}`);
+          if (element) {
+            const rect = element.getBoundingClientRect();
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            // Calculate the element's center position
+            const elementCenter = scrollTop + rect.top + (rect.height / 2);
+            
+            // We want to position the element about 1/3 from the top of the viewport
+            // This leaves room for the tooltip below
+            const targetPosition = elementCenter - (window.innerHeight * 0.33);
+            
+            window.scrollTo({
+              top: Math.max(0, targetPosition),
+              behavior: 'smooth'
+            });
+          }
+        }, 50); // Small delay to ensure DOM is updated
+        
         try {
           sounds.current.hover.play();
         } catch (e) {
@@ -596,7 +619,7 @@ const InteractiveValleyScene = () => {
     saloon: '/images/scenes/digital-saloon-interior.jpg',
     devzen: '/images/scenes/dev-zen-interior.jpg',
     river: '/images/scenes/lazy-river-night.jpg',
-    neonpod: '/images/scenes/the-neon-pod.jpg'
+    neonpod: '/images/scenes/neon-pod-interior.jpg'
   };
 
   return (
@@ -607,7 +630,7 @@ const InteractiveValleyScene = () => {
       overflow="hidden"
       bg={colors.dark.black}
     >
-      {/* Simple Header with Home Icon */}
+      {/* Simple Header with Home Icon and Back to Valley */}
       <Box
         position="fixed"
         top={0}
@@ -617,36 +640,73 @@ const InteractiveValleyScene = () => {
         bg="rgba(10, 10, 10, 0.8)"
         backdropFilter="blur(10px)"
         borderBottom="2px solid"
-        borderColor={colors.accent.banana}
+        borderColor="whiteAlpha.200"
         zIndex={20}
         display="flex"
         alignItems="center"
+        justifyContent="space-between"
         px={6}
       >
-        <IconButton
-          icon={<FiHome />}
-          onClick={() => navigate('/')}
-          size="lg"
-          bg="transparent"
-          color={colors.accent.banana}
-          fontSize="24px"
-          _hover={{
-            bg: colors.accent.banana,
-            color: "black",
-            transform: "scale(1.1)",
-            boxShadow: `0 0 30px ${colors.accent.banana}`,
-          }}
-          _active={{
-            transform: "scale(0.95)",
-          }}
-          aria-label="Go to Home Page"
-          sx={{
-            border: "2px solid",
-            borderColor: colors.accent.banana,
-            borderRadius: "full",
-            transition: "all 0.3s",
-          }}
-        />
+        <HStack spacing={3}>
+          {/* Home Button - Teal Neon */}
+          <IconButton
+            icon={<FiHome />}
+            onClick={() => navigate('/')}
+            size="lg"
+            bg="transparent"
+            color={colors.brand.primary}
+            fontSize="24px"
+            _hover={{
+              bg: colors.brand.primary,
+              color: "black",
+              transform: "scale(1.1)",
+              boxShadow: `0 0 30px ${colors.brand.primary}`,
+            }}
+            _active={{
+              transform: "scale(0.95)",
+            }}
+            aria-label="Go to Home Page"
+            sx={{
+              border: "2px solid",
+              borderColor: colors.brand.primary,
+              borderRadius: "full",
+              transition: "all 0.3s",
+            }}
+          />
+          
+          {/* Back to Valley Button - Only show on inner pages */}
+          {currentScene !== 'valley' && (
+            <Button
+              leftIcon={<GiMountainRoad size={20} />}
+              onClick={handleBackToValley}
+              size="lg"
+              bg="transparent"
+              border="2px solid"
+              borderColor={colors.accent.banana}
+              color={colors.accent.banana}
+              fontSize="sm"
+              fontWeight="bold"
+              letterSpacing="wider"
+              textTransform="uppercase"
+              px={4}
+              _hover={{
+                bg: colors.accent.banana,
+                color: "black",
+                transform: "scale(1.05)",
+                boxShadow: `0 0 30px ${colors.accent.banana}`,
+              }}
+              _active={{
+                transform: "scale(0.95)",
+              }}
+              sx={{
+                textShadow: `0 0 20px ${colors.accent.banana}`,
+                transition: "all 0.3s",
+              }}
+            >
+              Back to Valley
+            </Button>
+          )}
+        </HStack>
       </Box>
 
       {/* Background Image */}
@@ -677,6 +737,7 @@ const InteractiveValleyScene = () => {
         {interactiveAreas[currentScene]?.map((area) => (
           <MotionBox
             key={area.id}
+            id={`hotspot-${area.id}`}
             position="absolute"
             top={`calc(${isMobile && area.mobilePosition ? area.mobilePosition.top : area.position.top} + 60px)`}
             left={isMobile && area.mobilePosition ? area.mobilePosition.left : area.position.left}
@@ -749,12 +810,12 @@ const InteractiveValleyScene = () => {
                 <MotionBox
                   position="absolute"
                   top={(() => {
-                    const areaTop = parseInt(area.position.top);
-                    // For mobile, always position below the dot to avoid header
+                    // For mobile, always position below with fixed spacing
                     if (isMobile) {
-                      return areaTop < 40 ? "80px" : "50px";
+                      return "40px";
                     }
                     // Desktop positioning
+                    const areaTop = parseInt(area.position.top);
                     if (areaTop < 25) {
                       return "80px"; // Below the dot
                     } else if (areaTop > 75) {
@@ -765,34 +826,48 @@ const InteractiveValleyScene = () => {
                   })()}
                   left={(() => {
                     const areaLeft = parseInt(area.position.left);
-                    // Far right - align to right edge
-                    if (areaLeft > 75) {
-                      return "auto";
-                    }
-                    // Far left - align to left edge
-                    else if (areaLeft < 25) {
-                      return isMobile ? "10px" : "0";
-                    }
-                    // Center - use transform for centering
-                    else {
+                    // For mobile, check if element is on right side
+                    if (isMobile) {
+                      if (areaLeft > 60) {
+                        return "auto"; // Use right positioning instead
+                      }
                       return "50%";
+                    }
+                    // Desktop logic - position tooltips to left of right-side elements
+                    if (areaLeft > 70) {
+                      return "auto"; // Will use right positioning
+                    } else if (areaLeft < 25) {
+                      return "100%"; // Position to the right of left-side elements
+                    } else {
+                      return "50%"; // Center for middle elements
                     }
                   })()}
                   right={(() => {
                     const areaLeft = parseInt(area.position.left);
-                    // Only set right when on the right edge
-                    if (areaLeft > 75) {
-                      return isMobile ? "10px" : "0";
+                    // Mobile - position to left of right-side elements
+                    if (isMobile && areaLeft > 60) {
+                      return "100%"; // Full width to the left
+                    }
+                    // Desktop - position to left of right-side elements
+                    if (areaLeft > 70) {
+                      return "100%"; // Full width to the left
                     }
                     return "auto";
                   })()}
                   transform={(() => {
                     const areaLeft = parseInt(area.position.left);
-                    // Only center transform when in the middle area
-                    if (areaLeft >= 25 && areaLeft <= 75) {
-                      return "translateX(-50%)";
+                    // Mobile transform logic
+                    if (isMobile) {
+                      if (areaLeft > 60) {
+                        return "none"; // No transform for right-side elements
+                      }
+                      return "translateX(-50%)"; // Center for others
                     }
-                    return "none";
+                    // Desktop transform logic
+                    if (areaLeft > 70 || areaLeft < 25) {
+                      return "none"; // No transform for edge elements
+                    }
+                    return "translateX(-50%)"; // Center transform for middle elements
                   })()}
                   initial={{ opacity: 0, y: 20, scale: 0.8 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -800,17 +875,32 @@ const InteractiveValleyScene = () => {
                   transition={{ duration: 0.2 }}
                   zIndex={50}
                   pointerEvents="none"
-                  minW={isMobile ? "260px" : "350px"}
-                  maxW={isMobile ? "calc(100vw - 40px)" : "400px"}
+                  minW={isMobile ? "220px" : "350px"}
+                  maxW={isMobile ? "calc(90vw - 20px)" : "400px"}
                   mx={0}
-                  // Add padding to ensure content doesn't touch screen edges on mobile
-                  px={isMobile ? 2 : 0}
+                  px={isMobile ? 3 : 0}
+                  // Add margin for right-side tooltips
+                  mr={(() => {
+                    const areaLeft = parseInt(area.position.left);
+                    if ((isMobile && areaLeft > 60) || (!isMobile && areaLeft > 70)) {
+                      return 2; // Small margin from the element
+                    }
+                    return 0;
+                  })()}
+                  // Add margin for left-side tooltips
+                  ml={(() => {
+                    const areaLeft = parseInt(area.position.left);
+                    if (!isMobile && areaLeft < 25) {
+                      return 2; // Small margin from the element
+                    }
+                    return 0;
+                  })()}
                 >
                   <VStack 
                     spacing={1} 
                     align="center"
                   >
-                    {/* Neon sign - consistent size */}
+                    {/* Neon sign - smaller on mobile */}
                     <Box h={neonSignSize} display="flex" alignItems="center" justifyContent="center">
                       {area.neonSign ? (
                         <Image 
@@ -819,16 +909,16 @@ const InteractiveValleyScene = () => {
                           maxH={neonSignSize}
                           maxW="100%"
                           objectFit="contain"
-                          filter={`drop-shadow(0 0 30px ${area.color}) drop-shadow(0 0 50px ${area.color}) drop-shadow(0 0 70px ${area.color})`}
+                          filter={`drop-shadow(0 0 20px ${area.color}) drop-shadow(0 0 30px ${area.color}) drop-shadow(0 0 40px ${area.color})`}
                         />
                       ) : (
                         <Text 
                           fontWeight="900" 
                           color={area.color} 
-                          fontSize={{ base: "4xl", md: "5xl" }}
+                          fontSize={{ base: "3xl", md: "5xl" }}
                           textTransform="uppercase"
                           letterSpacing="wider"
-                          textShadow={`0 0 30px ${area.color}, 0 0 50px ${area.color}, 0 0 80px ${area.color}`}
+                          textShadow={`0 0 20px ${area.color}, 0 0 30px ${area.color}, 0 0 40px ${area.color}`}
                           lineHeight="1"
                           textAlign="center"
                         >
@@ -836,42 +926,43 @@ const InteractiveValleyScene = () => {
                         </Text>
                       )}
                     </Box>
-                    {/* Title - consistent size */}
+                    {/* Title - smaller on mobile */}
                     <Text 
                       fontWeight="900" 
                       color={area.color} 
                       fontSize={titleSize}
                       textTransform="uppercase"
                       letterSpacing="wider"
-                      textShadow={`0 0 20px ${area.color}, 0 0 40px ${area.color}`}
+                      textShadow={`0 0 15px ${area.color}, 0 0 25px ${area.color}`}
                       lineHeight="0.9"
-                      mt={2}
+                      mt={1}
                       textAlign="center"
                       px={2}
                     >
                       {area.name}
                     </Text>
-                    {/* Tagline - consistent size */}
+                    {/* Tagline - smaller on mobile */}
                     <Text 
                       fontSize={taglineSize}
                       fontWeight="600"
                       color="white" 
                       textAlign="center"
                       textShadow="0 0 20px rgba(0,0,0,0.9)"
-                      maxW={isMobile ? "260px" : "350px"}
+                      maxW={isMobile ? "200px" : "350px"}
                       letterSpacing="wide"
                       textTransform="uppercase"
-                      mt={2}
-                      px={4}
+                      mt={1}
+                      px={3}
+                      lineHeight={isMobile ? "1.3" : "1.4"}
                     >
                       {area.description}
                     </Text>
-                    {/* Mobile tap instruction */}
+                    {/* Mobile tap instruction - smaller */}
                     {isMobile && mobileSelectedArea?.id === area.id && (
                       <Text
-                        fontSize="xs"
+                        fontSize="2xs"
                         color={area.color}
-                        mt={3}
+                        mt={2}
                         fontWeight="bold"
                         textTransform="uppercase"
                         letterSpacing="wider"
@@ -887,46 +978,6 @@ const InteractiveValleyScene = () => {
           </MotionBox>
         ))}
       </AnimatePresence>
-
-      {/* Back to Valley Button - Only show on inner pages */}
-      {currentScene !== 'valley' && (
-        <MotionBox
-          position="absolute"
-          bottom={{ base: 6, md: 8 }}
-          right={{ base: 6, md: 8 }}
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5 }}
-        >
-          <Button
-            onClick={handleBackToValley}
-            leftIcon={<FiHome />}
-            size={isMobile ? "sm" : "md"}
-            bg="transparent"
-            border="2px solid"
-            borderColor={colors.accent.purple}
-            color={colors.accent.purple}
-            fontWeight="bold"
-            letterSpacing="wider"
-            textTransform="uppercase"
-            _hover={{
-              bg: colors.accent.purple,
-              color: "black",
-              transform: "translateY(-2px)",
-              boxShadow: `0 10px 30px ${colors.accent.purple}66`,
-            }}
-            _active={{
-              transform: "translateY(0)",
-            }}
-            sx={{
-              textShadow: `0 0 20px ${colors.accent.purple}`,
-              transition: "all 0.3s",
-            }}
-          >
-            Back to Valley
-          </Button>
-        </MotionBox>
-      )}
 
       {/* Services Menu Modal */}
       <Modal isOpen={isOpen} onClose={onClose} size="xl">
