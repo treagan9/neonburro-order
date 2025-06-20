@@ -1,9 +1,9 @@
 // src/pages/Invoice/components/HourPurchaseForm.jsx
 import { Box, VStack, Input, Button, Text, Heading, HStack, InputGroup, InputLeftElement, SimpleGrid, Divider } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
-import { FiUser, FiFolder, FiCreditCard, FiMail } from 'react-icons/fi';
-import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
+import { useState, useEffect } from 'react';
+import { FiUser, FiFolder, FiCreditCard, FiMail, FiSmartphone } from 'react-icons/fi';
+import { useStripe, useElements, CardElement, PaymentRequestButtonElement } from '@stripe/react-stripe-js';
 
 const MotionBox = motion(Box);
 const MotionVStack = motion(VStack);
@@ -22,12 +22,11 @@ const HourPurchaseForm = ({ onSuccess }) => {
   const hourlyRate = 33;
   const total = hours ? parseInt(hours) * hourlyRate : 0;
 
-  // Common hour packages
+  // Main hour packages
   const hourPackages = [
-    { value: '5', label: '5 hours', saving: null },
-    { value: '10', label: '10 hours', saving: 'Popular' },
-    { value: '20', label: '20 hours', saving: 'Best value' },
-    { value: '40', label: '40 hours', saving: '1 week' }
+    { value: '10', label: '10 hours', price: 330, saving: 'Popular' },
+    { value: '20', label: '20 hours', price: 660, saving: 'Best Value' },
+    { value: '40', label: '40 hours', price: 1320, saving: '1 Week' }
   ];
 
   // Colors
@@ -52,6 +51,63 @@ const HourPurchaseForm = ({ onSuccess }) => {
       },
     },
   };
+
+  // Payment Request (Apple Pay / Google Pay)
+  const [paymentRequest, setPaymentRequest] = useState(null);
+
+  useEffect(() => {
+    if (stripe && total > 0) {
+      const pr = stripe.paymentRequest({
+        country: 'US',
+        currency: 'usd',
+        total: {
+          label: `${hours} hours - ${projectName || 'Project'}`,
+          amount: Math.round(total * 100),
+        },
+        requestPayerName: true,
+        requestPayerEmail: true,
+      });
+
+      // Check if Payment Request is available
+      pr.canMakePayment().then(result => {
+        if (result) {
+          setPaymentRequest(pr);
+        }
+      });
+
+      pr.on('paymentmethod', async (ev) => {
+        // Handle Apple Pay / Google Pay payment
+        try {
+          const response = await fetch('/.netlify/functions/create-payment-intent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: total, firstName, projectName, hours }),
+          });
+
+          const { clientSecret } = await response.json();
+          
+          const { error: confirmError } = await stripe.confirmCardPayment(clientSecret, {
+            payment_method: ev.paymentMethod.id
+          });
+
+          if (confirmError) {
+            ev.complete('fail');
+          } else {
+            ev.complete('success');
+            onSuccess({
+              firstName,
+              projectName,
+              hours,
+              total: total.toLocaleString(),
+              paymentMethod: 'apple_google_pay'
+            });
+          }
+        } catch (error) {
+          ev.complete('fail');
+        }
+      });
+    }
+  }, [stripe, total, firstName, projectName, hours]);
 
   const handleFormSubmit = () => {
     if (!firstName || !projectName || !hours) return;
@@ -213,22 +269,67 @@ const HourPurchaseForm = ({ onSuccess }) => {
             boxShadow="0 20px 40px rgba(0,0,0,0.4)"
           >
             <VStack spacing={6}>
-              {/* Stripe Payment */}
+              {/* Apple Pay / Google Pay */}
+              {paymentRequest && (
+                <Box width="100%">
+                  <Text color="gray.300" fontSize="sm" mb={3} fontWeight="600">
+                    EXPRESS CHECKOUT
+                  </Text>
+                  <Box
+                    borderRadius="xl"
+                    overflow="hidden"
+                    bg="rgba(255, 255, 255, 0.03)"
+                    border="1.5px solid"
+                    borderColor="whiteAlpha.200"
+                  >
+                    <PaymentRequestButtonElement 
+                      options={{
+                        paymentRequest,
+                        style: {
+                          paymentRequestButton: {
+                            type: 'default',
+                            theme: 'dark',
+                            height: '48px',
+                          },
+                        },
+                      }}
+                    />
+                  </Box>
+                  
+                  <HStack width="100%" mt={4}>
+                    <Divider borderColor="whiteAlpha.200" />
+                    <Text color="gray.500" fontSize="sm" whiteSpace="nowrap">or pay with card</Text>
+                    <Divider borderColor="whiteAlpha.200" />
+                  </HStack>
+                </Box>
+              )}
+
+              {/* Credit Card Payment */}
               <Box width="100%">
                 <Text color="gray.300" fontSize="sm" mb={3} fontWeight="600">
-                  PAY WITH CARD
+                  CREDIT OR DEBIT CARD
                 </Text>
-                <Box
-                  p={4}
-                  bg="rgba(255, 255, 255, 0.03)"
-                  border="1.5px solid"
-                  borderColor="whiteAlpha.200"
-                  borderRadius="xl"
-                  _hover={{ borderColor: colors.brand.primary }}
-                  transition="all 0.2s"
-                >
-                  <CardElement options={cardElementOptions} />
-                </Box>
+                <VStack spacing={3}>
+                  <Box
+                    p={4}
+                    bg="rgba(255, 255, 255, 0.03)"
+                    border="1.5px solid"
+                    borderColor="whiteAlpha.200"
+                    borderRadius="xl"
+                    _hover={{ borderColor: colors.brand.primary }}
+                    transition="all 0.2s"
+                    width="100%"
+                  >
+                    <CardElement options={cardElementOptions} />
+                  </Box>
+                  
+                  {/* Accepted Cards */}
+                  <HStack spacing={2} opacity={0.7}>
+                    <Text color="gray.500" fontSize="xs">Accepts:</Text>
+                    <Text color="gray.400" fontSize="xs">Visa • Mastercard • Amex • Discover</Text>
+                  </HStack>
+                </VStack>
+                
                 <Button
                   onClick={() => {
                     setPaymentMethod('stripe');
@@ -433,11 +534,13 @@ const HourPurchaseForm = ({ onSuccess }) => {
               <Text color="gray.300" fontSize={{ base: "xs", md: "sm" }} mb={2} fontWeight="600">
                 SELECT HOURS
               </Text>
-              <SimpleGrid columns={2} spacing={{ base: 2, md: 3 }}>
+              
+              {/* Main 3 Tiers */}
+              <SimpleGrid columns={1} spacing={{ base: 2, md: 3 }} mb={4}>
                 {hourPackages.map((pkg) => (
                   <Box
                     key={pkg.value}
-                    p={{ base: 3, md: 4 }}
+                    p={{ base: 4, md: 5 }}
                     borderRadius="xl"
                     border="1.5px solid"
                     borderColor={hours === pkg.value ? colors.brand.primary : 'whiteAlpha.200'}
@@ -455,36 +558,93 @@ const HourPurchaseForm = ({ onSuccess }) => {
                       <Text
                         position="absolute"
                         top={-2}
-                        right={2}
-                        fontSize="2xs"
+                        right={3}
+                        fontSize="xs"
                         color={colors.accent.green}
                         fontWeight="600"
                         px={2}
-                        py={0.5}
+                        py={1}
                         bg="rgba(57, 255, 20, 0.1)"
                         borderRadius="full"
+                        border="1px solid"
+                        borderColor="rgba(57, 255, 20, 0.2)"
                       >
                         {pkg.saving}
                       </Text>
                     )}
-                    <VStack spacing={0}>
-                      <Text 
-                        color={hours === pkg.value ? 'white' : 'gray.300'}
-                        fontWeight="600"
-                        fontSize={{ base: "sm", md: "md" }}
-                      >
-                        {pkg.label}
-                      </Text>
-                      <Text 
-                        color={hours === pkg.value ? colors.brand.primary : 'gray.500'}
-                        fontSize={{ base: "xs", md: "sm" }}
-                      >
-                        ${parseInt(pkg.value) * hourlyRate}
-                      </Text>
-                    </VStack>
+                    <HStack justify="space-between" align="center">
+                      <VStack align="start" spacing={1}>
+                        <Text 
+                          color={hours === pkg.value ? 'white' : 'gray.300'}
+                          fontWeight="700"
+                          fontSize={{ base: "lg", md: "xl" }}
+                        >
+                          {pkg.label}
+                        </Text>
+                        <Text 
+                          color="gray.500"
+                          fontSize={{ base: "sm", md: "md" }}
+                        >
+                          ${hourlyRate}/hour • Perfect for medium projects
+                        </Text>
+                      </VStack>
+                      <VStack align="end" spacing={0}>
+                        <Text 
+                          color={hours === pkg.value ? colors.brand.primary : 'gray.400'}
+                          fontSize={{ base: "xl", md: "2xl" }}
+                          fontWeight="800"
+                        >
+                          ${pkg.price.toLocaleString()}
+                        </Text>
+                      </VStack>
+                    </HStack>
                   </Box>
                 ))}
               </SimpleGrid>
+
+              {/* Custom Hours Option */}
+              <Box
+                p={{ base: 4, md: 5 }}
+                borderRadius="xl"
+                border="1.5px solid"
+                borderColor={hours && !hourPackages.find(p => p.value === hours) ? colors.brand.primary : 'whiteAlpha.200'}
+                bg={hours && !hourPackages.find(p => p.value === hours) ? 'rgba(0, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.03)'}
+              >
+                <VStack spacing={3} align="stretch">
+                  <Text color="gray.300" fontSize="sm" fontWeight="600">
+                    CUSTOM HOURS
+                  </Text>
+                  <HStack spacing={3}>
+                    <Input
+                      type="number"
+                      placeholder="Enter hours"
+                      value={hours && !hourPackages.find(p => p.value === hours) ? hours : ''}
+                      onChange={(e) => setHours(e.target.value)}
+                      bg="rgba(255, 255, 255, 0.03)"
+                      border="1.5px solid"
+                      borderColor="whiteAlpha.200"
+                      color="white"
+                      _placeholder={{ color: 'gray.600' }}
+                      _hover={{ borderColor: 'whiteAlpha.300' }}
+                      _focus={{ 
+                        borderColor: colors.brand.primary, 
+                        boxShadow: `0 0 0 1px ${colors.brand.primary}`
+                      }}
+                      borderRadius="lg"
+                      min={1}
+                      max={200}
+                    />
+                    <Text color="gray.400" fontSize="sm" whiteSpace="nowrap">
+                      × ${hourlyRate}/hour
+                    </Text>
+                  </HStack>
+                  {hours && !hourPackages.find(p => p.value === hours) && (
+                    <Text color={colors.brand.primary} fontSize="lg" fontWeight="700">
+                      Total: ${(parseInt(hours) * hourlyRate).toLocaleString()}
+                    </Text>
+                  )}
+                </VStack>
+              </Box>
             </MotionBox>
 
             {/* Total Display */}

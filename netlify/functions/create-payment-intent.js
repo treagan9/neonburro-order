@@ -44,7 +44,7 @@ export const handler = async (event, context) => {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100), // Convert to cents
       currency: 'usd',
-      payment_method_types: ['card'],
+      payment_method_types: ['card'], // Supports all major cards + Apple Pay + Google Pay
       metadata: {
         firstName,
         projectName,
