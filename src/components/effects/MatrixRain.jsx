@@ -1,11 +1,24 @@
+// src/components/effects/MatrixRain.jsx
 import { useEffect, useRef } from 'react';
 import { Box } from '@chakra-ui/react';
 
-const MatrixRain = () => {
+const MatrixRain = ({ isActive = false, duration = 3000 }) => {
   const canvasRef = useRef(null);
+  const intervalRef = useRef(null);
 
   useEffect(() => {
+    if (!isActive) {
+      // Clear animation if not active
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      return;
+    }
+
     const canvas = canvasRef.current;
+    if (!canvas) return;
+    
     const ctx = canvas.getContext('2d');
     
     canvas.width = window.innerWidth;
@@ -45,7 +58,27 @@ const MatrixRain = () => {
       green: { r: 0, g: 255, b: 65 }
     };
 
+    // Track overall animation opacity for fade out
+    let animationStartTime = Date.now();
+    let globalOpacity = 1;
+
     function draw() {
+      // Calculate fade out based on duration
+      const elapsed = Date.now() - animationStartTime;
+      if (elapsed > duration) {
+        const fadeOutDuration = 1000; // 1 second fade out
+        const fadeProgress = Math.min((elapsed - duration) / fadeOutDuration, 1);
+        globalOpacity = 1 - fadeProgress;
+        
+        if (globalOpacity <= 0) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+          // Clear the canvas
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          return;
+        }
+      }
+
       // Very subtle fade effect for trails
       ctx.fillStyle = 'rgba(10, 10, 10, 0.02)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -74,15 +107,18 @@ const MatrixRain = () => {
               charObj.opacity *= stream.fadeSpeed;
             }
             
+            // Apply global opacity for fade out
+            const finalOpacity = charObj.opacity * globalOpacity;
+            
             // Only draw if visible
-            if (charObj.opacity > 0.01) {
+            if (finalOpacity > 0.01) {
               ctx.font = `${stream.size}px monospace`;
-              ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${charObj.opacity})`;
+              ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${finalOpacity})`;
               
               // Add subtle glow for leading characters
               if (index === 0 && charObj.opacity > stream.opacity) {
                 ctx.shadowBlur = 10;
-                ctx.shadowColor = `rgba(${color.r}, ${color.g}, ${color.b}, 0.3)`;
+                ctx.shadowColor = `rgba(${color.r}, ${color.g}, ${color.b}, ${0.3 * globalOpacity})`;
               } else {
                 ctx.shadowBlur = 0;
               }
@@ -121,7 +157,7 @@ const MatrixRain = () => {
       });
     }
 
-    const interval = setInterval(draw, 50);
+    intervalRef.current = setInterval(draw, 50);
 
     const handleResize = () => {
       canvas.width = window.innerWidth;
@@ -131,10 +167,16 @@ const MatrixRain = () => {
     window.addEventListener('resize', handleResize);
 
     return () => {
-      clearInterval(interval);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [isActive, duration]);
+
+  // Don't render anything if not active
+  if (!isActive) return null;
 
   return (
     <Box
@@ -147,8 +189,8 @@ const MatrixRain = () => {
       width="100%"
       height="100%"
       pointerEvents="none"
-      zIndex={0}
-      opacity={0.3} // Additional overall opacity for extra subtlety
+      zIndex={-1} // Behind the modal
+      opacity={0.6} // Slightly more visible for success celebration
       mixBlendMode="screen" // Blend mode for more ethereal effect
     />
   );

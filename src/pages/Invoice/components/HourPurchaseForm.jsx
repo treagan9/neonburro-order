@@ -1,16 +1,23 @@
-import { Box, VStack, Input, Button, Text, Heading, Select, HStack, InputGroup, InputLeftElement, SimpleGrid } from '@chakra-ui/react';
+// src/pages/Invoice/components/HourPurchaseForm.jsx
+import { Box, VStack, Input, Button, Text, Heading, HStack, InputGroup, InputLeftElement, SimpleGrid, Divider } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import { FiUser, FiFolder, FiClock, FiDollarSign } from 'react-icons/fi';
+import { FiUser, FiFolder, FiCreditCard, FiMail } from 'react-icons/fi';
+import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
 
 const MotionBox = motion(Box);
 const MotionVStack = motion(VStack);
 
 const HourPurchaseForm = ({ onSuccess }) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  
   const [firstName, setFirstName] = useState('');
   const [projectName, setProjectName] = useState('');
   const [hours, setHours] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState(''); // 'stripe' or 'venmo'
   const [isLoading, setIsLoading] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
   
   const hourlyRate = 33;
   const total = hours ? parseInt(hours) * hourlyRate : 0;
@@ -29,41 +36,76 @@ const HourPurchaseForm = ({ onSuccess }) => {
     accent: { green: '#39FF14' }
   };
 
-  const encode = (data) => {
-    return Object.keys(data)
-      .map(key => encodeURIComponent(key) + "=" + encodeURIComponent(data[key]))
-      .join("&");
+  const cardElementOptions = {
+    style: {
+      base: {
+        fontSize: '16px',
+        color: '#ffffff',
+        fontFamily: '"Inter", sans-serif',
+        '::placeholder': {
+          color: '#666666',
+        },
+        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+      },
+      invalid: {
+        color: '#ff6b6b',
+      },
+    },
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!firstName || !projectName || !hours) {
-      return;
-    }
+  const handleFormSubmit = () => {
+    if (!firstName || !projectName || !hours) return;
+    setShowPayment(true);
+  };
+
+  const handleStripePayment = async () => {
+    if (!stripe || !elements) return;
 
     setIsLoading(true);
-    
+
     try {
-      const response = await fetch('/', {
+      // Create payment intent
+      const response = await fetch('/.netlify/functions/create-payment-intent', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: encode({
-          'form-name': 'hour-purchase-form',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: total,
           firstName,
           projectName,
           hours,
-          total: total.toString(),
-          hourlyRate: hourlyRate.toString(),
-        })
+        }),
       });
 
-      if (response.ok) {
+      const { clientSecret, error } = await response.json();
+
+      if (error) {
+        throw new Error(error);
+      }
+
+      // Confirm payment
+      const cardElement = elements.getElement(CardElement);
+      const { error: paymentError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: cardElement,
+          billing_details: {
+            name: firstName,
+          },
+        },
+      });
+
+      if (paymentError) {
+        throw new Error(paymentError.message);
+      }
+
+      if (paymentIntent.status === 'succeeded') {
         const formData = {
           firstName,
           projectName,
           hours,
-          total: total.toLocaleString()
+          total: total.toLocaleString(),
+          paymentMethod: 'stripe'
         };
         onSuccess(formData);
         
@@ -71,6 +113,50 @@ const HourPurchaseForm = ({ onSuccess }) => {
         setFirstName('');
         setProjectName('');
         setHours('');
+        setShowPayment(false);
+      }
+    } catch (error) {
+      console.error('Payment failed:', error);
+      alert('Payment failed: ' + error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVenmoRequest = async () => {
+    setIsLoading(true);
+    
+    try {
+      // Submit to Netlify Forms for manual processing
+      const response = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          'form-name': 'hour-purchase-form',
+          firstName,
+          projectName,
+          hours,
+          total: total.toString(),
+          hourlyRate: hourlyRate.toString(),
+          paymentMethod: 'venmo-request',
+        }).toString()
+      });
+
+      if (response.ok) {
+        const formData = {
+          firstName,
+          projectName,
+          hours,
+          total: total.toLocaleString(),
+          paymentMethod: 'venmo'
+        };
+        onSuccess(formData);
+        
+        // Reset form
+        setFirstName('');
+        setProjectName('');
+        setHours('');
+        setShowPayment(false);
       }
     } catch (error) {
       console.error('Form submission error:', error);
@@ -91,6 +177,137 @@ const HourPurchaseForm = ({ onSuccess }) => {
       }
     })
   };
+
+  if (showPayment) {
+    return (
+      <MotionBox
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <VStack spacing={{ base: 6, md: 8 }}>
+          {/* Header */}
+          <VStack spacing={3} textAlign="center">
+            <Heading 
+              size={{ base: "xl", md: "2xl" }}
+              color="white"
+              fontWeight="800"
+              letterSpacing="-0.02em"
+            >
+              Complete Your Payment
+            </Heading>
+            <Text color="gray.400" fontSize={{ base: "md", md: "lg" }}>
+              {firstName} • {projectName} • {hours} hours • ${total}
+            </Text>
+          </VStack>
+
+          {/* Payment Methods */}
+          <Box
+            width="100%"
+            p={{ base: 6, md: 8 }}
+            bg="rgba(10, 10, 10, 0.8)"
+            backdropFilter="blur(20px)"
+            border="1.5px solid"
+            borderColor="whiteAlpha.200"
+            borderRadius="2xl"
+            boxShadow="0 20px 40px rgba(0,0,0,0.4)"
+          >
+            <VStack spacing={6}>
+              {/* Stripe Payment */}
+              <Box width="100%">
+                <Text color="gray.300" fontSize="sm" mb={3} fontWeight="600">
+                  PAY WITH CARD
+                </Text>
+                <Box
+                  p={4}
+                  bg="rgba(255, 255, 255, 0.03)"
+                  border="1.5px solid"
+                  borderColor="whiteAlpha.200"
+                  borderRadius="xl"
+                  _hover={{ borderColor: colors.brand.primary }}
+                  transition="all 0.2s"
+                >
+                  <CardElement options={cardElementOptions} />
+                </Box>
+                <Button
+                  onClick={() => {
+                    setPaymentMethod('stripe');
+                    handleStripePayment();
+                  }}
+                  size="lg"
+                  bg={colors.brand.primary}
+                  color="black"
+                  width="100%"
+                  mt={4}
+                  isLoading={isLoading && paymentMethod === 'stripe'}
+                  loadingText="Processing..."
+                  leftIcon={<FiCreditCard />}
+                  fontWeight="700"
+                  borderRadius="full"
+                  _hover={{
+                    bg: colors.brand.primary,
+                    transform: 'translateY(-2px)',
+                    boxShadow: `0 10px 30px ${colors.brand.primary}66`
+                  }}
+                >
+                  Pay ${total} Now
+                </Button>
+              </Box>
+
+              <HStack width="100%">
+                <Divider borderColor="whiteAlpha.200" />
+                <Text color="gray.500" fontSize="sm" whiteSpace="nowrap">or</Text>
+                <Divider borderColor="whiteAlpha.200" />
+              </HStack>
+
+              {/* Venmo Request */}
+              <Box width="100%">
+                <Text color="gray.300" fontSize="sm" mb={3} fontWeight="600">
+                  REQUEST VENMO INVOICE
+                </Text>
+                <Text color="gray.500" fontSize="xs" mb={4}>
+                  We'll send you a Venmo Business invoice within 2 hours
+                </Text>
+                <Button
+                  onClick={() => {
+                    setPaymentMethod('venmo');
+                    handleVenmoRequest();
+                  }}
+                  size="lg"
+                  variant="outline"
+                  borderColor="whiteAlpha.300"
+                  color="white"
+                  width="100%"
+                  isLoading={isLoading && paymentMethod === 'venmo'}
+                  loadingText="Requesting..."
+                  leftIcon={<FiMail />}
+                  fontWeight="600"
+                  borderRadius="full"
+                  _hover={{
+                    bg: 'whiteAlpha.100',
+                    borderColor: 'whiteAlpha.400'
+                  }}
+                >
+                  Request Invoice
+                </Button>
+              </Box>
+
+              {/* Back Button */}
+              <Button
+                onClick={() => setShowPayment(false)}
+                size="md"
+                variant="ghost"
+                color="gray.400"
+                _hover={{ color: 'white' }}
+              >
+                ← Back to Details
+              </Button>
+            </VStack>
+          </Box>
+        </VStack>
+      </MotionBox>
+    );
+  }
 
   return (
     <MotionBox
@@ -116,8 +333,6 @@ const HourPurchaseForm = ({ onSuccess }) => {
 
         {/* Main Form Card */}
         <Box
-          as="form"
-          onSubmit={handleSubmit}
           width="100%"
           p={{ base: 6, md: 8 }}
           bg="rgba(10, 10, 10, 0.8)"
@@ -129,17 +344,6 @@ const HourPurchaseForm = ({ onSuccess }) => {
           position="relative"
           overflow="hidden"
         >
-          {/* Subtle glow */}
-          <Box
-            position="absolute"
-            top="50%"
-            right="-50%"
-            width="300px"
-            height="300px"
-            bg={`radial-gradient(circle, ${colors.brand.primary}08 0%, transparent 70%)`}
-            pointerEvents="none"
-          />
-
           <MotionVStack
             spacing={5}
             position="relative"
@@ -224,7 +428,7 @@ const HourPurchaseForm = ({ onSuccess }) => {
               </InputGroup>
             </MotionBox>
 
-            {/* Hour Packages */}
+            {/* Hour Selection */}
             <MotionBox width="100%" custom={3} variants={inputVariants}>
               <Text color="gray.300" fontSize={{ base: "xs", md: "sm" }} mb={2} fontWeight="600">
                 SELECT HOURS
@@ -281,48 +485,6 @@ const HourPurchaseForm = ({ onSuccess }) => {
                   </Box>
                 ))}
               </SimpleGrid>
-
-              {/* Custom hours option */}
-              <Box mt={3}>
-                <Select
-                  value={hours}
-                  onChange={(e) => setHours(e.target.value)}
-                  placeholder="Or choose custom hours..."
-                  size="lg"
-                  bg="rgba(255, 255, 255, 0.03)"
-                  border="1.5px solid"
-                  borderColor="whiteAlpha.200"
-                  color={hours && !hourPackages.find(p => p.value === hours) ? 'white' : 'gray.500'}
-                  fontSize={{ base: "sm", md: "md" }}
-                  height={{ base: "48px", md: "52px" }}
-                  _hover={{ 
-                    borderColor: 'whiteAlpha.300',
-                    bg: 'rgba(255, 255, 255, 0.05)'
-                  }}
-                  _focus={{ 
-                    borderColor: colors.brand.primary, 
-                    boxShadow: `0 0 0 1px ${colors.brand.primary}`,
-                    bg: 'rgba(255, 255, 255, 0.05)'
-                  }}
-                  borderRadius="xl"
-                  transition="all 0.2s"
-                  sx={{
-                    option: {
-                      bg: '#1A1A1A',
-                      color: 'white',
-                      _hover: { bg: '#2A2A2A' }
-                    }
-                  }}
-                >
-                  {Array.from({ length: 96 }, (_, i) => i + 5).map(hour => (
-                    !hourPackages.find(p => p.value === hour.toString()) && (
-                      <option key={hour} value={hour}>
-                        {hour} hours - ${hour * hourlyRate}
-                      </option>
-                    )
-                  ))}
-                </Select>
-              </Box>
             </MotionBox>
 
             {/* Total Display */}
@@ -359,9 +521,6 @@ const HourPurchaseForm = ({ onSuccess }) => {
                         >
                           ${total.toLocaleString()}
                         </Text>
-                        <Text color="gray.500" fontSize="xs">
-                          One-time payment
-                        </Text>
                       </VStack>
                     </HStack>
                   </Box>
@@ -369,16 +528,13 @@ const HourPurchaseForm = ({ onSuccess }) => {
               )}
             </AnimatePresence>
 
-            {/* Submit Button */}
+            {/* Continue Button */}
             <Button
-              type="submit"
+              onClick={handleFormSubmit}
               size="lg"
               bg={colors.brand.primary}
               color="black"
               width="100%"
-              isLoading={isLoading}
-              loadingText="Processing..."
-              leftIcon={!isLoading ? <FiDollarSign /> : undefined}
               fontWeight="700"
               fontSize={{ base: "sm", md: "md" }}
               height={{ base: "52px", md: "56px" }}
@@ -400,27 +556,10 @@ const HourPurchaseForm = ({ onSuccess }) => {
               }}
               transition="all 0.2s"
             >
-              Reserve Hours
+              Continue to Payment →
             </Button>
           </MotionVStack>
         </Box>
-
-        {/* Trust badges */}
-        <HStack spacing={4} justify="center" opacity={0.7}>
-          <HStack spacing={2}>
-            <Box as="span" color={colors.accent.green}>🔒</Box>
-            <Text color="gray.500" fontSize={{ base: "xs", md: "sm" }}>
-              Secure checkout
-            </Text>
-          </HStack>
-          <Text color="gray.600">•</Text>
-          <HStack spacing={2}>
-            <Box as="span" color={colors.accent.green}>✓</Box>
-            <Text color="gray.500" fontSize={{ base: "xs", md: "sm" }}>
-              No hidden fees
-            </Text>
-          </HStack>
-        </HStack>
       </VStack>
     </MotionBox>
   );
