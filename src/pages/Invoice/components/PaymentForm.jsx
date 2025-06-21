@@ -98,9 +98,14 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
 
       pr.canMakePayment().then(result => {
         if (result) {
+          console.log('Apple Pay is available');
           setPaymentRequest(pr);
           setCanMakePayment(true);
+        } else {
+          console.log('Apple Pay is NOT available');
         }
+      }).catch(err => {
+        console.error('Error checking Apple Pay availability:', err);
       });
 
       pr.on('paymentmethod', async (ev) => {
@@ -124,7 +129,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
             throw new Error(error);
           }
 
-          const { error: confirmError } = await stripe.confirmCardPayment(
+          const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
             clientSecret,
             { payment_method: ev.paymentMethod.id },
             { handleActions: false }
@@ -132,6 +137,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
 
           if (confirmError) {
             ev.complete('fail');
+            throw new Error(confirmError.message);
           } else {
             ev.complete('success');
             onSuccess({
@@ -142,12 +148,13 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
         } catch (error) {
           console.error('Apple Pay failed:', error);
           ev.complete('fail');
+          alert('Payment failed: ' + error.message);
         } finally {
           setIsLoading(false);
         }
       });
     }
-  }, [stripe, projectData, paymentRequest]);
+  }, [stripe, projectData, paymentRequest, onSuccess]);
 
   const handleCardPayment = async () => {
     if (!stripe || !elements) return;
@@ -336,7 +343,8 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
 
           {/* Right Column - Payment Form */}
           <GridItem>
-            <VStack spacing={8} align="stretch">
+            <form onSubmit={(e) => e.preventDefault()}>
+              <VStack spacing={8} align="stretch">
               
               {/* Contact Information */}
               <Box>
@@ -368,6 +376,8 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                   fontSize="16px"
                   required
                   autoComplete="email"
+                  name="email"
+                  id="email"
                 />
               </Box>
 
@@ -402,14 +412,18 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                           value="card" 
                           colorScheme="cyan"
                           size="lg"
+                          borderColor="gray.500"
                           _checked={{
-                            '& > span:first-of-type': {
-                              bg: colors.brand.primary,
-                              borderColor: colors.brand.primary,
-                              _before: {
-                                width: '70%',
-                                height: '70%',
-                              }
+                            bg: colors.brand.primary,
+                            borderColor: colors.brand.primary,
+                            _before: {
+                              content: '""',
+                              display: 'inline-block',
+                              position: 'relative',
+                              width: '50%',
+                              height: '50%',
+                              borderRadius: '50%',
+                              bg: 'black',
                             }
                           }}
                         />
@@ -558,6 +572,8 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                               borderRadius="lg"
                               required
                               autoComplete="cc-name"
+                              name="cardholderName"
+                              id="cardholderName"
                             />
                           </Box>
                           
@@ -727,14 +743,18 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                             value="apple_pay" 
                             colorScheme="cyan"
                             size="lg"
+                            borderColor="gray.500"
                             _checked={{
-                              '& > span:first-of-type': {
-                                bg: colors.brand.primary,
-                                borderColor: colors.brand.primary,
-                                _before: {
-                                  width: '70%',
-                                  height: '70%',
-                                }
+                              bg: colors.brand.primary,
+                              borderColor: colors.brand.primary,
+                              _before: {
+                                content: '""',
+                                display: 'inline-block',
+                                position: 'relative',
+                                width: '50%',
+                                height: '50%',
+                                borderRadius: '50%',
+                                bg: 'black',
                               }
                             }}
                           />
@@ -771,14 +791,18 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                           value="link" 
                           colorScheme="cyan"
                           size="lg"
+                          borderColor="gray.500"
                           _checked={{
-                            '& > span:first-of-type': {
-                              bg: colors.brand.primary,
-                              borderColor: colors.brand.primary,
-                              _before: {
-                                width: '70%',
-                                height: '70%',
-                              }
+                            bg: colors.brand.primary,
+                            borderColor: colors.brand.primary,
+                            _before: {
+                              content: '""',
+                              display: 'inline-block',
+                              position: 'relative',
+                              width: '50%',
+                              height: '50%',
+                              borderRadius: '50%',
+                              bg: 'black',
                             }
                           }}
                         />
@@ -934,7 +958,8 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                   Back to Details
                 </Button>
               </Box>
-            </VStack>
+                          </VStack>
+            </form>
           </GridItem>
         </Grid>
       </MotionBox>

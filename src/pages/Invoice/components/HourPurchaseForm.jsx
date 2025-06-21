@@ -1,5 +1,5 @@
 // src/pages/Invoice/components/HourPurchaseForm.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Box } from '@chakra-ui/react';
 import ProjectDetailsForm from './ProjectDetailsForm';
 import PaymentForm from './PaymentForm';
@@ -7,6 +7,11 @@ import PaymentForm from './PaymentForm';
 const HourPurchaseForm = ({ onSuccess }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [projectData, setProjectData] = useState(null);
+
+  // Scroll to top when step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentStep]);
 
   const handleContinueToPayment = (data) => {
     setProjectData(data);
