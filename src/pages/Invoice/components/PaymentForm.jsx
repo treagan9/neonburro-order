@@ -107,6 +107,8 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
         setPaymentRequest(pr);
         setCanMakePayment(true);
       }
+    }).catch(() => {
+      // Payment request not available
     });
 
     // Handle payment method creation
@@ -140,14 +142,11 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
         );
 
         if (confirmError) {
-          // Report to the browser that the payment failed
           ev.complete('fail');
           throw new Error(confirmError.message);
         } else {
-          // Report to the browser that the payment was successful
           ev.complete('success');
           
-          // Check if any actions are required (3D Secure, etc)
           if (paymentIntent.status === 'requires_action') {
             const { error: actionError } = await stripe.confirmCardPayment(clientSecret);
             if (actionError) {
@@ -155,7 +154,6 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
             }
           }
           
-          // Payment successful
           onSuccess({
             ...projectData,
             paymentMethod: 'apple_pay',
@@ -177,7 +175,6 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
       }
     });
 
-    // Handle browser payment sheet cancellation
     pr.on('cancel', () => {
       setIsLoading(false);
     });
@@ -190,7 +187,6 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
     setIsLoading(true);
 
     try {
-      // Create payment intent
       const response = await fetch('/.netlify/functions/create-payment-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -208,7 +204,6 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
         throw new Error(error);
       }
 
-      // Confirm card payment
       const cardElement = elements.getElement(CardNumberElement);
       const { error: paymentError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
@@ -946,6 +941,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                     </Box>
                   ) : (
                     <Button
+                      type="button"
                       onClick={paymentMethodType === 'card' ? handleCardPayment : handleLinkRequest}
                       size="lg"
                       bg={colors.accent.green}

@@ -5,6 +5,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import HourPurchaseForm from './components/HourPurchaseForm';
 import InvoiceSuccess from './components/InvoiceSuccess';
+import InvoiceMetaTags from './components/InvoiceMetaTags';
 
 // Initialize Stripe
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -25,6 +26,7 @@ const Invoice = () => {
 
   return (
     <Elements stripe={stripePromise}>
+      <InvoiceMetaTags />
       <Box minH="100vh" bg="#0A0A0A">
         <Container maxW="600px" pt={32} pb={20} px={{ base: 4, md: 6 }}>
           <HourPurchaseForm onSuccess={handleSuccess} />
