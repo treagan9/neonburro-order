@@ -1,5 +1,4 @@
 // src/pages/Invoice/index.jsx
-import { ChakraProvider } from '@chakra-ui/react';
 import { Box, Container, useDisclosure } from '@chakra-ui/react';
 import { useState } from 'react';
 import { Elements } from '@stripe/react-stripe-js';
@@ -27,7 +26,7 @@ const Invoice = () => {
   return (
     <Elements stripe={stripePromise}>
       <Box minH="100vh" bg="#0A0A0A">
-        <Container maxW="600px" pt={32} pb={20} px={{ base: 6, md: 8 }}>
+        <Container maxW="600px" pt={32} pb={20} px={{ base: 4, md: 6 }}>
           <HourPurchaseForm onSuccess={handleSuccess} />
         </Container>
         

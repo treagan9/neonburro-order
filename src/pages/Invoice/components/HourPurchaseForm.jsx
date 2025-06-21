@@ -1,5 +1,6 @@
 // src/pages/Invoice/components/HourPurchaseForm.jsx
 import { useState } from 'react';
+import { Box } from '@chakra-ui/react';
 import ProjectDetailsForm from './ProjectDetailsForm';
 import PaymentForm from './PaymentForm';
 
@@ -21,16 +22,22 @@ const HourPurchaseForm = ({ onSuccess }) => {
   };
 
   if (currentStep === 1) {
-    return <ProjectDetailsForm onContinue={handleContinueToPayment} />;
+    return (
+      <Box width="100%" maxW="100%">
+        <ProjectDetailsForm onContinue={handleContinueToPayment} />
+      </Box>
+    );
   }
 
   if (currentStep === 2) {
     return (
-      <PaymentForm 
-        projectData={projectData}
-        onSuccess={handlePaymentSuccess}
-        onBack={handleBackToDetails}
-      />
+      <Box width="100%" maxW="100%">
+        <PaymentForm 
+          projectData={projectData}
+          onSuccess={handlePaymentSuccess}
+          onBack={handleBackToDetails}
+        />
+      </Box>
     );
   }
 
