@@ -20,7 +20,7 @@ import {
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { FiCreditCard, FiLink, FiArrowLeft, FiInfo } from 'react-icons/fi';
-import { FaApple } from 'react-icons/fa';
+import { FaApple, FaGoogle } from 'react-icons/fa';
 import { 
   useStripe, 
   useElements, 
@@ -817,7 +817,8 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                               }}
                             />
                             <FaApple size={20} color={paymentMethodType === 'apple_pay' ? colors.brand.primary : '#9CA3AF'} />
-                            <Text color="white" fontWeight="600" fontSize="16px">Apple Pay</Text>
+                            <FaGoogle size={18} color={paymentMethodType === 'apple_pay' ? colors.brand.primary : '#9CA3AF'} />
+                            <Text color="white" fontWeight="600" fontSize="16px">Apple Pay / Google Pay</Text>
                           </HStack>
                         </Box>
                       )}
