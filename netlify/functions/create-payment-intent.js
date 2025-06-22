@@ -40,11 +40,13 @@ export const handler = async (event, context) => {
       };
     }
 
-    // Create PaymentIntent
+    // Create PaymentIntent with automatic payment methods
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100), // Convert to cents
       currency: 'usd',
-      payment_method_types: ['card'], // Supports all major cards + Apple Pay + Google Pay
+      automatic_payment_methods: {
+        enabled: true,
+      },
       metadata: {
         firstName,
         projectName,
@@ -62,6 +64,7 @@ export const handler = async (event, context) => {
     };
   } catch (error) {
     console.error('Payment intent creation failed:', error);
+    
     return {
       statusCode: 500,
       headers,
