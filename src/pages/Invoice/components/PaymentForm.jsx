@@ -85,7 +85,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
 
   // Setup Apple Pay / Google Pay
   useEffect(() => {
-    if (!stripe) {
+    if (!stripe || !projectData) {
       return;
     }
 
@@ -94,102 +94,108 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
       return;
     }
 
-    try {
-      const pr = stripe.paymentRequest({
-        country: 'US',
-        currency: 'usd',
-        total: {
-          label: `Neon Burro - ${projectData.hours} hours`,
-          amount: Math.round(projectData.total * 100), // Convert to cents
-        },
-        requestPayerName: true,
-        requestPayerEmail: true,
-        requestPayerPhone: true,
-      });
+    const createPaymentRequest = async () => {
+      try {
+        const pr = stripe.paymentRequest({
+          country: 'US',
+          currency: 'usd',
+          total: {
+            label: `Neon Burro - ${projectData.hours} hours`,
+            amount: Math.round(projectData.total * 100), // Convert to cents
+          },
+          requestPayerName: true,
+          requestPayerEmail: true,
+          requestPayerPhone: true,
+        });
 
-      // Check if the Payment Request API is available
-      pr.canMakePayment().then(result => {
-        if (result) {
+        // Check if the Payment Request API is available
+        const canMakePaymentResult = await pr.canMakePayment();
+        
+        if (canMakePaymentResult) {
+          console.log('Payment Request API available:', canMakePaymentResult);
           setPaymentRequest(pr);
           setCanMakePayment(true);
-        }
-      }).catch((error) => {
-        console.error('Payment request not available:', error);
-      });
 
-      // Handle payment method creation
-      pr.on('paymentmethod', async (ev) => {
-        setIsLoading(true);
-        
-        try {
-          // Create payment intent
-          const response = await fetch('/.netlify/functions/create-payment-intent', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              amount: projectData.total,
-              firstName: projectData.firstName,
-              projectName: projectData.projectName,
-              hours: projectData.hours,
-            }),
-          });
-
-          const { clientSecret, error } = await response.json();
-
-          if (error) {
-            throw new Error(error);
-          }
-
-          // Confirm the payment
-          const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
-            clientSecret,
-            { payment_method: ev.paymentMethod.id },
-            { handleActions: false }
-          );
-
-          if (confirmError) {
-            ev.complete('fail');
-            throw new Error(confirmError.message);
-          } else {
-            ev.complete('success');
+          // Handle payment method creation
+          pr.on('paymentmethod', async (ev) => {
+            setIsLoading(true);
             
-            if (paymentIntent.status === 'requires_action') {
-              const { error: actionError } = await stripe.confirmCardPayment(clientSecret);
-              if (actionError) {
-                throw new Error(actionError.message);
+            try {
+              // Create payment intent
+              const response = await fetch('/.netlify/functions/create-payment-intent', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  amount: projectData.total,
+                  firstName: projectData.firstName,
+                  projectName: projectData.projectName,
+                  hours: projectData.hours,
+                }),
+              });
+
+              const { clientSecret, error } = await response.json();
+
+              if (error) {
+                throw new Error(error);
               }
+
+              // Confirm the payment
+              const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
+                clientSecret,
+                { payment_method: ev.paymentMethod.id },
+                { handleActions: false }
+              );
+
+              if (confirmError) {
+                ev.complete('fail');
+                throw new Error(confirmError.message);
+              } else {
+                ev.complete('success');
+                
+                if (paymentIntent.status === 'requires_action') {
+                  const { error: actionError } = await stripe.confirmCardPayment(clientSecret);
+                  if (actionError) {
+                    throw new Error(actionError.message);
+                  }
+                }
+                
+                onSuccess({
+                  ...projectData,
+                  paymentMethod: 'apple_pay',
+                  email: ev.payerEmail || email,
+                  phone: ev.payerPhone || phone,
+                  paymentIntentId: paymentIntent.id
+                });
+              }
+            } catch (error) {
+              ev.complete('fail');
+              toast({
+                title: 'Payment failed',
+                description: error.message,
+                status: 'error',
+                duration: 5000,
+                isClosable: true,
+              });
+            } finally {
+              setIsLoading(false);
             }
-            
-            onSuccess({
-              ...projectData,
-              paymentMethod: 'apple_pay',
-              email: ev.payerEmail || email,
-              phone: ev.payerPhone || phone,
-              paymentIntentId: paymentIntent.id
-            });
-          }
-        } catch (error) {
-          ev.complete('fail');
-          toast({
-            title: 'Payment failed',
-            description: error.message,
-            status: 'error',
-            duration: 5000,
-            isClosable: true,
           });
-        } finally {
-          setIsLoading(false);
+
+          pr.on('cancel', () => {
+            setIsLoading(false);
+          });
+        } else {
+          console.log('Payment Request API not available');
+          setCanMakePayment(false);
         }
-      });
+      } catch (error) {
+        console.error('Error creating payment request:', error);
+        setCanMakePayment(false);
+      }
+    };
 
-      pr.on('cancel', () => {
-        setIsLoading(false);
-      });
-    } catch (error) {
-      console.error('Error creating payment request:', error);
-    }
-
-  }, [stripe, projectData.total, projectData.projectName, projectData.hours, projectData.firstName]);
+    createPaymentRequest();
+  }, [stripe, projectData, email, onSuccess, toast]);
 
   const handleCardPayment = async () => {
     if (!stripe || !elements) return;
@@ -776,7 +782,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                       </Box>
 
                       {/* Apple Pay Option (if available) */}
-                      {canMakePayment && paymentRequest && (
+                      {canMakePayment && paymentRequest && stripe && (
                         <Box
                           p={5}
                           borderRadius="lg"
@@ -935,9 +941,8 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                     >
                       {stripe && paymentRequest ? (
                         <PaymentRequestButtonElement 
-                          key="payment-request-button"
-                          paymentRequest={paymentRequest} 
                           options={{
+                            paymentRequest: paymentRequest,
                             style: {
                               paymentRequestButton: {
                                 type: 'default',
