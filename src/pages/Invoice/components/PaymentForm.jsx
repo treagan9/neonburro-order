@@ -99,7 +99,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
         country: 'US',
         currency: 'usd',
         total: {
-          label: `${projectData.projectName} - ${projectData.hours} hours`,
+          label: `Neon Burro - ${projectData.hours} hours`,
           amount: Math.round(projectData.total * 100), // Convert to cents
         },
         requestPayerName: true,
@@ -164,6 +164,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
               ...projectData,
               paymentMethod: 'apple_pay',
               email: ev.payerEmail || email,
+              phone: ev.payerPhone || phone,
               paymentIntentId: paymentIntent.id
             });
           }
@@ -350,7 +351,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
               top={{ base: "0", lg: "100px" }}
             >
               <Text color="white" fontSize="xl" fontWeight="700" mb={6}>
-                Subscribe to {projectData.projectName}
+                Payment for {projectData.projectName}
               </Text>
               
               <VStack spacing={6} align="stretch">
@@ -364,7 +365,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                     </Text>
                   </HStack>
                   <Text color="gray.500" fontSize="sm">
-                    Billed once
+                    One-time payment
                   </Text>
                 </Box>
                 
@@ -378,7 +379,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                 <Box borderTop="1px solid" borderColor="rgba(255, 255, 255, 0.1)" pt={4}>
                   <HStack justify="space-between">
                     <Text color="white" fontWeight="700" fontSize="lg">
-                      Total due today
+                      Total
                     </Text>
                     <Text color="white" fontWeight="700" fontSize="xl">
                       ${projectData.total}
@@ -910,13 +911,10 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                       }}
                     >
                       <Text color="gray.400" fontSize="sm" lineHeight="1.6">
-                        You'll be charged the amount and at the frequency listed above for your project. You can{' '}
+                        You'll be charged ${projectData.total} for {projectData.hours} hours of development work. 
+                        By completing this payment, you agree to our{' '}
                         <Text as="span" color={colors.brand.primary} textDecoration="underline" cursor="pointer">
-                          cancel any time
-                        </Text>
-                        . By subscribing, you agree to our{' '}
-                        <Text as="span" color={colors.brand.primary} textDecoration="underline" cursor="pointer">
-                          Terms of Use
+                          Terms of Service
                         </Text>
                         {' '}and{' '}
                         <Text as="span" color={colors.brand.primary} textDecoration="underline" cursor="pointer">
@@ -993,7 +991,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                       }}
                       transition="all 0.2s"
                     >
-                      Subscribe
+                      Complete Payment
                     </Button>
                   )}
                 </Box>

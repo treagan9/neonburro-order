@@ -14,7 +14,7 @@ const ProjectDetailsForm = ({ onContinue }) => {
   const [isCustomHours, setIsCustomHours] = useState(false);
   const [selectedReaction, setSelectedReaction] = useState('');
   
-  const hourlyRate = 33;
+  const hourlyRate = 1;
   const total = hours ? parseInt(hours) * hourlyRate : 0;
 
   // Main hour packages
@@ -164,7 +164,7 @@ const ProjectDetailsForm = ({ onContinue }) => {
                 <Input
                   value={projectName}
                   onChange={(e) => setProjectName(e.target.value)}
-                  placeholder="Website Redesign"
+                  placeholder="Website"
                   bg="rgba(255, 255, 255, 0.03)"
                   border="1.5px solid"
                   borderColor="whiteAlpha.200"

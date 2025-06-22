@@ -9,3 +9,15 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+[[headers]]
+  for = "/.well-known/apple-developer-merchantid-domain-association"
+  [headers.values]
+    Content-Type = "text/plain"
+    Cache-Control = "public, max-age=31536000"
+
+# Ensure the file is included in the build
+[[headers]]
+  for = "/.well-known/*"
+  [headers.values]
+    X-Robots-Tag = "noindex"
