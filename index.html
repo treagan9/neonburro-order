@@ -88,6 +88,19 @@
       <input type="text" name="paymentMethod" />
     </form>
     
+    <!-- Project Details Form -->
+    <form name="project-details-form" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="firstName" />
+      <input type="text" name="projectName" />
+      <input type="text" name="clientType" />
+      <input type="text" name="packageType" />
+      <input type="text" name="packageName" />
+      <input type="text" name="hours" />
+      <input type="text" name="total" />
+      <input type="checkbox" name="wantsHostingDetails" />
+      <input type="text" name="isServicePackage" />
+    </form>
+    
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

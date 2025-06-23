@@ -16,7 +16,8 @@ import {
   Container,
   Tooltip,
   useToast,
-  Divider
+  Divider,
+  Spinner
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
@@ -51,6 +52,18 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [paymentRequest, setPaymentRequest] = useState(null);
   const [canMakePayment, setCanMakePayment] = useState(false);
+
+  // CRITICAL: Add null check here before any usage of projectData
+  if (!projectData) {
+    return (
+      <Container maxW="1200px" mx="auto" py={8}>
+        <Box textAlign="center" py={20}>
+          <Spinner size="xl" color="cyan.500" />
+          <Text color="gray.400" mt={4}>Loading payment information...</Text>
+        </Box>
+      </Container>
+    );
+  }
 
   // Colors matching your theme
   const colors = {
@@ -100,8 +113,8 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
           country: 'US',
           currency: 'usd',
           total: {
-            label: `Neon Burro - ${projectData.hours} hours`,
-            amount: Math.round(projectData.total * 100), // Convert to cents
+            label: `Neon Burro - ${projectData?.hours || 0} hours`,
+            amount: Math.round((projectData?.total || 0) * 100), // Convert to cents
           },
           requestPayerName: true,
           requestPayerEmail: true,
@@ -126,10 +139,10 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                  amount: projectData.total,
-                  firstName: projectData.firstName,
-                  projectName: projectData.projectName,
-                  hours: projectData.hours,
+                  amount: projectData?.total || 0,
+                  firstName: projectData?.firstName || '',
+                  projectName: projectData?.projectName || '',
+                  hours: projectData?.hours || 0,
                 }),
               });
 
@@ -207,10 +220,10 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: projectData.total,
-          firstName: projectData.firstName,
-          projectName: projectData.projectName,
-          hours: projectData.hours,
+          amount: projectData?.total || 0,
+          firstName: projectData?.firstName || '',
+          projectName: projectData?.projectName || '',
+          hours: projectData?.hours || 0,
         }),
       });
 
@@ -273,10 +286,10 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
           'form-name': 'hour-purchase-form',
-          firstName: projectData.firstName,
-          projectName: projectData.projectName,
-          hours: projectData.hours,
-          total: projectData.total.toString(),
+          firstName: projectData?.firstName || '',
+          projectName: projectData?.projectName || '',
+          hours: (projectData?.hours || 0).toString(),
+          total: (projectData?.total || 0).toString(),
           hourlyRate: '33',
           paymentMethod: 'link-request',
           email: email,
@@ -329,7 +342,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
             Complete Your Payment
           </Heading>
           <Text color="gray.400" fontSize={{ base: "md", md: "lg" }}>
-            {projectData.firstName} • {projectData.projectName} • {projectData.hours} hours • ${projectData.total}
+            {projectData?.firstName || 'Guest'} • {projectData?.projectName || 'Project'} • {projectData?.hours || 0} hours • ${projectData?.total || 0}
           </Text>
         </VStack>
 
@@ -356,17 +369,17 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
               top={{ base: "0", lg: "100px" }}
             >
               <Text color="white" fontSize="xl" fontWeight="700" mb={6}>
-                Payment for {projectData.projectName}
+                Payment for {projectData?.projectName || 'Project'}
               </Text>
               
               <VStack spacing={6} align="stretch">
                 <Box>
                   <HStack justify="space-between" mb={2}>
                     <Text color="gray.200" fontWeight="600">
-                      {projectData.hours} Hours Package
+                      {projectData?.hours || 0} Hours Package
                     </Text>
                     <Text color="gray.200" fontWeight="600">
-                      ${projectData.total}
+                      ${projectData?.total || 0}
                     </Text>
                   </HStack>
                   <Text color="gray.500" fontSize="sm">
@@ -377,7 +390,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                 <Box borderTop="1px solid" borderColor="rgba(255, 255, 255, 0.1)" pt={4}>
                   <HStack justify="space-between" mb={1}>
                     <Text color="gray.400">Subtotal</Text>
-                    <Text color="gray.300">${projectData.total}</Text>
+                    <Text color="gray.300">${projectData?.total || 0}</Text>
                   </HStack>
                 </Box>
                 
@@ -387,7 +400,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                       Total
                     </Text>
                     <Text color="white" fontWeight="700" fontSize="xl">
-                      ${projectData.total}
+                      ${projectData?.total || 0}
                     </Text>
                   </HStack>
                 </Box>
@@ -913,7 +926,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                     }}
                   >
                     <Text color="gray.400" fontSize="sm" lineHeight="1.6">
-                      You'll be charged ${projectData.total} for {projectData.hours} hours of development work. 
+                      You'll be charged ${projectData?.total || 0} for {projectData?.hours || 0} hours of development work. 
                       By completing this payment, you agree to our{' '}
                       <Text as="span" color={colors.brand.primary} textDecoration="underline" cursor="pointer">
                         Terms of Service

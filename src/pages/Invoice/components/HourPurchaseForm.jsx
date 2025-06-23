@@ -14,22 +14,41 @@ const HourPurchaseForm = ({ onSuccess }) => {
   }, [currentStep]);
 
   const handleContinueToPayment = (data) => {
-    setProjectData(data);
+    // Validate and ensure all required fields are present
+    const validatedData = {
+      firstName: data?.firstName || '',
+      projectName: data?.projectName || '',
+      hours: data?.hours || 0,
+      total: data?.total || 0,
+      // Preserve any additional fields that might be passed
+      ...data
+    };
+    
+    setProjectData(validatedData);
     setCurrentStep(2);
   };
 
   const handleBackToDetails = () => {
+    // Optionally preserve the form data when going back
     setCurrentStep(1);
   };
 
   const handlePaymentSuccess = (data) => {
+    // You might want to reset the form after successful payment
     onSuccess(data);
+    // Optionally reset the form state
+    // setProjectData(null);
+    // setCurrentStep(1);
   };
 
   if (currentStep === 1) {
     return (
       <Box width="100%" maxW="100%">
-        <ProjectDetailsForm onContinue={handleContinueToPayment} />
+        <ProjectDetailsForm 
+          onContinue={handleContinueToPayment}
+          // Pass existing data if user goes back
+          initialData={projectData}
+        />
       </Box>
     );
   }
