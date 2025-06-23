@@ -15,12 +15,12 @@ import {
   GridItem,
   Container,
   Tooltip,
-  useToast
+  useToast,
+  Divider
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { FiCreditCard, FiLink, FiArrowLeft, FiInfo } from 'react-icons/fi';
-import { FaApple, FaGoogle } from 'react-icons/fa';
 import { 
   useStripe, 
   useElements, 
@@ -308,7 +308,6 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
 
   const isFormValid = email && (
     paymentMethodType === 'link' ? phone : 
-    paymentMethodType === 'apple_pay' ? true :
     (cardholderName && address && city && state && zip && agreeToTerms)
   );
 
@@ -436,10 +435,49 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                   />
                 </Box>
 
+                {/* Express Checkout - Apple Pay / Google Pay */}
+                {canMakePayment && paymentRequest && stripe && (
+                  <Box>
+                    <Text color="white" fontSize="lg" fontWeight="600" mb={4}>
+                      Express checkout
+                    </Text>
+                    <Box
+                      bg="rgba(255, 255, 255, 0.02)"
+                      border="1px solid"
+                      borderColor="rgba(255, 255, 255, 0.1)"
+                      borderRadius="lg"
+                      p={4}
+                      mb={6}
+                    >
+                      <PaymentRequestButtonElement 
+                        options={{
+                          paymentRequest: paymentRequest,
+                          style: {
+                            paymentRequestButton: {
+                              type: 'default',
+                              theme: 'dark',
+                              height: '56px',
+                            },
+                          },
+                        }}
+                      />
+                    </Box>
+                    
+                    {/* Divider with "or" text */}
+                    <HStack mb={6}>
+                      <Divider borderColor="rgba(255, 255, 255, 0.2)" />
+                      <Text color="gray.500" fontSize="sm" px={4}>
+                        or
+                      </Text>
+                      <Divider borderColor="rgba(255, 255, 255, 0.2)" />
+                    </HStack>
+                  </Box>
+                )}
+
                 {/* Payment Method */}
                 <Box>
                   <Text color="white" fontSize="lg" fontWeight="600" mb={4}>
-                    Payment method
+                    {canMakePayment ? 'Pay with card or Link' : 'Payment method'}
                   </Text>
                   
                   <RadioGroup 
@@ -781,48 +819,6 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                         )}
                       </Box>
 
-                      {/* Apple Pay Option (if available) */}
-                      {canMakePayment && paymentRequest && stripe && (
-                        <Box
-                          p={5}
-                          borderRadius="lg"
-                          border="2px solid"
-                          borderColor={paymentMethodType === 'apple_pay' ? 'rgba(0, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.1)'}
-                          bg={paymentMethodType === 'apple_pay' ? 'rgba(0, 255, 255, 0.03)' : 'transparent'}
-                          cursor="pointer"
-                          onClick={() => setPaymentMethodType('apple_pay')}
-                          transition="all 0.2s"
-                          _hover={{
-                            borderColor: paymentMethodType === 'apple_pay' ? 'rgba(0, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.15)'
-                          }}
-                        >
-                          <HStack spacing={4}>
-                            <Radio 
-                              value="apple_pay" 
-                              colorScheme="cyan"
-                              size="lg"
-                              borderColor="gray.500"
-                              _checked={{
-                                bg: colors.brand.primary,
-                                borderColor: colors.brand.primary,
-                                _before: {
-                                  content: '""',
-                                  display: 'inline-block',
-                                  position: 'relative',
-                                  width: '50%',
-                                  height: '50%',
-                                  borderRadius: '50%',
-                                  bg: 'black',
-                                }
-                              }}
-                            />
-                            <FaApple size={20} color={paymentMethodType === 'apple_pay' ? colors.brand.primary : '#9CA3AF'} />
-                            <FaGoogle size={18} color={paymentMethodType === 'apple_pay' ? colors.brand.primary : '#9CA3AF'} />
-                            <Text color="white" fontWeight="600" fontSize="16px">Apple Pay / Google Pay</Text>
-                          </HStack>
-                        </Box>
-                      )}
-
                       {/* Link Option */}
                       <Box
                         p={5}
@@ -899,107 +895,70 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                   </RadioGroup>
                 </Box>
 
-                {/* Terms Checkbox (not for Apple Pay) */}
-                {paymentMethodType !== 'apple_pay' && (
-                  <Box>
-                    <Checkbox
-                      isChecked={agreeToTerms}
-                      onChange={(e) => setAgreeToTerms(e.target.checked)}
-                      colorScheme="cyan"
-                      size="md"
-                      sx={{
-                        '.chakra-checkbox__control': {
-                          borderColor: 'rgba(255, 255, 255, 0.3)',
-                          _checked: {
-                            bg: colors.brand.primary,
-                            borderColor: colors.brand.primary,
-                          }
+                {/* Terms Checkbox */}
+                <Box>
+                  <Checkbox
+                    isChecked={agreeToTerms}
+                    onChange={(e) => setAgreeToTerms(e.target.checked)}
+                    colorScheme="cyan"
+                    size="md"
+                    sx={{
+                      '.chakra-checkbox__control': {
+                        borderColor: 'rgba(255, 255, 255, 0.3)',
+                        _checked: {
+                          bg: colors.brand.primary,
+                          borderColor: colors.brand.primary,
                         }
-                      }}
-                    >
-                      <Text color="gray.400" fontSize="sm" lineHeight="1.6">
-                        You'll be charged ${projectData.total} for {projectData.hours} hours of development work. 
-                        By completing this payment, you agree to our{' '}
-                        <Text as="span" color={colors.brand.primary} textDecoration="underline" cursor="pointer">
-                          Terms of Service
-                        </Text>
-                        {' '}and{' '}
-                        <Text as="span" color={colors.brand.primary} textDecoration="underline" cursor="pointer">
-                          Privacy Policy
-                        </Text>
-                        .
+                      }
+                    }}
+                  >
+                    <Text color="gray.400" fontSize="sm" lineHeight="1.6">
+                      You'll be charged ${projectData.total} for {projectData.hours} hours of development work. 
+                      By completing this payment, you agree to our{' '}
+                      <Text as="span" color={colors.brand.primary} textDecoration="underline" cursor="pointer">
+                        Terms of Service
                       </Text>
-                    </Checkbox>
-                  </Box>
-                )}
+                      {' '}and{' '}
+                      <Text as="span" color={colors.brand.primary} textDecoration="underline" cursor="pointer">
+                        Privacy Policy
+                      </Text>
+                      .
+                    </Text>
+                  </Checkbox>
+                </Box>
 
                 {/* Submit Button */}
                 <Box>
-                  {paymentMethodType === 'apple_pay' && canMakePayment && paymentRequest ? (
-                    <Box 
-                      onClick={(e) => e.stopPropagation()}
-                      cursor="default"
-                    >
-                      {stripe && paymentRequest ? (
-                        <PaymentRequestButtonElement 
-                          options={{
-                            paymentRequest: paymentRequest,
-                            style: {
-                              paymentRequestButton: {
-                                type: 'default',
-                                theme: 'dark',
-                                height: '56px',
-                              },
-                            },
-                          }}
-                        />
-                      ) : (
-                        <Button
-                          size="lg"
-                          bg="gray.700"
-                          color="white"
-                          width="100%"
-                          height="56px"
-                          fontSize="16px"
-                          isDisabled
-                          borderRadius="lg"
-                        >
-                          Loading Apple Pay...
-                        </Button>
-                      )}
-                    </Box>
-                  ) : (
-                    <Button
-                      type="button"
-                      onClick={paymentMethodType === 'card' ? handleCardPayment : handleLinkRequest}
-                      size="lg"
-                      bg={colors.accent.green}
-                      color="black"
-                      width="100%"
-                      isLoading={isLoading}
-                      loadingText="Processing..."
-                      fontWeight="700"
-                      borderRadius="lg"
-                      height="56px"
-                      fontSize="16px"
-                      isDisabled={!isFormValid}
-                      _hover={{
-                        bg: colors.accent.green,
-                        transform: 'translateY(-1px)',
-                        boxShadow: `0 10px 30px ${colors.accent.green}40`
-                      }}
-                      _active={{
-                        transform: 'translateY(0)'
-                      }}
-                      _disabled={{
-                        opacity: 0.5,
-                        cursor: 'not-allowed'
-                      }}
-                      transition="all 0.2s"
-                    >
-                      Complete Payment
-                    </Button>
-                  )}
+                  <Button
+                    type="button"
+                    onClick={paymentMethodType === 'card' ? handleCardPayment : handleLinkRequest}
+                    size="lg"
+                    bg={colors.accent.green}
+                    color="black"
+                    width="100%"
+                    isLoading={isLoading}
+                    loadingText="Processing..."
+                    fontWeight="700"
+                    borderRadius="lg"
+                    height="56px"
+                    fontSize="16px"
+                    isDisabled={!isFormValid}
+                    _hover={{
+                      bg: colors.accent.green,
+                      transform: 'translateY(-1px)',
+                      boxShadow: `0 10px 30px ${colors.accent.green}40`
+                    }}
+                    _active={{
+                      transform: 'translateY(0)'
+                    }}
+                    _disabled={{
+                      opacity: 0.5,
+                      cursor: 'not-allowed'
+                    }}
+                    transition="all 0.2s"
+                  >
+                    Complete Payment
+                  </Button>
                 </Box>
 
                 {/* Powered by Stripe */}
