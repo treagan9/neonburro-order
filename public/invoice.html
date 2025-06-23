@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Primary Meta Tags -->
+    <title>Ready to Launch? Complete Your Payment | Neon Burro</title>
+    <meta name="title" content="Ready to Launch? Complete Your Payment | Neon Burro" />
+    <meta name="description" content="One click away from transforming your digital presence. Secure checkout powered by Stripe. Let's build something extraordinary together." />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/payment-sms.png" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://neonburro.com/invoice" />
+    <meta property="og:title" content="Ready to Launch? Complete Your Payment | Neon Burro" />
+    <meta property="og:description" content="One click away from transforming your digital presence. Secure checkout powered by Stripe. Let's build something extraordinary together." />
+    <meta property="og:image" content="https://neonburro.com/payment-sms.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Neon Burro Payment Portal" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://neonburro.com/invoice" />
+    <meta property="twitter:title" content="Ready to Launch? Complete Your Payment | Neon Burro" />
+    <meta property="twitter:description" content="One click away from transforming your digital presence. Secure checkout powered by Stripe. Let's build something extraordinary together." />
+    <meta property="twitter:image" content="https://neonburro.com/payment-sms.png" />
+    
+    <!-- SMS / iMessage specific -->
+    <meta property="og:site_name" content="Neon Burro" />
+    <meta property="og:locale" content="en_US" />
+    
+    <!-- Additional SEO -->
+    <meta name="keywords" content="payment, invoice, web development, digital agency, Colorado, Neon Burro" />
+    <meta name="author" content="Neon Burro" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://neonburro.com/invoice" />
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#00FFFF" />
+  </head>
+  <body>
+    <!-- Netlify Forms - Hidden forms for detection -->
+    <!-- Work Access Form -->
+    <form name="work-access-form" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <input type="text" name="company" />
+      <textarea name="reason"></textarea>
+      <input type="text" name="hasNDA" />
+    </form>
+    
+    <!-- Contact Form -->
+    <form name="contact-form" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <input type="text" name="company" />
+      <input type="text" name="source" />
+      <input type="text" name="projectType" />
+      <input type="text" name="budget" />
+      <input type="text" name="timeline" />
+      <textarea name="description"></textarea>
+      <input type="text" name="contactMethod" />
+      <input type="tel" name="phone" />
+      <input type="text" name="bestTime" />
+      <textarea name="additionalInfo"></textarea>
+    </form>
+    
+    <!-- Hour Purchase Form -->
+    <form name="hour-purchase-form" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="firstName" />
+      <input type="text" name="projectName" />
+      <input type="text" name="hours" />
+      <input type="text" name="total" />
+      <input type="text" name="hourlyRate" />
+      <input type="email" name="email" />
+      <input type="tel" name="phone" />
+      <input type="text" name="paymentMethod" />
+    </form>
+    
+    <!-- Project Details Form -->
+    <form name="project-details-form" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="firstName" />
+      <input type="text" name="projectName" />
+      <input type="text" name="clientType" />
+      <input type="text" name="packageType" />
+      <input type="text" name="packageName" />
+      <input type="text" name="hours" />
+      <input type="text" name="total" />
+      <input type="checkbox" name="wantsHostingDetails" />
+      <input type="text" name="isServicePackage" />
+    </form>
+    
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
