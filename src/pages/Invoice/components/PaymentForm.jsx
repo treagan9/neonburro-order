@@ -17,7 +17,8 @@ import {
   Tooltip,
   useToast,
   Divider,
-  Spinner
+  Spinner,
+  Link
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
@@ -109,11 +110,15 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
 
     const createPaymentRequest = async () => {
       try {
+        const label = projectData?.isServicePackage 
+          ? `Neon Burro - ${projectData?.packageName || 'Package'}`
+          : `Neon Burro - ${projectData?.hours || 0} hours`;
+
         const pr = stripe.paymentRequest({
           country: 'US',
           currency: 'usd',
           total: {
-            label: `Neon Burro - ${projectData?.hours || 0} hours`,
+            label: label,
             amount: Math.round((projectData?.total || 0) * 100), // Convert to cents
           },
           requestPayerName: true,
@@ -324,6 +329,11 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
     (cardholderName && address && city && state && zip && agreeToTerms)
   );
 
+  // Header subtitle display logic
+  const headerSubtitle = projectData?.isServicePackage 
+    ? `${projectData?.firstName || 'Guest'} • ${projectData?.projectName || 'Project'} • ${projectData?.packageName || 'Package'} • $${projectData?.total || 0}`
+    : `${projectData?.firstName || 'Guest'} • ${projectData?.projectName || 'Project'} • ${projectData?.hours || 0} hours • $${projectData?.total || 0}`;
+
   return (
     <Container maxW="1200px" mx="auto" py={8}>
       <MotionBox
@@ -342,7 +352,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
             Complete Your Payment
           </Heading>
           <Text color="gray.400" fontSize={{ base: "md", md: "lg" }}>
-            {projectData?.firstName || 'Guest'} • {projectData?.projectName || 'Project'} • {projectData?.hours || 0} hours • ${projectData?.total || 0}
+            {headerSubtitle}
           </Text>
         </VStack>
 
@@ -376,7 +386,10 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                 <Box>
                   <HStack justify="space-between" mb={2}>
                     <Text color="gray.200" fontWeight="600">
-                      {projectData?.hours || 0} Hours Package
+                      {projectData?.isServicePackage 
+                        ? `${projectData?.packageName || 'Package'} - Includes project hours`
+                        : `${projectData?.hours || 0} Hours Package`
+                      }
                     </Text>
                     <Text color="gray.200" fontWeight="600">
                       ${projectData?.total || 0}
@@ -926,15 +939,28 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                     }}
                   >
                     <Text color="gray.400" fontSize="sm" lineHeight="1.6">
-                      You'll be charged ${projectData?.total || 0} for {projectData?.hours || 0} hours of development work. 
+                      You'll be charged ${projectData?.total || 0} for {projectData?.isServicePackage 
+                        ? `the ${projectData?.packageName || 'package'}`
+                        : `${projectData?.hours || 0} hours of development work`
+                      }. 
                       By completing this payment, you agree to our{' '}
-                      <Text as="span" color={colors.brand.primary} textDecoration="underline" cursor="pointer">
+                      <Link 
+                        href="https://neonburro.com/terms/" 
+                        color={colors.brand.primary} 
+                        textDecoration="underline"
+                        isExternal
+                      >
                         Terms of Service
-                      </Text>
+                      </Link>
                       {' '}and{' '}
-                      <Text as="span" color={colors.brand.primary} textDecoration="underline" cursor="pointer">
+                      <Link 
+                        href="https://neonburro.com/privacy/" 
+                        color={colors.brand.primary} 
+                        textDecoration="underline"
+                        isExternal
+                      >
                         Privacy Policy
-                      </Text>
+                      </Link>
                       .
                     </Text>
                   </Checkbox>

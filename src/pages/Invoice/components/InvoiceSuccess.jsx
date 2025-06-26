@@ -148,7 +148,7 @@ const InvoiceSuccess = ({ isOpen, onClose, formData }) => {
                       fontSize={{ base: "sm", md: "md" }}
                       textAlign="center"
                     >
-                      Thank you, {formData.firstName}. Your hours are ready to rock!
+                      Thank you, {formData.firstName}. {formData.isServicePackage ? 'Your project is ready to launch!' : 'Your hours are ready to rock!'}
                     </Text>
                   </VStack>
 
@@ -179,9 +179,14 @@ const InvoiceSuccess = ({ isOpen, onClose, formData }) => {
                       </HStack>
                       
                       <HStack justify="space-between">
-                        <Text color="gray.400" fontSize="sm">Hours</Text>
+                        <Text color="gray.400" fontSize="sm">
+                          {formData.isServicePackage ? 'Package' : 'Hours'}
+                        </Text>
                         <Text color={colors.brand.primary} fontSize="sm" fontWeight="600">
-                          {formData.hours} hours
+                          {formData.isServicePackage 
+                            ? `${formData.packageName} - Includes project hours`
+                            : `${formData.hours} hours`
+                          }
                         </Text>
                       </HStack>
                       
@@ -194,7 +199,7 @@ const InvoiceSuccess = ({ isOpen, onClose, formData }) => {
                           fontWeight="700" 
                           fontSize="lg"
                         >
-                          ${formData.total}
+                          ${formData.total.toLocaleString()}
                         </Text>
                       </HStack>
                     </VStack>
