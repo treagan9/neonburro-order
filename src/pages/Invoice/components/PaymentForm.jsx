@@ -54,7 +54,7 @@ import {
 
 const MotionBox = motion(Box);
 
-const PaymentForm = ({ projectData, onSuccess, onBack }) => {
+const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }) => {
   const stripe = useStripe();
   const elements = useElements();
   const toast = useToast();
@@ -76,11 +76,80 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
   const [canMakePayment, setCanMakePayment] = useState(false);
   const [termsError, setTermsError] = useState(false);
   const agreeToTermsRef = useRef(agreeToTerms);
+  
+  // Time tracking for analytics
+  const [startTime] = useState(Date.now());
+  const [hasTrackedPageView, setHasTrackedPageView] = useState(false);
 
   // Update ref when agreeToTerms changes - ensure it's always current
   useEffect(() => {
     agreeToTermsRef.current = agreeToTerms;
   }, [agreeToTerms]);
+
+  // Track when user enters payment page
+  useEffect(() => {
+    if (projectData && onTrackEvent && !hasTrackedPageView) {
+      setHasTrackedPageView(true);
+      onTrackEvent('payment-attempt', {
+        firstName: projectData.firstName,
+        projectName: projectData.projectName,
+        email: '',
+        total: projectData.total,
+        paymentMethod: paymentMethodType,
+        packageInfo: projectData.isServicePackage 
+          ? `${projectData.packageName} Package` 
+          : `${projectData.hours} hours`,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }, [projectData, onTrackEvent, hasTrackedPageView]);
+
+  // Track abandoned cart after email is entered
+  useEffect(() => {
+    if (email && onTrackEvent) {
+      const timer = setTimeout(() => {
+        onTrackEvent('abandoned-cart', {
+          firstName: projectData?.firstName || '',
+          projectName: projectData?.projectName || '',
+          email: email,
+          total: projectData?.total || 0,
+          lastStep: 'payment-form',
+          timeSpent: Math.floor((Date.now() - startTime) / 1000),
+          timestamp: new Date().toISOString()
+        });
+      }, 30000); // Track after 30 seconds of inactivity
+
+      return () => clearTimeout(timer);
+    }
+  }, [email, onTrackEvent, projectData, startTime]);
+
+  // Special VIP tracking
+  useEffect(() => {
+    if (projectData?.isVip && email && onTrackEvent) {
+      onTrackEvent('vip-interest', {
+        firstName: projectData.firstName,
+        projectName: projectData.projectName,
+        email: email,
+        phone: phone || '',
+        timestamp: new Date().toISOString(),
+        referralSource: document.referrer
+      });
+    }
+  }, [email, phone, projectData, onTrackEvent]);
+
+  // Track payment errors
+  const trackPaymentError = (error) => {
+    if (onTrackEvent) {
+      onTrackEvent('payment-error', {
+        errorType: 'payment-failed',
+        errorMessage: error.message,
+        firstName: projectData?.firstName || '',
+        email: email || '',
+        total: projectData?.total || 0,
+        timestamp: new Date().toISOString()
+      });
+    }
+  };
 
   // Add a validation function to ensure consistency
   const validateTerms = () => {
@@ -208,6 +277,21 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
 
             setIsLoading(true);
             
+            // Track payment attempt
+            if (onTrackEvent) {
+              onTrackEvent('payment-attempt', {
+                firstName: projectData?.firstName || '',
+                projectName: projectData?.projectName || '',
+                email: ev.payerEmail || email,
+                total: projectData?.total || 0,
+                paymentMethod: 'apple_pay',
+                packageInfo: projectData?.isServicePackage 
+                  ? `${projectData.packageName} Package` 
+                  : `${projectData.hours} hours`,
+                timestamp: new Date().toISOString()
+              });
+            }
+            
             try {
               // Create payment intent
               const response = await fetch('/.netlify/functions/create-payment-intent', {
@@ -247,6 +331,27 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                   }
                 }
                 
+                // Track complete journey
+                if (onTrackEvent) {
+                  onTrackEvent('customer-journey', {
+                    firstName: projectData?.firstName || '',
+                    projectName: projectData?.projectName || '',
+                    email: ev.payerEmail || email,
+                    phone: ev.payerPhone || '',
+                    clientType: projectData?.isServicePackage ? 'new' : 'existing',
+                    packageType: projectData?.packageType || '',
+                    packageName: projectData?.packageName || '',
+                    hours: projectData?.hours || 0,
+                    total: projectData?.total || 0,
+                    paymentMethod: 'apple_pay',
+                    isVip: projectData?.isVip || false,
+                    wantsHostingDetails: projectData?.wantsHostingDetails || false,
+                    journeySteps: 'details->payment->success',
+                    totalTimeSpent: Math.floor((Date.now() - startTime) / 1000),
+                    timestamp: new Date().toISOString()
+                  });
+                }
+                
                 onSuccess({
                   ...projectData,
                   paymentMethod: 'apple_pay',
@@ -257,6 +362,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
               }
             } catch (error) {
               ev.complete('fail');
+              trackPaymentError(error);
               toast({
                 title: 'Payment failed',
                 description: error.message,
@@ -282,7 +388,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
     };
 
     createPaymentRequest();
-  }, [stripe, projectData, email, onSuccess, toast]);
+  }, [stripe, projectData, email, onSuccess, toast, onTrackEvent, startTime]);
 
   const handleCardPayment = async () => {
     if (!stripe || !elements) return;
@@ -316,6 +422,21 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
         });
       }, 100);
       return;
+    }
+
+    // Track payment attempt
+    if (onTrackEvent) {
+      onTrackEvent('payment-attempt', {
+        firstName: projectData?.firstName || '',
+        projectName: projectData?.projectName || '',
+        email: email,
+        total: projectData?.total || 0,
+        paymentMethod: 'card',
+        packageInfo: projectData?.isServicePackage 
+          ? `${projectData.packageName} Package` 
+          : `${projectData.hours} hours`,
+        timestamp: new Date().toISOString()
+      });
     }
 
     setIsLoading(true);
@@ -362,6 +483,27 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
       }
 
       if (paymentIntent.status === 'succeeded') {
+        // Track complete journey
+        if (onTrackEvent) {
+          onTrackEvent('customer-journey', {
+            firstName: projectData?.firstName || '',
+            projectName: projectData?.projectName || '',
+            email: email,
+            phone: phone || '',
+            clientType: projectData?.isServicePackage ? 'new' : 'existing',
+            packageType: projectData?.packageType || '',
+            packageName: projectData?.packageName || '',
+            hours: projectData?.hours || 0,
+            total: projectData?.total || 0,
+            paymentMethod: 'card',
+            isVip: projectData?.isVip || false,
+            wantsHostingDetails: projectData?.wantsHostingDetails || false,
+            journeySteps: 'details->payment->success',
+            totalTimeSpent: Math.floor((Date.now() - startTime) / 1000),
+            timestamp: new Date().toISOString()
+          });
+        }
+
         onSuccess({
           ...projectData,
           paymentMethod: 'card',
@@ -370,6 +512,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
         });
       }
     } catch (error) {
+      trackPaymentError(error);
       toast({
         title: 'Payment failed',
         description: error.message,
@@ -411,6 +554,13 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
           { icon: FiGlobe, text: 'E-commerce capabilities' },
           { icon: FiShield, text: 'Advanced automation' },
           { icon: FiHeadphones, text: 'White-glove service' }
+        ],
+        'VIP': [
+          { icon: FiZap, text: 'Everything in Burro, plus:', highlight: true },
+          { icon: FiCode, text: 'Dedicated core team for your project' },
+          { icon: FiGlobe, text: 'Direct access to founders' },
+          { icon: FiShield, text: 'Weekly strategy sessions' },
+          { icon: FiHeadphones, text: 'VIP lifetime support tier' }
         ]
       };
       return packageFeatures[projectData.packageName] || [];
@@ -478,9 +628,12 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                 bg="rgba(10, 10, 10, 0.95)"
                 backdropFilter="blur(20px)"
                 border="1.5px solid"
-                borderColor="whiteAlpha.200"
+                borderColor={projectData?.isVip ? 'rgba(212, 175, 55, 0.3)' : 'whiteAlpha.200'}
                 borderRadius="xl"
-                boxShadow="0 20px 40px rgba(0,0,0,0.6)"
+                boxShadow={projectData?.isVip 
+                  ? '0 20px 40px rgba(212, 175, 55, 0.2)'
+                  : '0 20px 40px rgba(0,0,0,0.6)'
+                }
                 mb={6}
               >
                 {/* Project Header */}
@@ -496,7 +649,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                     </Box>
                     {projectData?.isServicePackage && (
                       <Badge
-                        bg={colors.brand.primary}
+                        bg={projectData?.isVip ? '#D4AF37' : colors.brand.primary}
                         color="black"
                         fontSize="xs"
                         fontWeight="800"
@@ -511,10 +664,10 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                   
                   <Box
                     p={4}
-                    bg="rgba(0, 255, 255, 0.05)"
+                    bg={projectData?.isVip ? 'rgba(212, 175, 55, 0.05)' : 'rgba(0, 255, 255, 0.05)'}
                     borderRadius="lg"
                     border="1px solid"
-                    borderColor="rgba(0, 255, 255, 0.2)"
+                    borderColor={projectData?.isVip ? 'rgba(212, 175, 55, 0.2)' : 'rgba(0, 255, 255, 0.2)'}
                   >
                     <HStack justify="space-between">
                       <Text color="gray.300" fontSize="sm">
@@ -523,7 +676,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                           : `${projectData.hours} Development Hours`
                         }
                       </Text>
-                      <Text color={colors.brand.primary} fontSize="lg" fontWeight="700">
+                      <Text color={projectData?.isVip ? '#D4AF37' : colors.brand.primary} fontSize="lg" fontWeight="700">
                         ${projectData?.total || 0}
                       </Text>
                     </HStack>
@@ -647,7 +800,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                   />
                 </Box>
 
-                {/* Payment Method - Exactly like OpenAI */}
+                {/* Payment Method */}
                 <Box>
                   <Text color="white" fontSize="lg" fontWeight="600" mb={4}>
                     Payment method
@@ -1078,7 +1231,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                 )}
 
                 {/* Terms Checkbox - ABOVE Express Checkout */}
-                <Box>
+                <Box id="terms-section">
                   <Box
                     p={4}
                     bg={termsError && !agreeToTerms ? "rgba(255, 107, 53, 0.1)" : "transparent"}

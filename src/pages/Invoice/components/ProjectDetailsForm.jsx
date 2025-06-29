@@ -22,7 +22,7 @@ import {
   useToast
 } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   FiUser, 
   FiFolder, 
@@ -41,7 +41,7 @@ import { RiSparklingLine, RiFireLine, RiStarLine, RiVipCrownLine } from 'react-i
 const MotionBox = motion(Box);
 const MotionVStack = motion(VStack);
 
-const ProjectDetailsForm = ({ onContinue, initialData }) => {
+const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }) => {
   const toast = useToast();
   const [firstName, setFirstName] = useState(initialData?.firstName || '');
   const [projectName, setProjectName] = useState(initialData?.projectName || '');
@@ -51,7 +51,27 @@ const ProjectDetailsForm = ({ onContinue, initialData }) => {
   const [selectedPackage, setSelectedPackage] = useState(initialData?.packageType || '');
   const [wantsHostingDetails, setWantsHostingDetails] = useState(false);
   
+  // Tracking refs
+  const hasTrackedInitialView = useRef(false);
+  const fieldInteractionTimes = useRef({
+    firstName: null,
+    projectName: null,
+    clientType: null,
+    packageSelection: null
+  });
+  
   const hourlyRate = 33;
+  
+  // Track initial form view
+  useEffect(() => {
+    if (!hasTrackedInitialView.current && onTrackEvent) {
+      hasTrackedInitialView.current = true;
+      onTrackEvent('project-inquiry', {
+        action: 'form-viewed',
+        timestamp: new Date().toISOString()
+      });
+    }
+  }, [onTrackEvent]);
   
   // Calculate total based on selection
   const getTotal = () => {
@@ -202,10 +222,86 @@ const ProjectDetailsForm = ({ onContinue, initialData }) => {
     }
   ];
 
+  // Track field interactions
+  const trackFieldInteraction = (fieldName, value) => {
+    if (!fieldInteractionTimes.current[fieldName] && value) {
+      fieldInteractionTimes.current[fieldName] = new Date().toISOString();
+      
+      if (onTrackEvent) {
+        onTrackEvent('field-interaction', {
+          field: fieldName,
+          hasValue: !!value,
+          timestamp: new Date().toISOString()
+        });
+      }
+    }
+  };
+
+  // Track first name changes
+  const handleFirstNameChange = (value) => {
+    setFirstName(value);
+    trackFieldInteraction('firstName', value);
+    
+    // Track when both name fields are filled
+    if (value && projectName && onTrackEvent) {
+      onTrackEvent('project-inquiry', {
+        firstName: value,
+        projectName: projectName,
+        action: 'basic-info-completed',
+        timestamp: new Date().toISOString()
+      });
+    }
+  };
+
+  // Track project name changes
+  const handleProjectNameChange = (value) => {
+    setProjectName(value);
+    trackFieldInteraction('projectName', value);
+    
+    // Track when both name fields are filled
+    if (firstName && value && onTrackEvent) {
+      onTrackEvent('project-inquiry', {
+        firstName: firstName,
+        projectName: value,
+        action: 'basic-info-completed',
+        timestamp: new Date().toISOString()
+      });
+    }
+  };
+
+  // Track client type selection
+  const handleClientTypeSelection = (type) => {
+    setClientType(type);
+    trackFieldInteraction('clientType', type);
+    
+    if (onTrackEvent) {
+      onTrackEvent('project-inquiry', {
+        firstName: firstName,
+        projectName: projectName,
+        clientType: type,
+        action: 'client-type-selected',
+        timestamp: new Date().toISOString()
+      });
+    }
+  };
+
   const handleHourSelection = (pkg) => {
     setHours(pkg.value);
     setIsCustomHours(false);
     setSelectedPackage('');
+    
+    if (onTrackEvent) {
+      onTrackEvent('package-selection', {
+        firstName: firstName,
+        projectName: projectName,
+        packageType: 'hourly',
+        packageName: pkg.label,
+        hours: pkg.value,
+        total: pkg.price,
+        action: 'hour-package-selected',
+        timestamp: new Date().toISOString()
+      });
+    }
   };
 
   const handleCustomHours = (value) => {
@@ -213,12 +309,51 @@ const ProjectDetailsForm = ({ onContinue, initialData }) => {
     setHours(numValue);
     setIsCustomHours(true);
     setSelectedPackage('');
+    
+    if (numValue && onTrackEvent) {
+      const customTotal = parseInt(numValue) * hourlyRate;
+      onTrackEvent('package-selection', {
+        firstName: firstName,
+        projectName: projectName,
+        packageType: 'hourly-custom',
+        hours: numValue,
+        total: customTotal,
+        action: 'custom-hours-entered',
+        timestamp: new Date().toISOString()
+      });
+    }
   };
 
   const handlePackageSelection = (pkgId) => {
     setSelectedPackage(pkgId);
     setHours('');
     setIsCustomHours(false);
+    
+    const pkg = servicePackages.find(p => p.id === pkgId);
+    
+    if (onTrackEvent && pkg) {
+      onTrackEvent('package-selection', {
+        firstName: firstName,
+        projectName: projectName,
+        packageType: pkgId,
+        packageName: pkg.name,
+        total: pkg.price,
+        isVip: pkgId === 'vip',
+        action: 'service-package-selected',
+        timestamp: new Date().toISOString()
+      });
+      
+      // Special VIP tracking
+      if (pkgId === 'vip') {
+        onTrackEvent('vip-interest', {
+          firstName: firstName,
+          projectName: projectName,
+          action: 'vip-package-selected',
+          timestamp: new Date().toISOString(),
+          referralSource: document.referrer || 'direct'
+        });
+      }
+    }
     
     if (pkgId === 'vip') {
       toast({
@@ -228,6 +363,19 @@ const ProjectDetailsForm = ({ onContinue, initialData }) => {
         duration: 3000,
         isClosable: true,
         position: "top"
+      });
+    }
+  };
+
+  const handleHostingDetailsChange = (checked) => {
+    setWantsHostingDetails(checked);
+    
+    if (onTrackEvent) {
+      onTrackEvent('feature-interest', {
+        feature: 'hosting-details',
+        interested: checked,
+        packageType: selectedPackage,
+        timestamp: new Date().toISOString()
       });
     }
   };
@@ -252,6 +400,20 @@ const ProjectDetailsForm = ({ onContinue, initialData }) => {
         isServicePackage: false
       })
     };
+
+    // Track form completion
+    if (onTrackEvent) {
+      onTrackEvent('project-inquiry', {
+        firstName: firstName,
+        projectName: projectName,
+        clientType: selectedPackage ? 'new' : 'existing',
+        packageInfo: selectedPackage || `${hours} hours`,
+        total: total,
+        action: 'form-completed',
+        fieldInteractionTimes: fieldInteractionTimes.current,
+        timestamp: new Date().toISOString()
+      });
+    }
 
     onContinue(data);
   };
@@ -325,7 +487,7 @@ const ProjectDetailsForm = ({ onContinue, initialData }) => {
                 </InputLeftElement>
                 <Input
                   value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
+                  onChange={(e) => handleFirstNameChange(e.target.value)}
                   placeholder="John"
                   bg="rgba(255, 255, 255, 0.03)"
                   border="1.5px solid"
@@ -364,7 +526,7 @@ const ProjectDetailsForm = ({ onContinue, initialData }) => {
                 </InputLeftElement>
                 <Input
                   value={projectName}
-                  onChange={(e) => setProjectName(e.target.value)}
+                  onChange={(e) => handleProjectNameChange(e.target.value)}
                   placeholder="My Amazing Website"
                   bg="rgba(255, 255, 255, 0.03)"
                   border="1.5px solid"
@@ -406,7 +568,7 @@ const ProjectDetailsForm = ({ onContinue, initialData }) => {
                       bg="rgba(255, 255, 255, 0.03)"
                       cursor="pointer"
                       transition="all 0.3s"
-                      onClick={() => setClientType('existing')}
+                      onClick={() => handleClientTypeSelection('existing')}
                       _hover={{ 
                         borderColor: colors.brand.primary,
                         bg: 'rgba(0, 255, 255, 0.05)',
@@ -435,7 +597,7 @@ const ProjectDetailsForm = ({ onContinue, initialData }) => {
                       bg="rgba(255, 255, 255, 0.03)"
                       cursor="pointer"
                       transition="all 0.3s"
-                      onClick={() => setClientType('new')}
+                      onClick={() => handleClientTypeSelection('new')}
                       _hover={{ 
                         borderColor: colors.accent.green,
                         bg: 'rgba(57, 255, 20, 0.05)',
@@ -473,7 +635,16 @@ const ProjectDetailsForm = ({ onContinue, initialData }) => {
                         size="xs"
                         variant="ghost"
                         color="gray.500"
-                        onClick={() => setClientType('')}
+                        onClick={() => {
+                          setClientType('');
+                          if (onTrackEvent) {
+                            onTrackEvent('navigation', {
+                              action: 'changed-client-type',
+                              from: 'existing',
+                              timestamp: new Date().toISOString()
+                            });
+                          }
+                        }}
                         _hover={{ color: 'white' }}
                       >
                         Change
@@ -607,7 +778,16 @@ const ProjectDetailsForm = ({ onContinue, initialData }) => {
                         size="xs"
                         variant="ghost"
                         color="gray.500"
-                        onClick={() => setClientType('')}
+                        onClick={() => {
+                          setClientType('');
+                          if (onTrackEvent) {
+                            onTrackEvent('navigation', {
+                              action: 'changed-client-type',
+                              from: 'new',
+                              timestamp: new Date().toISOString()
+                            });
+                          }
+                        }}
                         _hover={{ color: 'white' }}
                       >
                         Change
@@ -783,7 +963,7 @@ const ProjectDetailsForm = ({ onContinue, initialData }) => {
                           </List>
                           <Checkbox
                             isChecked={wantsHostingDetails}
-                            onChange={(e) => setWantsHostingDetails(e.target.checked)}
+                            onChange={(e) => handleHostingDetailsChange(e.target.checked)}
                             colorScheme="green"
                             size="md"
                             width="100%"

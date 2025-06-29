@@ -1,5 +1,5 @@
 // src/pages/Invoice/components/HourPurchaseForm.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   Box, 
   Container, 
@@ -18,10 +18,14 @@ import PaymentForm from './PaymentForm';
 
 const MotionBox = motion(Box);
 
-const HourPurchaseForm = ({ onSuccess }) => {
+const HourPurchaseForm = ({ onSuccess, sessionId, onTrackEvent }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [projectData, setProjectData] = useState(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [stepStartTime, setStepStartTime] = useState(Date.now());
+  const [journeySteps, setJourneySteps] = useState([]);
+  const formStartTime = useRef(Date.now());
+  const abandonmentTimer = useRef(null);
 
   const isMobile = useBreakpointValue({ base: true, md: false });
 
@@ -50,6 +54,62 @@ const HourPurchaseForm = ({ onSuccess }) => {
     }
   ];
 
+  // Track time spent on each step
+  const trackStepTime = (stepNumber, action) => {
+    const timeSpent = Math.round((Date.now() - stepStartTime) / 1000); // in seconds
+    const stepData = {
+      step: stepNumber,
+      action: action,
+      timeSpent: timeSpent,
+      timestamp: new Date().toISOString()
+    };
+    
+    setJourneySteps(prev => [...prev, stepData]);
+    
+    if (onTrackEvent) {
+      onTrackEvent('step-transition', {
+        currentStep: stepNumber,
+        action: action,
+        timeSpent: timeSpent,
+        journeySteps: JSON.stringify([...journeySteps, stepData])
+      });
+    }
+  };
+
+  // Set up abandonment tracking
+  useEffect(() => {
+    // Clear existing timer
+    if (abandonmentTimer.current) {
+      clearTimeout(abandonmentTimer.current);
+    }
+
+    // Set new timer for 10 minutes of inactivity
+    abandonmentTimer.current = setTimeout(() => {
+      if (projectData && !isTransitioning) {
+        const totalTimeSpent = Math.round((Date.now() - formStartTime.current) / 1000);
+        
+        if (onTrackEvent) {
+          onTrackEvent('abandoned-cart', {
+            firstName: projectData.firstName || '',
+            projectName: projectData.projectName || '',
+            email: projectData.email || '',
+            total: projectData.total || 0,
+            lastStep: currentStep === 1 ? 'project-details' : 'payment',
+            timeSpent: totalTimeSpent,
+            journeySteps: JSON.stringify(journeySteps),
+            timestamp: new Date().toISOString()
+          });
+        }
+      }
+    }, 600000); // 10 minutes
+
+    return () => {
+      if (abandonmentTimer.current) {
+        clearTimeout(abandonmentTimer.current);
+      }
+    };
+  }, [currentStep, projectData, journeySteps, onTrackEvent]);
+
   // Smooth scroll to top when step changes
   useEffect(() => {
     if (isTransitioning) {
@@ -64,6 +124,9 @@ const HourPurchaseForm = ({ onSuccess }) => {
   const handleContinueToPayment = (data) => {
     setIsTransitioning(true);
     
+    // Track step completion
+    trackStepTime(1, 'completed');
+    
     // Validate and ensure all required fields are present
     const validatedData = {
       firstName: data?.firstName || '',
@@ -74,20 +137,81 @@ const HourPurchaseForm = ({ onSuccess }) => {
       ...data
     };
     
+    // Track package selection
+    if (onTrackEvent) {
+      onTrackEvent('package-selection', {
+        firstName: validatedData.firstName,
+        projectName: validatedData.projectName,
+        packageType: validatedData.packageType || 'hourly',
+        packageName: validatedData.packageName || `${validatedData.hours} hours`,
+        hours: validatedData.hours || 0,
+        total: validatedData.total,
+        isVip: validatedData.isVip || false,
+        timestamp: new Date().toISOString()
+      });
+
+      // Special tracking for VIP selections
+      if (validatedData.isVip) {
+        onTrackEvent('vip-interest', {
+          firstName: validatedData.firstName,
+          projectName: validatedData.projectName,
+          email: validatedData.email || '',
+          phone: validatedData.phone || '',
+          timestamp: new Date().toISOString(),
+          referralSource: document.referrer || 'direct'
+        });
+      }
+    }
+    
     setTimeout(() => {
       setProjectData(validatedData);
       setCurrentStep(2);
+      setStepStartTime(Date.now()); // Reset timer for new step
     }, 300);
   };
 
   const handleBackToDetails = () => {
     setIsTransitioning(true);
+    trackStepTime(2, 'went-back');
+    
     setTimeout(() => {
       setCurrentStep(1);
+      setStepStartTime(Date.now());
     }, 300);
   };
 
   const handlePaymentSuccess = (data) => {
+    // Track successful completion
+    trackStepTime(2, 'completed');
+    
+    const totalTimeSpent = Math.round((Date.now() - formStartTime.current) / 1000);
+    
+    // Track complete journey
+    if (onTrackEvent) {
+      onTrackEvent('customer-journey', {
+        firstName: data.firstName || '',
+        projectName: data.projectName || '',
+        email: data.email || '',
+        phone: data.phone || '',
+        clientType: data.isServicePackage ? 'new' : 'existing',
+        packageType: data.packageType || 'hourly',
+        packageName: data.packageName || `${data.hours} hours`,
+        hours: data.hours || 0,
+        total: data.total || 0,
+        paymentMethod: data.paymentMethod || '',
+        isVip: data.isVip || false,
+        wantsHostingDetails: data.wantsHostingDetails || false,
+        journeySteps: JSON.stringify(journeySteps),
+        totalTimeSpent: totalTimeSpent,
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    // Clear abandonment timer on success
+    if (abandonmentTimer.current) {
+      clearTimeout(abandonmentTimer.current);
+    }
+    
     // Success animation before calling onSuccess
     onSuccess(data);
   };
@@ -211,6 +335,8 @@ const HourPurchaseForm = ({ onSuccess }) => {
                 <ProjectDetailsForm 
                   onContinue={handleContinueToPayment}
                   initialData={projectData}
+                  sessionId={sessionId}
+                  onTrackEvent={onTrackEvent}
                 />
               </MotionBox>
             )}
@@ -228,6 +354,8 @@ const HourPurchaseForm = ({ onSuccess }) => {
                   projectData={projectData}
                   onSuccess={handlePaymentSuccess}
                   onBack={handleBackToDetails}
+                  sessionId={sessionId}
+                  onTrackEvent={onTrackEvent}
                 />
               </MotionBox>
             )}
