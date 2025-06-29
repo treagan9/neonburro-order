@@ -158,6 +158,24 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
 
           // Handle payment method creation
           pr.on('paymentmethod', async (ev) => {
+            // Check terms first for Apple/Google Pay
+            if (!agreeToTerms) {
+              ev.complete('fail');
+              setTermsError(true);
+              document.getElementById('terms-section')?.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+              });
+              toast({
+                title: 'Terms Required',
+                description: 'Please accept the terms to continue with payment',
+                status: 'warning',
+                duration: 3000,
+                isClosable: true,
+              });
+              return;
+            }
+
             setIsLoading(true);
             
             try {
@@ -1097,11 +1115,11 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
 
                   <Box
                     p={5}
-                    bg={agreeToTerms ? "rgba(57, 255, 20, 0.05)" : "rgba(255, 255, 255, 0.03)"}
+                    bg={agreeToTerms ? "rgba(57, 255, 20, 0.05)" : termsError ? "rgba(255, 107, 53, 0.05)" : "rgba(255, 255, 255, 0.03)"}
                     border="2px solid"
                     borderColor={
                       termsError && !agreeToTerms 
-                        ? "rgba(255, 152, 0, 0.5)" 
+                        ? "#FF6B35" 
                         : agreeToTerms 
                         ? "rgba(57, 255, 20, 0.3)" 
                         : "rgba(255, 255, 255, 0.15)"
@@ -1116,10 +1134,22 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                     _hover={{
                       borderColor: agreeToTerms 
                         ? "rgba(57, 255, 20, 0.4)" 
+                        : termsError
+                        ? "#FF6B35"
                         : "rgba(255, 255, 255, 0.25)",
                       bg: agreeToTerms 
                         ? "rgba(57, 255, 20, 0.08)" 
+                        : termsError
+                        ? "rgba(255, 107, 53, 0.08)"
                         : "rgba(255, 255, 255, 0.05)"
+                    }}
+                    animation={termsError && !agreeToTerms ? "shake 0.5s" : undefined}
+                    sx={{
+                      '@keyframes shake': {
+                        '0%, 100%': { transform: 'translateX(0)' },
+                        '10%, 30%, 50%, 70%, 90%': { transform: 'translateX(-2px)' },
+                        '20%, 40%, 60%, 80%': { transform: 'translateX(2px)' },
+                      }
                     }}
                   >
                     <HStack align="start" spacing={4}>
@@ -1153,7 +1183,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                             fontSize="sm" 
                             fontWeight="600"
                           >
-                            I agree to the terms of service
+                            I agree to the terms of service <Text as="span" color="red.400">*</Text>
                           </Text>
                         </HStack>
                         <Text color="gray.400" fontSize="xs" lineHeight="1.6">
