@@ -1088,24 +1088,70 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                     </HStack>
                     
                     <Box
+                      position="relative"
                       bg="rgba(255, 255, 255, 0.02)"
                       border="1px solid"
                       borderColor="rgba(255, 255, 255, 0.1)"
                       borderRadius="lg"
                       p={4}
+                      opacity={agreeToTerms ? 1 : 0.5}
+                      cursor={agreeToTerms ? 'pointer' : 'not-allowed'}
+                      onClick={() => {
+                        if (!agreeToTerms) {
+                          setTermsError(true);
+                          document.getElementById('terms-section')?.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'center' 
+                          });
+                          toast({
+                            title: 'Hold up! ✨',
+                            description: 'Please check the terms box to seal the deal',
+                            status: 'warning',
+                            duration: 3000,
+                            isClosable: true,
+                            position: 'top',
+                          });
+                        }
+                      }}
                     >
-                      <PaymentRequestButtonElement 
-                        options={{
-                          paymentRequest: paymentRequest,
-                          style: {
-                            paymentRequestButton: {
-                              type: 'default',
-                              theme: 'dark',
-                              height: '56px',
+                      <Box
+                        pointerEvents={agreeToTerms ? 'auto' : 'none'}
+                      >
+                        <PaymentRequestButtonElement 
+                          options={{
+                            paymentRequest: paymentRequest,
+                            style: {
+                              paymentRequestButton: {
+                                type: 'default',
+                                theme: 'dark',
+                                height: '56px',
+                              },
                             },
-                          },
-                        }}
-                      />
+                          }}
+                        />
+                      </Box>
+                      {!agreeToTerms && (
+                        <Box
+                          position="absolute"
+                          top="0"
+                          left="0"
+                          right="0"
+                          bottom="0"
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                          bg="rgba(0,0,0,0.5)"
+                          borderRadius="lg"
+                          cursor="not-allowed"
+                        >
+                          <HStack spacing={2}>
+                            <FiLock size={16} color="#FF6B35" />
+                            <Text color="#FF6B35" fontSize="sm" fontWeight="600">
+                              Accept terms first
+                            </Text>
+                          </HStack>
+                        </Box>
+                      )}
                     </Box>
                   </Box>
                 )}
