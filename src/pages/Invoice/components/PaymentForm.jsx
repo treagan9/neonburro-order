@@ -77,10 +77,26 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
   const [termsError, setTermsError] = useState(false);
   const agreeToTermsRef = useRef(agreeToTerms);
 
-  // Update ref when agreeToTerms changes
+  // Update ref when agreeToTerms changes - ensure it's always current
   useEffect(() => {
     agreeToTermsRef.current = agreeToTerms;
   }, [agreeToTerms]);
+
+  // Add a validation function to ensure consistency
+  const validateTerms = () => {
+    if (!agreeToTerms || !agreeToTermsRef.current) {
+      setTermsError(true);
+      // Scroll to terms section
+      setTimeout(() => {
+        document.getElementById('terms-section')?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }, 100);
+      return false;
+    }
+    return true;
+  };
 
   // CRITICAL: Add null check here before any usage of projectData
   if (!projectData) {
@@ -164,16 +180,28 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
 
           // Handle payment method creation
           pr.on('paymentmethod', async (ev) => {
-            // Check terms first for Apple/Google Pay using ref
-            if (!agreeToTermsRef.current) {
+            // CRITICAL: Check both state AND ref to ensure terms are accepted
+            const termsAccepted = agreeToTerms && agreeToTermsRef.current;
+            
+            if (!termsAccepted) {
               ev.complete('fail');
               setTermsError(true);
+              
+              // Ensure the checkbox is visible
+              setTimeout(() => {
+                document.getElementById('terms-section')?.scrollIntoView({ 
+                  behavior: 'smooth', 
+                  block: 'center' 
+                });
+              }, 100);
+              
               toast({
                 title: 'Terms Required',
                 description: 'Please accept the terms to continue with payment',
                 status: 'error',
-                duration: 3000,
+                duration: 4000,
                 isClosable: true,
+                position: 'top',
               });
               return;
             }
@@ -273,6 +301,20 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
 
     if (!agreeToTerms) {
       setTermsError(true);
+      toast({
+        title: 'Terms Required',
+        description: 'Please accept the terms to continue with payment',
+        status: 'error',
+        duration: 4000,
+        isClosable: true,
+        position: 'top',
+      });
+      setTimeout(() => {
+        document.getElementById('terms-section')?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }, 100);
       return;
     }
 
@@ -1129,7 +1171,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
 
                 {/* Express Checkout - Show when Apple Pay is selected and available */}
                 {paymentMethodType === 'apple' && canMakePayment && paymentRequest && (
-                  <Box>
+                  <Box opacity={agreeToTerms ? 1 : 0.5} pointerEvents={agreeToTerms ? 'auto' : 'none'}>
                     <PaymentRequestButtonElement 
                       options={{
                         paymentRequest: paymentRequest,
@@ -1141,10 +1183,36 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                           },
                         },
                       }}
+                      onClick={(e) => {
+                        // Double-check terms before payment
+                        if (!agreeToTerms || !agreeToTermsRef.current) {
+                          e.preventDefault();
+                          setTermsError(true);
+                          document.getElementById('terms-section')?.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'center' 
+                          });
+                          toast({
+                            title: 'Terms Required',
+                            description: 'Please accept the terms to continue with payment',
+                            status: 'error',
+                            duration: 4000,
+                            isClosable: true,
+                            position: 'top',
+                          });
+                        }
+                      }}
                     />
-                    <Text color="gray.500" fontSize="xs" textAlign="center" mt={2}>
-                      Express checkout • Apple Pay & Google Pay
-                    </Text>
+                    {!agreeToTerms && (
+                      <Text color="gray.500" fontSize="xs" textAlign="center" mt={2}>
+                        Please accept the terms above to enable payment
+                      </Text>
+                    )}
+                    {agreeToTerms && (
+                      <Text color="gray.500" fontSize="xs" textAlign="center" mt={2}>
+                        Express checkout • Apple Pay & Google Pay
+                      </Text>
+                    )}
                   </Box>
                 )}
 
