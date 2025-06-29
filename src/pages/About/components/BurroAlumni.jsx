@@ -1,6 +1,7 @@
-import { Box, Container, Heading, Text, VStack, Grid, HStack, Avatar, Badge, keyframes } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, VStack, Grid, HStack, Avatar, Badge, keyframes, SimpleGrid } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { FiMapPin, FiBriefcase, FiStar, FiAward } from 'react-icons/fi';
+import { useState } from 'react';
 
 const MotionBox = motion(Box);
 
@@ -10,64 +11,66 @@ const sparkle = keyframes`
 `;
 
 const BurroAlumni = () => {
+  const [hoveredAlum, setHoveredAlum] = useState(null);
+
   const alumni = [
     {
-      name: 'Alex Chen',
-      image: '/images/profiles/alex-chen.png',
-      certification: 'Visiting Burro #001',
-      currentRole: 'Senior Developer',
-      location: 'Stockholm, Sweden',
-      testimonial: 'The month at Neon Burro changed my career trajectory. Learned more in 4 weeks than 4 years of tutorials.',
-      year: '2021',
+      name: 'Alex',
+      image: '/images/profiles/alex.png',
+      certification: 'Remote Team Member',
+      currentRole: 'Senior Frontend Developer',
+      location: 'Denver, CO',
+      testimonial: 'Joining the Neon Burro remote team transformed my career. The mentorship and real project experience are unmatched.',
+      year: '2023',
       color: 'brand.primary'
     },
     {
-      name: 'Maria Rodriguez',
+      name: 'Maria',
       image: '/images/profiles/maria.png',
-      certification: 'Visiting Burro #007',
-      currentRole: 'Tech Lead',
-      location: 'San Francisco, CA',
-      testimonial: 'The combination of mentorship and mountain air created the perfect environment for growth.',
-      year: '2022',
+      certification: 'Remote Team Member',
+      currentRole: 'Full Stack Developer',
+      location: 'Austin, TX',
+      testimonial: 'The flexibility to work remotely while being part of such a creative team is exactly what I was looking for.',
+      year: '2023',
       color: 'accent.neon'
     },
     {
-      name: 'Jake Wilson',
+      name: 'Jake',
       image: '/images/profiles/jake.png',
-      certification: 'Visiting Burro #013',
-      currentRole: 'Startup Founder',
-      location: 'Austin, TX',
-      testimonial: 'Not only did I level up my skills, I found my co-founder in the hot springs.',
-      year: '2022',
+      certification: 'Remote Team Member',
+      currentRole: 'UI/UX Developer',
+      location: 'Portland, OR',
+      testimonial: 'Working with Neon Burro taught me how to balance great design with functional code. Best decision I made.',
+      year: '2024',
       color: 'accent.warm'
     },
     {
-      name: 'Sarah Kim',
-      image: '/images/profiles/sarah-kim.png',
-      certification: 'Visiting Burro #019',
-      currentRole: 'Principal Engineer',
-      location: 'Seattle, WA',
-      testimonial: 'The real-world project experience was invaluable. Plus, coding with a mountain view beats any office.',
-      year: '2023',
+      name: 'Sarah',
+      image: '/images/profiles/sarah.png',
+      certification: 'Remote Team Member',
+      currentRole: 'Backend Developer',
+      location: 'Nashville, TN',
+      testimonial: 'The team culture here is incredible. Even working remotely, I feel more connected than any office job.',
+      year: '2024',
       color: 'accent.banana'
     },
     {
-      name: 'David Park',
-      image: '/images/profiles/david.png',
-      certification: 'Visiting Burro #024',
-      currentRole: 'Creative Technologist',
-      location: 'Denver, CO',
-      testimonial: 'The retreat experience transformed how I approach problem-solving. Best investment in my career.',
-      year: '2023',
+      name: 'Marcus',
+      image: '/images/profiles/marcus.png',
+      certification: 'Remote Team Member',
+      currentRole: 'DevOps Engineer',
+      location: 'Phoenix, AZ',
+      testimonial: 'Building infrastructure for innovative projects while working from anywhere. Living the dream.',
+      year: '2024',
       color: 'accent.purple'
     },
     {
-      name: 'Emma Thompson',
-      image: '/images/profiles/emma.png',
-      certification: 'Visiting Burro #031',
-      currentRole: 'Product Architect',
-      location: 'Remote',
-      testimonial: 'Geo Ship dome sessions at sunrise, hot spring brainstorms at sunset. This is how innovation happens.',
+      name: 'Emma',
+      image: '/images/profiles/nicole.png',
+      certification: 'Remote Team Member',
+      currentRole: 'Product Designer',
+      location: 'Seattle, WA',
+      testimonial: 'The creative freedom and trust from the team pushed me to do my best work. Grateful for this opportunity.',
       year: '2024',
       color: 'brand.primary'
     }
@@ -75,7 +78,7 @@ const BurroAlumni = () => {
 
   return (
     <Box py={{ base: 16, md: 20 }} bg="dark.black" position="relative" overflow="hidden">
-      {/* Background effects */}
+      {/* Subtle background effects */}
       <Box
         position="absolute"
         top={0}
@@ -86,20 +89,20 @@ const BurroAlumni = () => {
       >
         <Box
           position="absolute"
-          top="20%"
-          left="10%"
-          width="400px"
-          height="400px"
+          top="30%"
+          left="20%"
+          width="300px"
+          height="300px"
           borderRadius="full"
-          bg="accent.neon"
+          bg="brand.primary"
           filter="blur(150px)"
         />
         <Box
           position="absolute"
-          bottom="20%"
-          right="10%"
-          width="300px"
-          height="300px"
+          bottom="30%"
+          right="20%"
+          width="250px"
+          height="250px"
           borderRadius="full"
           bg="accent.banana"
           filter="blur(150px)"
@@ -125,7 +128,7 @@ const BurroAlumni = () => {
                   letterSpacing="wider"
                   textTransform="uppercase"
                 >
-                  Success Stories
+                  Our Growing Team
                 </Text>
               </HStack>
             </MotionBox>
@@ -144,7 +147,16 @@ const BurroAlumni = () => {
                 lineHeight={{ base: "1.3", md: "1.2" }}
                 letterSpacing="tight"
               >
-                Where Are They Now?
+                Meet Our
+                <Box
+                  as="span"
+                  display="block"
+                  bgGradient="linear(to-r, accent.banana, brand.primary)"
+                  bgClip="text"
+                  mt={1}
+                >
+                  Remote Team
+                </Box>
               </Heading>
             </MotionBox>
 
@@ -160,13 +172,13 @@ const BurroAlumni = () => {
                 maxW="600px"
                 lineHeight="relaxed"
               >
-                Our Visiting Burros have gone on to build amazing things. 
-                Here's what they're up to now.
+                Since 2023, we've been building a distributed team of talented developers 
+                across the United States who share our passion for exceptional digital experiences.
               </Text>
             </MotionBox>
           </VStack>
 
-          {/* Alumni Grid */}
+          {/* Team Grid */}
           <Grid
             templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }}
             gap={{ base: 4, md: 6 }}
@@ -179,6 +191,8 @@ const BurroAlumni = () => {
                 whileInView={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: index * 0.05 }}
                 viewport={{ once: true }}
+                onMouseEnter={() => setHoveredAlum(index)}
+                onMouseLeave={() => setHoveredAlum(null)}
               >
                 <Box
                   p={{ base: 5, md: 6 }}
@@ -195,7 +209,7 @@ const BurroAlumni = () => {
                   transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                   _hover={{
                     borderColor: alum.color,
-                    boxShadow: `0 20px 40px var(--chakra-colors-${alum.color.replace('.', '-')})22`,
+                    boxShadow: `0 20px 40px ${alum.color}22`,
                     bg: 'rgba(255, 255, 255, 0.04)',
                     transform: 'translateY(-4px)'
                   }}
@@ -206,8 +220,8 @@ const BurroAlumni = () => {
                     top={0}
                     left={0}
                     right={0}
-                    height="100px"
-                    bgGradient={`linear(to-b, var(--chakra-colors-${alum.color.replace('.', '-')})08, transparent)`}
+                    height="80px"
+                    bgGradient={`linear(to-b, ${alum.color}08, transparent)`}
                     opacity={0}
                     _groupHover={{ opacity: 1 }}
                     transition="opacity 0.3s"
@@ -221,13 +235,9 @@ const BurroAlumni = () => {
                         size="lg"
                         src={alum.image}
                         name={alum.name}
-                        border="3px solid"
-                        borderColor={`var(--chakra-colors-${alum.color.replace('.', '-')})44`}
-                        sx={{
-                          '.chakra-ui-light &, .chakra-ui-dark &': {
-                            bg: 'gray.700'
-                          }
-                        }}
+                        bg="gray.700"
+                        border="2px solid"
+                        borderColor={`${alum.color}44`}
                         _groupHover={{
                           borderColor: alum.color
                         }}
@@ -244,20 +254,19 @@ const BurroAlumni = () => {
                             {alum.name}
                           </Heading>
                           <Badge
-                            bg={`var(--chakra-colors-${alum.color.replace('.', '-')})22`}
+                            bg={`${alum.color}22`}
                             color={alum.color}
                             fontSize="2xs"
                             px={2}
                             borderRadius="full"
                             fontWeight="bold"
                           >
-                            {alum.year}
+                            Since {alum.year}
                           </Badge>
                         </HStack>
                         <Text
                           color={alum.color}
-                          fontSize={{ base: "2xs", md: "xs" }}
-                          fontFamily="mono"
+                          fontSize="xs"
                           fontWeight="semibold"
                           letterSpacing="wide"
                         >
@@ -268,11 +277,13 @@ const BurroAlumni = () => {
 
                     {/* Current Role */}
                     <VStack align="start" spacing={1} width="100%">
-                      <HStack spacing={2} color="text.secondary" fontSize={{ base: "xs", md: "sm" }}>
+                      <HStack spacing={2} color="text.secondary">
                         <Box as={FiBriefcase} size={14} color={alum.color} />
-                        <Text fontWeight="semibold">{alum.currentRole}</Text>
+                        <Text fontWeight="semibold" fontSize="sm">
+                          {alum.currentRole}
+                        </Text>
                       </HStack>
-                      <HStack spacing={2} color="text.muted" fontSize={{ base: "2xs", md: "xs" }}>
+                      <HStack spacing={2} color="text.muted" fontSize="xs">
                         <Box as={FiMapPin} size={12} />
                         <Text>{alum.location}</Text>
                       </HStack>
@@ -282,9 +293,9 @@ const BurroAlumni = () => {
                     <Box position="relative">
                       <Box
                         position="absolute"
-                        top="-10px"
-                        left="-5px"
-                        fontSize="3xl"
+                        top="-8px"
+                        left="-4px"
+                        fontSize="2xl"
                         color={alum.color}
                         opacity={0.3}
                         fontFamily="serif"
@@ -293,29 +304,29 @@ const BurroAlumni = () => {
                       </Box>
                       <Text
                         color="text.secondary"
-                        fontSize={{ base: "xs", md: "sm" }}
+                        fontSize="sm"
                         lineHeight="relaxed"
                         fontStyle="italic"
-                        pl={3}
+                        pl={4}
                       >
                         {alum.testimonial}
                       </Text>
                     </Box>
 
-                    {/* Rating with sparkle effect */}
+                    {/* Rating */}
                     <HStack spacing={1}>
                       {[...Array(5)].map((_, i) => (
                         <Box
                           key={i}
                           as={FiStar}
-                          size={14}
+                          size={12}
                           color="accent.banana"
-                          fill="var(--chakra-colors-accent-banana)"
+                          fill="accent.banana"
                           sx={{
-                            animation: `${sparkle} ${1.5 + i * 0.2}s ease-in-out infinite`
+                            animation: `${sparkle} ${2 + i * 0.3}s ease-in-out infinite`
                           }}
                           _groupHover={{
-                            transform: 'scale(1.2)'
+                            transform: 'scale(1.1)'
                           }}
                           transition="transform 0.2s"
                         />
@@ -326,6 +337,42 @@ const BurroAlumni = () => {
               </MotionBox>
             ))}
           </Grid>
+
+          {/* Stats Section */}
+          <MotionBox
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            width="100%"
+          >
+            <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} maxW="800px" mx="auto">
+              {[
+                { value: '12+', label: 'Team Members' },
+                { value: '15', label: 'States Represented' },
+                { value: '47', label: 'Projects Completed' },
+                { value: '100%', label: 'Remote First' }
+              ].map((stat, index) => (
+                <Box
+                  key={index}
+                  p={4}
+                  borderRadius="lg"
+                  bg="whiteAlpha.50"
+                  backdropFilter="blur(10px)"
+                  border="1px solid"
+                  borderColor="whiteAlpha.100"
+                  textAlign="center"
+                >
+                  <Text fontSize="2xl" fontWeight="bold" color="brand.primary" fontFamily="mono">
+                    {stat.value}
+                  </Text>
+                  <Text fontSize="xs" color="text.muted" textTransform="uppercase" letterSpacing="wider">
+                    {stat.label}
+                  </Text>
+                </Box>
+              ))}
+            </SimpleGrid>
+          </MotionBox>
 
           {/* CTA Section */}
           <MotionBox
@@ -350,13 +397,13 @@ const BurroAlumni = () => {
                 fontWeight="semibold"
                 mb={2}
               >
-                Want to join the herd?
+                Join Our Growing Team
               </Text>
               <Text
                 color="text.secondary"
                 fontSize={{ base: "xs", md: "sm" }}
               >
-                Applications for Visiting Burro positions open quarterly.
+                We're always looking for talented developers who value quality, creativity, and remote collaboration.
               </Text>
             </Box>
           </MotionBox>
