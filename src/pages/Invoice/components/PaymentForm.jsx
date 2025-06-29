@@ -1087,11 +1087,6 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                     }
                     borderRadius="lg"
                     transition="all 0.3s"
-                    cursor="pointer"
-                    onClick={() => {
-                      setAgreeToTerms(!agreeToTerms);
-                      if (termsError) setTermsError(false);
-                    }}
                     _hover={{
                       borderColor: agreeToTerms 
                         ? "rgba(57, 255, 20, 0.4)" 
@@ -1118,7 +1113,6 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                         <Checkbox
                           isChecked={agreeToTerms}
                           onChange={(e) => {
-                            e.stopPropagation();
                             setAgreeToTerms(e.target.checked);
                             if (termsError) setTermsError(false);
                           }}
@@ -1136,7 +1130,16 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                           }}
                         />
                       </Box>
-                      <VStack align="start" spacing={2} flex={1}>
+                      <VStack 
+                        align="start" 
+                        spacing={2} 
+                        flex={1}
+                        onClick={() => {
+                          setAgreeToTerms(!agreeToTerms);
+                          if (termsError) setTermsError(false);
+                        }}
+                        cursor="pointer"
+                      >
                         <HStack>
                           <FiShield size={16} color={agreeToTerms ? colors.accent.green : '#9CA3AF'} />
                           <Text 
