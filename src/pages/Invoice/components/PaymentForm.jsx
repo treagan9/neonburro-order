@@ -22,10 +22,7 @@ import {
   List,
   ListItem,
   ListIcon,
-  Badge,
-  Alert,
-  AlertIcon,
-  AlertDescription
+  Badge
 } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
@@ -41,8 +38,7 @@ import {
   FiGlobe,
   FiHeadphones,
   FiCode,
-  FiLock,
-  FiAlertCircle
+  FiLock
 } from 'react-icons/fi';
 import { RiSecurePaymentLine } from 'react-icons/ri';
 import { 
@@ -252,7 +248,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
     };
 
     createPaymentRequest();
-  }, [stripe, projectData, email, onSuccess, toast]);
+  }, [stripe, projectData, email, onSuccess, toast, agreeToTerms]);
 
   const handleCardPayment = async () => {
     if (!stripe || !elements) return;
@@ -1076,89 +1072,8 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                   </RadioGroup>
                 </Box>
 
-                {/* Express Checkout - Apple Pay / Google Pay */}
-                {canMakePayment && paymentRequest && stripe && (
-                  <Box>
-                    <HStack mb={4}>
-                      <Divider borderColor="rgba(255, 255, 255, 0.2)" />
-                      <Text color="gray.500" fontSize="sm" px={4} whiteSpace="nowrap">
-                        or pay with
-                      </Text>
-                      <Divider borderColor="rgba(255, 255, 255, 0.2)" />
-                    </HStack>
-                    
-                    <Box
-                      position="relative"
-                      bg="rgba(255, 255, 255, 0.02)"
-                      border="1px solid"
-                      borderColor="rgba(255, 255, 255, 0.1)"
-                      borderRadius="lg"
-                      p={4}
-                      opacity={agreeToTerms ? 1 : 0.5}
-                      cursor={agreeToTerms ? 'pointer' : 'not-allowed'}
-                      onClick={() => {
-                        if (!agreeToTerms) {
-                          setTermsError(true);
-                          document.getElementById('terms-section')?.scrollIntoView({ 
-                            behavior: 'smooth', 
-                            block: 'center' 
-                          });
-                          toast({
-                            title: 'Hold up! ✨',
-                            description: 'Please check the terms box to seal the deal',
-                            status: 'warning',
-                            duration: 3000,
-                            isClosable: true,
-                            position: 'top',
-                          });
-                        }
-                      }}
-                    >
-                      <Box
-                        pointerEvents={agreeToTerms ? 'auto' : 'none'}
-                      >
-                        <PaymentRequestButtonElement 
-                          options={{
-                            paymentRequest: paymentRequest,
-                            style: {
-                              paymentRequestButton: {
-                                type: 'default',
-                                theme: 'dark',
-                                height: '56px',
-                              },
-                            },
-                          }}
-                        />
-                      </Box>
-                      {!agreeToTerms && (
-                        <Box
-                          position="absolute"
-                          top="0"
-                          left="0"
-                          right="0"
-                          bottom="0"
-                          display="flex"
-                          alignItems="center"
-                          justifyContent="center"
-                          bg="rgba(0,0,0,0.5)"
-                          borderRadius="lg"
-                          cursor="not-allowed"
-                        >
-                          <HStack spacing={2}>
-                            <FiLock size={16} color="#FF6B35" />
-                            <Text color="#FF6B35" fontSize="sm" fontWeight="600">
-                              Accept terms first
-                            </Text>
-                          </HStack>
-                        </Box>
-                      )}
-                    </Box>
-                  </Box>
-                )}
-
                 {/* Enhanced Terms Checkbox Section */}
                 <Box id="terms-section">
-
                   <Box
                     p={5}
                     bg={agreeToTerms ? "rgba(57, 255, 20, 0.05)" : termsError ? "rgba(255, 107, 53, 0.05)" : "rgba(255, 255, 255, 0.03)"}
@@ -1245,21 +1160,63 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                           </Link>
                           {' '}and acknowledge this ${projectData?.total || 0} payment starts our creative journey together.
                         </Text>
-                        {termsError && !agreeToTerms && (
-                          <Text 
-                            color="#FF6B35" 
-                            fontSize="xs" 
-                            fontWeight="600"
-                            mt={2}
-                            filter="drop-shadow(0 0 8px #FF6B3566)"
-                          >
-                            ✨ Hold up! Check this box to seal the deal.
-                          </Text>
-                        )}
+                        <AnimatePresence>
+                          {termsError && !agreeToTerms && (
+                            <MotionBox
+                              initial={{ opacity: 0, y: -5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -5 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <Text 
+                                color="#FF6B35" 
+                                fontSize="xs" 
+                                fontWeight="600"
+                                filter="drop-shadow(0 0 8px #FF6B3566)"
+                              >
+                                ✨ Hold up! Check this box to seal the deal.
+                              </Text>
+                            </MotionBox>
+                          )}
+                        </AnimatePresence>
                       </VStack>
                     </HStack>
                   </Box>
                 </Box>
+
+                {/* Express Checkout - Apple Pay / Google Pay */}
+                {canMakePayment && paymentRequest && stripe && (
+                  <Box>
+                    <HStack mb={4}>
+                      <Divider borderColor="rgba(255, 255, 255, 0.2)" />
+                      <Text color="gray.500" fontSize="sm" px={4} whiteSpace="nowrap">
+                        or pay with
+                      </Text>
+                      <Divider borderColor="rgba(255, 255, 255, 0.2)" />
+                    </HStack>
+                    
+                    <Box
+                      bg="rgba(255, 255, 255, 0.02)"
+                      border="1px solid"
+                      borderColor="rgba(255, 255, 255, 0.1)"
+                      borderRadius="lg"
+                      p={4}
+                    >
+                      <PaymentRequestButtonElement 
+                        options={{
+                          paymentRequest: paymentRequest,
+                          style: {
+                            paymentRequestButton: {
+                              type: 'default',
+                              theme: 'dark',
+                              height: '56px',
+                            },
+                          },
+                        }}
+                      />
+                    </Box>
+                  </Box>
+                )}
 
                 {/* Submit Button */}
                 <Box>
