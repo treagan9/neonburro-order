@@ -1,105 +1,4 @@
-{/* Link Option */}
-                      <Box
-                        p={5}
-                        borderRadius="lg"
-                        border="2px solid"
-                        borderColor={paymentMethodType === 'link' ? 'rgba(0, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.1)'}
-                        bg={paymentMethodType === 'link' ? 'rgba(0, 255, 255, 0.03)' : 'transparent'}
-                        cursor="pointer"
-                        onClick={() => setPaymentMethodType('link')}
-                        transition="all 0.2s"
-                        _hover={{
-                          borderColor: paymentMethodType === 'link' ? 'rgba(0, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.15)'
-                        }}
-                      >
-                        <HStack spacing={4} mb={paymentMethodType === 'link' ? 5 : 0}>
-                          <Radio 
-                            value="link" 
-                            colorScheme="cyan"
-                            size="lg"
-                            borderColor="gray.500"
-                            _checked={{
-                              bg: colors.brand.primary,
-                              borderColor: colors.brand.primary,
-                              _before: {
-                                content: '""',
-                                display: 'inline-block',
-                                position: 'relative',
-                                width: '50%',
-                                height: '50%',
-                                borderRadius: '50%',
-                                bg: 'black',
-                              }
-                            }}
-                          />
-                          <FiLink size={20} color={paymentMethodType === 'link' ? colors.brand.primary : '#9CA3AF'} />
-                          <Text color="white" fontWeight="600" fontSize="16px">Link</Text>
-                        </HStack>
-                        
-                        {paymentMethodType === 'link' && (
-                          <VStack spacing={4} align="stretch">
-                            <Text color="gray.400" fontSize="sm">
-                              Save payment info & checkout faster next time
-                            </Text>
-                            <Input
-                              type="tel"
-                              placeholder="(201) 555-0123"
-                              value={phone}
-                              onChange={(e) => setPhone(e.target.value)}
-                              bg="rgba(255, 255, 255, 0.05)"
-                              border="1px solid"
-                              borderColor="rgba(255, 255, 255, 0.15)"
-                              color="white"
-                              height="52px"
-                              fontSize="16px"
-                              _placeholder={{ color: 'gray.500' }}
-                              _hover={{ 
-                                borderColor: 'rgba(255, 255, 255, 0.25)',
-                                bg: 'rgba(255, 255, 255, 0.08)'
-                              }}
-                              _focus={{ 
-                                borderColor: 'rgba(255, 255, 255, 0.4)',
-                                boxShadow: 'none',
-                                bg: 'rgba(255, 255, 255, 0.08)'
-                              }}
-                              borderRadius="lg"
-                              autoComplete="tel"
-                              name="phone"
-                            />
-                          </VStack>
-                        )}
-                      </Box>
-
-                    </VStack>
-                  </RadioGroup>
-                  
-                  {/* Terms Checkbox - Now inside payment method section */}
-                  <Box mt={6}>
-                    <Checkbox
-                      isChecked={agreeToTerms}
-                      onChange={(e) => {
-                        setAgreeToTerms(e.target.checked);
-                        if (termsError) setTermsError(false);
-                      }}
-                      colorScheme="green"
-                      size="md"
-                      sx={{
-                        '.chakra-checkbox__control': {
-                          borderColor: agreeToTerms ? colors.accent.green : 'rgba(255, 255, 255, 0.3)',
-                          borderWidth: '2px',
-                          _checked: {
-                            bg: colors.accent.green,
-                            borderColor: colors.accent.green,
-                          }
-                        }
-                      }}
-                    >
-                      <Text color="gray.400" fontSize="sm" lineHeight="1.6">
-                        I agree to Neon Burro's{' '}
-                        <Link 
-                          href="https://neonburro.com/terms/" 
-                          color={colors.brand.primary} 
-                          textDecoration="// src/pages/Invoice/components/PaymentForm.jsx
+// src/pages/Invoice/components/PaymentForm.jsx
 import { 
   Box, 
   VStack, 
@@ -460,7 +359,20 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
     }
   };
 
-  const isFormValid = email && agreeToTerms && (
+  const handleSubmitPayment = () => {
+    if (!agreeToTerms) {
+      setTermsError(true);
+      return;
+    }
+    
+    if (paymentMethodType === 'card') {
+      handleCardPayment();
+    } else if (paymentMethodType === 'link') {
+      handleLinkRequest();
+    }
+  };
+
+  const isFormValid = email && (
     paymentMethodType === 'link' ? phone : 
     paymentMethodType === 'apple' ? true :
     (cardholderName && address && city && state && zip)
@@ -689,7 +601,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
           {/* Right Column - Payment Form */}
           <GridItem>
             <form onSubmit={(e) => e.preventDefault()}>
-              <VStack spacing={8} align="stretch">
+              <VStack spacing={6} align="stretch">
                 
                 {/* Contact Information */}
                 <Box>
@@ -726,406 +638,290 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                   />
                 </Box>
 
-                {/* Payment Method */}
+                {/* Payment Method - Simplified like OpenAI */}
                 <Box>
                   <Text color="white" fontSize="lg" fontWeight="600" mb={4}>
                     Payment method
                   </Text>
                   
-                  <RadioGroup 
-                    value={paymentMethodType} 
-                    onChange={(value) => setPaymentMethodType(value)}
+                  <Box
+                    bg="rgba(255, 255, 255, 0.05)"
+                    border="1px solid"
+                    borderColor="rgba(255, 255, 255, 0.15)"
+                    borderRadius="lg"
+                    p={1}
                   >
-                    <VStack spacing={4} align="stretch">
-                      
-                      {/* Card Option */}
-                      <Box
-                        p={5}
-                        borderRadius="lg"
-                        border="2px solid"
-                        borderColor={paymentMethodType === 'card' ? 'rgba(0, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.1)'}
-                        bg={paymentMethodType === 'card' ? 'rgba(0, 255, 255, 0.03)' : 'transparent'}
-                        cursor="pointer"
-                        onClick={() => setPaymentMethodType('card')}
-                        transition="all 0.2s"
-                        _hover={{
-                          borderColor: paymentMethodType === 'card' ? 'rgba(0, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.15)'
-                        }}
-                      >
-                        <HStack spacing={4} mb={paymentMethodType === 'card' ? 5 : 0}>
+                    <RadioGroup 
+                      value={paymentMethodType} 
+                      onChange={(value) => setPaymentMethodType(value)}
+                    >
+                      <VStack spacing={0} align="stretch">
+                        
+                        {/* Card Option */}
+                        <HStack
+                          p={4}
+                          borderRadius="md"
+                          cursor="pointer"
+                          onClick={() => setPaymentMethodType('card')}
+                          bg={paymentMethodType === 'card' ? 'rgba(0, 255, 255, 0.05)' : 'transparent'}
+                          _hover={{ bg: 'rgba(255, 255, 255, 0.03)' }}
+                        >
                           <Radio 
                             value="card" 
                             colorScheme="cyan"
-                            size="lg"
-                            borderColor="gray.500"
-                            _checked={{
-                              bg: colors.brand.primary,
-                              borderColor: colors.brand.primary,
-                              _before: {
-                                content: '""',
-                                display: 'inline-block',
-                                position: 'relative',
-                                width: '50%',
-                                height: '50%',
-                                borderRadius: '50%',
-                                bg: 'black',
-                              }
-                            }}
+                            size="md"
                           />
-                          <FiCreditCard size={20} color={paymentMethodType === 'card' ? colors.brand.primary : '#9CA3AF'} />
-                          <Text color="white" fontWeight="600" fontSize="16px">Card</Text>
+                          <FiCreditCard size={18} />
+                          <Text color="white" fontWeight="500" fontSize="md">Card</Text>
                           <Box ml="auto">
-                            <HStack spacing={2}>
-                              <Box w="35px" h="22px" bg="#1434CB" borderRadius="4px" display="flex" alignItems="center" justifyContent="center" fontSize="10px" color="white" fontWeight="bold">VISA</Box>
-                              <Box w="35px" h="22px" bg="#EB001B" borderRadius="4px" display="flex" alignItems="center" justifyContent="center" fontSize="10px" color="white" fontWeight="bold">MC</Box>
-                              <Box w="35px" h="22px" bg="#006FCF" borderRadius="4px" display="flex" alignItems="center" justifyContent="center" fontSize="8px" color="white" fontWeight="bold">AMEX</Box>
-                              <Box w="35px" h="22px" bg="#FF6000" borderRadius="4px" display="flex" alignItems="center" justifyContent="center" fontSize="8px" color="white" fontWeight="bold">DISC</Box>
+                            <HStack spacing={1}>
+                              <Box w="24px" h="16px" bg="#1434CB" borderRadius="2px" />
+                              <Box w="24px" h="16px" bg="#EB001B" borderRadius="2px" />
+                              <Box w="24px" h="16px" bg="#006FCF" borderRadius="2px" />
+                              <Box w="24px" h="16px" bg="#FF6000" borderRadius="2px" />
                             </HStack>
                           </Box>
                         </HStack>
-                        
-                        {paymentMethodType === 'card' && (
-                          <VStack spacing={5} align="stretch">
-                            {/* Card Information */}
-                            <Box>
-                              <Text color="gray.400" fontSize="sm" fontWeight="500" mb={3}>
-                                Card information
-                              </Text>
-                              
-                              {/* Card Number */}
-                              <Box
-                                p={4}
-                                bg="rgba(255, 255, 255, 0.05)"
-                                border="1px solid"
-                                borderColor="rgba(255, 255, 255, 0.15)"
-                                borderRadius="lg"
-                                borderBottomRadius={0}
-                                minH="52px"
-                                display="flex"
-                                alignItems="center"
-                                _hover={{ 
-                                  borderColor: 'rgba(255, 255, 255, 0.25)',
-                                  bg: 'rgba(255, 255, 255, 0.08)'
-                                }}
-                                _focusWithin={{ 
-                                  borderColor: 'rgba(255, 255, 255, 0.4)',
-                                  bg: 'rgba(255, 255, 255, 0.08)'
-                                }}
-                                transition="all 0.2s"
-                              >
-                                <Box width="100%">
-                                  <CardNumberElement options={stripeElementStyles} />
-                                </Box>
-                              </Box>
-                              
-                              {/* Expiry & CVC */}
-                              <HStack spacing={0}>
-                                <Box
-                                  p={4}
-                                  bg="rgba(255, 255, 255, 0.05)"
-                                  border="1px solid"
-                                  borderColor="rgba(255, 255, 255, 0.15)"
-                                  borderRadius="lg"
-                                  borderTopRadius={0}
-                                  borderRightWidth={0}
-                                  flex={1}
-                                  minH="52px"
-                                  display="flex"
-                                  alignItems="center"
-                                  _hover={{ 
-                                    borderColor: 'rgba(255, 255, 255, 0.25)',
-                                    bg: 'rgba(255, 255, 255, 0.08)'
-                                  }}
-                                  _focusWithin={{ 
-                                    borderColor: 'rgba(255, 255, 255, 0.4)',
-                                    bg: 'rgba(255, 255, 255, 0.08)'
-                                  }}
-                                  transition="all 0.2s"
-                                >
-                                  <Box width="100%">
-                                    <CardExpiryElement options={stripeElementStyles} />
-                                  </Box>
-                                </Box>
-                                <Box
-                                  p={4}
-                                  bg="rgba(255, 255, 255, 0.05)"
-                                  border="1px solid"
-                                  borderColor="rgba(255, 255, 255, 0.15)"
-                                  borderRadius="lg"
-                                  borderTopRadius={0}
-                                  flex={1}
-                                  minH="52px"
-                                  display="flex"
-                                  alignItems="center"
-                                  position="relative"
-                                  _hover={{ 
-                                    borderColor: 'rgba(255, 255, 255, 0.25)',
-                                    bg: 'rgba(255, 255, 255, 0.08)'
-                                  }}
-                                  _focusWithin={{ 
-                                    borderColor: 'rgba(255, 255, 255, 0.4)',
-                                    bg: 'rgba(255, 255, 255, 0.08)'
-                                  }}
-                                  transition="all 0.2s"
-                                >
-                                  <Box width="100%">
-                                    <CardCvcElement options={stripeElementStyles} />
-                                  </Box>
-                                  <Tooltip label="3-digit security code on the back of your card" placement="top">
-                                    <Box
-                                      position="absolute"
-                                      right={4}
-                                      color="gray.500"
-                                      cursor="help"
-                                      p={1}
-                                      borderRadius="full"
-                                      bg="rgba(255, 255, 255, 0.05)"
-                                      _hover={{ bg: 'rgba(255, 255, 255, 0.1)' }}
-                                    >
-                                      <FiInfo size={16} />
-                                    </Box>
-                                  </Tooltip>
-                                </Box>
-                              </HStack>
-                            </Box>
-                            
-                            {/* Cardholder Name */}
-                            <Box>
-                              <Text color="gray.400" fontSize="sm" fontWeight="500" mb={3}>
-                                Cardholder name
-                              </Text>
-                              <Input
-                                placeholder="Full name on card"
-                                value={cardholderName}
-                                onChange={(e) => setCardholderName(e.target.value)}
-                                bg="rgba(255, 255, 255, 0.05)"
-                                border="1px solid"
-                                borderColor="rgba(255, 255, 255, 0.15)"
-                                color="white"
-                                height="52px"
-                                fontSize="16px"
-                                _placeholder={{ color: 'gray.500' }}
-                                _hover={{ 
-                                  borderColor: 'rgba(255, 255, 255, 0.25)',
-                                  bg: 'rgba(255, 255, 255, 0.08)'
-                                }}
-                                _focus={{ 
-                                  borderColor: 'rgba(255, 255, 255, 0.4)',
-                                  boxShadow: 'none',
-                                  bg: 'rgba(255, 255, 255, 0.08)'
-                                }}
-                                borderRadius="lg"
-                                required
-                                autoComplete="cc-name"
-                                name="cardholderName"
-                                id="cardholderName"
-                              />
-                            </Box>
-                            
-                            {/* Enhanced Billing Address with Better Spacing */}
-                            <Box>
-                              <Text color="gray.400" fontSize="sm" fontWeight="500" mb={3}>
-                                Billing address
-                              </Text>
-                              <VStack spacing={4}>
-                                <Select
-                                  value={country}
-                                  onChange={(e) => setCountry(e.target.value)}
-                                  bg="rgba(255, 255, 255, 0.05)"
-                                  border="1px solid"
-                                  borderColor="rgba(255, 255, 255, 0.15)"
-                                  color="white"
-                                  height="52px"
-                                  fontSize="16px"
-                                  _hover={{ 
-                                    borderColor: 'rgba(255, 255, 255, 0.25)',
-                                    bg: 'rgba(255, 255, 255, 0.08)'
-                                  }}
-                                  _focus={{ 
-                                    borderColor: 'rgba(255, 255, 255, 0.4)',
-                                    boxShadow: 'none',
-                                    bg: 'rgba(255, 255, 255, 0.08)'
-                                  }}
-                                  borderRadius="lg"
-                                  sx={{
-                                    option: {
-                                      background: '#1A1A1A',
-                                      color: 'white',
-                                    }
-                                  }}
-                                  isDisabled
-                                >
-                                  <option value="US">United States</option>
-                                </Select>
-                                
-                                <Input
-                                  placeholder="Street address"
-                                  value={address}
-                                  onChange={(e) => setAddress(e.target.value)}
-                                  bg="rgba(255, 255, 255, 0.05)"
-                                  border="1px solid"
-                                  borderColor="rgba(255, 255, 255, 0.15)"
-                                  color="white"
-                                  height="52px"
-                                  fontSize="16px"
-                                  _placeholder={{ color: 'gray.500' }}
-                                  _hover={{ 
-                                    borderColor: 'rgba(255, 255, 255, 0.25)',
-                                    bg: 'rgba(255, 255, 255, 0.08)'
-                                  }}
-                                  _focus={{ 
-                                    borderColor: 'rgba(255, 255, 255, 0.4)',
-                                    boxShadow: 'none',
-                                    bg: 'rgba(255, 255, 255, 0.08)'
-                                  }}
-                                  borderRadius="lg"
-                                  required
-                                  autoComplete="street-address"
-                                  name="address"
-                                />
-                                
-                                {/* Improved City/State/ZIP Layout */}
-                                <Grid templateColumns={{ base: "1fr", md: "2fr 1fr 1fr" }} gap={3}>
-                                  <GridItem>
-                                    <Input
-                                      placeholder="City"
-                                      value={city}
-                                      onChange={(e) => setCity(e.target.value)}
-                                      bg="rgba(255, 255, 255, 0.05)"
-                                      border="1px solid"
-                                      borderColor="rgba(255, 255, 255, 0.15)"
-                                      color="white"
-                                      height="52px"
-                                      fontSize="16px"
-                                      _placeholder={{ color: 'gray.500' }}
-                                      _hover={{ 
-                                        borderColor: 'rgba(255, 255, 255, 0.25)',
-                                        bg: 'rgba(255, 255, 255, 0.08)'
-                                      }}
-                                      _focus={{ 
-                                        borderColor: 'rgba(255, 255, 255, 0.4)',
-                                        boxShadow: 'none',
-                                        bg: 'rgba(255, 255, 255, 0.08)'
-                                      }}
-                                      borderRadius="lg"
-                                      required
-                                      autoComplete="address-level2"
-                                      name="city"
-                                    />
-                                  </GridItem>
-                                  
-                                  <GridItem>
-                                    <Input
-                                      placeholder="State"
-                                      value={state}
-                                      onChange={(e) => setState(e.target.value)}
-                                      bg="rgba(255, 255, 255, 0.05)"
-                                      border="1px solid"
-                                      borderColor="rgba(255, 255, 255, 0.15)"
-                                      color="white"
-                                      height="52px"
-                                      fontSize="16px"
-                                      _placeholder={{ color: 'gray.500' }}
-                                      _hover={{ 
-                                        borderColor: 'rgba(255, 255, 255, 0.25)',
-                                        bg: 'rgba(255, 255, 255, 0.08)'
-                                      }}
-                                      _focus={{ 
-                                        borderColor: 'rgba(255, 255, 255, 0.4)',
-                                        boxShadow: 'none',
-                                        bg: 'rgba(255, 255, 255, 0.08)'
-                                      }}
-                                      borderRadius="lg"
-                                      required
-                                      autoComplete="address-level1"
-                                      name="state"
-                                      maxLength={2}
-                                      style={{ textTransform: 'uppercase' }}
-                                    />
-                                  </GridItem>
-                                  
-                                  <GridItem>
-                                    <Input
-                                      placeholder="ZIP"
-                                      value={zip}
-                                      onChange={(e) => setZip(e.target.value)}
-                                      bg="rgba(255, 255, 255, 0.05)"
-                                      border="1px solid"
-                                      borderColor="rgba(255, 255, 255, 0.15)"
-                                      color="white"
-                                      height="52px"
-                                      fontSize="16px"
-                                      _placeholder={{ color: 'gray.500' }}
-                                      _hover={{ 
-                                        borderColor: 'rgba(255, 255, 255, 0.25)',
-                                        bg: 'rgba(255, 255, 255, 0.08)'
-                                      }}
-                                      _focus={{ 
-                                        borderColor: 'rgba(255, 255, 255, 0.4)',
-                                        boxShadow: 'none',
-                                        bg: 'rgba(255, 255, 255, 0.08)'
-                                      }}
-                                      borderRadius="lg"
-                                      required
-                                      autoComplete="postal-code"
-                                      name="zip"
-                                    />
-                                  </GridItem>
-                                </Grid>
-                              </VStack>
-                            </Box>
-                          </VStack>
-                        )}
-                      </Box>
 
-                      {/* Link Option */}
-                      <Box
-                        p={5}
-                        borderRadius="lg"
-                        border="2px solid"
-                        borderColor={paymentMethodType === 'link' ? 'rgba(0, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.1)'}
-                        bg={paymentMethodType === 'link' ? 'rgba(0, 255, 255, 0.03)' : 'transparent'}
-                        cursor="pointer"
-                        onClick={() => setPaymentMethodType('link')}
-                        transition="all 0.2s"
-                        _hover={{
-                          borderColor: paymentMethodType === 'link' ? 'rgba(0, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.15)'
-                        }}
-                      >
-                        <HStack spacing={4} mb={paymentMethodType === 'link' ? 5 : 0}>
+                        <Divider borderColor="whiteAlpha.100" />
+
+                        {/* Apple Pay Option */}
+                        {canMakePayment && (
+                          <>
+                            <HStack
+                              p={4}
+                              borderRadius="md"
+                              cursor="pointer"
+                              onClick={() => setPaymentMethodType('apple')}
+                              bg={paymentMethodType === 'apple' ? 'rgba(0, 255, 255, 0.05)' : 'transparent'}
+                              _hover={{ bg: 'rgba(255, 255, 255, 0.03)' }}
+                            >
+                              <Radio 
+                                value="apple" 
+                                colorScheme="cyan"
+                                size="md"
+                              />
+                              <Box w="18px" h="18px" bg="white" borderRadius="2px" />
+                              <Text color="white" fontWeight="500" fontSize="md">Apple Pay</Text>
+                            </HStack>
+                            <Divider borderColor="whiteAlpha.100" />
+                          </>
+                        )}
+
+                        {/* Link Option */}
+                        <HStack
+                          p={4}
+                          borderRadius="md"
+                          cursor="pointer"
+                          onClick={() => setPaymentMethodType('link')}
+                          bg={paymentMethodType === 'link' ? 'rgba(0, 255, 255, 0.05)' : 'transparent'}
+                          _hover={{ bg: 'rgba(255, 255, 255, 0.03)' }}
+                        >
                           <Radio 
                             value="link" 
                             colorScheme="cyan"
-                            size="lg"
-                            borderColor="gray.500"
-                            _checked={{
-                              bg: colors.brand.primary,
-                              borderColor: colors.brand.primary,
-                              _before: {
-                                content: '""',
-                                display: 'inline-block',
-                                position: 'relative',
-                                width: '50%',
-                                height: '50%',
-                                borderRadius: '50%',
-                                bg: 'black',
-                              }
-                            }}
+                            size="md"
                           />
-                          <FiLink size={20} color={paymentMethodType === 'link' ? colors.brand.primary : '#9CA3AF'} />
-                          <Text color="white" fontWeight="600" fontSize="16px">Link</Text>
+                          <FiLink size={18} />
+                          <Text color="white" fontWeight="500" fontSize="md">Link</Text>
                         </HStack>
+
+                      </VStack>
+                    </RadioGroup>
+                  </Box>
+
+                  {/* Show info for Apple Pay */}
+                  {paymentMethodType === 'apple' && (
+                    <Box mt={3} p={3} bg="rgba(255, 255, 255, 0.03)" borderRadius="md">
+                      <Text color="gray.400" fontSize="sm">
+                        Another step will appear after submitting your order to complete your purchase details.
+                      </Text>
+                    </Box>
+                  )}
+                </Box>
+
+                {/* Card Details - Show only when card is selected */}
+                {paymentMethodType === 'card' && (
+                  <VStack spacing={5} align="stretch">
+                    {/* Card Information */}
+                    <Box>
+                      <Text color="gray.400" fontSize="sm" fontWeight="500" mb={3}>
+                        Card information
+                      </Text>
+                      
+                      {/* Card Number */}
+                      <Box
+                        p={4}
+                        bg="rgba(255, 255, 255, 0.05)"
+                        border="1px solid"
+                        borderColor="rgba(255, 255, 255, 0.15)"
+                        borderRadius="lg"
+                        borderBottomRadius={0}
+                        minH="52px"
+                        display="flex"
+                        alignItems="center"
+                        _hover={{ 
+                          borderColor: 'rgba(255, 255, 255, 0.25)',
+                          bg: 'rgba(255, 255, 255, 0.08)'
+                        }}
+                        _focusWithin={{ 
+                          borderColor: 'rgba(255, 255, 255, 0.4)',
+                          bg: 'rgba(255, 255, 255, 0.08)'
+                        }}
+                        transition="all 0.2s"
+                      >
+                        <Box width="100%">
+                          <CardNumberElement options={stripeElementStyles} />
+                        </Box>
+                      </Box>
+                      
+                      {/* Expiry & CVC */}
+                      <HStack spacing={0}>
+                        <Box
+                          p={4}
+                          bg="rgba(255, 255, 255, 0.05)"
+                          border="1px solid"
+                          borderColor="rgba(255, 255, 255, 0.15)"
+                          borderRadius="lg"
+                          borderTopRadius={0}
+                          borderRightWidth={0}
+                          flex={1}
+                          minH="52px"
+                          display="flex"
+                          alignItems="center"
+                          _hover={{ 
+                            borderColor: 'rgba(255, 255, 255, 0.25)',
+                            bg: 'rgba(255, 255, 255, 0.08)'
+                          }}
+                          _focusWithin={{ 
+                            borderColor: 'rgba(255, 255, 255, 0.4)',
+                            bg: 'rgba(255, 255, 255, 0.08)'
+                          }}
+                          transition="all 0.2s"
+                        >
+                          <Box width="100%">
+                            <CardExpiryElement options={stripeElementStyles} />
+                          </Box>
+                        </Box>
+                        <Box
+                          p={4}
+                          bg="rgba(255, 255, 255, 0.05)"
+                          border="1px solid"
+                          borderColor="rgba(255, 255, 255, 0.15)"
+                          borderRadius="lg"
+                          borderTopRadius={0}
+                          flex={1}
+                          minH="52px"
+                          display="flex"
+                          alignItems="center"
+                          position="relative"
+                          _hover={{ 
+                            borderColor: 'rgba(255, 255, 255, 0.25)',
+                            bg: 'rgba(255, 255, 255, 0.08)'
+                          }}
+                          _focusWithin={{ 
+                            borderColor: 'rgba(255, 255, 255, 0.4)',
+                            bg: 'rgba(255, 255, 255, 0.08)'
+                          }}
+                          transition="all 0.2s"
+                        >
+                          <Box width="100%">
+                            <CardCvcElement options={stripeElementStyles} />
+                          </Box>
+                        </Box>
+                      </HStack>
+                    </Box>
+                    
+                    {/* Cardholder Name */}
+                    <Box>
+                      <Text color="gray.400" fontSize="sm" fontWeight="500" mb={3}>
+                        Cardholder name
+                      </Text>
+                      <Input
+                        placeholder="Full name on card"
+                        value={cardholderName}
+                        onChange={(e) => setCardholderName(e.target.value)}
+                        bg="rgba(255, 255, 255, 0.05)"
+                        border="1px solid"
+                        borderColor="rgba(255, 255, 255, 0.15)"
+                        color="white"
+                        height="52px"
+                        fontSize="16px"
+                        _placeholder={{ color: 'gray.500' }}
+                        _hover={{ 
+                          borderColor: 'rgba(255, 255, 255, 0.25)',
+                          bg: 'rgba(255, 255, 255, 0.08)'
+                        }}
+                        _focus={{ 
+                          borderColor: 'rgba(255, 255, 255, 0.4)',
+                          boxShadow: 'none',
+                          bg: 'rgba(255, 255, 255, 0.08)'
+                        }}
+                        borderRadius="lg"
+                        required
+                      />
+                    </Box>
+                    
+                    {/* Billing Address */}
+                    <Box>
+                      <Text color="gray.400" fontSize="sm" fontWeight="500" mb={3}>
+                        Billing address
+                      </Text>
+                      <VStack spacing={4}>
+                        <Select
+                          value={country}
+                          onChange={(e) => setCountry(e.target.value)}
+                          bg="rgba(255, 255, 255, 0.05)"
+                          border="1px solid"
+                          borderColor="rgba(255, 255, 255, 0.15)"
+                          color="white"
+                          height="52px"
+                          fontSize="16px"
+                          _hover={{ 
+                            borderColor: 'rgba(255, 255, 255, 0.25)',
+                            bg: 'rgba(255, 255, 255, 0.08)'
+                          }}
+                          _focus={{ 
+                            borderColor: 'rgba(255, 255, 255, 0.4)',
+                            boxShadow: 'none',
+                            bg: 'rgba(255, 255, 255, 0.08)'
+                          }}
+                          borderRadius="lg"
+                          isDisabled
+                        >
+                          <option value="US">United States</option>
+                        </Select>
                         
-                        {paymentMethodType === 'link' && (
-                          <VStack spacing={4} align="stretch">
-                            <Text color="gray.400" fontSize="sm">
-                              Save payment info & checkout faster next time
-                            </Text>
+                        <Input
+                          placeholder="Street address"
+                          value={address}
+                          onChange={(e) => setAddress(e.target.value)}
+                          bg="rgba(255, 255, 255, 0.05)"
+                          border="1px solid"
+                          borderColor="rgba(255, 255, 255, 0.15)"
+                          color="white"
+                          height="52px"
+                          fontSize="16px"
+                          _placeholder={{ color: 'gray.500' }}
+                          _hover={{ 
+                            borderColor: 'rgba(255, 255, 255, 0.25)',
+                            bg: 'rgba(255, 255, 255, 0.08)'
+                          }}
+                          _focus={{ 
+                            borderColor: 'rgba(255, 255, 255, 0.4)',
+                            boxShadow: 'none',
+                            bg: 'rgba(255, 255, 255, 0.08)'
+                          }}
+                          borderRadius="lg"
+                          required
+                        />
+                        
+                        <Grid templateColumns={{ base: "1fr", md: "2fr 1fr 1fr" }} gap={3}>
+                          <GridItem>
                             <Input
-                              type="tel"
-                              placeholder="(201) 555-0123"
-                              value={phone}
-                              onChange={(e) => setPhone(e.target.value)}
+                              placeholder="City"
+                              value={city}
+                              onChange={(e) => setCity(e.target.value)}
                               bg="rgba(255, 255, 255, 0.05)"
                               border="1px solid"
                               borderColor="rgba(255, 255, 255, 0.15)"
@@ -1143,191 +939,184 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                                 bg: 'rgba(255, 255, 255, 0.08)'
                               }}
                               borderRadius="lg"
-                              autoComplete="tel"
-                              name="phone"
+                              required
                             />
-                          </VStack>
-                        )}
-                      </Box>
+                          </GridItem>
+                          
+                          <GridItem>
+                            <Input
+                              placeholder="State"
+                              value={state}
+                              onChange={(e) => setState(e.target.value)}
+                              bg="rgba(255, 255, 255, 0.05)"
+                              border="1px solid"
+                              borderColor="rgba(255, 255, 255, 0.15)"
+                              color="white"
+                              height="52px"
+                              fontSize="16px"
+                              _placeholder={{ color: 'gray.500' }}
+                              _hover={{ 
+                                borderColor: 'rgba(255, 255, 255, 0.25)',
+                                bg: 'rgba(255, 255, 255, 0.08)'
+                              }}
+                              _focus={{ 
+                                borderColor: 'rgba(255, 255, 255, 0.4)',
+                                boxShadow: 'none',
+                                bg: 'rgba(255, 255, 255, 0.08)'
+                              }}
+                              borderRadius="lg"
+                              required
+                              maxLength={2}
+                              style={{ textTransform: 'uppercase' }}
+                            />
+                          </GridItem>
+                          
+                          <GridItem>
+                            <Input
+                              placeholder="ZIP"
+                              value={zip}
+                              onChange={(e) => setZip(e.target.value)}
+                              bg="rgba(255, 255, 255, 0.05)"
+                              border="1px solid"
+                              borderColor="rgba(255, 255, 255, 0.15)"
+                              color="white"
+                              height="52px"
+                              fontSize="16px"
+                              _placeholder={{ color: 'gray.500' }}
+                              _hover={{ 
+                                borderColor: 'rgba(255, 255, 255, 0.25)',
+                                bg: 'rgba(255, 255, 255, 0.08)'
+                              }}
+                              _focus={{ 
+                                borderColor: 'rgba(255, 255, 255, 0.4)',
+                                boxShadow: 'none',
+                                bg: 'rgba(255, 255, 255, 0.08)'
+                              }}
+                              borderRadius="lg"
+                              required
+                            />
+                          </GridItem>
+                        </Grid>
+                      </VStack>
+                    </Box>
+                  </VStack>
+                )}
 
-                    </VStack>
-                  </RadioGroup>
-                </Box>
+                {/* Link Details - Show only when link is selected */}
+                {paymentMethodType === 'link' && (
+                  <VStack spacing={4} align="stretch">
+                    <Text color="gray.400" fontSize="sm">
+                      Save payment info & checkout faster next time
+                    </Text>
+                    <Input
+                      type="tel"
+                      placeholder="(201) 555-0123"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      bg="rgba(255, 255, 255, 0.05)"
+                      border="1px solid"
+                      borderColor="rgba(255, 255, 255, 0.15)"
+                      color="white"
+                      height="52px"
+                      fontSize="16px"
+                      _placeholder={{ color: 'gray.500' }}
+                      _hover={{ 
+                        borderColor: 'rgba(255, 255, 255, 0.25)',
+                        bg: 'rgba(255, 255, 255, 0.08)'
+                      }}
+                      _focus={{ 
+                        borderColor: 'rgba(255, 255, 255, 0.4)',
+                        boxShadow: 'none',
+                        bg: 'rgba(255, 255, 255, 0.08)'
+                      }}
+                      borderRadius="lg"
+                    />
+                  </VStack>
+                )}
 
-                {/* Enhanced Terms Checkbox Section */}
+                {/* Terms Checkbox - Simple like OpenAI */}
                 <Box id="terms-section">
-                  <Box
-                    p={5}
-                    bg={agreeToTerms ? "rgba(57, 255, 20, 0.05)" : termsError ? "rgba(255, 107, 53, 0.05)" : "rgba(255, 255, 255, 0.03)"}
-                    border="2px solid"
-                    borderColor={
-                      termsError && !agreeToTerms 
-                        ? "#FF6B35" 
-                        : agreeToTerms 
-                        ? "rgba(57, 255, 20, 0.3)" 
-                        : "rgba(255, 255, 255, 0.15)"
-                    }
-                    borderRadius="lg"
-                    transition="all 0.3s"
-                    _hover={{
-                      borderColor: agreeToTerms 
-                        ? "rgba(57, 255, 20, 0.4)" 
-                        : termsError
-                        ? "#FF6B35"
-                        : "rgba(255, 255, 255, 0.25)",
-                      bg: agreeToTerms 
-                        ? "rgba(57, 255, 20, 0.08)" 
-                        : termsError
-                        ? "rgba(255, 107, 53, 0.08)"
-                        : "rgba(255, 255, 255, 0.05)"
+                  <Checkbox
+                    isChecked={agreeToTerms}
+                    onChange={(e) => {
+                      setAgreeToTerms(e.target.checked);
+                      if (termsError) setTermsError(false);
                     }}
-                    animation={termsError && !agreeToTerms ? "shake 0.5s" : undefined}
+                    size="md"
+                    colorScheme="green"
                     sx={{
-                      '@keyframes shake': {
-                        '0%, 100%': { transform: 'translateX(0)' },
-                        '10%, 30%, 50%, 70%, 90%': { transform: 'translateX(-2px)' },
-                        '20%, 40%, 60%, 80%': { transform: 'translateX(2px)' },
+                      '.chakra-checkbox__control': {
+                        borderColor: termsError && !agreeToTerms ? '#FF6B35' : 'rgba(255, 255, 255, 0.3)',
+                        borderWidth: '2px',
+                        _checked: {
+                          bg: colors.accent.green,
+                          borderColor: colors.accent.green,
+                        }
                       }
                     }}
                   >
-                    <HStack align="start" spacing={4}>
-                      <Box mt={1}>
-                        <Checkbox
-                          isChecked={agreeToTerms}
-                          onChange={(e) => {
-                            setAgreeToTerms(e.target.checked);
-                            if (termsError) setTermsError(false);
-                          }}
-                          colorScheme="green"
-                          size="lg"
-                          sx={{
-                            '.chakra-checkbox__control': {
-                              borderColor: agreeToTerms ? colors.accent.green : 'rgba(255, 255, 255, 0.3)',
-                              borderWidth: '2px',
-                              _checked: {
-                                bg: colors.accent.green,
-                                borderColor: colors.accent.green,
-                              }
-                            }
-                          }}
-                        />
-                      </Box>
-                      <VStack 
-                        align="start" 
-                        spacing={2} 
-                        flex={1}
-                        onClick={() => {
-                          setAgreeToTerms(!agreeToTerms);
-                          if (termsError) setTermsError(false);
-                        }}
-                        cursor="pointer"
+                    <Text color="gray.400" fontSize="sm" lineHeight="1.6">
+                      I agree to Neon Burro's{' '}
+                      <Link 
+                        href="https://neonburro.com/terms/" 
+                        color={colors.brand.primary} 
+                        textDecoration="underline"
+                        isExternal
                       >
-                        <HStack>
-                          <FiShield size={16} color={agreeToTerms ? colors.accent.green : '#9CA3AF'} />
+                        Terms of Service
+                      </Link>
+                      {' '}and acknowledge this ${projectData?.total || 0} payment for {projectData?.hours || 0} hours of development.
+                    </Text>
+                  </Checkbox>
+                  
+                  {/* Error message - appears when trying to pay without checking */}
+                  <AnimatePresence>
+                    {termsError && !agreeToTerms && (
+                      <MotionBox
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -5 }}
+                        transition={{ duration: 0.2 }}
+                        mt={2}
+                      >
+                        <HStack spacing={2}>
+                          <FiAlertCircle color="#FF6B35" size={14} />
                           <Text 
-                            color={agreeToTerms ? "white" : "gray.300"} 
+                            color="#FF6B35" 
                             fontSize="sm" 
-                            fontWeight="600"
+                            fontWeight="500"
                           >
-                            I agree to the terms of service <Text as="span" color="red.400">*</Text>
+                            Agree to Neon Burro's terms to complete your transaction.
                           </Text>
                         </HStack>
-                        <Text color="gray.400" fontSize="xs" lineHeight="1.6">
-                          I agree to Neon Burro's{' '}
-                          <Link 
-                            href="https://neonburro.com/terms/" 
-                            color={colors.brand.primary} 
-                            textDecoration="underline"
-                            isExternal
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            terms
-                          </Link>
-                          {' '}and acknowledge this ${projectData?.total || 0} payment starts our creative journey together.
-                        </Text>
-                        <AnimatePresence>
-                          {termsError && !agreeToTerms && (
-                            <MotionBox
-                              initial={{ opacity: 0, y: -5 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -5 }}
-                              transition={{ duration: 0.2 }}
-                            >
-                              <Text 
-                                color="#FF6B35" 
-                                fontSize="xs" 
-                                fontWeight="600"
-                                filter="drop-shadow(0 0 8px #FF6B3566)"
-                              >
-                                ✨ Hold up! Check this box to seal the deal.
-                              </Text>
-                            </MotionBox>
-                          )}
-                        </AnimatePresence>
-                      </VStack>
-                    </HStack>
-                  </Box>
+                      </MotionBox>
+                    )}
+                  </AnimatePresence>
                 </Box>
 
-                {/* Express Checkout - Apple Pay / Google Pay */}
-                {canMakePayment && paymentRequest && stripe && (
+                {/* Payment Buttons */}
+                {paymentMethodType === 'apple' && canMakePayment && paymentRequest && (
                   <Box>
-                    <HStack mb={4}>
-                      <Divider borderColor="rgba(255, 255, 255, 0.2)" />
-                      <Text color="gray.500" fontSize="sm" px={4} whiteSpace="nowrap">
-                        or pay with
-                      </Text>
-                      <Divider borderColor="rgba(255, 255, 255, 0.2)" />
-                    </HStack>
-                    
-                    <Box
-                      bg="rgba(255, 255, 255, 0.02)"
-                      border="1px solid"
-                      borderColor="rgba(255, 255, 255, 0.1)"
-                      borderRadius="lg"
-                      p={4}
-                    >
-                      <PaymentRequestButtonElement 
-                        options={{
-                          paymentRequest: paymentRequest,
-                          style: {
-                            paymentRequestButton: {
-                              type: 'default',
-                              theme: 'dark',
-                              height: '56px',
-                            },
+                    <PaymentRequestButtonElement 
+                      options={{
+                        paymentRequest: paymentRequest,
+                        style: {
+                          paymentRequestButton: {
+                            type: 'default',
+                            theme: 'dark',
+                            height: '56px',
                           },
-                        }}
-                      />
-                    </Box>
+                        },
+                      }}
+                    />
                   </Box>
                 )}
 
-                {/* Submit Button */}
-                <Box>
+                {/* Regular Submit Button - Show for card and link */}
+                {(paymentMethodType === 'card' || paymentMethodType === 'link') && (
                   <Button
                     type="button"
-                    onClick={() => {
-                      console.log('Button clicked, agreeToTerms:', agreeToTerms);
-                      if (!agreeToTerms) {
-                        console.log('Terms not agreed, showing error');
-                        setTermsError(true);
-                        // Force a re-render
-                        setTimeout(() => {
-                          document.getElementById('terms-section')?.scrollIntoView({ 
-                            behavior: 'smooth', 
-                            block: 'center' 
-                          });
-                        }, 100);
-                        return;
-                      }
-                      console.log('Terms agreed, processing payment');
-                      if (paymentMethodType === 'card') {
-                        handleCardPayment();
-                      } else {
-                        handleLinkRequest();
-                      }
-                    }}
+                    onClick={handleSubmitPayment}
                     size="lg"
                     bg={colors.accent.green}
                     color="black"
@@ -1351,15 +1140,15 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                   >
                     Complete Payment
                   </Button>
-                  
-                  {/* Security Note */}
-                  <HStack justify="center" mt={3} spacing={2}>
-                    <FiLock size={14} color="#6B7280" />
-                    <Text color="gray.500" fontSize="xs">
-                      Secure payment powered by Stripe
-                    </Text>
-                  </HStack>
-                </Box>
+                )}
+
+                {/* Security Note */}
+                <HStack justify="center" spacing={2}>
+                  <FiLock size={14} color="#6B7280" />
+                  <Text color="gray.500" fontSize="xs">
+                    Secure payment powered by Stripe
+                  </Text>
+                </HStack>
 
                 {/* Back Button */}
                 <Box textAlign="center">
