@@ -18,11 +18,33 @@ import {
   useToast,
   Divider,
   Spinner,
-  Link
+  Link,
+  List,
+  ListItem,
+  ListIcon,
+  Badge,
+  Alert,
+  AlertIcon,
+  AlertDescription
 } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { FiCreditCard, FiLink, FiArrowLeft, FiInfo } from 'react-icons/fi';
+import { 
+  FiCreditCard, 
+  FiLink, 
+  FiArrowLeft, 
+  FiInfo, 
+  FiCheck, 
+  FiClock, 
+  FiShield,
+  FiZap,
+  FiGlobe,
+  FiHeadphones,
+  FiCode,
+  FiLock,
+  FiAlertCircle
+} from 'react-icons/fi';
+import { RiSecurePaymentLine } from 'react-icons/ri';
 import { 
   useStripe, 
   useElements, 
@@ -53,6 +75,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [paymentRequest, setPaymentRequest] = useState(null);
   const [canMakePayment, setCanMakePayment] = useState(false);
+  const [termsError, setTermsError] = useState(false);
 
   // CRITICAL: Add null check here before any usage of projectData
   if (!projectData) {
@@ -130,7 +153,6 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
         const canMakePaymentResult = await pr.canMakePayment();
         
         if (canMakePaymentResult) {
-          console.log('Payment Request API available:', canMakePaymentResult);
           setPaymentRequest(pr);
           setCanMakePayment(true);
 
@@ -203,7 +225,6 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
             setIsLoading(false);
           });
         } else {
-          console.log('Payment Request API not available');
           setCanMakePayment(false);
         }
       } catch (error) {
@@ -217,6 +238,17 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
 
   const handleCardPayment = async () => {
     if (!stripe || !elements) return;
+
+    // Check terms first
+    if (!agreeToTerms) {
+      setTermsError(true);
+      // Scroll to terms checkbox
+      document.getElementById('terms-section')?.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      });
+      return;
+    }
 
     setIsLoading(true);
 
@@ -283,6 +315,15 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
   };
 
   const handleLinkRequest = async () => {
+    if (!agreeToTerms) {
+      setTermsError(true);
+      document.getElementById('terms-section')?.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      });
+      return;
+    }
+
     setIsLoading(true);
     
     try {
@@ -324,15 +365,57 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
     }
   };
 
-  const isFormValid = email && (
+  const isFormValid = email && agreeToTerms && (
     paymentMethodType === 'link' ? phone : 
-    (cardholderName && address && city && state && zip && agreeToTerms)
+    (cardholderName && address && city && state && zip)
   );
 
-  // Header subtitle display logic
-  const headerSubtitle = projectData?.isServicePackage 
-    ? `${projectData?.firstName || 'Guest'} • ${projectData?.projectName || 'Project'} • ${projectData?.packageName || 'Package'} • $${projectData?.total || 0}`
-    : `${projectData?.firstName || 'Guest'} • ${projectData?.projectName || 'Project'} • ${projectData?.hours || 0} hours • $${projectData?.total || 0}`;
+  // What's included list based on package or hours
+  const getIncludedItems = () => {
+    if (projectData?.isServicePackage) {
+      const packageFeatures = {
+        'Spark': [
+          { icon: FiZap, text: 'Complete website development', highlight: true },
+          { icon: FiGlobe, text: 'Blazing-fast CDN hosting included' },
+          { icon: FiCode, text: 'Custom design & branding' },
+          { icon: FiShield, text: 'SSL certificate & security' },
+          { icon: FiHeadphones, text: 'Lifetime support & updates' }
+        ],
+        'Ignite': [
+          { icon: FiZap, text: 'Everything in Spark, plus:', highlight: true },
+          { icon: FiCode, text: 'Advanced integrations & analytics' },
+          { icon: FiGlobe, text: 'Content management system' },
+          { icon: FiShield, text: 'Performance optimization' },
+          { icon: FiHeadphones, text: 'Priority support queue' }
+        ],
+        'Burro': [
+          { icon: FiZap, text: 'Everything in Ignite, plus:', highlight: true },
+          { icon: FiCode, text: 'Custom functionality & features' },
+          { icon: FiGlobe, text: 'E-commerce capabilities' },
+          { icon: FiShield, text: 'Advanced automation' },
+          { icon: FiHeadphones, text: 'White-glove service' }
+        ]
+      };
+      return packageFeatures[projectData.packageName] || [];
+    } else {
+      // For hourly packages
+      const hours = parseInt(projectData.hours);
+      const features = [
+        { icon: FiClock, text: `${hours} hours of expert development`, highlight: true },
+        { icon: FiCode, text: 'Full-stack implementation' },
+        { icon: FiZap, text: 'Agile development sprints' },
+        { icon: FiShield, text: 'Code reviews & best practices' }
+      ];
+      
+      if (hours >= 40) {
+        features.push({ icon: FiHeadphones, text: 'Priority support included' });
+      }
+      
+      return features;
+    }
+  };
+
+  const includedItems = getIncludedItems();
 
   return (
     <Container maxW="1200px" mx="auto" py={8}>
@@ -352,72 +435,158 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
             Complete Your Payment
           </Heading>
           <Text color="gray.400" fontSize={{ base: "md", md: "lg" }}>
-            {headerSubtitle}
+            Secure checkout powered by Stripe
           </Text>
         </VStack>
 
         {/* Two-Column Layout */}
         <Grid 
-          templateColumns={{ base: "1fr", lg: "380px 600px" }} 
-          gap={{ base: 8, lg: 16 }}
+          templateColumns={{ base: "1fr", lg: "420px 600px" }} 
+          gap={{ base: 8, lg: 12 }}
           alignItems="start"
           justifyContent="center"
           mx="auto"
-          maxW="1024px"
+          maxW="1100px"
         >
           
-          {/* Left Column - Order Summary */}
+          {/* Left Column - Enhanced Order Summary */}
           <GridItem>
             <Box
-              p={8}
-              bg="rgba(20, 20, 20, 0.8)"
-              border="1px solid"
-              borderColor="rgba(255, 255, 255, 0.1)"
-              borderRadius="xl"
-              height="fit-content"
               position={{ base: "relative", lg: "sticky" }}
               top={{ base: "0", lg: "100px" }}
             >
-              <Text color="white" fontSize="xl" fontWeight="700" mb={6}>
-                Payment for {projectData?.projectName || 'Project'}
-              </Text>
-              
-              <VStack spacing={6} align="stretch">
-                <Box>
-                  <HStack justify="space-between" mb={2}>
-                    <Text color="gray.200" fontWeight="600">
-                      {projectData?.isServicePackage 
-                        ? `${projectData?.packageName || 'Package'} - Includes project hours`
-                        : `${projectData?.hours || 0} Hours Package`
-                      }
-                    </Text>
-                    <Text color="gray.200" fontWeight="600">
-                      ${projectData?.total || 0}
-                    </Text>
+              {/* Main Order Card */}
+              <Box
+                p={8}
+                bg="rgba(10, 10, 10, 0.95)"
+                backdropFilter="blur(20px)"
+                border="1.5px solid"
+                borderColor="whiteAlpha.200"
+                borderRadius="xl"
+                boxShadow="0 20px 40px rgba(0,0,0,0.6)"
+                mb={6}
+              >
+                {/* Project Header */}
+                <VStack align="stretch" spacing={4} mb={6}>
+                  <HStack justify="space-between" align="start">
+                    <Box>
+                      <Text color="gray.400" fontSize="xs" fontWeight="600" letterSpacing="wider" mb={1}>
+                        PROJECT
+                      </Text>
+                      <Text color="white" fontSize="xl" fontWeight="700">
+                        {projectData?.projectName || 'Project'}
+                      </Text>
+                    </Box>
+                    {projectData?.isServicePackage && (
+                      <Badge
+                        bg={colors.brand.primary}
+                        color="black"
+                        fontSize="xs"
+                        fontWeight="800"
+                        px={3}
+                        py={1}
+                        borderRadius="full"
+                      >
+                        {projectData.packageName}
+                      </Badge>
+                    )}
                   </HStack>
-                  <Text color="gray.500" fontSize="sm">
-                    One-time payment
+                  
+                  <Box
+                    p={4}
+                    bg="rgba(0, 255, 255, 0.05)"
+                    borderRadius="lg"
+                    border="1px solid"
+                    borderColor="rgba(0, 255, 255, 0.2)"
+                  >
+                    <HStack justify="space-between">
+                      <Text color="gray.300" fontSize="sm">
+                        {projectData?.isServicePackage 
+                          ? `${projectData.packageName} Package`
+                          : `${projectData.hours} Development Hours`
+                        }
+                      </Text>
+                      <Text color={colors.brand.primary} fontSize="lg" fontWeight="700">
+                        ${projectData?.total || 0}
+                      </Text>
+                    </HStack>
+                  </Box>
+                </VStack>
+
+                <Divider borderColor="whiteAlpha.100" mb={6} />
+
+                {/* What's Included */}
+                <Box mb={6}>
+                  <Text color="gray.400" fontSize="xs" fontWeight="600" letterSpacing="wider" mb={3}>
+                    WHAT'S INCLUDED
                   </Text>
+                  <List spacing={3}>
+                    {includedItems.map((item, idx) => (
+                      <ListItem key={idx} fontSize="sm" color={item.highlight ? 'white' : 'gray.300'}>
+                        <ListIcon 
+                          as={item.icon} 
+                          color={item.highlight ? colors.accent.green : 'gray.500'} 
+                          fontSize="md"
+                        />
+                        {item.text}
+                      </ListItem>
+                    ))}
+                  </List>
                 </Box>
-                
-                <Box borderTop="1px solid" borderColor="rgba(255, 255, 255, 0.1)" pt={4}>
-                  <HStack justify="space-between" mb={1}>
-                    <Text color="gray.400">Subtotal</Text>
+
+                <Divider borderColor="whiteAlpha.100" mb={6} />
+
+                {/* Price Breakdown */}
+                <VStack spacing={4} align="stretch">
+                  <HStack justify="space-between">
+                    <Text color="gray.400" fontSize="sm">Subtotal</Text>
                     <Text color="gray.300">${projectData?.total || 0}</Text>
                   </HStack>
-                </Box>
-                
-                <Box borderTop="1px solid" borderColor="rgba(255, 255, 255, 0.1)" pt={4}>
                   <HStack justify="space-between">
-                    <Text color="white" fontWeight="700" fontSize="lg">
-                      Total
-                    </Text>
-                    <Text color="white" fontWeight="700" fontSize="xl">
-                      ${projectData?.total || 0}
-                    </Text>
+                    <Text color="gray.400" fontSize="sm">Tax</Text>
+                    <Text color="gray.300">$0</Text>
                   </HStack>
-                </Box>
-              </VStack>
+                  <Box borderTop="1px solid" borderColor="whiteAlpha.100" pt={4}>
+                    <HStack justify="space-between">
+                      <Text color="white" fontWeight="700" fontSize="lg">
+                        Total Due Today
+                      </Text>
+                      <Text 
+                        color={colors.accent.green} 
+                        fontWeight="800" 
+                        fontSize="2xl"
+                        filter={`drop-shadow(0 0 10px ${colors.accent.green}66)`}
+                      >
+                        ${projectData?.total || 0}
+                      </Text>
+                    </HStack>
+                  </Box>
+                </VStack>
+              </Box>
+
+              {/* Security Badge */}
+              <Box
+                p={4}
+                bg="rgba(57, 255, 20, 0.05)"
+                border="1px solid"
+                borderColor="rgba(57, 255, 20, 0.2)"
+                borderRadius="xl"
+                textAlign="center"
+              >
+                <HStack justify="center" spacing={3}>
+                  <Box color={colors.accent.green}>
+                    <FiLock size={20} />
+                  </Box>
+                  <VStack spacing={0} align="start">
+                    <Text color="white" fontSize="sm" fontWeight="600">
+                      Secure Payment
+                    </Text>
+                    <Text color="gray.400" fontSize="xs">
+                      256-bit SSL encryption
+                    </Text>
+                  </VStack>
+                </HStack>
+              </Box>
             </Box>
           </GridItem>
 
@@ -461,49 +630,10 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                   />
                 </Box>
 
-                {/* Express Checkout - Apple Pay / Google Pay */}
-                {canMakePayment && paymentRequest && stripe && (
-                  <Box>
-                    <Text color="white" fontSize="lg" fontWeight="600" mb={4}>
-                      Express checkout
-                    </Text>
-                    <Box
-                      bg="rgba(255, 255, 255, 0.02)"
-                      border="1px solid"
-                      borderColor="rgba(255, 255, 255, 0.1)"
-                      borderRadius="lg"
-                      p={4}
-                      mb={6}
-                    >
-                      <PaymentRequestButtonElement 
-                        options={{
-                          paymentRequest: paymentRequest,
-                          style: {
-                            paymentRequestButton: {
-                              type: 'default',
-                              theme: 'dark',
-                              height: '56px',
-                            },
-                          },
-                        }}
-                      />
-                    </Box>
-                    
-                    {/* Divider with "or" text */}
-                    <HStack mb={6}>
-                      <Divider borderColor="rgba(255, 255, 255, 0.2)" />
-                      <Text color="gray.500" fontSize="sm" px={4}>
-                        or
-                      </Text>
-                      <Divider borderColor="rgba(255, 255, 255, 0.2)" />
-                    </HStack>
-                  </Box>
-                )}
-
                 {/* Payment Method */}
                 <Box>
                   <Text color="white" fontSize="lg" fontWeight="600" mb={4}>
-                    {canMakePayment ? 'Pay with card or Link' : 'Payment method'}
+                    Payment method
                   </Text>
                   
                   <RadioGroup 
@@ -696,12 +826,12 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                               />
                             </Box>
                             
-                            {/* Billing Address */}
+                            {/* Enhanced Billing Address with Better Spacing */}
                             <Box>
                               <Text color="gray.400" fontSize="sm" fontWeight="500" mb={3}>
                                 Billing address
                               </Text>
-                              <VStack spacing={3}>
+                              <VStack spacing={4}>
                                 <Select
                                   value={country}
                                   onChange={(e) => setCountry(e.target.value)}
@@ -733,7 +863,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                                 </Select>
                                 
                                 <Input
-                                  placeholder="Address"
+                                  placeholder="Street address"
                                   value={address}
                                   onChange={(e) => setAddress(e.target.value)}
                                   bg="rgba(255, 255, 255, 0.05)"
@@ -758,87 +888,94 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                                   name="address"
                                 />
                                 
-                                <HStack spacing={3}>
-                                  <Input
-                                    placeholder="City"
-                                    value={city}
-                                    onChange={(e) => setCity(e.target.value)}
-                                    bg="rgba(255, 255, 255, 0.05)"
-                                    border="1px solid"
-                                    borderColor="rgba(255, 255, 255, 0.15)"
-                                    color="white"
-                                    height="52px"
-                                    fontSize="16px"
-                                    _placeholder={{ color: 'gray.500' }}
-                                    _hover={{ 
-                                      borderColor: 'rgba(255, 255, 255, 0.25)',
-                                      bg: 'rgba(255, 255, 255, 0.08)'
-                                    }}
-                                    _focus={{ 
-                                      borderColor: 'rgba(255, 255, 255, 0.4)',
-                                      boxShadow: 'none',
-                                      bg: 'rgba(255, 255, 255, 0.08)'
-                                    }}
-                                    borderRadius="lg"
-                                    required
-                                    autoComplete="address-level2"
-                                    name="city"
-                                  />
+                                {/* Improved City/State/ZIP Layout */}
+                                <Grid templateColumns={{ base: "1fr", md: "2fr 1fr 1fr" }} gap={3}>
+                                  <GridItem>
+                                    <Input
+                                      placeholder="City"
+                                      value={city}
+                                      onChange={(e) => setCity(e.target.value)}
+                                      bg="rgba(255, 255, 255, 0.05)"
+                                      border="1px solid"
+                                      borderColor="rgba(255, 255, 255, 0.15)"
+                                      color="white"
+                                      height="52px"
+                                      fontSize="16px"
+                                      _placeholder={{ color: 'gray.500' }}
+                                      _hover={{ 
+                                        borderColor: 'rgba(255, 255, 255, 0.25)',
+                                        bg: 'rgba(255, 255, 255, 0.08)'
+                                      }}
+                                      _focus={{ 
+                                        borderColor: 'rgba(255, 255, 255, 0.4)',
+                                        boxShadow: 'none',
+                                        bg: 'rgba(255, 255, 255, 0.08)'
+                                      }}
+                                      borderRadius="lg"
+                                      required
+                                      autoComplete="address-level2"
+                                      name="city"
+                                    />
+                                  </GridItem>
                                   
-                                  <Input
-                                    placeholder="State"
-                                    value={state}
-                                    onChange={(e) => setState(e.target.value)}
-                                    bg="rgba(255, 255, 255, 0.05)"
-                                    border="1px solid"
-                                    borderColor="rgba(255, 255, 255, 0.15)"
-                                    color="white"
-                                    height="52px"
-                                    fontSize="16px"
-                                    maxW="120px"
-                                    _placeholder={{ color: 'gray.500' }}
-                                    _hover={{ 
-                                      borderColor: 'rgba(255, 255, 255, 0.25)',
-                                      bg: 'rgba(255, 255, 255, 0.08)'
-                                    }}
-                                    _focus={{ 
-                                      borderColor: 'rgba(255, 255, 255, 0.4)',
-                                      boxShadow: 'none',
-                                      bg: 'rgba(255, 255, 255, 0.08)'
-                                    }}
-                                    borderRadius="lg"
-                                    required
-                                    autoComplete="address-level1"
-                                    name="state"
-                                  />
+                                  <GridItem>
+                                    <Input
+                                      placeholder="State"
+                                      value={state}
+                                      onChange={(e) => setState(e.target.value)}
+                                      bg="rgba(255, 255, 255, 0.05)"
+                                      border="1px solid"
+                                      borderColor="rgba(255, 255, 255, 0.15)"
+                                      color="white"
+                                      height="52px"
+                                      fontSize="16px"
+                                      _placeholder={{ color: 'gray.500' }}
+                                      _hover={{ 
+                                        borderColor: 'rgba(255, 255, 255, 0.25)',
+                                        bg: 'rgba(255, 255, 255, 0.08)'
+                                      }}
+                                      _focus={{ 
+                                        borderColor: 'rgba(255, 255, 255, 0.4)',
+                                        boxShadow: 'none',
+                                        bg: 'rgba(255, 255, 255, 0.08)'
+                                      }}
+                                      borderRadius="lg"
+                                      required
+                                      autoComplete="address-level1"
+                                      name="state"
+                                      maxLength={2}
+                                      style={{ textTransform: 'uppercase' }}
+                                    />
+                                  </GridItem>
                                   
-                                  <Input
-                                    placeholder="ZIP"
-                                    value={zip}
-                                    onChange={(e) => setZip(e.target.value)}
-                                    bg="rgba(255, 255, 255, 0.05)"
-                                    border="1px solid"
-                                    borderColor="rgba(255, 255, 255, 0.15)"
-                                    color="white"
-                                    height="52px"
-                                    fontSize="16px"
-                                    maxW="140px"
-                                    _placeholder={{ color: 'gray.500' }}
-                                    _hover={{ 
-                                      borderColor: 'rgba(255, 255, 255, 0.25)',
-                                      bg: 'rgba(255, 255, 255, 0.08)'
-                                    }}
-                                    _focus={{ 
-                                      borderColor: 'rgba(255, 255, 255, 0.4)',
-                                      boxShadow: 'none',
-                                      bg: 'rgba(255, 255, 255, 0.08)'
-                                    }}
-                                    borderRadius="lg"
-                                    required
-                                    autoComplete="postal-code"
-                                    name="zip"
-                                  />
-                                </HStack>
+                                  <GridItem>
+                                    <Input
+                                      placeholder="ZIP"
+                                      value={zip}
+                                      onChange={(e) => setZip(e.target.value)}
+                                      bg="rgba(255, 255, 255, 0.05)"
+                                      border="1px solid"
+                                      borderColor="rgba(255, 255, 255, 0.15)"
+                                      color="white"
+                                      height="52px"
+                                      fontSize="16px"
+                                      _placeholder={{ color: 'gray.500' }}
+                                      _hover={{ 
+                                        borderColor: 'rgba(255, 255, 255, 0.25)',
+                                        bg: 'rgba(255, 255, 255, 0.08)'
+                                      }}
+                                      _focus={{ 
+                                        borderColor: 'rgba(255, 255, 255, 0.4)',
+                                        boxShadow: 'none',
+                                        bg: 'rgba(255, 255, 255, 0.08)'
+                                      }}
+                                      borderRadius="lg"
+                                      required
+                                      autoComplete="postal-code"
+                                      name="zip"
+                                    />
+                                  </GridItem>
+                                </Grid>
                               </VStack>
                             </Box>
                           </VStack>
@@ -921,49 +1058,158 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                   </RadioGroup>
                 </Box>
 
-                {/* Terms Checkbox */}
-                <Box>
-                  <Checkbox
-                    isChecked={agreeToTerms}
-                    onChange={(e) => setAgreeToTerms(e.target.checked)}
-                    colorScheme="cyan"
-                    size="md"
-                    sx={{
-                      '.chakra-checkbox__control': {
-                        borderColor: 'rgba(255, 255, 255, 0.3)',
-                        _checked: {
-                          bg: colors.brand.primary,
-                          borderColor: colors.brand.primary,
-                        }
-                      }
+                {/* Express Checkout - Apple Pay / Google Pay */}
+                {canMakePayment && paymentRequest && stripe && (
+                  <Box>
+                    <HStack mb={4}>
+                      <Divider borderColor="rgba(255, 255, 255, 0.2)" />
+                      <Text color="gray.500" fontSize="sm" px={4} whiteSpace="nowrap">
+                        or pay with
+                      </Text>
+                      <Divider borderColor="rgba(255, 255, 255, 0.2)" />
+                    </HStack>
+                    
+                    <Box
+                      bg="rgba(255, 255, 255, 0.02)"
+                      border="1px solid"
+                      borderColor="rgba(255, 255, 255, 0.1)"
+                      borderRadius="lg"
+                      p={4}
+                    >
+                      <PaymentRequestButtonElement 
+                        options={{
+                          paymentRequest: paymentRequest,
+                          style: {
+                            paymentRequestButton: {
+                              type: 'default',
+                              theme: 'dark',
+                              height: '56px',
+                            },
+                          },
+                        }}
+                      />
+                    </Box>
+                  </Box>
+                )}
+
+                {/* Enhanced Terms Checkbox Section */}
+                <Box id="terms-section">
+                  <AnimatePresence>
+                    {termsError && !agreeToTerms && (
+                      <MotionBox
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <Alert 
+                          status="warning" 
+                          variant="subtle" 
+                          borderRadius="lg"
+                          bg="rgba(255, 152, 0, 0.1)"
+                          border="1px solid"
+                          borderColor="rgba(255, 152, 0, 0.3)"
+                          mb={4}
+                        >
+                          <AlertIcon color="orange.400" />
+                          <AlertDescription color="orange.200" fontSize="sm">
+                            Please accept the terms to continue with payment
+                          </AlertDescription>
+                        </Alert>
+                      </MotionBox>
+                    )}
+                  </AnimatePresence>
+
+                  <Box
+                    p={5}
+                    bg={agreeToTerms ? "rgba(57, 255, 20, 0.05)" : "rgba(255, 255, 255, 0.03)"}
+                    border="2px solid"
+                    borderColor={
+                      termsError && !agreeToTerms 
+                        ? "rgba(255, 152, 0, 0.5)" 
+                        : agreeToTerms 
+                        ? "rgba(57, 255, 20, 0.3)" 
+                        : "rgba(255, 255, 255, 0.15)"
+                    }
+                    borderRadius="lg"
+                    transition="all 0.3s"
+                    cursor="pointer"
+                    onClick={() => {
+                      setAgreeToTerms(!agreeToTerms);
+                      if (termsError) setTermsError(false);
+                    }}
+                    _hover={{
+                      borderColor: agreeToTerms 
+                        ? "rgba(57, 255, 20, 0.4)" 
+                        : "rgba(255, 255, 255, 0.25)",
+                      bg: agreeToTerms 
+                        ? "rgba(57, 255, 20, 0.08)" 
+                        : "rgba(255, 255, 255, 0.05)"
                     }}
                   >
-                    <Text color="gray.400" fontSize="sm" lineHeight="1.6">
-                      You'll be charged ${projectData?.total || 0} for {projectData?.isServicePackage 
-                        ? `the ${projectData?.packageName || 'package'}`
-                        : `${projectData?.hours || 0} hours of development work`
-                      }. 
-                      By completing this payment, you agree to our{' '}
-                      <Link 
-                        href="https://neonburro.com/terms/" 
-                        color={colors.brand.primary} 
-                        textDecoration="underline"
-                        isExternal
-                      >
-                        Terms of Service
-                      </Link>
-                      {' '}and{' '}
-                      <Link 
-                        href="https://neonburro.com/privacy/" 
-                        color={colors.brand.primary} 
-                        textDecoration="underline"
-                        isExternal
-                      >
-                        Privacy Policy
-                      </Link>
-                      .
-                    </Text>
-                  </Checkbox>
+                    <HStack align="start" spacing={4}>
+                      <Box mt={1}>
+                        <Checkbox
+                          isChecked={agreeToTerms}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            setAgreeToTerms(e.target.checked);
+                            if (termsError) setTermsError(false);
+                          }}
+                          colorScheme="green"
+                          size="lg"
+                          sx={{
+                            '.chakra-checkbox__control': {
+                              borderColor: agreeToTerms ? colors.accent.green : 'rgba(255, 255, 255, 0.3)',
+                              borderWidth: '2px',
+                              _checked: {
+                                bg: colors.accent.green,
+                                borderColor: colors.accent.green,
+                              }
+                            }
+                          }}
+                        />
+                      </Box>
+                      <VStack align="start" spacing={2} flex={1}>
+                        <HStack>
+                          <FiShield size={16} color={agreeToTerms ? colors.accent.green : '#9CA3AF'} />
+                          <Text 
+                            color={agreeToTerms ? "white" : "gray.300"} 
+                            fontSize="sm" 
+                            fontWeight="600"
+                          >
+                            I agree to the terms of service
+                          </Text>
+                        </HStack>
+                        <Text color="gray.400" fontSize="xs" lineHeight="1.6">
+                          By completing this payment of ${projectData?.total || 0} for {projectData?.isServicePackage 
+                            ? `the ${projectData?.packageName || 'package'}`
+                            : `${projectData?.hours || 0} hours of development work`
+                          }, you agree to our{' '}
+                          <Link 
+                            href="https://neonburro.com/terms/" 
+                            color={colors.brand.primary} 
+                            textDecoration="underline"
+                            isExternal
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Terms of Service
+                          </Link>
+                          {' '}and{' '}
+                          <Link 
+                            href="https://neonburro.com/privacy/" 
+                            color={colors.brand.primary} 
+                            textDecoration="underline"
+                            isExternal
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Privacy Policy
+                          </Link>
+                          . This is a one-time payment with no recurring charges.
+                        </Text>
+                      </VStack>
+                    </HStack>
+                  </Box>
                 </Box>
 
                 {/* Submit Button */}
@@ -976,12 +1222,13 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                     color="black"
                     width="100%"
                     isLoading={isLoading}
-                    loadingText="Processing..."
+                    loadingText="Processing payment..."
                     fontWeight="700"
                     borderRadius="lg"
                     height="56px"
                     fontSize="16px"
                     isDisabled={!isFormValid}
+                    leftIcon={!isLoading && <RiSecurePaymentLine size={20} />}
                     _hover={{
                       bg: colors.accent.green,
                       transform: 'translateY(-1px)',
@@ -992,22 +1239,22 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                     }}
                     _disabled={{
                       opacity: 0.5,
-                      cursor: 'not-allowed'
+                      cursor: 'not-allowed',
+                      transform: 'none',
+                      boxShadow: 'none'
                     }}
                     transition="all 0.2s"
                   >
                     Complete Payment
                   </Button>
-                </Box>
-
-                {/* Powered by Stripe */}
-                <Box textAlign="center">
-                  <Text color="gray.500" fontSize="sm">
-                    Powered by{' '}
-                    <Text as="span" color="gray.400" fontWeight="600">
-                      stripe
+                  
+                  {/* Security Note */}
+                  <HStack justify="center" mt={3} spacing={2}>
+                    <FiLock size={14} color="#6B7280" />
+                    <Text color="gray.500" fontSize="xs">
+                      Secure payment powered by Stripe
                     </Text>
-                  </Text>
+                  </HStack>
                 </Box>
 
                 {/* Back Button */}
