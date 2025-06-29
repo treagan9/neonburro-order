@@ -1094,31 +1094,6 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
 
                 {/* Enhanced Terms Checkbox Section */}
                 <Box id="terms-section">
-                  <AnimatePresence>
-                    {termsError && !agreeToTerms && (
-                      <MotionBox
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <Alert 
-                          status="warning" 
-                          variant="subtle" 
-                          borderRadius="lg"
-                          bg="rgba(255, 152, 0, 0.1)"
-                          border="1px solid"
-                          borderColor="rgba(255, 152, 0, 0.3)"
-                          mb={4}
-                        >
-                          <AlertIcon color="orange.400" />
-                          <AlertDescription color="orange.200" fontSize="sm">
-                            Please accept the terms to continue with payment
-                          </AlertDescription>
-                        </Alert>
-                      </MotionBox>
-                    )}
-                  </AnimatePresence>
 
                   <Box
                     p={5}
@@ -1182,10 +1157,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                           </Text>
                         </HStack>
                         <Text color="gray.400" fontSize="xs" lineHeight="1.6">
-                          By completing this payment of ${projectData?.total || 0} for {projectData?.isServicePackage 
-                            ? `the ${projectData?.packageName || 'package'}`
-                            : `${projectData?.hours || 0} hours of development work`
-                          }, you agree to our{' '}
+                          I agree to Neon Burro's{' '}
                           <Link 
                             href="https://neonburro.com/terms/" 
                             color={colors.brand.primary} 
@@ -1193,20 +1165,21 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                             isExternal
                             onClick={(e) => e.stopPropagation()}
                           >
-                            Terms of Service
+                            terms
                           </Link>
-                          {' '}and{' '}
-                          <Link 
-                            href="https://neonburro.com/privacy/" 
-                            color={colors.brand.primary} 
-                            textDecoration="underline"
-                            isExternal
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            Privacy Policy
-                          </Link>
-                          . This is a one-time payment with no recurring charges.
+                          {' '}and acknowledge this ${projectData?.total || 0} payment starts our creative journey together.
                         </Text>
+                        {termsError && !agreeToTerms && (
+                          <Text 
+                            color="#FF6B35" 
+                            fontSize="xs" 
+                            fontWeight="600"
+                            mt={2}
+                            filter="drop-shadow(0 0 8px #FF6B3566)"
+                          >
+                            ✨ Hold up! Check this box to seal the deal.
+                          </Text>
+                        )}
                       </VStack>
                     </HStack>
                   </Box>
