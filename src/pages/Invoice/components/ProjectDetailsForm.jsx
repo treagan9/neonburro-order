@@ -16,7 +16,10 @@ import {
   ListIcon,
   Fade,
   ScaleFade,
-  Checkbox  // ADD THIS IMPORT
+  Checkbox,
+  Divider,
+  Icon,
+  useToast
 } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
@@ -30,30 +33,55 @@ import {
   FiClock,
   FiArrowRight,
   FiCheck,
-  FiLayers,
   FiPackage
 } from 'react-icons/fi';
 import { IoRocketOutline } from 'react-icons/io5';
-import { RiSparklingLine, RiFireLine, RiStarLine } from 'react-icons/ri';
+import { RiSparklingLine, RiFireLine, RiStarLine, RiVipCrownLine } from 'react-icons/ri';
 
 const MotionBox = motion(Box);
 const MotionVStack = motion(VStack);
 
-const ProjectDetailsForm = ({ onContinue }) => {
-  const [firstName, setFirstName] = useState('');
-  const [projectName, setProjectName] = useState('');
-  const [hours, setHours] = useState('');
+const ProjectDetailsForm = ({ onContinue, initialData }) => {
+  const toast = useToast();
+  const [firstName, setFirstName] = useState(initialData?.firstName || '');
+  const [projectName, setProjectName] = useState(initialData?.projectName || '');
+  const [hours, setHours] = useState(initialData?.hours || '');
   const [isCustomHours, setIsCustomHours] = useState(false);
   const [clientType, setClientType] = useState(''); // 'existing' or 'new'
-  const [selectedPackage, setSelectedPackage] = useState('');
+  const [selectedPackage, setSelectedPackage] = useState(initialData?.packageType || '');
   const [wantsHostingDetails, setWantsHostingDetails] = useState(false);
   
   const hourlyRate = 33;
-  const total = selectedPackage ? 
-    (selectedPackage === 'spark' ? 499 : selectedPackage === 'ignite' ? 999 : 2499) :
-    (hours ? parseInt(hours) * hourlyRate : 0);
+  
+  // Calculate total based on selection
+  const getTotal = () => {
+    if (selectedPackage) {
+      const packagePrices = {
+        'spark': 499,
+        'ignite': 999,
+        'burro': 2499,
+        'vip': 9999
+      };
+      return packagePrices[selectedPackage] || 0;
+    }
+    return hours ? parseInt(hours) * hourlyRate : 0;
+  };
 
-  // Hour packages with professional icons
+  const total = getTotal();
+
+  // Colors
+  const colors = {
+    brand: { primary: '#00FFFF' },
+    accent: { green: '#39FF14' },
+    copper: '#FF6B35',
+    vip: { 
+      primary: '#D4AF37', // Gold
+      secondary: '#B87333', // Copper
+      accent: '#FFD700' // Bright gold
+    }
+  };
+
+  // Hour packages
   const hourPackages = [
     { 
       value: '10', 
@@ -99,7 +127,6 @@ const ProjectDetailsForm = ({ onContinue }) => {
       description: 'Everything you need to shine online',
       icon: RiSparklingLine,
       color: '#00FFFF',
-      gradient: 'linear(to-br, cyan.400, blue.500)',
       features: [
         'Blazing fast, fully hosted website',
         'Custom design that captures your vision',
@@ -108,7 +135,8 @@ const ProjectDetailsForm = ({ onContinue }) => {
         'Mobile-first responsive design',
         'Lifetime support & updates'
       ],
-      vibe: 'Perfect scope to get you launched'
+      vibe: 'Perfect scope to get you launched',
+      timeline: '2-3 weeks'
     },
     {
       id: 'ignite',
@@ -119,7 +147,6 @@ const ProjectDetailsForm = ({ onContinue }) => {
       description: 'Your digital presence, supercharged',
       icon: RiFireLine,
       color: '#FF6B35',
-      gradient: 'linear(to-br, orange.400, red.500)',
       features: [
         'Everything in Spark, plus:',
         'Advanced integrations & analytics',
@@ -128,7 +155,8 @@ const ProjectDetailsForm = ({ onContinue }) => {
         'Performance optimization',
         'Priority support queue'
       ],
-      vibe: 'Extra fuel for ambitious growth'
+      vibe: 'Extra fuel for ambitious growth',
+      timeline: '3-4 weeks'
     },
     {
       id: 'burro',
@@ -138,7 +166,6 @@ const ProjectDetailsForm = ({ onContinue }) => {
       description: 'The complete digital transformation',
       icon: RiStarLine,
       color: '#FFD700',
-      gradient: 'linear(to-br, yellow.400, orange.400)',
       features: [
         'Everything in Ignite, plus:',
         'Custom functionality & features',
@@ -147,15 +174,33 @@ const ProjectDetailsForm = ({ onContinue }) => {
         'Advanced automation',
         'White-glove service'
       ],
-      vibe: 'Unlimited possibilities, zero limits'
+      vibe: 'Unlimited possibilities, zero limits',
+      timeline: '4-6 weeks'
+    },
+    {
+      id: 'vip',
+      name: 'VIP',
+      tagline: 'EXCLUSIVE PARTNERSHIP',
+      price: 9999,
+      badge: 'VIP EXCLUSIVE',
+      description: 'Where dreams become digital reality',
+      icon: RiVipCrownLine,
+      color: colors.vip.primary,
+      features: [
+        'Everything in Burro, plus:',
+        'Entire core team dedicated to your project',
+        'Direct access to founders & leadership',
+        'Weekly strategy sessions',
+        'Instant priority status',
+        'VIP member benefits & exclusive gifts',
+        'Lifetime VIP support tier',
+        'Custom everything - no limits'
+      ],
+      vibe: 'Your vision, our obsession',
+      timeline: 'Priority delivery',
+      special: true
     }
   ];
-
-  // Colors
-  const colors = {
-    brand: { primary: '#00FFFF' },
-    accent: { green: '#39FF14' }
-  };
 
   const handleHourSelection = (pkg) => {
     setHours(pkg.value);
@@ -164,36 +209,49 @@ const ProjectDetailsForm = ({ onContinue }) => {
   };
 
   const handleCustomHours = (value) => {
-    setHours(value);
+    const numValue = value.replace(/\D/g, ''); // Only allow numbers
+    setHours(numValue);
     setIsCustomHours(true);
     setSelectedPackage('');
   };
 
-  const handlePackageSelection = (pkg) => {
-    setSelectedPackage(pkg);
+  const handlePackageSelection = (pkgId) => {
+    setSelectedPackage(pkgId);
     setHours('');
     setIsCustomHours(false);
+    
+    if (pkgId === 'vip') {
+      toast({
+        title: "VIP Package Selected! 👑",
+        description: "Get ready for the ultimate web development experience",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+        position: "top"
+      });
+    }
   };
 
   const handleSubmit = () => {
     if (!firstName || !projectName || (!hours && !selectedPackage)) return;
     
+    const pkg = servicePackages.find(p => p.id === selectedPackage);
+    
     const data = {
       firstName,
       projectName,
-      total
+      total,
+      ...(selectedPackage ? {
+        packageType: selectedPackage,
+        packageName: pkg?.name || '',
+        isServicePackage: true,
+        wantsHostingDetails,
+        isVip: selectedPackage === 'vip'
+      } : {
+        hours,
+        isServicePackage: false
+      })
     };
-
-    if (selectedPackage) {
-      const pkg = servicePackages.find(p => p.id === selectedPackage);
-      data.packageType = pkg.name;
-      data.packageName = pkg.name;
-      data.isServicePackage = true;
-      data.wantsHostingDetails = wantsHostingDetails;
-    } else {
-      data.hours = hours;
-      data.isServicePackage = false;
-    }
 
     onContinue(data);
   };
@@ -226,10 +284,10 @@ const ProjectDetailsForm = ({ onContinue }) => {
             fontWeight="800"
             letterSpacing="-0.02em"
           >
-            Let's Get Started
+            Let's Build Something Amazing
           </Heading>
           <Text color="gray.400" fontSize={{ base: "md", md: "lg" }}>
-            Tell us about your project
+            Your journey to digital excellence starts here
           </Text>
         </VStack>
 
@@ -560,6 +618,7 @@ const ProjectDetailsForm = ({ onContinue }) => {
                       {servicePackages.map((pkg) => {
                         const Icon = pkg.icon;
                         const isSelected = selectedPackage === pkg.id;
+                        const isVip = pkg.id === 'vip';
                         
                         return (
                           <Box
@@ -568,7 +627,10 @@ const ProjectDetailsForm = ({ onContinue }) => {
                             borderRadius="xl"
                             border="3px solid"
                             borderColor={isSelected ? pkg.color : 'whiteAlpha.200'}
-                            bg={isSelected ? `${pkg.color}11` : 'rgba(255, 255, 255, 0.03)'}
+                            bg={isSelected ? 
+                              (isVip ? 'rgba(212, 175, 55, 0.05)' : `${pkg.color}11`) : 
+                              'rgba(255, 255, 255, 0.03)'
+                            }
                             cursor="pointer"
                             transition="all 0.3s"
                             onClick={() => handlePackageSelection(pkg.id)}
@@ -581,13 +643,25 @@ const ProjectDetailsForm = ({ onContinue }) => {
                             }}
                             width="100%"
                           >
+                            {isVip && (
+                              <Box
+                                position="absolute"
+                                top={0}
+                                left={0}
+                                right={0}
+                                height="100px"
+                                bgGradient={`linear(to-b, ${colors.vip.primary}22, transparent)`}
+                                opacity={0.5}
+                              />
+                            )}
+
                             {pkg.badge && (
                               <Badge
                                 position="absolute"
                                 top={4}
                                 right={4}
                                 bg={pkg.color}
-                                color="black"
+                                color={isVip ? 'black' : 'black'}
                                 fontSize="xs"
                                 fontWeight="800"
                                 px={3}
@@ -598,13 +672,13 @@ const ProjectDetailsForm = ({ onContinue }) => {
                               </Badge>
                             )}
 
-                            <VStack align="stretch" spacing={4}>
+                            <VStack align="stretch" spacing={4} position="relative">
                               <HStack>
                                 <Box 
                                   p={3}
                                   borderRadius="lg"
-                                  bgGradient={pkg.gradient}
-                                  color="white"
+                                  bg={isVip ? colors.vip.primary : pkg.color}
+                                  color={isVip ? 'black' : 'white'}
                                 >
                                   <Icon size={24} />
                                 </Box>
@@ -746,17 +820,17 @@ const ProjectDetailsForm = ({ onContinue }) => {
                 >
                   <Box
                     p={5}
-                    bg="rgba(0, 255, 255, 0.05)"
+                    bg={selectedPackage === 'vip' ? 'rgba(212, 175, 55, 0.05)' : 'rgba(0, 255, 255, 0.05)'}
                     borderRadius="xl"
                     border="2px solid"
-                    borderColor={colors.brand.primary + '44'}
+                    borderColor={selectedPackage === 'vip' ? `${colors.vip.primary}44` : `${colors.brand.primary}44`}
                   >
                     <HStack justify="space-between">
                       <VStack align="start" spacing={0}>
                         {selectedPackage ? (
                           <>
                             <Text color="gray.400" fontSize="sm">
-                              {servicePackages.find(p => p.id === selectedPackage).name} Package
+                              {servicePackages.find(p => p.id === selectedPackage)?.name} Package
                             </Text>
                             <Text color="white" fontSize="lg" fontWeight="600">
                               Total Investment
@@ -775,10 +849,10 @@ const ProjectDetailsForm = ({ onContinue }) => {
                       </VStack>
                       <VStack align="end" spacing={0}>
                         <Text 
-                          color={colors.brand.primary}
+                          color={selectedPackage === 'vip' ? colors.vip.primary : colors.brand.primary}
                           fontSize="3xl"
                           fontWeight="800" 
-                          filter={`drop-shadow(0 0 10px ${colors.brand.primary}66)`}
+                          filter={`drop-shadow(0 0 10px ${selectedPackage === 'vip' ? colors.vip.primary : colors.brand.primary}66)`}
                         >
                           ${total.toLocaleString()}
                         </Text>
@@ -793,8 +867,8 @@ const ProjectDetailsForm = ({ onContinue }) => {
             <Button
               onClick={handleSubmit}
               size="lg"
-              bg={colors.brand.primary}
-              color="black"
+              bg={selectedPackage === 'vip' ? colors.vip.primary : colors.brand.primary}
+              color={selectedPackage === 'vip' ? 'black' : 'black'}
               width="100%"
               fontWeight="700"
               fontSize="md"
@@ -803,9 +877,9 @@ const ProjectDetailsForm = ({ onContinue }) => {
               borderRadius="full"
               rightIcon={<FiArrowRight />}
               _hover={{
-                bg: colors.brand.primary,
+                bg: selectedPackage === 'vip' ? colors.vip.secondary : colors.brand.primary,
                 transform: 'translateY(-2px)',
-                boxShadow: `0 10px 30px ${colors.brand.primary}66`
+                boxShadow: `0 10px 30px ${selectedPackage === 'vip' ? colors.vip.primary : colors.brand.primary}66`
               }}
               _active={{
                 transform: 'translateY(0)'
