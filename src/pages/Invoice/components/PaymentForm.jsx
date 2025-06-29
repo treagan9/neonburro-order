@@ -1,4 +1,105 @@
-// src/pages/Invoice/components/PaymentForm.jsx
+{/* Link Option */}
+                      <Box
+                        p={5}
+                        borderRadius="lg"
+                        border="2px solid"
+                        borderColor={paymentMethodType === 'link' ? 'rgba(0, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.1)'}
+                        bg={paymentMethodType === 'link' ? 'rgba(0, 255, 255, 0.03)' : 'transparent'}
+                        cursor="pointer"
+                        onClick={() => setPaymentMethodType('link')}
+                        transition="all 0.2s"
+                        _hover={{
+                          borderColor: paymentMethodType === 'link' ? 'rgba(0, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.15)'
+                        }}
+                      >
+                        <HStack spacing={4} mb={paymentMethodType === 'link' ? 5 : 0}>
+                          <Radio 
+                            value="link" 
+                            colorScheme="cyan"
+                            size="lg"
+                            borderColor="gray.500"
+                            _checked={{
+                              bg: colors.brand.primary,
+                              borderColor: colors.brand.primary,
+                              _before: {
+                                content: '""',
+                                display: 'inline-block',
+                                position: 'relative',
+                                width: '50%',
+                                height: '50%',
+                                borderRadius: '50%',
+                                bg: 'black',
+                              }
+                            }}
+                          />
+                          <FiLink size={20} color={paymentMethodType === 'link' ? colors.brand.primary : '#9CA3AF'} />
+                          <Text color="white" fontWeight="600" fontSize="16px">Link</Text>
+                        </HStack>
+                        
+                        {paymentMethodType === 'link' && (
+                          <VStack spacing={4} align="stretch">
+                            <Text color="gray.400" fontSize="sm">
+                              Save payment info & checkout faster next time
+                            </Text>
+                            <Input
+                              type="tel"
+                              placeholder="(201) 555-0123"
+                              value={phone}
+                              onChange={(e) => setPhone(e.target.value)}
+                              bg="rgba(255, 255, 255, 0.05)"
+                              border="1px solid"
+                              borderColor="rgba(255, 255, 255, 0.15)"
+                              color="white"
+                              height="52px"
+                              fontSize="16px"
+                              _placeholder={{ color: 'gray.500' }}
+                              _hover={{ 
+                                borderColor: 'rgba(255, 255, 255, 0.25)',
+                                bg: 'rgba(255, 255, 255, 0.08)'
+                              }}
+                              _focus={{ 
+                                borderColor: 'rgba(255, 255, 255, 0.4)',
+                                boxShadow: 'none',
+                                bg: 'rgba(255, 255, 255, 0.08)'
+                              }}
+                              borderRadius="lg"
+                              autoComplete="tel"
+                              name="phone"
+                            />
+                          </VStack>
+                        )}
+                      </Box>
+
+                    </VStack>
+                  </RadioGroup>
+                  
+                  {/* Terms Checkbox - Now inside payment method section */}
+                  <Box mt={6}>
+                    <Checkbox
+                      isChecked={agreeToTerms}
+                      onChange={(e) => {
+                        setAgreeToTerms(e.target.checked);
+                        if (termsError) setTermsError(false);
+                      }}
+                      colorScheme="green"
+                      size="md"
+                      sx={{
+                        '.chakra-checkbox__control': {
+                          borderColor: agreeToTerms ? colors.accent.green : 'rgba(255, 255, 255, 0.3)',
+                          borderWidth: '2px',
+                          _checked: {
+                            bg: colors.accent.green,
+                            borderColor: colors.accent.green,
+                          }
+                        }
+                      }}
+                    >
+                      <Text color="gray.400" fontSize="sm" lineHeight="1.6">
+                        I agree to Neon Burro's{' '}
+                        <Link 
+                          href="https://neonburro.com/terms/" 
+                          color={colors.brand.primary} 
+                          textDecoration="// src/pages/Invoice/components/PaymentForm.jsx
 import { 
   Box, 
   VStack, 
@@ -38,7 +139,8 @@ import {
   FiGlobe,
   FiHeadphones,
   FiCode,
-  FiLock
+  FiLock,
+  FiAlertCircle
 } from 'react-icons/fi';
 import { RiSecurePaymentLine } from 'react-icons/ri';
 import { 
@@ -360,6 +462,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
 
   const isFormValid = email && agreeToTerms && (
     paymentMethodType === 'link' ? phone : 
+    paymentMethodType === 'apple' ? true :
     (cardholderName && address && city && state && zip)
   );
 
