@@ -253,17 +253,6 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
   const handleCardPayment = async () => {
     if (!stripe || !elements) return;
 
-    // Check terms first
-    if (!agreeToTerms) {
-      setTermsError(true);
-      // Scroll to terms checkbox
-      document.getElementById('terms-section')?.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'center' 
-      });
-      return;
-    }
-
     setIsLoading(true);
 
     try {
@@ -329,15 +318,6 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
   };
 
   const handleLinkRequest = async () => {
-    if (!agreeToTerms) {
-      setTermsError(true);
-      document.getElementById('terms-section')?.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'center' 
-      });
-      return;
-    }
-
     setIsLoading(true);
     
     try {
@@ -383,6 +363,28 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
     paymentMethodType === 'link' ? phone : 
     (cardholderName && address && city && state && zip)
   );
+
+  const handlePaymentAttempt = (paymentHandler) => {
+    // Always check terms first before any payment
+    if (!agreeToTerms) {
+      setTermsError(true);
+      document.getElementById('terms-section')?.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      });
+      toast({
+        title: '✨ Hold up!',
+        description: 'Check the terms box to seal the deal',
+        status: 'warning',
+        duration: 3000,
+        isClosable: true,
+        position: 'top',
+      });
+      return;
+    }
+    // If terms are checked, proceed with payment
+    paymentHandler();
+  };
 
   // What's included list based on package or hours
   const getIncludedItems = () => {
@@ -1225,7 +1227,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                 <Box>
                   <Button
                     type="button"
-                    onClick={paymentMethodType === 'card' ? handleCardPayment : handleLinkRequest}
+                    onClick={() => handlePaymentAttempt(paymentMethodType === 'card' ? handleCardPayment : handleLinkRequest)}
                     size="lg"
                     bg={colors.accent.green}
                     color="black"
@@ -1236,7 +1238,6 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                     borderRadius="lg"
                     height="56px"
                     fontSize="16px"
-                    isDisabled={!isFormValid}
                     leftIcon={!isLoading && <RiSecurePaymentLine size={20} />}
                     _hover={{
                       bg: colors.accent.green,
@@ -1245,12 +1246,6 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                     }}
                     _active={{
                       transform: 'translateY(0)'
-                    }}
-                    _disabled={{
-                      opacity: 0.5,
-                      cursor: 'not-allowed',
-                      transform: 'none',
-                      boxShadow: 'none'
                     }}
                     transition="all 0.2s"
                   >
