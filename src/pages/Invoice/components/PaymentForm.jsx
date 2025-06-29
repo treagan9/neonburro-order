@@ -25,7 +25,7 @@ import {
   Badge
 } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   FiCreditCard, 
   FiLink, 
@@ -72,6 +72,12 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
   const [paymentRequest, setPaymentRequest] = useState(null);
   const [canMakePayment, setCanMakePayment] = useState(false);
   const [termsError, setTermsError] = useState(false);
+  const agreeToTermsRef = useRef(agreeToTerms);
+
+  // Update ref when agreeToTerms changes
+  useEffect(() => {
+    agreeToTermsRef.current = agreeToTerms;
+  }, [agreeToTerms]);
 
   // CRITICAL: Add null check here before any usage of projectData
   if (!projectData) {
@@ -154,20 +160,13 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
 
           // Handle payment method creation
           pr.on('paymentmethod', async (ev) => {
-            // Check terms first for Apple/Google Pay
-            if (!agreeToTerms) {
+            // Check terms first for Apple/Google Pay using ref
+            if (!agreeToTermsRef.current) {
               ev.complete('fail');
               setTermsError(true);
               document.getElementById('terms-section')?.scrollIntoView({ 
                 behavior: 'smooth', 
                 block: 'center' 
-              });
-              toast({
-                title: 'Terms Required',
-                description: 'Please accept the terms to continue with payment',
-                status: 'warning',
-                duration: 3000,
-                isClosable: true,
               });
               return;
             }
@@ -248,7 +247,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
     };
 
     createPaymentRequest();
-  }, [stripe, projectData, email, onSuccess, toast, agreeToTerms]);
+  }, [stripe, projectData, email, onSuccess, toast]);
 
   const handleCardPayment = async () => {
     if (!stripe || !elements) return;
@@ -1206,14 +1205,20 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
                   <Button
                     type="button"
                     onClick={() => {
+                      console.log('Button clicked, agreeToTerms:', agreeToTerms);
                       if (!agreeToTerms) {
+                        console.log('Terms not agreed, showing error');
                         setTermsError(true);
-                        document.getElementById('terms-section')?.scrollIntoView({ 
-                          behavior: 'smooth', 
-                          block: 'center' 
-                        });
+                        // Force a re-render
+                        setTimeout(() => {
+                          document.getElementById('terms-section')?.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'center' 
+                          });
+                        }, 100);
                         return;
                       }
+                      console.log('Terms agreed, processing payment');
                       if (paymentMethodType === 'card') {
                         handleCardPayment();
                       } else {
