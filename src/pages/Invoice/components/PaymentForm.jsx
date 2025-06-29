@@ -1171,48 +1171,56 @@ const PaymentForm = ({ projectData, onSuccess, onBack }) => {
 
                 {/* Express Checkout - Show when Apple Pay is selected and available */}
                 {paymentMethodType === 'apple' && canMakePayment && paymentRequest && (
-                  <Box opacity={agreeToTerms ? 1 : 0.5} pointerEvents={agreeToTerms ? 'auto' : 'none'}>
-                    <PaymentRequestButtonElement 
-                      options={{
-                        paymentRequest: paymentRequest,
-                        style: {
-                          paymentRequestButton: {
-                            type: 'default',
-                            theme: 'dark',
-                            height: '56px',
+                  <Box>
+                    <Box
+                      position="relative"
+                      animation={termsError && !agreeToTerms ? "copperPulse 1.5s ease-in-out infinite" : undefined}
+                      sx={{
+                        '@keyframes copperPulse': {
+                          '0%, 100%': { 
+                            filter: `drop-shadow(0 0 10px ${colors.copper}40)`,
                           },
-                        },
-                      }}
-                      onClick={(e) => {
-                        // Double-check terms before payment
-                        if (!agreeToTerms || !agreeToTermsRef.current) {
-                          e.preventDefault();
-                          setTermsError(true);
-                          document.getElementById('terms-section')?.scrollIntoView({ 
-                            behavior: 'smooth', 
-                            block: 'center' 
-                          });
-                          toast({
-                            title: 'Terms Required',
-                            description: 'Please accept the terms to continue with payment',
-                            status: 'error',
-                            duration: 4000,
-                            isClosable: true,
-                            position: 'top',
-                          });
+                          '50%': { 
+                            filter: `drop-shadow(0 0 30px ${colors.copper}80) drop-shadow(0 0 60px ${colors.copper}40)`,
+                          },
                         }
                       }}
-                    />
-                    {!agreeToTerms && (
-                      <Text color="gray.500" fontSize="xs" textAlign="center" mt={2}>
-                        Please accept the terms above to enable payment
-                      </Text>
-                    )}
-                    {agreeToTerms && (
-                      <Text color="gray.500" fontSize="xs" textAlign="center" mt={2}>
-                        Express checkout • Apple Pay & Google Pay
-                      </Text>
-                    )}
+                    >
+                      <PaymentRequestButtonElement 
+                        options={{
+                          paymentRequest: paymentRequest,
+                          style: {
+                            paymentRequestButton: {
+                              type: 'default',
+                              theme: 'dark',
+                              height: '56px',
+                            },
+                          },
+                        }}
+                        onClick={(e) => {
+                          // Double-check terms before payment
+                          if (!agreeToTerms || !agreeToTermsRef.current) {
+                            e.preventDefault();
+                            setTermsError(true);
+                            document.getElementById('terms-section')?.scrollIntoView({ 
+                              behavior: 'smooth', 
+                              block: 'center' 
+                            });
+                            toast({
+                              title: 'Terms Required',
+                              description: 'Please accept the terms to continue with payment',
+                              status: 'error',
+                              duration: 4000,
+                              isClosable: true,
+                              position: 'top',
+                            });
+                          }
+                        }}
+                      />
+                    </Box>
+                    <Text color="gray.500" fontSize="xs" textAlign="center" mt={2}>
+                      Express checkout • Apple Pay & Google Pay
+                    </Text>
                   </Box>
                 )}
 
