@@ -22,7 +22,7 @@ import {
   InputLeftElement,
   Icon,
   Fade,
-  Tooltip
+  keyframes
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { 
@@ -38,14 +38,25 @@ import {
   FiSend,
   FiPhone,
   FiFileText,
-  FiCheckCircle,
-  FiZap
+  FiCheckCircle
 } from 'react-icons/fi';
 import { useEffect, useState } from 'react';
 import MatrixRain from '../../../components/effects/MatrixRain';
 import jsPDF from 'jspdf';
+import Confetti from 'react-confetti';
+import { useWindowSize } from 'react-use';
 
 const MotionBox = motion(Box);
+
+// Confetti colors
+const confettiColors = ['#00FFFF', '#FF6B35', '#FFD700', '#39FF14', '#D4AF37'];
+
+// Animation for success icon
+const floatAnimation = keyframes`
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+`;
 
 const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
   const [showMatrix, setShowMatrix] = useState(false);
@@ -55,35 +66,47 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
   const [showEmailInput, setShowEmailInput] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [downloadComplete, setDownloadComplete] = useState(false);
-  const [pdfBase64, setPdfBase64] = useState('');
+  const [showConfetti, setShowConfetti] = useState(false);
   const toast = useToast();
+  const { width, height } = useWindowSize();
   
   const colors = {
     brand: { primary: '#00FFFF' },
     accent: { green: '#39FF14' },
-    vip: { primary: '#D4AF37' }
+    vip: { primary: '#D4AF37' },
+    copper: '#FF6B35',
+    banana: '#FFD700'
   };
 
   useEffect(() => {
     if (isOpen) {
-      // Trigger matrix rain after modal animation
+      // Trigger effects after modal animation
       const timer = setTimeout(() => {
         setShowMatrix(true);
+        setShowConfetti(true);
       }, 400);
+      
+      // Stop confetti after 5 seconds
+      const confettiTimer = setTimeout(() => {
+        setShowConfetti(false);
+      }, 5000);
       
       // Submit to Netlify Forms for tracking
       if (formData) {
         submitSuccessToNetlify();
       }
       
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+        clearTimeout(confettiTimer);
+      };
     } else {
       setShowMatrix(false);
+      setShowConfetti(false);
       setEmailSent(false);
       setDownloadComplete(false);
       setShowEmailInput(false);
       setAdditionalEmail('');
-      setPdfBase64('');
     }
   }, [isOpen]);
 
@@ -149,151 +172,126 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
     return `NB-${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`;
   };
 
-  // Load image as base64
-  const loadImageAsBase64 = async (url) => {
+  // Convert favicon to base64 for PDF
+  const getFaviconBase64 = async () => {
     try {
-      const response = await fetch(url);
-      const blob = await response.blob();
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
+      const response = await fetch('/favicon.svg');
+      const text = await response.text();
+      return `data:image/svg+xml;base64,${btoa(text)}`;
     } catch (error) {
-      console.error('Error loading image:', error);
+      console.error('Error loading favicon:', error);
       return null;
     }
   };
 
-  // Generate professional PDF receipt with logo
+  // Generate professional PDF receipt
   const generatePDFReceipt = async () => {
     const doc = new jsPDF();
     const receiptNumber = generateReceiptNumber();
     const currentDate = new Date();
     
-    // Try to load logo
+    // Try to add logo
     try {
-      const logoBase64 = await loadImageAsBase64('/favicon.svg');
+      const logoBase64 = await getFaviconBase64();
       if (logoBase64) {
-        // Add logo at top
-        doc.addImage(logoBase64, 'SVG', 85, 10, 40, 15);
+        doc.addImage(logoBase64, 'SVG', 95, 10, 20, 20);
       }
     } catch (error) {
-      console.error('Could not load logo:', error);
+      console.error('Error adding logo:', error);
     }
     
-    // Header (adjusted position if logo is present)
+    // Header
     doc.setFontSize(24);
     doc.setTextColor(0, 255, 255);
-    doc.text('NEON BURRO', 105, 35, { align: 'center' });
+    doc.text('NEON BURRO', 105, 40, { align: 'center' });
     
     doc.setFontSize(10);
     doc.setTextColor(128, 128, 128);
-    doc.text('Digital Craftsmanship from Colorado', 105, 43, { align: 'center' });
+    doc.text('Digital Craftsmanship from Colorado', 105, 48, { align: 'center' });
     
     // Receipt title
     doc.setFontSize(16);
     doc.setTextColor(0, 0, 0);
-    doc.text('PAYMENT RECEIPT', 105, 60, { align: 'center' });
+    doc.text('PAYMENT RECEIPT', 105, 65, { align: 'center' });
     
     // Receipt details box
     doc.setDrawColor(200, 200, 200);
-    doc.roundedRect(20, 70, 170, 30, 3, 3);
+    doc.roundedRect(20, 75, 170, 30, 3, 3);
     
     doc.setFontSize(10);
     doc.setTextColor(100, 100, 100);
-    doc.text('Receipt Number:', 30, 80);
-    doc.text('Date:', 30, 90);
-    doc.text('Status:', 120, 80);
+    doc.text('Receipt Number:', 30, 85);
+    doc.text('Date:', 30, 95);
+    doc.text('Status:', 120, 85);
     
     doc.setTextColor(0, 0, 0);
     doc.setFont(undefined, 'bold');
-    doc.text(receiptNumber, 65, 80);
-    doc.text(currentDate.toLocaleDateString(), 45, 90);
+    doc.text(receiptNumber, 65, 85);
+    doc.text(currentDate.toLocaleDateString(), 45, 95);
     doc.setTextColor(57, 255, 20);
-    doc.text('PAID', 140, 80);
+    doc.text('PAID', 140, 85);
     
     // Client Information
     doc.setFont(undefined, 'normal');
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(12);
-    doc.text('Bill To:', 20, 115);
+    doc.text('Bill To:', 20, 120);
     
     doc.setFontSize(10);
-    doc.text(formData.firstName || 'Client', 20, 125);
-    doc.text(formData.email || '', 20, 132);
+    doc.text(formData.firstName || 'Client', 20, 130);
+    doc.text(formData.email || '', 20, 137);
     if (formData.phone) {
-      doc.text(formData.phone, 20, 139);
+      doc.text(formData.phone, 20, 144);
     }
     
     // Project Details
     doc.setDrawColor(200, 200, 200);
-    doc.line(20, 150, 190, 150);
+    doc.line(20, 155, 190, 155);
     
     doc.setFontSize(12);
-    doc.text('Project Details', 20, 160);
+    doc.text('Project Details', 20, 165);
     
     doc.setFontSize(10);
     doc.setTextColor(100, 100, 100);
-    doc.text('Project Name:', 20, 170);
-    doc.text('Type:', 20, 177);
-    doc.text('Timeline:', 20, 184);
+    doc.text('Project Name:', 20, 175);
+    doc.text('Type:', 20, 182);
+    doc.text('Timeline:', 20, 189);
     
     doc.setTextColor(0, 0, 0);
-    doc.text(formData.projectName || 'Project', 55, 170);
-    doc.text(formData.isServicePackage ? `${formData.packageName} Package` : `${formData.hours} Development Hours`, 35, 177);
-    doc.text(getTimeline(), 45, 184);
+    doc.text(formData.projectName || 'Project', 55, 175);
+    doc.text(formData.isServicePackage ? `${formData.packageName} Package` : `${formData.hours} Development Hours`, 35, 182);
+    doc.text(getTimeline(), 45, 189);
     
     // Payment Summary
     doc.setDrawColor(200, 200, 200);
-    doc.line(20, 195, 190, 195);
+    doc.line(20, 200, 190, 200);
     
     // Items
     if (formData.isServicePackage) {
-      doc.text(`${formData.packageName} Package - Complete Development`, 20, 210);
-      doc.text(`$${formData.total.toLocaleString()}.00`, 170, 210, { align: 'right' });
+      doc.text(`${formData.packageName} Package - Complete Development`, 20, 215);
+      doc.text(`$${formData.total.toLocaleString()}.00`, 170, 215, { align: 'right' });
     } else {
-      doc.text(`Development Hours (${formData.hours} hrs @ $150/hr)`, 20, 210);
-      doc.text(`$${formData.total.toLocaleString()}.00`, 170, 210, { align: 'right' });
+      doc.text(`Development Hours (${formData.hours} hrs @ $150/hr)`, 20, 215);
+      doc.text(`$${formData.total.toLocaleString()}.00`, 170, 215, { align: 'right' });
     }
     
     // Total
     doc.setDrawColor(200, 200, 200);
-    doc.line(120, 220, 190, 220);
+    doc.line(120, 225, 190, 225);
     
     doc.setFont(undefined, 'bold');
     doc.setFontSize(12);
-    doc.text('Total Paid:', 120, 230);
+    doc.text('Total Paid:', 120, 235);
     doc.setTextColor(57, 255, 20);
-    doc.text(`$${formData.total.toLocaleString()}.00 USD`, 170, 230, { align: 'right' });
-    
-    // Next Steps
-    doc.setFont(undefined, 'normal');
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(10);
-    doc.text('Next Steps:', 20, 245);
-    doc.setFontSize(9);
-    doc.setTextColor(80, 80, 80);
-    const nextSteps = [
-      formData.isVip || formData.packageName === 'VIP' 
-        ? '• VIP team will contact you within 30 minutes' 
-        : '• Our team will contact you within 2 hours',
-      '• You\'ll receive project roadmap and timeline',
-      '• Access credentials will be sent separately'
-    ];
-    let yPos = 253;
-    nextSteps.forEach(step => {
-      doc.text(step, 25, yPos);
-      yPos += 7;
-    });
+    doc.text(`$${formData.total.toLocaleString()}.00 USD`, 170, 235, { align: 'right' });
     
     // Footer
+    doc.setFont(undefined, 'normal');
     doc.setTextColor(128, 128, 128);
     doc.setFontSize(8);
-    doc.text('Thank you for choosing Neon Burro!', 105, 275, { align: 'center' });
-    doc.text('Questions? Contact us at hello@neonburro.com', 105, 281, { align: 'center' });
-    doc.text('neonburro.com', 105, 287, { align: 'center' });
+    doc.text('Thank you for choosing Neon Burro!', 105, 260, { align: 'center' });
+    doc.text('Questions? Contact us at hello@neonburro.com', 105, 266, { align: 'center' });
+    doc.text('neonburro.com', 105, 272, { align: 'center' });
     
     return doc;
   };
@@ -322,7 +320,7 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
       setDownloadComplete(true);
       
       toast({
-        title: "Receipt Downloaded! 📄",
+        title: "Receipt Downloaded",
         description: "Your professional receipt has been saved.",
         status: "success",
         duration: 3000,
@@ -344,14 +342,14 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
     }
   };
 
-  // Enhanced email receipt with PDF attachment
+  // Enhanced email receipt - Direct PDF email
   const handleEmailReceipt = async (recipientEmail = formData.email) => {
     setEmailSending(true);
     
     try {
       const receiptNumber = generateReceiptNumber();
       
-      // Generate PDF and convert to base64
+      // Generate PDF
       const doc = await generatePDFReceipt();
       const pdfBase64 = doc.output('datauristring').split(',')[1];
       
@@ -366,7 +364,7 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
         total: formData.total,
         packageDetails: formData.isServicePackage ? formData.packageName : `${formData.hours} hours`,
         isAdditionalEmail: recipientEmail !== formData.email,
-        pdfAttachment: pdfBase64,
+        pdfData: pdfBase64,
         timestamp: new Date().toISOString()
       });
       
@@ -375,8 +373,8 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
       setAdditionalEmail('');
       
       toast({
-        title: "Receipt Emailed! 📧",
-        description: `PDF receipt sent to ${recipientEmail}`,
+        title: "Email Sent",
+        description: `Receipt sent to ${recipientEmail} from team@neonburro.com`,
         status: "success",
         duration: 4000,
         isClosable: true,
@@ -447,6 +445,20 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
       {/* Matrix Rain Background */}
       <MatrixRain isActive={showMatrix} duration={3000} />
       
+      {/* Confetti Effect */}
+      {showConfetti && (
+        <Box position="fixed" top={0} left={0} width="100%" height="100%" pointerEvents="none" zIndex={9999}>
+          <Confetti
+            width={width}
+            height={height}
+            numberOfPieces={200}
+            recycle={false}
+            colors={confettiColors}
+            gravity={0.15}
+          />
+        </Box>
+      )}
+      
       {/* Hidden Netlify Forms */}
       <form name="payment-success" data-netlify="true" hidden>
         <input type="text" name="sessionId" />
@@ -486,7 +498,7 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
         <input type="text" name="total" />
         <input type="text" name="packageDetails" />
         <input type="text" name="isAdditionalEmail" />
-        <textarea name="pdfAttachment"></textarea>
+        <textarea name="pdfData"></textarea>
         <input type="text" name="timestamp" />
       </form>
       
@@ -569,6 +581,7 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
                       type: "spring",
                       stiffness: 200
                     }}
+                    animation={`${floatAnimation} 3s ease-in-out infinite`}
                   >
                     <Box position="relative">
                       <Box
@@ -610,7 +623,7 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
                       fontWeight="700"
                       letterSpacing="-0.02em"
                     >
-                      {isVipPackage ? 'Welcome to VIP! 👑' : 'Payment Successful! 🎉'}
+                      {isVipPackage ? 'Welcome to VIP Status' : 'Payment Successful'}
                     </Heading>
                     <Text 
                       color="gray.400" 
@@ -770,75 +783,7 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
 
                   {/* Action Buttons */}
                   <VStack spacing={3} width="100%">
-                    {/* Quick Actions */}
-                    <HStack spacing={2} width="100%">
-                      <Tooltip label="Download PDF receipt to your device" placement="top" hasArrow>
-                        <Button
-                          size="md"
-                          flex={1}
-                          variant="outline"
-                          borderColor={downloadComplete ? colors.accent.green : "whiteAlpha.300"}
-                          color={downloadComplete ? colors.accent.green : "white"}
-                          fontWeight="600"
-                          fontSize="sm"
-                          leftIcon={downloadComplete ? <FiCheckCircle size={16} /> : <FiDownload size={16} />}
-                          borderRadius="full"
-                          onClick={handleDownloadReceipt}
-                          isLoading={downloadProcessing}
-                          loadingText="Creating..."
-                          _hover={{
-                            bg: 'whiteAlpha.100',
-                            borderColor: 'whiteAlpha.400',
-                            transform: 'translateY(-1px)',
-                            boxShadow: 'lg'
-                          }}
-                          transition="all 0.2s"
-                        >
-                          {downloadComplete ? 'Downloaded!' : 'Download'}
-                        </Button>
-                      </Tooltip>
-                      
-                      <Tooltip label="Email PDF receipt directly to your inbox" placement="top" hasArrow>
-                        <Button
-                          size="md"
-                          flex={1}
-                          bg={colors.brand.primary}
-                          color="black"
-                          fontWeight="600"
-                          fontSize="sm"
-                          leftIcon={emailSent ? <FiCheckCircle size={16} /> : <FiMail size={16} />}
-                          borderRadius="full"
-                          onClick={() => handleEmailReceipt(formData.email)}
-                          isLoading={emailSending}
-                          loadingText="Sending..."
-                          _hover={{
-                            bg: colors.brand.primary,
-                            transform: 'translateY(-1px)',
-                            boxShadow: `0 10px 30px ${colors.brand.primary}66`
-                          }}
-                          _active={{
-                            transform: 'translateY(0)'
-                          }}
-                          transition="all 0.2s"
-                        >
-                          {emailSent ? 'Sent!' : 'Email Receipt'}
-                        </Button>
-                      </Tooltip>
-                    </HStack>
-
-                    {/* Send to Different Email */}
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      color="gray.400"
-                      fontSize="xs"
-                      onClick={() => setShowEmailInput(!showEmailInput)}
-                      _hover={{ color: 'white' }}
-                    >
-                      Send to different email?
-                    </Button>
-
-                    {/* Additional Email Input */}
+                    {/* Email Input (when shown) */}
                     <Fade in={showEmailInput}>
                       {showEmailInput && (
                         <InputGroup size="md">
@@ -846,7 +791,7 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
                             <FiMail color="gray.300" />
                           </InputLeftElement>
                           <Input
-                            placeholder="Enter email address"
+                            placeholder="Enter additional email"
                             value={additionalEmail}
                             onChange={(e) => setAdditionalEmail(e.target.value)}
                             bg="rgba(255, 255, 255, 0.05)"
@@ -878,28 +823,77 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
                       )}
                     </Fade>
                     
-                    {/* Main CTA */}
+                    <HStack spacing={3} width="100%">
+                      <Button
+                        size="md"
+                        flex={1}
+                        variant="outline"
+                        borderColor={downloadComplete ? colors.accent.green : "whiteAlpha.300"}
+                        color={downloadComplete ? colors.accent.green : "white"}
+                        fontWeight="600"
+                        fontSize="sm"
+                        leftIcon={downloadComplete ? <FiCheckCircle size={16} /> : <FiDownload size={16} />}
+                        borderRadius="full"
+                        onClick={handleDownloadReceipt}
+                        isLoading={downloadProcessing}
+                        loadingText="Creating PDF..."
+                        _hover={{
+                          bg: 'whiteAlpha.100',
+                          borderColor: 'whiteAlpha.400'
+                        }}
+                      >
+                        {downloadComplete ? 'Downloaded!' : 'Download PDF'}
+                      </Button>
+                      <Button
+                        size="md"
+                        flex={1}
+                        variant="outline"
+                        borderColor={emailSent && !showEmailInput ? colors.accent.green : "whiteAlpha.300"}
+                        color={emailSent && !showEmailInput ? colors.accent.green : "white"}
+                        fontWeight="600"
+                        fontSize="sm"
+                        leftIcon={emailSent && !showEmailInput ? <FiCheckCircle size={16} /> : <FiMail size={16} />}
+                        borderRadius="full"
+                        onClick={() => {
+                          if (showEmailInput) {
+                            handleEmailReceipt(formData.email);
+                          } else if (emailSent) {
+                            setShowEmailInput(true);
+                          } else {
+                            handleEmailReceipt(formData.email);
+                          }
+                        }}
+                        isLoading={emailSending && !showEmailInput}
+                        loadingText="Sending..."
+                        _hover={{
+                          bg: 'whiteAlpha.100',
+                          borderColor: 'whiteAlpha.400'
+                        }}
+                      >
+                        {emailSent && !showEmailInput ? 'Sent!' : (showEmailInput ? 'Send to Original' : 'Email Receipt')}
+                      </Button>
+                    </HStack>
+                    
                     <Button
                       onClick={onClose}
                       size="lg"
                       width="100%"
-                      bg={isVipPackage ? colors.vip.primary : colors.accent.green}
+                      bg={isVipPackage ? colors.vip.primary : colors.brand.primary}
                       color="black"
                       fontWeight="700"
                       fontSize="md"
                       borderRadius="full"
-                      leftIcon={<FiZap size={20} />}
                       _hover={{
-                        bg: isVipPackage ? colors.vip.primary : colors.accent.green,
+                        bg: isVipPackage ? colors.vip.primary : colors.brand.primary,
                         transform: 'translateY(-2px)',
-                        boxShadow: `0 20px 40px ${isVipPackage ? colors.vip.primary : colors.accent.green}66`
+                        boxShadow: `0 10px 30px ${isVipPackage ? colors.vip.primary : colors.brand.primary}66`
                       }}
                       _active={{
                         transform: 'translateY(0)'
                       }}
                       transition="all 0.2s"
                     >
-                      {isVipPackage ? "Let's Build Your Dream!" : "Start Building!"}
+                      {isVipPackage ? "Let's Build Your Dream" : "Start Building"}
                     </Button>
                   </VStack>
                 </VStack>
