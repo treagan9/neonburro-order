@@ -86,15 +86,6 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
     agreeToTermsRef.current = agreeToTerms;
   }, [agreeToTerms]);
 
-  // Store terms acceptance in session storage as backup
-  useEffect(() => {
-    if (agreeToTerms) {
-      window.sessionStorage.setItem(`terms-accepted-${sessionId}`, 'true');
-    } else {
-      window.sessionStorage.removeItem(`terms-accepted-${sessionId}`);
-    }
-  }, [agreeToTerms, sessionId]);
-
   // Track when user enters payment page
   useEffect(() => {
     if (projectData && onTrackEvent && !hasTrackedPageView) {
@@ -220,131 +211,6 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
     },
   };
 
-  // Handle Apple Pay payment logic
-  const handleApplePayPayment = async (ev, termsAccepted) => {
-    if (!termsAccepted) {
-      ev.complete('fail');
-      setTermsError(true);
-      
-      // Ensure the checkbox is visible
-      setTimeout(() => {
-        document.getElementById('terms-section')?.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center' 
-        });
-      }, 100);
-      
-      toast({
-        title: 'Terms Required',
-        description: 'Please accept the terms to continue with payment',
-        status: 'error',
-        duration: 4000,
-        isClosable: true,
-        position: 'top',
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    
-    // Track payment attempt
-    if (onTrackEvent) {
-      onTrackEvent('payment-attempt', {
-        firstName: projectData?.firstName || '',
-        projectName: projectData?.projectName || '',
-        email: ev.payerEmail || email,
-        total: projectData?.total || 0,
-        paymentMethod: 'apple_pay',
-        packageInfo: projectData?.isServicePackage 
-          ? `${projectData.packageName} Package` 
-          : `${projectData.hours} hours`,
-        timestamp: new Date().toISOString()
-      });
-    }
-    
-    try {
-      // Create payment intent
-      const response = await fetch('/.netlify/functions/create-payment-intent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amount: projectData?.total || 0,
-          firstName: projectData?.firstName || '',
-          projectName: projectData?.projectName || '',
-          hours: projectData?.hours || 0,
-        }),
-      });
-
-      const { clientSecret, error } = await response.json();
-
-      if (error) {
-        throw new Error(error);
-      }
-
-      // Confirm the payment
-      const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
-        clientSecret,
-        { payment_method: ev.paymentMethod.id },
-        { handleActions: false }
-      );
-
-      if (confirmError) {
-        ev.complete('fail');
-        throw new Error(confirmError.message);
-      } else {
-        ev.complete('success');
-        
-        if (paymentIntent.status === 'requires_action') {
-          const { error: actionError } = await stripe.confirmCardPayment(clientSecret);
-          if (actionError) {
-            throw new Error(actionError.message);
-          }
-        }
-        
-        // Track complete journey
-        if (onTrackEvent) {
-          onTrackEvent('customer-journey', {
-            firstName: projectData?.firstName || '',
-            projectName: projectData?.projectName || '',
-            email: ev.payerEmail || email,
-            phone: ev.payerPhone || '',
-            clientType: projectData?.isServicePackage ? 'new' : 'existing',
-            packageType: projectData?.packageType || '',
-            packageName: projectData?.packageName || '',
-            hours: projectData?.hours || 0,
-            total: projectData?.total || 0,
-            paymentMethod: 'apple_pay',
-            isVip: projectData?.isVip || false,
-            wantsHostingDetails: projectData?.wantsHostingDetails || false,
-            journeySteps: 'details->payment->success',
-            totalTimeSpent: Math.floor((Date.now() - startTime) / 1000),
-            timestamp: new Date().toISOString()
-          });
-        }
-        
-        onSuccess({
-          ...projectData,
-          paymentMethod: 'apple_pay',
-          email: ev.payerEmail || email,
-          phone: ev.payerPhone || phone,
-          paymentIntentId: paymentIntent.id
-        });
-      }
-    } catch (error) {
-      ev.complete('fail');
-      trackPaymentError(error);
-      toast({
-        title: 'Payment failed',
-        description: error.message,
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // Setup Apple Pay / Google Pay
   useEffect(() => {
     if (!stripe || !projectData) {
@@ -383,12 +249,104 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
 
           // Handle payment method creation
           pr.on('paymentmethod', async (ev) => {
-            // CRITICAL FIX: Check terms acceptance from multiple sources
-            const termsAcceptedInSession = window.sessionStorage.getItem(`terms-accepted-${sessionId}`) === 'true';
-            const currentTermsState = agreeToTermsRef.current;
-            const termsAccepted = currentTermsState || termsAcceptedInSession;
+            setIsLoading(true);
             
-            handleApplePayPayment(ev, termsAccepted);
+            // Track payment attempt
+            if (onTrackEvent) {
+              onTrackEvent('payment-attempt', {
+                firstName: projectData?.firstName || '',
+                projectName: projectData?.projectName || '',
+                email: ev.payerEmail || email,
+                total: projectData?.total || 0,
+                paymentMethod: 'apple_pay',
+                packageInfo: projectData?.isServicePackage 
+                  ? `${projectData.packageName} Package` 
+                  : `${projectData.hours} hours`,
+                timestamp: new Date().toISOString()
+              });
+            }
+            
+            try {
+              // Create payment intent
+              const response = await fetch('/.netlify/functions/create-payment-intent', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  amount: projectData?.total || 0,
+                  firstName: projectData?.firstName || '',
+                  projectName: projectData?.projectName || '',
+                  hours: projectData?.hours || 0,
+                }),
+              });
+
+              const { clientSecret, error } = await response.json();
+
+              if (error) {
+                throw new Error(error);
+              }
+
+              // Confirm the payment
+              const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
+                clientSecret,
+                { payment_method: ev.paymentMethod.id },
+                { handleActions: false }
+              );
+
+              if (confirmError) {
+                ev.complete('fail');
+                throw new Error(confirmError.message);
+              } else {
+                ev.complete('success');
+                
+                if (paymentIntent.status === 'requires_action') {
+                  const { error: actionError } = await stripe.confirmCardPayment(clientSecret);
+                  if (actionError) {
+                    throw new Error(actionError.message);
+                  }
+                }
+                
+                // Track complete journey
+                if (onTrackEvent) {
+                  onTrackEvent('customer-journey', {
+                    firstName: projectData?.firstName || '',
+                    projectName: projectData?.projectName || '',
+                    email: ev.payerEmail || email,
+                    phone: ev.payerPhone || '',
+                    clientType: projectData?.isServicePackage ? 'new' : 'existing',
+                    packageType: projectData?.packageType || '',
+                    packageName: projectData?.packageName || '',
+                    hours: projectData?.hours || 0,
+                    total: projectData?.total || 0,
+                    paymentMethod: 'apple_pay',
+                    isVip: projectData?.isVip || false,
+                    wantsHostingDetails: projectData?.wantsHostingDetails || false,
+                    journeySteps: 'details->payment->success',
+                    totalTimeSpent: Math.floor((Date.now() - startTime) / 1000),
+                    timestamp: new Date().toISOString()
+                  });
+                }
+                
+                onSuccess({
+                  ...projectData,
+                  paymentMethod: 'apple_pay',
+                  email: ev.payerEmail || email,
+                  phone: ev.payerPhone || phone,
+                  paymentIntentId: paymentIntent.id
+                });
+              }
+            } catch (error) {
+              ev.complete('fail');
+              trackPaymentError(error);
+              toast({
+                title: 'Payment failed',
+                description: error.message,
+                status: 'error',
+                duration: 5000,
+                isClosable: true,
+              });
+            } finally {
+              setIsLoading(false);
+            }
           });
 
           pr.on('cancel', () => {
@@ -404,7 +362,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
     };
 
     createPaymentRequest();
-  }, [stripe, projectData, email, onSuccess, toast, onTrackEvent, startTime, sessionId]);
+  }, [stripe, projectData, email, onSuccess, toast, onTrackEvent, startTime]);
 
   const handleCardPayment = async () => {
     if (!stripe || !elements) return;
@@ -1341,35 +1299,46 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
                 {/* Express Checkout - Show when Apple Pay is selected and available */}
                 {paymentMethodType === 'apple' && canMakePayment && paymentRequest && (
                   <Box>
+                    {/* Show message if terms not accepted */}
+                    <AnimatePresence>
+                      {!agreeToTerms && (
+                        <MotionBox
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          mb={3}
+                          p={3}
+                          bg="rgba(255, 107, 53, 0.1)"
+                          borderRadius="lg"
+                          border="1px solid"
+                          borderColor={colors.copper}
+                        >
+                          <HStack spacing={2} justify="center">
+                            <FiAlertCircle color={colors.copper} size={16} />
+                            <Text color="white" fontSize="sm" fontWeight="500">
+                              Please accept the terms above to enable Apple Pay
+                            </Text>
+                          </HStack>
+                        </MotionBox>
+                      )}
+                    </AnimatePresence>
+                    
                     <Box
                       position="relative"
-                      animation={termsError && !agreeToTerms ? "copperPulse 1.5s ease-in-out infinite" : undefined}
-                      sx={{
-                        '@keyframes copperPulse': {
-                          '0%, 100%': { 
-                            filter: `drop-shadow(0 0 10px ${colors.copper}40)`,
-                          },
-                          '50%': { 
-                            filter: `drop-shadow(0 0 30px ${colors.copper}80) drop-shadow(0 0 60px ${colors.copper}40)`,
-                          },
-                        }
-                      }}
+                      filter={!agreeToTerms ? 'grayscale(50%)' : 'none'}
+                      transition="all 0.3s"
                     >
-                      <PaymentRequestButtonElement 
-                        options={{
-                          paymentRequest: paymentRequest,
-                          style: {
-                            paymentRequestButton: {
-                              type: 'default',
-                              theme: 'dark',
-                              height: '56px',
-                            },
-                          },
-                        }}
-                        onClick={(e) => {
-                          // Double-check terms before payment
-                          if (!agreeToTerms || !agreeToTermsRef.current) {
-                            e.preventDefault();
+                      {/* Invisible overlay when disabled */}
+                      {!agreeToTerms && (
+                        <Box
+                          position="absolute"
+                          top={0}
+                          left={0}
+                          right={0}
+                          bottom={0}
+                          zIndex={1}
+                          cursor="not-allowed"
+                          onClick={() => {
                             setTermsError(true);
                             document.getElementById('terms-section')?.scrollIntoView({ 
                               behavior: 'smooth', 
@@ -1383,10 +1352,30 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
                               isClosable: true,
                               position: 'top',
                             });
-                          }
-                        }}
-                      />
+                          }}
+                        />
+                      )}
+                      
+                      {/* Apple Pay Button - Always visible but disabled functionally */}
+                      <Box
+                        pointerEvents={agreeToTerms ? 'auto' : 'none'}
+                        opacity={agreeToTerms ? 1 : 0.7}
+                      >
+                        <PaymentRequestButtonElement 
+                          options={{
+                            paymentRequest: paymentRequest,
+                            style: {
+                              paymentRequestButton: {
+                                type: 'default',
+                                theme: 'dark',
+                                height: '56px',
+                              },
+                            },
+                          }}
+                        />
+                      </Box>
                     </Box>
+                    
                     <Text color="gray.500" fontSize="xs" textAlign="center" mt={2}>
                       Express checkout • Apple Pay & Google Pay
                     </Text>
