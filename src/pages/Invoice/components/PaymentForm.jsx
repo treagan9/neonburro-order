@@ -151,6 +151,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
       projectName: projectData.projectName || '',
       email: email || additionalData.email || '',
       phone: phone || additionalData.phone || '',
+      clientType: projectData.isServicePackage ? 'new' : 'existing',
       
       // Package/Service details
       packageType: projectData.packageType || '',
@@ -168,10 +169,11 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
       // Billing info (for card payments)
       ...(paymentMethod === 'card' && {
         cardholderName: cardholderName,
-        billingAddress: address,
-        billingCity: city,
-        billingState: state,
-        billingZip: zip,
+        address: address,
+        city: city,
+        state: state,
+        zip: zip,
+        country: country
       }),
       
       // Human-readable summary
@@ -183,7 +185,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
     };
 
     console.log('Tracking payment attempt with data:', fullData);
-    onTrackEvent('payment-tracking', fullData);
+    onTrackEvent('payment-complete', fullData);
   };
 
   // Track payment errors
@@ -199,10 +201,11 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
       total: String(projectData?.total || 0),
       paymentMethod: paymentMethod,
       paymentStatus: 'failed',
+      clientType: projectData?.isServicePackage ? 'new' : 'existing',
       summary: `Payment failed for ${projectData?.firstName} - Error: ${error.message || 'Unknown error'}`
     };
 
-    onTrackEvent('payment-tracking', errorData);
+    onTrackEvent('payment-complete', errorData);
   };
 
   // Setup Apple Pay / Google Pay
@@ -305,7 +308,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
                   }
                 }
                 
-                // Track successful payment
+                // Track successful payment with ALL data
                 const successData = {
                   sessionId: sessionId || 'no-session',
                   timestamp: new Date().toISOString(),
@@ -313,12 +316,14 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
                   projectName: projectData?.projectName || '',
                   email: ev.payerEmail || '',
                   phone: ev.payerPhone || '',
+                  clientType: projectData?.isServicePackage ? 'new' : 'existing',
                   packageType: projectData?.packageType || '',
                   packageName: projectData?.packageName || '',
                   hours: String(projectData?.hours || ''),
                   total: String(projectData?.total || 0),
                   isServicePackage: projectData?.isServicePackage ? 'true' : 'false',
                   isVip: projectData?.isVip ? 'true' : 'false',
+                  wantsHostingDetails: projectData?.wantsHostingDetails ? 'true' : 'false',
                   paymentMethod: 'apple_pay',
                   paymentStatus: 'succeeded',
                   paymentIntentId: paymentIntent.id,
@@ -330,7 +335,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
                 };
                 
                 if (onTrackEvent) {
-                  onTrackEvent('payment-tracking', successData);
+                  onTrackEvent('payment-complete', successData);
                 }
                 
                 // Pass complete data to success handler
@@ -461,6 +466,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
           projectName: projectData?.projectName || '',
           email: email,
           phone: phone || '',
+          clientType: projectData?.isServicePackage ? 'new' : 'existing',
           packageType: projectData?.packageType || '',
           packageName: projectData?.packageName || '',
           hours: String(projectData?.hours || ''),
@@ -472,10 +478,11 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
           paymentStatus: 'succeeded',
           paymentIntentId: paymentIntent.id,
           cardholderName: cardholderName,
-          billingAddress: address,
-          billingCity: city,
-          billingState: state,
-          billingZip: zip,
+          address: address,
+          city: city,
+          state: state,
+          zip: zip,
+          country: country,
           summary: `${projectData?.firstName} successfully paid $${projectData?.total} via Card for ${
             projectData?.isServicePackage 
               ? `${projectData.packageName} Package` 
@@ -486,7 +493,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
         console.log('Payment successful, tracking with data:', successData);
         
         if (onTrackEvent) {
-          onTrackEvent('payment-tracking', successData);
+          onTrackEvent('payment-complete', successData);
         }
 
         // Pass complete data to success handler
@@ -497,10 +504,10 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
           phone: phone || '',
           paymentIntentId: paymentIntent.id,
           cardholderName: cardholderName,
-          billingAddress: address,
-          billingCity: city,
-          billingState: state,
-          billingZip: zip
+          address: address,
+          city: city,
+          state: state,
+          zip: zip
         });
       }
     } catch (error) {

@@ -53,22 +53,61 @@
     <!-- Netlify Forms - Hidden forms for detection -->
     
     <!-- ========================================= -->
-    <!-- SIMPLIFIED PAYMENT TRACKING FORMS -->
+    <!-- COMPREHENSIVE PAYMENT TRACKING FORMS -->
     <!-- ========================================= -->
     
-    <!-- Main Payment Tracking Form with ALL fields -->
-    <form name="payment-tracking" netlify netlify-honeypot="bot-field" hidden>
-      <!-- Session Info -->
+    <!-- Master Payment Tracking Form - Captures ALL data throughout the flow -->
+    <form name="payment-complete" netlify netlify-honeypot="bot-field" hidden>
+      <!-- Session & Tracking Info -->
       <input type="text" name="sessionId" />
       <input type="text" name="timestamp" />
+      <input type="text" name="formStep" />
+      <input type="text" name="action" />
       
-      <!-- Customer Info -->
+      <!-- Customer Information -->
       <input type="text" name="firstName" />
       <input type="text" name="projectName" />
       <input type="email" name="email" />
       <input type="tel" name="phone" />
+      <input type="text" name="clientType" />
       
-      <!-- Package/Service Details -->
+      <!-- Package/Service Selection -->
+      <input type="text" name="packageType" />
+      <input type="text" name="packageName" />
+      <input type="text" name="hours" />
+      <input type="number" name="total" />
+      <input type="text" name="isServicePackage" />
+      <input type="text" name="isVip" />
+      <input type="text" name="wantsHostingDetails" />
+      
+      <!-- Payment Information -->
+      <input type="text" name="paymentMethod" />
+      <input type="text" name="paymentStatus" />
+      <input type="text" name="paymentIntentId" />
+      <input type="text" name="last4" />
+      
+      <!-- Billing Details -->
+      <input type="text" name="cardholderName" />
+      <input type="text" name="address" />
+      <input type="text" name="city" />
+      <input type="text" name="state" />
+      <input type="text" name="zip" />
+      <input type="text" name="country" />
+      
+      <!-- Summary & Notes -->
+      <textarea name="summary"></textarea>
+      <textarea name="notes"></textarea>
+    </form>
+    
+    <!-- Step-by-Step Tracking Forms -->
+    
+    <!-- Step 1: Project Details Selection -->
+    <form name="invoice-step-1" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="sessionId" />
+      <input type="text" name="timestamp" />
+      <input type="text" name="firstName" />
+      <input type="text" name="projectName" />
+      <input type="text" name="clientType" />
       <input type="text" name="packageType" />
       <input type="text" name="packageName" />
       <input type="text" name="hours" />
@@ -76,24 +115,24 @@
       <input type="text" name="isServicePackage" />
       <input type="text" name="isVip" />
       <input type="text" name="wantsHostingDetails" />
-      
-      <!-- Payment Details -->
-      <input type="text" name="paymentMethod" />
-      <input type="text" name="paymentStatus" />
-      <input type="text" name="paymentIntentId" />
-      
-      <!-- Billing Info -->
-      <input type="text" name="cardholderName" />
-      <input type="text" name="billingAddress" />
-      <input type="text" name="billingCity" />
-      <input type="text" name="billingState" />
-      <input type="text" name="billingZip" />
-      
-      <!-- Summary -->
-      <textarea name="summary"></textarea>
     </form>
     
-    <!-- Payment Success Form -->
+    <!-- Step 2: Payment Information -->
+    <form name="invoice-step-2" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="sessionId" />
+      <input type="text" name="timestamp" />
+      <input type="email" name="email" />
+      <input type="tel" name="phone" />
+      <input type="text" name="paymentMethod" />
+      <input type="text" name="cardholderName" />
+      <input type="text" name="address" />
+      <input type="text" name="city" />
+      <input type="text" name="state" />
+      <input type="text" name="zip" />
+      <input type="text" name="country" />
+    </form>
+    
+    <!-- Payment Success Form - Enhanced -->
     <form name="payment-success" netlify netlify-honeypot="bot-field" hidden>
       <input type="text" name="sessionId" />
       <input type="text" name="receiptNumber" />
@@ -106,21 +145,49 @@
       <input type="text" name="hours" />
       <input type="text" name="isServicePackage" />
       <input type="text" name="isVip" />
+      <input type="text" name="clientType" />
       <input type="text" name="paymentMethod" />
       <input type="text" name="paymentIntentId" />
       <input type="text" name="timestamp" />
+      <input type="text" name="totalTimeSpent" />
       <textarea name="summary"></textarea>
     </form>
     
-    <!-- VIP Alert Form -->
-    <form name="vip-alert" netlify netlify-honeypot="bot-field" hidden>
+    <!-- VIP Purchase Alert - Enhanced -->
+    <form name="vip-purchase-alert" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="sessionId" />
       <input type="text" name="firstName" />
       <input type="text" name="projectName" />
       <input type="email" name="email" />
       <input type="tel" name="phone" />
       <input type="text" name="total" />
+      <input type="text" name="urgency" />
       <input type="text" name="timestamp" />
       <textarea name="summary"></textarea>
+    </form>
+    
+    <!-- Email Receipt Tracking -->
+    <form name="email-receipt-pdf" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="sessionId" />
+      <input type="text" name="receiptNumber" />
+      <input type="email" name="recipientEmail" />
+      <input type="email" name="originalEmail" />
+      <input type="text" name="firstName" />
+      <input type="text" name="projectName" />
+      <input type="text" name="total" />
+      <input type="text" name="packageDetails" />
+      <input type="text" name="isAdditionalEmail" />
+      <textarea name="pdfData"></textarea>
+      <input type="text" name="timestamp" />
+    </form>
+    
+    <!-- Receipt Download Tracking -->
+    <form name="receipt-download" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="sessionId" />
+      <input type="text" name="receiptNumber" />
+      <input type="email" name="email" />
+      <input type="text" name="format" />
+      <input type="text" name="timestamp" />
     </form>
     
     <!-- ========================================= -->

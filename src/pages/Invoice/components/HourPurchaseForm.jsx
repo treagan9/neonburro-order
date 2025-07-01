@@ -53,6 +53,17 @@ const HourPurchaseForm = ({ onSuccess, sessionId, onTrackEvent }) => {
     }
   ];
 
+  // Track form initialization
+  useEffect(() => {
+    if (onTrackEvent) {
+      onTrackEvent('form-started', {
+        sessionId: sessionId,
+        step: 'project-details',
+        timestamp: new Date().toISOString()
+      });
+    }
+  }, []);
+
   // Smooth scroll to top when step changes
   useEffect(() => {
     if (isTransitioning) {
@@ -68,6 +79,9 @@ const HourPurchaseForm = ({ onSuccess, sessionId, onTrackEvent }) => {
     console.log('Project details completed:', data);
     setIsTransitioning(true);
     
+    // Calculate time spent on step 1
+    const stepDuration = Math.round((Date.now() - stepStartTime) / 1000);
+    
     // Ensure ALL data is properly formatted and passed
     const completeData = {
       firstName: data.firstName || '',
@@ -79,22 +93,39 @@ const HourPurchaseForm = ({ onSuccess, sessionId, onTrackEvent }) => {
       isServicePackage: data.isServicePackage || false,
       isVip: data.isVip || false,
       wantsHostingDetails: data.wantsHostingDetails || false,
-      clientType: data.isServicePackage ? 'new' : 'existing'
+      clientType: data.isServicePackage ? 'new' : 'existing',
+      stepDuration: stepDuration
     };
     
-    // Track the package selection when moving to payment
+    // Track project details completion
     if (onTrackEvent) {
+      // First, track the completed project details
+      onTrackEvent('project-details-completed', completeData);
+      
+      // Generate a human-readable summary
       const summary = completeData.isServicePackage 
         ? `${completeData.firstName} selected ${completeData.packageName} Package ($${completeData.total}) for project: ${completeData.projectName}`
         : `${completeData.firstName} selected ${completeData.hours} hours ($${completeData.total}) for project: ${completeData.projectName}`;
 
-      onTrackEvent('payment-tracking', {
+      // Track moving to payment step
+      onTrackEvent('payment-initiated', {
         sessionId: sessionId,
         ...completeData,
         paymentStatus: 'initiated',
+        currentStep: 'payment',
         timestamp: new Date().toISOString(),
         summary: summary
       });
+      
+      // Track journey step
+      const newJourneyStep = {
+        step: 1,
+        action: 'project-details-completed',
+        duration: stepDuration,
+        timestamp: new Date().toISOString(),
+        data: completeData
+      };
+      setJourneySteps([...journeySteps, newJourneyStep]);
     }
     
     setTimeout(() => {
@@ -107,6 +138,17 @@ const HourPurchaseForm = ({ onSuccess, sessionId, onTrackEvent }) => {
   const handleBackToDetails = () => {
     setIsTransitioning(true);
     
+    // Track going back
+    if (onTrackEvent) {
+      onTrackEvent('navigation', {
+        sessionId: sessionId,
+        action: 'back-to-project-details',
+        fromStep: 'payment',
+        toStep: 'project-details',
+        timestamp: new Date().toISOString()
+      });
+    }
+    
     setTimeout(() => {
       setCurrentStep(1);
       setStepStartTime(Date.now());
@@ -116,13 +158,39 @@ const HourPurchaseForm = ({ onSuccess, sessionId, onTrackEvent }) => {
   const handlePaymentSuccess = (data) => {
     console.log('Payment success with data:', data);
     
+    // Calculate total journey time
+    const totalTimeSpent = Math.round((Date.now() - formStartTime.current) / 1000);
+    const paymentStepDuration = Math.round((Date.now() - stepStartTime) / 1000);
+    
+    // Track final journey step
+    const finalJourneyStep = {
+      step: 2,
+      action: 'payment-completed',
+      duration: paymentStepDuration,
+      timestamp: new Date().toISOString(),
+      data: data
+    };
+    
+    const completeJourney = [...journeySteps, finalJourneyStep];
+    
     // Ensure complete data is passed to success handler
     const completeSuccessData = {
+      // Project data from step 1
       ...projectData,
+      // Payment data from step 2
       ...data,
+      // Session and tracking data
       sessionId: sessionId,
-      totalTimeSpent: Math.round((Date.now() - formStartTime.current) / 1000)
+      totalTimeSpent: totalTimeSpent,
+      paymentStepDuration: paymentStepDuration,
+      journeySteps: completeJourney,
+      completedAt: new Date().toISOString()
     };
+    
+    // Track the completed payment
+    if (onTrackEvent) {
+      onTrackEvent('payment-completed', completeSuccessData);
+    }
     
     onSuccess(completeSuccessData);
   };
