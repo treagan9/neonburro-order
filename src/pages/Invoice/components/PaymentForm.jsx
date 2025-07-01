@@ -86,6 +86,15 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
     agreeToTermsRef.current = agreeToTerms;
   }, [agreeToTerms]);
 
+  // Store terms acceptance in session storage as backup
+  useEffect(() => {
+    if (agreeToTerms) {
+      window.sessionStorage.setItem(`terms-accepted-${sessionId}`, 'true');
+    } else {
+      window.sessionStorage.removeItem(`terms-accepted-${sessionId}`);
+    }
+  }, [agreeToTerms, sessionId]);
+
   // Track when user enters payment page
   useEffect(() => {
     if (projectData && onTrackEvent && !hasTrackedPageView) {
@@ -102,7 +111,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
         timestamp: new Date().toISOString()
       });
     }
-  }, [projectData, onTrackEvent, hasTrackedPageView]);
+  }, [projectData, onTrackEvent, hasTrackedPageView, paymentMethodType]);
 
   // Track abandoned cart after email is entered
   useEffect(() => {
@@ -211,6 +220,131 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
     },
   };
 
+  // Handle Apple Pay payment logic
+  const handleApplePayPayment = async (ev, termsAccepted) => {
+    if (!termsAccepted) {
+      ev.complete('fail');
+      setTermsError(true);
+      
+      // Ensure the checkbox is visible
+      setTimeout(() => {
+        document.getElementById('terms-section')?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }, 100);
+      
+      toast({
+        title: 'Terms Required',
+        description: 'Please accept the terms to continue with payment',
+        status: 'error',
+        duration: 4000,
+        isClosable: true,
+        position: 'top',
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    
+    // Track payment attempt
+    if (onTrackEvent) {
+      onTrackEvent('payment-attempt', {
+        firstName: projectData?.firstName || '',
+        projectName: projectData?.projectName || '',
+        email: ev.payerEmail || email,
+        total: projectData?.total || 0,
+        paymentMethod: 'apple_pay',
+        packageInfo: projectData?.isServicePackage 
+          ? `${projectData.packageName} Package` 
+          : `${projectData.hours} hours`,
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    try {
+      // Create payment intent
+      const response = await fetch('/.netlify/functions/create-payment-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: projectData?.total || 0,
+          firstName: projectData?.firstName || '',
+          projectName: projectData?.projectName || '',
+          hours: projectData?.hours || 0,
+        }),
+      });
+
+      const { clientSecret, error } = await response.json();
+
+      if (error) {
+        throw new Error(error);
+      }
+
+      // Confirm the payment
+      const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
+        clientSecret,
+        { payment_method: ev.paymentMethod.id },
+        { handleActions: false }
+      );
+
+      if (confirmError) {
+        ev.complete('fail');
+        throw new Error(confirmError.message);
+      } else {
+        ev.complete('success');
+        
+        if (paymentIntent.status === 'requires_action') {
+          const { error: actionError } = await stripe.confirmCardPayment(clientSecret);
+          if (actionError) {
+            throw new Error(actionError.message);
+          }
+        }
+        
+        // Track complete journey
+        if (onTrackEvent) {
+          onTrackEvent('customer-journey', {
+            firstName: projectData?.firstName || '',
+            projectName: projectData?.projectName || '',
+            email: ev.payerEmail || email,
+            phone: ev.payerPhone || '',
+            clientType: projectData?.isServicePackage ? 'new' : 'existing',
+            packageType: projectData?.packageType || '',
+            packageName: projectData?.packageName || '',
+            hours: projectData?.hours || 0,
+            total: projectData?.total || 0,
+            paymentMethod: 'apple_pay',
+            isVip: projectData?.isVip || false,
+            wantsHostingDetails: projectData?.wantsHostingDetails || false,
+            journeySteps: 'details->payment->success',
+            totalTimeSpent: Math.floor((Date.now() - startTime) / 1000),
+            timestamp: new Date().toISOString()
+          });
+        }
+        
+        onSuccess({
+          ...projectData,
+          paymentMethod: 'apple_pay',
+          email: ev.payerEmail || email,
+          phone: ev.payerPhone || phone,
+          paymentIntentId: paymentIntent.id
+        });
+      }
+    } catch (error) {
+      ev.complete('fail');
+      trackPaymentError(error);
+      toast({
+        title: 'Payment failed',
+        description: error.message,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Setup Apple Pay / Google Pay
   useEffect(() => {
     if (!stripe || !projectData) {
@@ -249,130 +383,12 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
 
           // Handle payment method creation
           pr.on('paymentmethod', async (ev) => {
-            // CRITICAL: Check both state AND ref to ensure terms are accepted
-            const termsAccepted = agreeToTerms && agreeToTermsRef.current;
+            // CRITICAL FIX: Check terms acceptance from multiple sources
+            const termsAcceptedInSession = window.sessionStorage.getItem(`terms-accepted-${sessionId}`) === 'true';
+            const currentTermsState = agreeToTermsRef.current;
+            const termsAccepted = currentTermsState || termsAcceptedInSession;
             
-            if (!termsAccepted) {
-              ev.complete('fail');
-              setTermsError(true);
-              
-              // Ensure the checkbox is visible
-              setTimeout(() => {
-                document.getElementById('terms-section')?.scrollIntoView({ 
-                  behavior: 'smooth', 
-                  block: 'center' 
-                });
-              }, 100);
-              
-              toast({
-                title: 'Terms Required',
-                description: 'Please accept the terms to continue with payment',
-                status: 'error',
-                duration: 4000,
-                isClosable: true,
-                position: 'top',
-              });
-              return;
-            }
-
-            setIsLoading(true);
-            
-            // Track payment attempt
-            if (onTrackEvent) {
-              onTrackEvent('payment-attempt', {
-                firstName: projectData?.firstName || '',
-                projectName: projectData?.projectName || '',
-                email: ev.payerEmail || email,
-                total: projectData?.total || 0,
-                paymentMethod: 'apple_pay',
-                packageInfo: projectData?.isServicePackage 
-                  ? `${projectData.packageName} Package` 
-                  : `${projectData.hours} hours`,
-                timestamp: new Date().toISOString()
-              });
-            }
-            
-            try {
-              // Create payment intent
-              const response = await fetch('/.netlify/functions/create-payment-intent', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  amount: projectData?.total || 0,
-                  firstName: projectData?.firstName || '',
-                  projectName: projectData?.projectName || '',
-                  hours: projectData?.hours || 0,
-                }),
-              });
-
-              const { clientSecret, error } = await response.json();
-
-              if (error) {
-                throw new Error(error);
-              }
-
-              // Confirm the payment
-              const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
-                clientSecret,
-                { payment_method: ev.paymentMethod.id },
-                { handleActions: false }
-              );
-
-              if (confirmError) {
-                ev.complete('fail');
-                throw new Error(confirmError.message);
-              } else {
-                ev.complete('success');
-                
-                if (paymentIntent.status === 'requires_action') {
-                  const { error: actionError } = await stripe.confirmCardPayment(clientSecret);
-                  if (actionError) {
-                    throw new Error(actionError.message);
-                  }
-                }
-                
-                // Track complete journey
-                if (onTrackEvent) {
-                  onTrackEvent('customer-journey', {
-                    firstName: projectData?.firstName || '',
-                    projectName: projectData?.projectName || '',
-                    email: ev.payerEmail || email,
-                    phone: ev.payerPhone || '',
-                    clientType: projectData?.isServicePackage ? 'new' : 'existing',
-                    packageType: projectData?.packageType || '',
-                    packageName: projectData?.packageName || '',
-                    hours: projectData?.hours || 0,
-                    total: projectData?.total || 0,
-                    paymentMethod: 'apple_pay',
-                    isVip: projectData?.isVip || false,
-                    wantsHostingDetails: projectData?.wantsHostingDetails || false,
-                    journeySteps: 'details->payment->success',
-                    totalTimeSpent: Math.floor((Date.now() - startTime) / 1000),
-                    timestamp: new Date().toISOString()
-                  });
-                }
-                
-                onSuccess({
-                  ...projectData,
-                  paymentMethod: 'apple_pay',
-                  email: ev.payerEmail || email,
-                  phone: ev.payerPhone || phone,
-                  paymentIntentId: paymentIntent.id
-                });
-              }
-            } catch (error) {
-              ev.complete('fail');
-              trackPaymentError(error);
-              toast({
-                title: 'Payment failed',
-                description: error.message,
-                status: 'error',
-                duration: 5000,
-                isClosable: true,
-              });
-            } finally {
-              setIsLoading(false);
-            }
+            handleApplePayPayment(ev, termsAccepted);
           });
 
           pr.on('cancel', () => {
@@ -388,7 +404,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
     };
 
     createPaymentRequest();
-  }, [stripe, projectData, email, onSuccess, toast, onTrackEvent, startTime]);
+  }, [stripe, projectData, email, onSuccess, toast, onTrackEvent, startTime, sessionId]);
 
   const handleCardPayment = async () => {
     if (!stripe || !elements) return;
@@ -1394,6 +1410,20 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
                       }
                       if (!agreeToTerms) {
                         setTermsError(true);
+                        toast({
+                          title: 'Terms Required',
+                          description: 'Please accept the terms to continue with payment',
+                          status: 'error',
+                          duration: 4000,
+                          isClosable: true,
+                          position: 'top',
+                        });
+                        setTimeout(() => {
+                          document.getElementById('terms-section')?.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'center' 
+                          });
+                        }, 100);
                         return;
                       }
                       handleCardPayment();
