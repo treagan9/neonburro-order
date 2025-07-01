@@ -60,7 +60,7 @@ const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }
     packageSelection: null
   });
   
-  const hourlyRate = 33;
+  const hourlyRate = 1;
   
   // Track initial form view
   useEffect(() => {
