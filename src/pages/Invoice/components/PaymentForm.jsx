@@ -1299,30 +1299,6 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
                 {/* Express Checkout - Show when Apple Pay is selected and available */}
                 {paymentMethodType === 'apple' && canMakePayment && paymentRequest && (
                   <Box>
-                    {/* Show message if terms not accepted */}
-                    <AnimatePresence>
-                      {!agreeToTerms && (
-                        <MotionBox
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          mb={3}
-                          p={3}
-                          bg="rgba(255, 107, 53, 0.1)"
-                          borderRadius="lg"
-                          border="1px solid"
-                          borderColor={colors.copper}
-                        >
-                          <HStack spacing={2} justify="center">
-                            <FiAlertCircle color={colors.copper} size={16} />
-                            <Text color="white" fontSize="sm" fontWeight="500">
-                              Please accept the terms above to enable Apple Pay
-                            </Text>
-                          </HStack>
-                        </MotionBox>
-                      )}
-                    </AnimatePresence>
-                    
                     <Box
                       position="relative"
                       filter={!agreeToTerms ? 'grayscale(50%)' : 'none'}
