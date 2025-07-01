@@ -151,6 +151,26 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
     }
   };
 
+  // Submit form data to Netlify Forms for tracking
+  const submitToNetlifyForms = async (formData) => {
+    try {
+      const response = await fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          "form-name": "payment-tracking",
+          ...formData
+        }).toString()
+      });
+      
+      if (!response.ok) {
+        console.error("Netlify form submission failed");
+      }
+    } catch (error) {
+      console.error("Error submitting to Netlify Forms:", error);
+    }
+  };
+
   // Add a validation function to ensure consistency
   const validateTerms = () => {
     if (!agreeToTerms || !agreeToTermsRef.current) {
@@ -326,6 +346,27 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
                   });
                 }
                 
+                // Submit to Netlify Forms
+                await submitToNetlifyForms({
+                  firstName: projectData?.firstName || '',
+                  projectName: projectData?.projectName || '',
+                  email: ev.payerEmail || email,
+                  phone: ev.payerPhone || phone || '',
+                  packageName: projectData?.packageName || '',
+                  packageType: projectData?.packageType || '',
+                  hours: projectData?.hours || '',
+                  total: projectData?.total || 0,
+                  paymentMethod: 'apple_pay',
+                  paymentIntentId: paymentIntent.id,
+                  isVip: projectData?.isVip || false,
+                  cardholderName: ev.payerName || '',
+                  address: '',
+                  city: '',
+                  state: '',
+                  zip: '',
+                  timestamp: new Date().toISOString()
+                });
+                
                 onSuccess({
                   ...projectData,
                   paymentMethod: 'apple_pay',
@@ -362,7 +403,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
     };
 
     createPaymentRequest();
-  }, [stripe, projectData, email, onSuccess, toast, onTrackEvent, startTime]);
+  }, [stripe, projectData, email, onSuccess, toast, onTrackEvent, startTime, phone]);
 
   const handleCardPayment = async () => {
     if (!stripe || !elements) return;
@@ -477,6 +518,27 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
             timestamp: new Date().toISOString()
           });
         }
+
+        // Submit to Netlify Forms
+        await submitToNetlifyForms({
+          firstName: projectData?.firstName || '',
+          projectName: projectData?.projectName || '',
+          email: email,
+          phone: phone || '',
+          packageName: projectData?.packageName || '',
+          packageType: projectData?.packageType || '',
+          hours: projectData?.hours || '',
+          total: projectData?.total || 0,
+          paymentMethod: 'card',
+          paymentIntentId: paymentIntent.id,
+          isVip: projectData?.isVip || false,
+          cardholderName: cardholderName || '',
+          address: address || '',
+          city: city || '',
+          state: state || '',
+          zip: zip || '',
+          timestamp: new Date().toISOString()
+        });
 
         onSuccess({
           ...projectData,

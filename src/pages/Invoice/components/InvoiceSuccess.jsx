@@ -19,7 +19,9 @@ import {
   useToast,
   Input,
   InputGroup,
-  InputLeftElement
+  InputLeftElement,
+  Icon,
+  Fade
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { 
@@ -33,10 +35,13 @@ import {
   FiPackage,
   FiDollarSign,
   FiSend,
-  FiPhone
+  FiPhone,
+  FiFileText,
+  FiCheckCircle
 } from 'react-icons/fi';
 import { useEffect, useState } from 'react';
 import MatrixRain from '../../../components/effects/MatrixRain';
+import jsPDF from 'jspdf';
 
 const MotionBox = motion(Box);
 
@@ -46,6 +51,8 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
   const [downloadProcessing, setDownloadProcessing] = useState(false);
   const [additionalEmail, setAdditionalEmail] = useState('');
   const [showEmailInput, setShowEmailInput] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const [downloadComplete, setDownloadComplete] = useState(false);
   const toast = useToast();
   
   const colors = {
@@ -61,72 +68,61 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
         setShowMatrix(true);
       }, 400);
       
-      // Submit multiple forms to Netlify for comprehensive tracking
+      // Submit to Netlify Forms for tracking
       if (formData) {
-        // 1. Payment Success
-        submitToNetlifyForms('payment-success', {
-          ...formData,
-          sessionId: sessionId || 'no-session',
-          timestamp: new Date().toISOString()
-        });
-        
-        // 2. Customer Journey Completion
-        submitToNetlifyForms('customer-journey', {
-          sessionId: sessionId || 'no-session',
-          firstName: formData.firstName || '',
-          projectName: formData.projectName || '',
-          email: formData.email || '',
-          phone: formData.phone || '',
-          clientType: formData.clientType || 'unknown',
-          packageType: formData.packageType || '',
-          packageName: formData.packageName || '',
-          hours: formData.hours || 0,
-          total: formData.total || 0,
-          paymentMethod: formData.paymentMethod || '',
-          isVip: formData.isVip || false,
-          wantsHostingDetails: formData.wantsHostingDetails || false,
-          journeySteps: 'completed',
-          totalTimeSpent: formData.timeSpent || 'unknown',
-          timestamp: new Date().toISOString()
-        });
-        
-        // 3. VIP Success Notification (if applicable)
-        if (formData.isVip || formData.packageName === 'VIP') {
-          submitToNetlifyForms('vip-payment-success', {
-            sessionId: sessionId || 'no-session',
-            firstName: formData.firstName || '',
-            projectName: formData.projectName || '',
-            email: formData.email || '',
-            phone: formData.phone || '',
-            total: formData.total || 0,
-            timestamp: new Date().toISOString(),
-            urgency: 'IMMEDIATE_ATTENTION_REQUIRED'
-          });
-        }
-        
-        // 4. Revenue Tracking
-        submitToNetlifyForms('revenue-tracking', {
-          sessionId: sessionId || 'no-session',
-          date: new Date().toLocaleDateString(),
-          time: new Date().toLocaleTimeString(),
-          total: formData.total || 0,
-          type: formData.isServicePackage ? 'package' : 'hourly',
-          packageName: formData.packageName || '',
-          hours: formData.hours || 0,
-          client: formData.firstName || '',
-          project: formData.projectName || '',
-          paymentMethod: formData.paymentMethod || '',
-          timestamp: new Date().toISOString()
-        });
+        submitSuccessToNetlify();
       }
       
       return () => clearTimeout(timer);
     } else {
       setShowMatrix(false);
+      setEmailSent(false);
+      setDownloadComplete(false);
+      setShowEmailInput(false);
+      setAdditionalEmail('');
     }
   }, [isOpen]);
 
-  // Enhanced submit function for multiple forms
+  // Submit success data to Netlify
+  const submitSuccessToNetlify = async () => {
+    try {
+      // Main success submission
+      await submitToNetlifyForms('payment-success', {
+        sessionId: sessionId || 'no-session',
+        receiptNumber: generateReceiptNumber(),
+        firstName: formData.firstName || '',
+        projectName: formData.projectName || '',
+        email: formData.email || '',
+        phone: formData.phone || '',
+        total: formData.total || 0,
+        packageName: formData.packageName || '',
+        hours: formData.hours || '',
+        isServicePackage: formData.isServicePackage || false,
+        isVip: formData.isVip || false,
+        paymentMethod: formData.paymentMethod || '',
+        paymentIntentId: formData.paymentIntentId || '',
+        clientType: formData.isServicePackage ? 'new' : 'existing',
+        timestamp: new Date().toISOString()
+      });
+
+      // VIP notification if applicable
+      if (formData.isVip || formData.packageName === 'VIP') {
+        await submitToNetlifyForms('vip-purchase-alert', {
+          sessionId: sessionId || 'no-session',
+          firstName: formData.firstName || '',
+          email: formData.email || '',
+          phone: formData.phone || '',
+          total: formData.total || 0,
+          urgency: 'IMMEDIATE_VIP_ONBOARDING',
+          timestamp: new Date().toISOString()
+        });
+      }
+    } catch (error) {
+      console.error('Error submitting to Netlify:', error);
+    }
+  };
+
+  // Submit to Netlify Forms
   const submitToNetlifyForms = async (formName, data) => {
     try {
       const formBody = new URLSearchParams({
@@ -140,94 +136,151 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
         body: formBody.toString()
       });
     } catch (error) {
-      console.error(`Error submitting ${formName} to Netlify:`, error);
+      console.error(`Error submitting ${formName}:`, error);
     }
   };
 
-  // Generate enhanced receipt data
-  const generateReceiptData = () => {
-    if (!formData) return '';
-    
-    const receiptData = {
-      receiptNumber: `NB-${Date.now().toString().slice(-8)}`,
-      sessionId: sessionId || 'no-session',
-      date: new Date().toLocaleDateString(),
-      time: new Date().toLocaleTimeString(),
-      client: {
-        name: formData.firstName,
-        email: formData.email,
-        phone: formData.phone || 'Not provided'
-      },
-      project: {
-        name: formData.projectName,
-        type: formData.isServicePackage ? 'Service Package' : 'Hourly Development',
-        package: formData.packageName || 'N/A',
-        hours: formData.hours || 'N/A',
-        timeline: getTimeline()
-      },
-      payment: {
-        amount: formData.total,
-        method: formData.paymentMethod,
-        status: 'Paid',
-        transactionId: formData.paymentIntentId || 'N/A'
-      },
-      nextSteps: getNextSteps()
-    };
-    
-    return JSON.stringify(receiptData, null, 2);
+  // Generate receipt number
+  const generateReceiptNumber = () => {
+    return `NB-${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`;
   };
 
-  // Get next steps based on package
-  const getNextSteps = () => {
-    const isVip = formData?.isVip || formData?.packageName === 'VIP';
-    return [
-      isVip ? "VIP team contact within 30 minutes" : "Team contact within 2 hours",
-      "Project roadmap and timeline delivery",
-      "Access credentials for project dashboard",
-      isVip ? "Direct line to founders" : "Dedicated project manager assignment"
-    ];
+  // Generate professional PDF receipt
+  const generatePDFReceipt = () => {
+    const doc = new jsPDF();
+    const receiptNumber = generateReceiptNumber();
+    const currentDate = new Date();
+    
+    // Header
+    doc.setFontSize(24);
+    doc.setTextColor(0, 255, 255);
+    doc.text('NEON BURRO', 105, 30, { align: 'center' });
+    
+    doc.setFontSize(10);
+    doc.setTextColor(128, 128, 128);
+    doc.text('Digital Craftsmanship from Colorado', 105, 38, { align: 'center' });
+    
+    // Receipt title
+    doc.setFontSize(16);
+    doc.setTextColor(0, 0, 0);
+    doc.text('PAYMENT RECEIPT', 105, 55, { align: 'center' });
+    
+    // Receipt details box
+    doc.setDrawColor(200, 200, 200);
+    doc.roundedRect(20, 65, 170, 30, 3, 3);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Receipt Number:', 30, 75);
+    doc.text('Date:', 30, 85);
+    doc.text('Status:', 120, 75);
+    
+    doc.setTextColor(0, 0, 0);
+    doc.setFont(undefined, 'bold');
+    doc.text(receiptNumber, 65, 75);
+    doc.text(currentDate.toLocaleDateString(), 45, 85);
+    doc.setTextColor(57, 255, 20);
+    doc.text('PAID', 140, 75);
+    
+    // Client Information
+    doc.setFont(undefined, 'normal');
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(12);
+    doc.text('Bill To:', 20, 110);
+    
+    doc.setFontSize(10);
+    doc.text(formData.firstName || 'Client', 20, 120);
+    doc.text(formData.email || '', 20, 127);
+    if (formData.phone) {
+      doc.text(formData.phone, 20, 134);
+    }
+    
+    // Project Details
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, 145, 190, 145);
+    
+    doc.setFontSize(12);
+    doc.text('Project Details', 20, 155);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Project Name:', 20, 165);
+    doc.text('Type:', 20, 172);
+    doc.text('Timeline:', 20, 179);
+    
+    doc.setTextColor(0, 0, 0);
+    doc.text(formData.projectName || 'Project', 55, 165);
+    doc.text(formData.isServicePackage ? `${formData.packageName} Package` : `${formData.hours} Development Hours`, 35, 172);
+    doc.text(getTimeline(), 45, 179);
+    
+    // Payment Summary
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, 190, 190, 190);
+    
+    // Items
+    if (formData.isServicePackage) {
+      doc.text(`${formData.packageName} Package - Complete Development`, 20, 205);
+      doc.text(`$${formData.total.toLocaleString()}.00`, 170, 205, { align: 'right' });
+    } else {
+      doc.text(`Development Hours (${formData.hours} hrs @ $150/hr)`, 20, 205);
+      doc.text(`$${formData.total.toLocaleString()}.00`, 170, 205, { align: 'right' });
+    }
+    
+    // Total
+    doc.setDrawColor(200, 200, 200);
+    doc.line(120, 215, 190, 215);
+    
+    doc.setFont(undefined, 'bold');
+    doc.setFontSize(12);
+    doc.text('Total Paid:', 120, 225);
+    doc.setTextColor(57, 255, 20);
+    doc.text(`$${formData.total.toLocaleString()}.00 USD`, 170, 225, { align: 'right' });
+    
+    // Footer
+    doc.setFont(undefined, 'normal');
+    doc.setTextColor(128, 128, 128);
+    doc.setFontSize(8);
+    doc.text('Thank you for choosing Neon Burro!', 105, 250, { align: 'center' });
+    doc.text('Questions? Contact us at hello@neonburro.com', 105, 256, { align: 'center' });
+    doc.text('neonburro.com', 105, 262, { align: 'center' });
+    
+    return doc;
   };
 
-  // Enhanced download receipt with tracking
+  // Enhanced download receipt
   const handleDownloadReceipt = async () => {
     setDownloadProcessing(true);
     
     try {
-      // Track download action
-      submitToNetlifyForms('receipt-download', {
+      // Generate PDF
+      const doc = generatePDFReceipt();
+      const receiptNumber = generateReceiptNumber();
+      
+      // Save PDF
+      doc.save(`neon-burro-receipt-${receiptNumber}.pdf`);
+      
+      // Track download
+      await submitToNetlifyForms('receipt-download', {
         sessionId: sessionId || 'no-session',
-        receiptNumber: `NB-${Date.now().toString().slice(-8)}`,
+        receiptNumber: receiptNumber,
         email: formData.email,
+        format: 'pdf',
         timestamp: new Date().toISOString()
       });
       
-      const receiptData = generateReceiptData();
-      const blob = new Blob([receiptData], { type: 'application/json' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `neonburro-receipt-${Date.now()}.json`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      setDownloadComplete(true);
       
       toast({
-        title: "Receipt Downloaded!",
-        description: "Your receipt has been saved to your device.",
+        title: "Receipt Downloaded! 📄",
+        description: "Your professional receipt has been saved.",
         status: "success",
         duration: 3000,
         isClosable: true,
       });
-    } catch (error) {
-      // Track download error
-      submitToNetlifyForms('receipt-error', {
-        sessionId: sessionId || 'no-session',
-        error: 'download-failed',
-        email: formData.email,
-        timestamp: new Date().toISOString()
-      });
       
+      // Reset after delay
+      setTimeout(() => setDownloadComplete(false), 3000);
+    } catch (error) {
       toast({
         title: "Download Failed",
         description: "Please try again or contact support.",
@@ -240,50 +293,42 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
     }
   };
 
-  // Enhanced email receipt with tracking
-  const handleEmailReceipt = async (recipientEmail) => {
+  // Enhanced email receipt
+  const handleEmailReceipt = async (recipientEmail = formData.email) => {
     setEmailSending(true);
     
     try {
-      // Submit email request with session tracking
-      const formBody = new URLSearchParams({
-        'form-name': 'email-receipt',
-        'sessionId': sessionId || 'no-session',
-        'recipientEmail': recipientEmail || formData.email,
-        'originalEmail': formData.email,
-        'receiptData': generateReceiptData(),
-        'isAdditionalEmail': recipientEmail !== formData.email,
-        'timestamp': new Date().toISOString()
-      });
-
-      const response = await fetch('/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: formBody.toString()
-      });
-
-      if (response.ok) {
-        toast({
-          title: "Email Sent!",
-          description: `Receipt sent to ${recipientEmail || formData.email}`,
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-        });
-        setShowEmailInput(false);
-        setAdditionalEmail('');
-      } else {
-        throw new Error('Failed to send email');
-      }
-    } catch (error) {
-      // Track email error
-      submitToNetlifyForms('receipt-error', {
+      const receiptNumber = generateReceiptNumber();
+      
+      // Submit email request to Netlify
+      await submitToNetlifyForms('email-receipt-request', {
         sessionId: sessionId || 'no-session',
-        error: 'email-failed',
-        email: formData.email,
+        receiptNumber: receiptNumber,
+        recipientEmail: recipientEmail,
+        originalEmail: formData.email,
+        firstName: formData.firstName,
+        projectName: formData.projectName,
+        total: formData.total,
+        packageDetails: formData.isServicePackage ? formData.packageName : `${formData.hours} hours`,
+        isAdditionalEmail: recipientEmail !== formData.email,
         timestamp: new Date().toISOString()
       });
       
+      setEmailSent(true);
+      setShowEmailInput(false);
+      setAdditionalEmail('');
+      
+      toast({
+        title: "Email Sent! 📧",
+        description: `Receipt sent to ${recipientEmail}`,
+        status: "success",
+        duration: 4000,
+        isClosable: true,
+      });
+      
+      // Reset after delay
+      setTimeout(() => setEmailSent(false), 5000);
+    } catch (error) {
       toast({
         title: "Email Failed",
         description: "Please try downloading the receipt instead.",
@@ -314,14 +359,42 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
     return 'Based on project scope';
   };
 
+  // Get next steps
+  const getNextSteps = () => {
+    const isVip = formData?.isVip || formData?.packageName === 'VIP';
+    return [
+      {
+        icon: FiPhone,
+        text: isVip ? "VIP team contact within 30 minutes" : "Team contact within 2 hours",
+        highlight: isVip
+      },
+      {
+        icon: FiFileText,
+        text: "Project roadmap and timeline delivery",
+        highlight: false
+      },
+      {
+        icon: FiCheckCircle,
+        text: "Access credentials for project dashboard",
+        highlight: false
+      },
+      {
+        icon: FiUser,
+        text: isVip ? "Direct line to founders" : "Dedicated project manager assignment",
+        highlight: isVip
+      }
+    ];
+  };
+
   return (
     <>
       {/* Matrix Rain Background */}
       <MatrixRain isActive={showMatrix} duration={3000} />
       
-      {/* Hidden Netlify Forms for Detection - Enhanced set */}
+      {/* Hidden Netlify Forms */}
       <form name="payment-success" data-netlify="true" hidden>
         <input type="text" name="sessionId" />
+        <input type="text" name="receiptNumber" />
         <input type="text" name="firstName" />
         <input type="text" name="projectName" />
         <input type="email" name="email" />
@@ -333,39 +406,29 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
         <input type="text" name="isVip" />
         <input type="text" name="paymentMethod" />
         <input type="text" name="paymentIntentId" />
+        <input type="text" name="clientType" />
         <input type="text" name="timestamp" />
       </form>
       
-      <form name="vip-payment-success" data-netlify="true" data-netlify-honeypot="bot-field" hidden>
+      <form name="vip-purchase-alert" data-netlify="true" hidden>
         <input type="text" name="sessionId" />
         <input type="text" name="firstName" />
-        <input type="text" name="projectName" />
         <input type="email" name="email" />
-        <input type="tel" name="phone" />
+        <input type="text" name="phone" />
         <input type="text" name="total" />
-        <input type="text" name="timestamp" />
         <input type="text" name="urgency" />
-      </form>
-      
-      <form name="revenue-tracking" data-netlify="true" hidden>
-        <input type="text" name="sessionId" />
-        <input type="text" name="date" />
-        <input type="text" name="time" />
-        <input type="text" name="total" />
-        <input type="text" name="type" />
-        <input type="text" name="packageName" />
-        <input type="text" name="hours" />
-        <input type="text" name="client" />
-        <input type="text" name="project" />
-        <input type="text" name="paymentMethod" />
         <input type="text" name="timestamp" />
       </form>
       
-      <form name="email-receipt" data-netlify="true" hidden>
+      <form name="email-receipt-request" data-netlify="true" hidden>
         <input type="text" name="sessionId" />
+        <input type="text" name="receiptNumber" />
         <input type="email" name="recipientEmail" />
         <input type="email" name="originalEmail" />
-        <input type="text" name="receiptData" />
+        <input type="text" name="firstName" />
+        <input type="text" name="projectName" />
+        <input type="text" name="total" />
+        <input type="text" name="packageDetails" />
         <input type="text" name="isAdditionalEmail" />
         <input type="text" name="timestamp" />
       </form>
@@ -374,13 +437,7 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
         <input type="text" name="sessionId" />
         <input type="text" name="receiptNumber" />
         <input type="email" name="email" />
-        <input type="text" name="timestamp" />
-      </form>
-      
-      <form name="receipt-error" data-netlify="true" hidden>
-        <input type="text" name="sessionId" />
-        <input type="text" name="error" />
-        <input type="email" name="email" />
+        <input type="text" name="format" />
         <input type="text" name="timestamp" />
       </form>
       
@@ -524,7 +581,7 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
                             RECEIPT
                           </Text>
                           <Text color="gray.400" fontSize="sm" fontFamily="mono">
-                            #{Date.now().toString().slice(-8)}
+                            #{generateReceiptNumber()}
                           </Text>
                         </VStack>
                         <Badge
@@ -645,102 +702,95 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
                       WHAT HAPPENS NEXT
                     </Text>
                     <List spacing={2}>
-                      <ListItem fontSize="sm" color="gray.300">
-                        <ListIcon as={FiCheck} color={colors.accent.green} />
-                        {isVipPackage 
-                          ? "Your dedicated team will contact you within 30 minutes"
-                          : "We'll contact you within 2 hours to kick off your project"
-                        }
-                      </ListItem>
-                      <ListItem fontSize="sm" color="gray.300">
-                        <ListIcon as={FiCheck} color={colors.accent.green} />
-                        You'll receive a detailed project roadmap & timeline
-                      </ListItem>
-                      <ListItem fontSize="sm" color="gray.300">
-                        <ListIcon as={FiCheck} color={colors.accent.green} />
-                        {isVipPackage 
-                          ? "VIP onboarding with founders & priority access"
-                          : "Access to your project dashboard & communication channels"
-                        }
-                      </ListItem>
+                      {getNextSteps().map((step, index) => (
+                        <ListItem key={index} fontSize="sm" color={step.highlight ? 'white' : 'gray.300'}>
+                          <ListIcon as={step.icon} color={step.highlight ? colors.vip.primary : colors.accent.green} />
+                          {step.text}
+                        </ListItem>
+                      ))}
                     </List>
                   </Box>
 
                   {/* Action Buttons */}
                   <VStack spacing={3} width="100%">
                     {/* Email Input (when shown) */}
-                    {showEmailInput && (
-                      <InputGroup size="md">
-                        <InputLeftElement pointerEvents="none">
-                          <FiMail color="gray.300" />
-                        </InputLeftElement>
-                        <Input
-                          placeholder="Enter email for receipt"
-                          value={additionalEmail}
-                          onChange={(e) => setAdditionalEmail(e.target.value)}
-                          bg="rgba(255, 255, 255, 0.05)"
-                          border="1px solid"
-                          borderColor="whiteAlpha.200"
-                          color="white"
-                          _placeholder={{ color: 'gray.500' }}
-                          _hover={{ borderColor: 'whiteAlpha.300' }}
-                          _focus={{ borderColor: colors.brand.primary }}
-                          pr="4.5rem"
-                        />
-                        <Button
-                          position="absolute"
-                          right={1}
-                          top={1}
-                          bottom={1}
-                          size="sm"
-                          bg={colors.brand.primary}
-                          color="black"
-                          _hover={{ bg: colors.brand.primary }}
-                          onClick={() => handleEmailReceipt(additionalEmail)}
-                          isLoading={emailSending}
-                          borderRadius="md"
-                        >
-                          <FiSend />
-                        </Button>
-                      </InputGroup>
-                    )}
+                    <Fade in={showEmailInput}>
+                      {showEmailInput && (
+                        <InputGroup size="md">
+                          <InputLeftElement pointerEvents="none">
+                            <FiMail color="gray.300" />
+                          </InputLeftElement>
+                          <Input
+                            placeholder="Enter additional email"
+                            value={additionalEmail}
+                            onChange={(e) => setAdditionalEmail(e.target.value)}
+                            bg="rgba(255, 255, 255, 0.05)"
+                            border="1px solid"
+                            borderColor="whiteAlpha.200"
+                            color="white"
+                            _placeholder={{ color: 'gray.500' }}
+                            _hover={{ borderColor: 'whiteAlpha.300' }}
+                            _focus={{ borderColor: colors.brand.primary }}
+                            pr="4.5rem"
+                          />
+                          <Button
+                            position="absolute"
+                            right={1}
+                            top={1}
+                            bottom={1}
+                            size="sm"
+                            bg={colors.brand.primary}
+                            color="black"
+                            _hover={{ bg: colors.brand.primary }}
+                            onClick={() => handleEmailReceipt(additionalEmail)}
+                            isLoading={emailSending}
+                            isDisabled={!additionalEmail || !additionalEmail.includes('@')}
+                            borderRadius="md"
+                          >
+                            <FiSend />
+                          </Button>
+                        </InputGroup>
+                      )}
+                    </Fade>
                     
                     <HStack spacing={3} width="100%">
                       <Button
                         size="md"
                         flex={1}
                         variant="outline"
-                        borderColor="whiteAlpha.300"
-                        color="white"
+                        borderColor={downloadComplete ? colors.accent.green : "whiteAlpha.300"}
+                        color={downloadComplete ? colors.accent.green : "white"}
                         fontWeight="600"
                         fontSize="sm"
-                        leftIcon={<FiDownload size={16} />}
+                        leftIcon={downloadComplete ? <FiCheckCircle size={16} /> : <FiDownload size={16} />}
                         borderRadius="full"
                         onClick={handleDownloadReceipt}
                         isLoading={downloadProcessing}
-                        loadingText="Downloading..."
+                        loadingText="Creating PDF..."
                         _hover={{
                           bg: 'whiteAlpha.100',
                           borderColor: 'whiteAlpha.400'
                         }}
                       >
-                        Download
+                        {downloadComplete ? 'Downloaded!' : 'Download PDF'}
                       </Button>
                       <Button
                         size="md"
                         flex={1}
                         variant="outline"
-                        borderColor="whiteAlpha.300"
-                        color="white"
+                        borderColor={emailSent && !showEmailInput ? colors.accent.green : "whiteAlpha.300"}
+                        color={emailSent && !showEmailInput ? colors.accent.green : "white"}
                         fontWeight="600"
                         fontSize="sm"
-                        leftIcon={<FiMail size={16} />}
+                        leftIcon={emailSent && !showEmailInput ? <FiCheckCircle size={16} /> : <FiMail size={16} />}
                         borderRadius="full"
                         onClick={() => {
                           if (showEmailInput) {
                             handleEmailReceipt(formData.email);
-                          } else {
+                          } else if (emailSent) {
                             setShowEmailInput(true);
+                          } else {
+                            handleEmailReceipt(formData.email);
                           }
                         }}
                         isLoading={emailSending && !showEmailInput}
@@ -750,7 +800,7 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
                           borderColor: 'whiteAlpha.400'
                         }}
                       >
-                        {showEmailInput ? 'Send to Original' : 'Email'}
+                        {emailSent && !showEmailInput ? 'Sent!' : (showEmailInput ? 'Send to Original' : 'Email Receipt')}
                       </Button>
                     </HStack>
                     
