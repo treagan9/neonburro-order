@@ -122,6 +122,70 @@
       <input type="text" name="timestamp" />
     </form>
     
+    <!-- Payment Success Forms -->
+    <form name="payment-success" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="sessionId" />
+      <input type="text" name="receiptNumber" />
+      <input type="text" name="firstName" />
+      <input type="text" name="projectName" />
+      <input type="email" name="email" />
+      <input type="text" name="phone" />
+      <input type="text" name="total" />
+      <input type="text" name="packageName" />
+      <input type="text" name="hours" />
+      <input type="text" name="isServicePackage" />
+      <input type="text" name="isVip" />
+      <input type="text" name="paymentMethod" />
+      <input type="text" name="paymentIntentId" />
+      <input type="text" name="clientType" />
+      <input type="text" name="timestamp" />
+    </form>
+    
+    <form name="vip-purchase-alert" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="sessionId" />
+      <input type="text" name="firstName" />
+      <input type="email" name="email" />
+      <input type="text" name="phone" />
+      <input type="text" name="total" />
+      <input type="text" name="urgency" />
+      <input type="text" name="timestamp" />
+    </form>
+    
+    <form name="email-receipt-request" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="sessionId" />
+      <input type="text" name="receiptNumber" />
+      <input type="email" name="recipientEmail" />
+      <input type="email" name="originalEmail" />
+      <input type="text" name="firstName" />
+      <input type="text" name="projectName" />
+      <input type="text" name="total" />
+      <input type="text" name="packageDetails" />
+      <input type="text" name="isAdditionalEmail" />
+      <input type="text" name="timestamp" />
+    </form>
+    
+    <form name="receipt-download" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="sessionId" />
+      <input type="text" name="receiptNumber" />
+      <input type="email" name="email" />
+      <input type="text" name="format" />
+      <input type="text" name="timestamp" />
+    </form>
+    
+    <form name="email-receipt-pdf" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="sessionId" />
+      <input type="text" name="receiptNumber" />
+      <input type="email" name="recipientEmail" />
+      <input type="email" name="originalEmail" />
+      <input type="text" name="firstName" />
+      <input type="text" name="projectName" />
+      <input type="text" name="total" />
+      <input type="text" name="packageDetails" />
+      <input type="text" name="isAdditionalEmail" />
+      <textarea name="pdfAttachment"></textarea>
+      <input type="text" name="timestamp" />
+    </form>
+    
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
