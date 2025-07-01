@@ -15,6 +15,7 @@ const Invoice = () => {
   const [sessionId, setSessionId] = useState('');
   const [collectedData, setCollectedData] = useState({});
   const sessionStartTime = useRef(Date.now());
+  const lastSubmission = useRef({});
 
   // Generate unique session ID for tracking
   useEffect(() => {
@@ -33,17 +34,35 @@ const Invoice = () => {
   // Submit data to Netlify Forms with better error handling
   const submitToNetlify = async (formName, data) => {
     try {
-      // Convert all boolean values to strings and handle nulls
+      // Prevent duplicate submissions within 2 seconds
+      const now = Date.now();
+      const key = `${formName}-${JSON.stringify(data)}`;
+      const lastTime = lastSubmission.current[key] || 0;
+      
+      if (now - lastTime < 2000) {
+        console.log(`Skipping duplicate ${formName} submission`);
+        return;
+      }
+      
+      lastSubmission.current[key] = now;
+
+      // Only process defined values
       const processedData = {};
       Object.keys(data).forEach(key => {
-        if (typeof data[key] === 'boolean') {
-          processedData[key] = data[key] ? 'true' : 'false';
-        } else if (data[key] === null || data[key] === undefined) {
-          processedData[key] = '';
-        } else if (typeof data[key] === 'object') {
-          processedData[key] = JSON.stringify(data[key]);
+        const value = data[key];
+        
+        // Skip undefined/null values entirely
+        if (value === null || value === undefined) {
+          return;
+        }
+        
+        // Convert booleans to strings
+        if (typeof value === 'boolean') {
+          processedData[key] = value.toString();
+        } else if (typeof value === 'object') {
+          processedData[key] = JSON.stringify(value);
         } else {
-          processedData[key] = String(data[key]);
+          processedData[key] = String(value);
         }
       });
 
@@ -57,6 +76,8 @@ const Invoice = () => {
         ...processedData
       });
 
+      console.log(`Submitting to ${formName}:`, processedData);
+
       const response = await fetch('/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -66,7 +87,7 @@ const Invoice = () => {
       if (!response.ok) {
         console.error(`Form submission failed: ${response.status} for form: ${formName}`);
       } else {
-        console.log(`Successfully submitted to ${formName}:`, processedData);
+        console.log(`Successfully submitted to ${formName}`);
       }
     } catch (error) {
       console.error(`Error submitting ${formName} to Netlify:`, error);
@@ -75,6 +96,8 @@ const Invoice = () => {
 
   // Enhanced tracking function that collects all data
   const trackEvent = async (eventType, data) => {
+    console.log(`trackEvent called: ${eventType}`, data);
+    
     // Update collected data with new information
     const updatedData = {
       ...collectedData,
@@ -87,30 +110,48 @@ const Invoice = () => {
 
     // Submit based on event type
     switch (eventType) {
+      case 'form-started':
+        // Just track the start
+        await submitToNetlify('payment-tracking', {
+          sessionId: data.sessionId || sessionId,
+          action: 'form-started',
+          step: data.step || 'unknown',
+          timestamp: data.timestamp || new Date().toISOString()
+        });
+        break;
+
       case 'project-details-completed':
         // Submit to project details form when step 1 is complete
         await submitToNetlify('project-details-form', {
-          sessionId,
+          sessionId: data.sessionId || sessionId,
           timestamp: new Date().toISOString(),
           firstName: data.firstName,
           projectName: data.projectName,
           clientType: data.clientType || (data.isServicePackage ? 'new' : 'existing'),
           packageType: data.packageType || '',
           packageName: data.packageName || '',
-          hours: data.hours || '',
-          total: data.total || 0,
-          isServicePackage: data.isServicePackage || false,
-          isVip: data.isVip || false,
-          wantsHostingDetails: data.wantsHostingDetails || false
+          hours: String(data.hours || ''),
+          total: String(data.total || 0),
+          isServicePackage: data.isServicePackage ? 'true' : 'false',
+          isVip: data.isVip ? 'true' : 'false',
+          wantsHostingDetails: data.wantsHostingDetails ? 'true' : 'false'
         });
         break;
 
       case 'payment-initiated':
         // Track when payment form is shown
         await submitToNetlify('payment-tracking', {
-          ...updatedData,
+          sessionId: data.sessionId || sessionId,
+          timestamp: new Date().toISOString(),
+          action: 'payment-form-shown',
           paymentStatus: 'initiated',
-          action: 'payment-form-shown'
+          firstName: data.firstName || updatedData.firstName || '',
+          projectName: data.projectName || updatedData.projectName || '',
+          total: String(data.total || updatedData.total || 0),
+          packageName: data.packageName || updatedData.packageName || '',
+          hours: String(data.hours || updatedData.hours || ''),
+          clientType: data.clientType || updatedData.clientType || '',
+          summary: data.summary || ''
         });
         break;
 
@@ -118,8 +159,8 @@ const Invoice = () => {
         // Track successful payment with ALL collected data
         const totalTimeSpent = Math.round((Date.now() - sessionStartTime.current) / 1000);
         
-        await submitToNetlify('payment-tracking', {
-          sessionId,
+        const paymentData = {
+          sessionId: updatedData.sessionId || sessionId,
           timestamp: new Date().toISOString(),
           
           // Customer info
@@ -131,11 +172,11 @@ const Invoice = () => {
           // Package details
           packageType: updatedData.packageType || '',
           packageName: updatedData.packageName || '',
-          hours: updatedData.hours || '',
-          total: updatedData.total || 0,
-          isServicePackage: updatedData.isServicePackage || false,
-          isVip: updatedData.isVip || false,
-          wantsHostingDetails: updatedData.wantsHostingDetails || false,
+          hours: String(updatedData.hours || ''),
+          total: String(updatedData.total || 0),
+          isServicePackage: updatedData.isServicePackage ? 'true' : 'false',
+          isVip: updatedData.isVip ? 'true' : 'false',
+          wantsHostingDetails: updatedData.wantsHostingDetails ? 'true' : 'false',
           
           // Payment details
           paymentMethod: updatedData.paymentMethod || '',
@@ -150,23 +191,60 @@ const Invoice = () => {
           zip: updatedData.zip || '',
           
           // Tracking
-          totalTimeSpent,
+          totalTimeSpent: String(totalTimeSpent),
           clientType: updatedData.isServicePackage ? 'new' : 'existing'
-        });
+        };
+        
+        await submitToNetlify('payment-tracking', paymentData);
 
         // Also submit to payment-success for redundancy
         await submitToNetlify('payment-success', {
-          ...updatedData,
-          totalTimeSpent,
-          paymentStatus: 'completed'
+          ...paymentData,
+          receiptNumber: `NB-${Date.now()}`,
+          summary: `Payment completed for ${updatedData.firstName} - ${updatedData.projectName}`
+        });
+        break;
+
+      case 'payment-complete':
+        // Handle payment-complete event from child components
+        await submitToNetlify('payment-tracking', {
+          sessionId: data.sessionId || sessionId,
+          timestamp: data.timestamp || new Date().toISOString(),
+          action: data.action || 'payment-data',
+          firstName: data.firstName || '',
+          projectName: data.projectName || '',
+          email: data.email || '',
+          phone: data.phone || '',
+          clientType: data.clientType || '',
+          packageType: data.packageType || '',
+          packageName: data.packageName || '',
+          hours: String(data.hours || ''),
+          total: String(data.total || 0),
+          isServicePackage: data.isServicePackage || 'false',
+          isVip: data.isVip || 'false',
+          wantsHostingDetails: data.wantsHostingDetails || 'false',
+          paymentMethod: data.paymentMethod || '',
+          paymentStatus: data.paymentStatus || '',
+          paymentIntentId: data.paymentIntentId || '',
+          cardholderName: data.cardholderName || '',
+          address: data.address || '',
+          city: data.city || '',
+          state: data.state || '',
+          zip: data.zip || '',
+          country: data.country || '',
+          summary: data.summary || ''
         });
         break;
 
       default:
         // For all other events, just track to payment-tracking
         await submitToNetlify('payment-tracking', {
-          ...updatedData,
-          action: eventType
+          sessionId: data.sessionId || sessionId,
+          timestamp: new Date().toISOString(),
+          action: eventType,
+          firstName: data.firstName || updatedData.firstName || '',
+          projectName: data.projectName || updatedData.projectName || '',
+          summary: JSON.stringify(data)
         });
     }
   };
