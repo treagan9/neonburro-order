@@ -51,7 +51,7 @@ const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }
   const [selectedPackage, setSelectedPackage] = useState(initialData?.packageType || '');
   const [wantsHostingDetails, setWantsHostingDetails] = useState(false);
   
-  const hourlyRate = 33;
+  const hourlyRate = 44;
   
   // Calculate total based on selection
   const getTotal = () => {
@@ -86,7 +86,7 @@ const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }
     { 
       value: '10', 
       label: '10 hours', 
-      price: 330, 
+      price: 440, 
       subtitle: 'Quick wins',
       icon: FiZap,
       description: 'Perfect for small updates and fixes'
@@ -94,7 +94,7 @@ const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }
     { 
       value: '25', 
       label: '25 hours', 
-      price: 825, 
+      price: 1100, 
       subtitle: 'Solid progress',
       icon: FiTrendingUp,
       description: 'Great for feature development'
@@ -102,7 +102,7 @@ const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }
     { 
       value: '40', 
       label: '40 hours', 
-      price: 1320, 
+      price: 1760, 
       subtitle: 'Major milestone',
       icon: FiAward,
       description: 'Complete module or section'
@@ -110,7 +110,7 @@ const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }
     { 
       value: '80', 
       label: '80 hours', 
-      price: 2640, 
+      price: 3520, 
       subtitle: 'Full transformation',
       icon: FiStar,
       description: 'Comprehensive project phase'
