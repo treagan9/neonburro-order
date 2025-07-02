@@ -23,7 +23,6 @@ const HourPurchaseForm = ({ onSuccess, sessionId, onTrackEvent }) => {
   const [projectData, setProjectData] = useState(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [stepStartTime, setStepStartTime] = useState(Date.now());
-  const [journeySteps, setJourneySteps] = useState([]);
   const formStartTime = useRef(Date.now());
 
   const isMobile = useBreakpointValue({ base: true, md: false });
@@ -57,12 +56,12 @@ const HourPurchaseForm = ({ onSuccess, sessionId, onTrackEvent }) => {
   useEffect(() => {
     if (onTrackEvent) {
       onTrackEvent('form-started', {
-        sessionId: sessionId,
+        sessionId: sessionId || '',
         step: 'project-details',
         timestamp: new Date().toISOString()
       });
     }
-  }, []);
+  }, [sessionId, onTrackEvent]);
 
   // Smooth scroll to top when step changes
   useEffect(() => {
@@ -82,53 +81,48 @@ const HourPurchaseForm = ({ onSuccess, sessionId, onTrackEvent }) => {
     // Calculate time spent on step 1
     const stepDuration = Math.round((Date.now() - stepStartTime) / 1000);
     
-    // Ensure ALL data is properly formatted and passed
+    // Ensure ALL data is properly formatted as strings for Netlify Forms
     const completeData = {
-      firstName: data.firstName || '',
-      projectName: data.projectName || '',
-      hours: data.hours || '',
-      total: data.total || 0,
-      packageType: data.packageType || '',
-      packageName: data.packageName || '',
-      isServicePackage: data.isServicePackage || false,
-      isVip: data.isVip || false,
-      wantsHostingDetails: data.wantsHostingDetails || false,
-      clientType: data.isServicePackage ? 'new' : 'existing',
-      stepDuration: stepDuration
+      firstName: String(data.firstName || ''),
+      projectName: String(data.projectName || ''),
+      hours: String(data.hours || ''),
+      total: String(data.total || 0),
+      packageType: String(data.packageType || ''),
+      packageName: String(data.packageName || ''),
+      isServicePackage: data.isServicePackage ? 'true' : 'false',
+      isVip: data.isVip ? 'true' : 'false',
+      wantsHostingDetails: data.wantsHostingDetails ? 'true' : 'false',
+      clientType: data.isServicePackage ? 'new' : 'existing'
     };
     
     // Track project details completion
     if (onTrackEvent) {
-      // First, track the completed project details
-      onTrackEvent('project-details-completed', completeData);
+      // Track completed project details with properly formatted data
+      onTrackEvent('project-details-completed', {
+        sessionId: sessionId || '',
+        timestamp: new Date().toISOString(),
+        ...completeData
+      });
       
       // Generate a human-readable summary
-      const summary = completeData.isServicePackage 
+      const summary = completeData.isServicePackage === 'true' 
         ? `${completeData.firstName} selected ${completeData.packageName} Package ($${completeData.total}) for project: ${completeData.projectName}`
         : `${completeData.firstName} selected ${completeData.hours} hours ($${completeData.total}) for project: ${completeData.projectName}`;
 
       // Track moving to payment step
       onTrackEvent('payment-initiated', {
-        sessionId: sessionId,
-        ...completeData,
+        sessionId: sessionId || '',
+        timestamp: new Date().toISOString(),
+        action: 'payment-form-shown',
         paymentStatus: 'initiated',
         currentStep: 'payment',
-        timestamp: new Date().toISOString(),
-        summary: summary
+        summary: summary,
+        ...completeData
       });
-      
-      // Track journey step
-      const newJourneyStep = {
-        step: 1,
-        action: 'project-details-completed',
-        duration: stepDuration,
-        timestamp: new Date().toISOString(),
-        data: completeData
-      };
-      setJourneySteps([...journeySteps, newJourneyStep]);
     }
     
     setTimeout(() => {
+      // Store the formatted data for next step
       setProjectData(completeData);
       setCurrentStep(2);
       setStepStartTime(Date.now());
@@ -141,10 +135,8 @@ const HourPurchaseForm = ({ onSuccess, sessionId, onTrackEvent }) => {
     // Track going back
     if (onTrackEvent) {
       onTrackEvent('navigation', {
-        sessionId: sessionId,
+        sessionId: sessionId || '',
         action: 'back-to-project-details',
-        fromStep: 'payment',
-        toStep: 'project-details',
         timestamp: new Date().toISOString()
       });
     }
@@ -162,28 +154,23 @@ const HourPurchaseForm = ({ onSuccess, sessionId, onTrackEvent }) => {
     const totalTimeSpent = Math.round((Date.now() - formStartTime.current) / 1000);
     const paymentStepDuration = Math.round((Date.now() - stepStartTime) / 1000);
     
-    // Track final journey step
-    const finalJourneyStep = {
-      step: 2,
-      action: 'payment-completed',
-      duration: paymentStepDuration,
-      timestamp: new Date().toISOString(),
-      data: data
-    };
-    
-    const completeJourney = [...journeySteps, finalJourneyStep];
-    
-    // Ensure complete data is passed to success handler
+    // Ensure complete data is properly formatted for success handler
     const completeSuccessData = {
-      // Project data from step 1
+      // Project data from step 1 (already formatted as strings)
       ...projectData,
-      // Payment data from step 2
-      ...data,
+      // Payment data from step 2 (ensure strings)
+      email: String(data.email || ''),
+      phone: String(data.phone || ''),
+      paymentMethod: String(data.paymentMethod || ''),
+      paymentIntentId: String(data.paymentIntentId || ''),
+      cardholderName: String(data.cardholderName || ''),
+      address: String(data.address || ''),
+      city: String(data.city || ''),
+      state: String(data.state || ''),
+      zip: String(data.zip || ''),
       // Session and tracking data
-      sessionId: sessionId,
-      totalTimeSpent: totalTimeSpent,
-      paymentStepDuration: paymentStepDuration,
-      journeySteps: completeJourney,
+      sessionId: sessionId || '',
+      totalTimeSpent: String(totalTimeSpent),
       completedAt: new Date().toISOString()
     };
     

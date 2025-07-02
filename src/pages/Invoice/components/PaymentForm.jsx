@@ -68,7 +68,6 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
   const [state, setState] = useState('');
   const [zip, setZip] = useState('');
   const [phone, setPhone] = useState('');
-  const [saveInfo, setSaveInfo] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [paymentMethodType, setPaymentMethodType] = useState('card');
   const [isLoading, setIsLoading] = useState(false);
@@ -77,20 +76,10 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
   const [termsError, setTermsError] = useState(false);
   const agreeToTermsRef = useRef(agreeToTerms);
   
-  // Time tracking for analytics
-  const [startTime] = useState(Date.now());
-
   // Update ref when agreeToTerms changes
   useEffect(() => {
     agreeToTermsRef.current = agreeToTerms;
   }, [agreeToTerms]);
-
-  // Track when payment form is viewed
-  useEffect(() => {
-    if (projectData && onTrackEvent) {
-      console.log('Payment form loaded with projectData:', projectData);
-    }
-  }, [projectData]);
 
   // CRITICAL: Add null check here before any usage of projectData
   if (!projectData) {
@@ -137,91 +126,59 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
     },
   };
 
-  // Track comprehensive payment data
-  const trackPaymentAttempt = (paymentMethod, additionalData = {}) => {
+  // Simplified tracking function
+  const trackPayment = (action, status, paymentMethod, additionalData = {}) => {
     if (!onTrackEvent) return;
 
-    const fullData = {
-      // Session info
-      sessionId: sessionId || 'no-session',
+    // Ensure all data is properly formatted as strings
+    const trackingData = {
+      sessionId: sessionId || '',
       timestamp: new Date().toISOString(),
+      action: action,
+      paymentStatus: status,
       
       // Customer info
-      firstName: projectData.firstName || '',
-      projectName: projectData.projectName || '',
-      email: email || additionalData.email || '',
-      phone: phone || additionalData.phone || '',
-      clientType: projectData.isServicePackage ? 'new' : 'existing',
+      firstName: String(projectData?.firstName || ''),
+      projectName: String(projectData?.projectName || ''),
+      email: String(additionalData.email || email || ''),
+      phone: String(additionalData.phone || phone || ''),
+      clientType: String(projectData?.clientType || ''),
       
-      // Package/Service details
-      packageType: projectData.packageType || '',
-      packageName: projectData.packageName || '',
-      hours: String(projectData.hours || ''),
-      total: String(projectData.total || 0),
-      isServicePackage: projectData.isServicePackage ? 'true' : 'false',
-      isVip: projectData.isVip ? 'true' : 'false',
-      wantsHostingDetails: projectData.wantsHostingDetails ? 'true' : 'false',
+      // Package details
+      packageType: String(projectData?.packageType || ''),
+      packageName: String(projectData?.packageName || ''),
+      hours: String(projectData?.hours || ''),
+      total: String(projectData?.total || 0),
+      isServicePackage: String(projectData?.isServicePackage || 'false'),
+      isVip: String(projectData?.isVip || 'false'),
+      wantsHostingDetails: String(projectData?.wantsHostingDetails || 'false'),
       
       // Payment info
-      paymentMethod: paymentMethod,
-      paymentStatus: 'attempting',
+      paymentMethod: String(paymentMethod || ''),
+      paymentIntentId: String(additionalData.paymentIntentId || ''),
       
-      // Billing info (for card payments)
+      // Billing info (only for card payments)
       ...(paymentMethod === 'card' && {
-        cardholderName: cardholderName,
-        address: address,
-        city: city,
-        state: state,
-        zip: zip,
-        country: country
-      }),
-      
-      // Human-readable summary
-      summary: `${projectData.firstName} attempting to pay $${projectData.total} via ${paymentMethod} for ${
-        projectData.isServicePackage 
-          ? `${projectData.packageName} Package` 
-          : `${projectData.hours} hours`
-      } - Project: ${projectData.projectName} - Email: ${email || additionalData.email || 'not provided'}`
+        cardholderName: String(cardholderName || ''),
+        address: String(address || ''),
+        city: String(city || ''),
+        state: String(state || ''),
+        zip: String(zip || ''),
+        country: String(country || '')
+      })
     };
 
-    console.log('Tracking payment attempt with data:', fullData);
-    onTrackEvent('payment-complete', fullData);
-  };
-
-  // Track payment errors
-  const trackPaymentError = (error, paymentMethod) => {
-    if (!onTrackEvent) return;
-
-    const errorData = {
-      sessionId: sessionId || 'no-session',
-      timestamp: new Date().toISOString(),
-      firstName: projectData?.firstName || '',
-      projectName: projectData?.projectName || '',
-      email: email || '',
-      total: String(projectData?.total || 0),
-      paymentMethod: paymentMethod,
-      paymentStatus: 'failed',
-      clientType: projectData?.isServicePackage ? 'new' : 'existing',
-      summary: `Payment failed for ${projectData?.firstName} - Error: ${error.message || 'Unknown error'}`
-    };
-
-    onTrackEvent('payment-complete', errorData);
+    onTrackEvent('payment-complete', trackingData);
   };
 
   // Setup Apple Pay / Google Pay
   useEffect(() => {
-    if (!stripe || !projectData) {
-      return;
-    }
-
-    // Only create payment request once
-    if (paymentRequest) {
-      return;
-    }
+    if (!stripe || !projectData) return;
+    if (paymentRequest) return;
 
     const createPaymentRequest = async () => {
       try {
-        const label = projectData?.isServicePackage 
+        const label = projectData?.isServicePackage === 'true'
           ? `Neon Burro - ${projectData?.packageName || 'Package'}`
           : `Neon Burro - ${projectData?.hours || 0} hours`;
 
@@ -230,23 +187,20 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
           currency: 'usd',
           total: {
             label: label,
-            amount: Math.round((projectData?.total || 0) * 100), // Convert to cents
+            amount: Math.round((parseInt(projectData?.total) || 0) * 100), // Convert to cents
           },
           requestPayerName: true,
           requestPayerEmail: true,
           requestPayerPhone: true,
         });
 
-        // Check if the Payment Request API is available
         const canMakePaymentResult = await pr.canMakePayment();
         
         if (canMakePaymentResult) {
           setPaymentRequest(pr);
           setCanMakePayment(true);
 
-          // Handle payment method creation
           pr.on('paymentmethod', async (ev) => {
-            // First check if terms are accepted
             if (!agreeToTermsRef.current) {
               ev.complete('fail');
               setTermsError(true);
@@ -262,23 +216,20 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
             }
 
             setIsLoading(true);
-            
-            // Track payment attempt with Apple Pay data
-            trackPaymentAttempt('apple_pay', {
+            trackPayment('payment-attempt', 'attempting', 'apple_pay', {
               email: ev.payerEmail,
               phone: ev.payerPhone
             });
             
             try {
-              // Create payment intent
               const response = await fetch('/.netlify/functions/create-payment-intent', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                  amount: projectData?.total || 0,
+                  amount: parseInt(projectData?.total) || 0,
                   firstName: projectData?.firstName || '',
                   projectName: projectData?.projectName || '',
-                  hours: projectData?.hours || 0,
+                  hours: parseInt(projectData?.hours) || 0,
                 }),
               });
 
@@ -288,7 +239,6 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
                 throw new Error(error);
               }
 
-              // Confirm the payment
               const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
                 clientSecret,
                 { payment_method: ev.paymentMethod.id },
@@ -308,48 +258,27 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
                   }
                 }
                 
-                // Track successful payment with ALL data
-                const successData = {
-                  sessionId: sessionId || 'no-session',
-                  timestamp: new Date().toISOString(),
-                  firstName: projectData?.firstName || '',
-                  projectName: projectData?.projectName || '',
-                  email: ev.payerEmail || '',
-                  phone: ev.payerPhone || '',
-                  clientType: projectData?.isServicePackage ? 'new' : 'existing',
-                  packageType: projectData?.packageType || '',
-                  packageName: projectData?.packageName || '',
-                  hours: String(projectData?.hours || ''),
-                  total: String(projectData?.total || 0),
-                  isServicePackage: projectData?.isServicePackage ? 'true' : 'false',
-                  isVip: projectData?.isVip ? 'true' : 'false',
-                  wantsHostingDetails: projectData?.wantsHostingDetails ? 'true' : 'false',
-                  paymentMethod: 'apple_pay',
-                  paymentStatus: 'succeeded',
-                  paymentIntentId: paymentIntent.id,
-                  summary: `${projectData?.firstName} successfully paid $${projectData?.total} via Apple Pay for ${
-                    projectData?.isServicePackage 
-                      ? `${projectData.packageName} Package` 
-                      : `${projectData.hours} hours`
-                  } - Project: ${projectData?.projectName}`
-                };
-                
-                if (onTrackEvent) {
-                  onTrackEvent('payment-complete', successData);
-                }
+                // Track successful payment
+                trackPayment('payment-success', 'succeeded', 'apple_pay', {
+                  email: ev.payerEmail,
+                  phone: ev.payerPhone,
+                  paymentIntentId: paymentIntent.id
+                });
                 
                 // Pass complete data to success handler
                 onSuccess({
                   ...projectData,
                   paymentMethod: 'apple_pay',
-                  email: ev.payerEmail || email,
-                  phone: ev.payerPhone || phone,
+                  email: ev.payerEmail || '',
+                  phone: ev.payerPhone || '',
                   paymentIntentId: paymentIntent.id
                 });
               }
             } catch (error) {
               ev.complete('fail');
-              trackPaymentError(error, 'apple_pay');
+              trackPayment('payment-error', 'failed', 'apple_pay', {
+                email: ev.payerEmail
+              });
               toast({
                 title: 'Payment failed',
                 description: error.message,
@@ -375,12 +304,12 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
     };
 
     createPaymentRequest();
-  }, [stripe, projectData, email, onSuccess, toast, onTrackEvent, startTime, phone, sessionId]);
+  }, [stripe, projectData, onSuccess, toast, onTrackEvent, sessionId]);
 
   const handleCardPayment = async () => {
     if (!stripe || !elements) return;
 
-    // Validate all required fields
+    // Validate required fields
     if (!email) {
       toast({
         title: 'Email required',
@@ -411,9 +340,8 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
       return;
     }
 
-    // Track payment attempt with all card data
-    trackPaymentAttempt('card');
-
+    // Track payment attempt
+    trackPayment('payment-attempt', 'attempting', 'card');
     setIsLoading(true);
 
     try {
@@ -421,10 +349,10 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: projectData?.total || 0,
+          amount: parseInt(projectData?.total) || 0,
           firstName: projectData?.firstName || '',
           projectName: projectData?.projectName || '',
-          hours: projectData?.hours || 0,
+          hours: parseInt(projectData?.hours) || 0,
         }),
       });
 
@@ -458,43 +386,10 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
       }
 
       if (paymentIntent.status === 'succeeded') {
-        // Track successful payment with ALL data
-        const successData = {
-          sessionId: sessionId || 'no-session',
-          timestamp: new Date().toISOString(),
-          firstName: projectData?.firstName || '',
-          projectName: projectData?.projectName || '',
-          email: email,
-          phone: phone || '',
-          clientType: projectData?.isServicePackage ? 'new' : 'existing',
-          packageType: projectData?.packageType || '',
-          packageName: projectData?.packageName || '',
-          hours: String(projectData?.hours || ''),
-          total: String(projectData?.total || 0),
-          isServicePackage: projectData?.isServicePackage ? 'true' : 'false',
-          isVip: projectData?.isVip ? 'true' : 'false',
-          wantsHostingDetails: projectData?.wantsHostingDetails ? 'true' : 'false',
-          paymentMethod: 'card',
-          paymentStatus: 'succeeded',
-          paymentIntentId: paymentIntent.id,
-          cardholderName: cardholderName,
-          address: address,
-          city: city,
-          state: state,
-          zip: zip,
-          country: country,
-          summary: `${projectData?.firstName} successfully paid $${projectData?.total} via Card for ${
-            projectData?.isServicePackage 
-              ? `${projectData.packageName} Package` 
-              : `${projectData.hours} hours`
-          } - Project: ${projectData?.projectName} - Email: ${email}`
-        };
-        
-        console.log('Payment successful, tracking with data:', successData);
-        
-        if (onTrackEvent) {
-          onTrackEvent('payment-complete', successData);
-        }
+        // Track successful payment
+        trackPayment('payment-success', 'succeeded', 'card', {
+          paymentIntentId: paymentIntent.id
+        });
 
         // Pass complete data to success handler
         onSuccess({
@@ -511,7 +406,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
         });
       }
     } catch (error) {
-      trackPaymentError(error, 'card');
+      trackPayment('payment-error', 'failed', 'card');
       toast({
         title: 'Payment failed',
         description: error.message,
@@ -524,14 +419,9 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
     }
   };
 
-  const isFormValid = email && agreeToTerms && (
-    paymentMethodType === 'apple' ? true :
-    (cardholderName && address && city && state && zip)
-  );
-
   // What's included list based on package or hours
   const getIncludedItems = () => {
-    if (projectData?.isServicePackage) {
+    if (projectData?.isServicePackage === 'true') {
       const packageFeatures = {
         'Spark': [
           { icon: FiZap, text: 'Complete website development', highlight: true },
@@ -582,6 +472,7 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
   };
 
   const includedItems = getIncludedItems();
+  const isVip = projectData?.isVip === 'true';
 
   return (
     <Container maxW="1200px" mx="auto" py={8}>
@@ -627,9 +518,9 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
                 bg="rgba(10, 10, 10, 0.95)"
                 backdropFilter="blur(20px)"
                 border="1.5px solid"
-                borderColor={projectData?.isVip ? 'rgba(212, 175, 55, 0.3)' : 'whiteAlpha.200'}
+                borderColor={isVip ? 'rgba(212, 175, 55, 0.3)' : 'whiteAlpha.200'}
                 borderRadius="xl"
-                boxShadow={projectData?.isVip 
+                boxShadow={isVip 
                   ? '0 20px 40px rgba(212, 175, 55, 0.2)'
                   : '0 20px 40px rgba(0,0,0,0.6)'
                 }
@@ -640,15 +531,15 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
                   <HStack justify="space-between" align="start">
                     <Box>
                       <Text color="gray.400" fontSize="xs" fontWeight="600" letterSpacing="wider" mb={1}>
-                        {projectData?.isServicePackage ? 'PACKAGE' : 'PROJECT'}
+                        {projectData?.isServicePackage === 'true' ? 'PACKAGE' : 'PROJECT'}
                       </Text>
                       <Text color="white" fontSize="xl" fontWeight="700">
                         {projectData?.projectName || 'Project'}
                       </Text>
                     </Box>
-                    {projectData?.isServicePackage && (
+                    {projectData?.isServicePackage === 'true' && (
                       <Badge
-                        bg={projectData?.isVip ? '#D4AF37' : colors.brand.primary}
+                        bg={isVip ? '#D4AF37' : colors.brand.primary}
                         color="black"
                         fontSize="xs"
                         fontWeight="800"
@@ -663,19 +554,19 @@ const PaymentForm = ({ projectData, onSuccess, onBack, sessionId, onTrackEvent }
                   
                   <Box
                     p={4}
-                    bg={projectData?.isVip ? 'rgba(212, 175, 55, 0.05)' : 'rgba(0, 255, 255, 0.05)'}
+                    bg={isVip ? 'rgba(212, 175, 55, 0.05)' : 'rgba(0, 255, 255, 0.05)'}
                     borderRadius="lg"
                     border="1px solid"
-                    borderColor={projectData?.isVip ? 'rgba(212, 175, 55, 0.2)' : 'rgba(0, 255, 255, 0.2)'}
+                    borderColor={isVip ? 'rgba(212, 175, 55, 0.2)' : 'rgba(0, 255, 255, 0.2)'}
                   >
                     <HStack justify="space-between">
                       <Text color="gray.300" fontSize="sm">
-                        {projectData?.isServicePackage 
+                        {projectData?.isServicePackage === 'true' 
                           ? `${projectData.packageName} Package`
                           : `${projectData.hours} Development Hours`
                         }
                       </Text>
-                      <Text color={projectData?.isVip ? '#D4AF37' : colors.brand.primary} fontSize="lg" fontWeight="700">
+                      <Text color={isVip ? '#D4AF37' : colors.brand.primary} fontSize="lg" fontWeight="700">
                         ${projectData?.total || 0}
                       </Text>
                     </HStack>

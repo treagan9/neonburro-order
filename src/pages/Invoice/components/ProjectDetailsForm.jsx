@@ -51,27 +51,7 @@ const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }
   const [selectedPackage, setSelectedPackage] = useState(initialData?.packageType || '');
   const [wantsHostingDetails, setWantsHostingDetails] = useState(false);
   
-  // Tracking refs
-  const hasTrackedInitialView = useRef(false);
-  const fieldInteractionTimes = useRef({
-    firstName: null,
-    projectName: null,
-    clientType: null,
-    packageSelection: null
-  });
-  
-  const hourlyRate = 1;
-  
-  // Track initial form view
-  useEffect(() => {
-    if (!hasTrackedInitialView.current && onTrackEvent) {
-      hasTrackedInitialView.current = true;
-      onTrackEvent('project-inquiry', {
-        action: 'form-viewed',
-        timestamp: new Date().toISOString()
-      });
-    }
-  }, [onTrackEvent]);
+  const hourlyRate = 33;
   
   // Calculate total based on selection
   const getTotal = () => {
@@ -222,67 +202,30 @@ const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }
     }
   ];
 
-  // Track field interactions
-  const trackFieldInteraction = (fieldName, value) => {
-    if (!fieldInteractionTimes.current[fieldName] && value) {
-      fieldInteractionTimes.current[fieldName] = new Date().toISOString();
-      
-      if (onTrackEvent) {
-        onTrackEvent('field-interaction', {
-          field: fieldName,
-          hasValue: !!value,
-          timestamp: new Date().toISOString()
-        });
+  // Simplified tracking for form interactions
+  const trackEvent = (eventType, data) => {
+    if (!onTrackEvent) return;
+    
+    // Ensure all data is properly formatted as strings
+    const formattedData = {
+      sessionId: sessionId || '',
+      timestamp: new Date().toISOString(),
+      action: eventType,
+      firstName: String(data.firstName || firstName || ''),
+      projectName: String(data.projectName || projectName || ''),
+      ...data
+    };
+    
+    // Convert any boolean values to strings
+    Object.keys(formattedData).forEach(key => {
+      if (typeof formattedData[key] === 'boolean') {
+        formattedData[key] = formattedData[key] ? 'true' : 'false';
+      } else if (typeof formattedData[key] === 'number') {
+        formattedData[key] = String(formattedData[key]);
       }
-    }
-  };
-
-  // Track first name changes
-  const handleFirstNameChange = (value) => {
-    setFirstName(value);
-    trackFieldInteraction('firstName', value);
+    });
     
-    // Track when both name fields are filled
-    if (value && projectName && onTrackEvent) {
-      onTrackEvent('project-inquiry', {
-        firstName: value,
-        projectName: projectName,
-        action: 'basic-info-completed',
-        timestamp: new Date().toISOString()
-      });
-    }
-  };
-
-  // Track project name changes
-  const handleProjectNameChange = (value) => {
-    setProjectName(value);
-    trackFieldInteraction('projectName', value);
-    
-    // Track when both name fields are filled
-    if (firstName && value && onTrackEvent) {
-      onTrackEvent('project-inquiry', {
-        firstName: firstName,
-        projectName: value,
-        action: 'basic-info-completed',
-        timestamp: new Date().toISOString()
-      });
-    }
-  };
-
-  // Track client type selection
-  const handleClientTypeSelection = (type) => {
-    setClientType(type);
-    trackFieldInteraction('clientType', type);
-    
-    if (onTrackEvent) {
-      onTrackEvent('project-inquiry', {
-        firstName: firstName,
-        projectName: projectName,
-        clientType: type,
-        action: 'client-type-selected',
-        timestamp: new Date().toISOString()
-      });
-    }
+    onTrackEvent(eventType, formattedData);
   };
 
   const handleHourSelection = (pkg) => {
@@ -290,18 +233,13 @@ const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }
     setIsCustomHours(false);
     setSelectedPackage('');
     
-    if (onTrackEvent) {
-      onTrackEvent('package-selection', {
-        firstName: firstName,
-        projectName: projectName,
-        packageType: 'hourly',
-        packageName: pkg.label,
-        hours: pkg.value,
-        total: pkg.price,
-        action: 'hour-package-selected',
-        timestamp: new Date().toISOString()
-      });
-    }
+    trackEvent('package-selection', {
+      packageType: 'hourly',
+      packageName: pkg.label,
+      hours: pkg.value,
+      total: pkg.price,
+      action: 'hour-package-selected'
+    });
   };
 
   const handleCustomHours = (value) => {
@@ -310,16 +248,13 @@ const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }
     setIsCustomHours(true);
     setSelectedPackage('');
     
-    if (numValue && onTrackEvent) {
+    if (numValue) {
       const customTotal = parseInt(numValue) * hourlyRate;
-      onTrackEvent('package-selection', {
-        firstName: firstName,
-        projectName: projectName,
+      trackEvent('package-selection', {
         packageType: 'hourly-custom',
         hours: numValue,
         total: customTotal,
-        action: 'custom-hours-entered',
-        timestamp: new Date().toISOString()
+        action: 'custom-hours-entered'
       });
     }
   };
@@ -331,52 +266,31 @@ const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }
     
     const pkg = servicePackages.find(p => p.id === pkgId);
     
-    if (onTrackEvent && pkg) {
-      onTrackEvent('package-selection', {
-        firstName: firstName,
-        projectName: projectName,
+    if (pkg) {
+      trackEvent('package-selection', {
         packageType: pkgId,
         packageName: pkg.name,
         total: pkg.price,
         isVip: pkgId === 'vip',
-        action: 'service-package-selected',
-        timestamp: new Date().toISOString()
+        action: 'service-package-selected'
       });
       
       // Special VIP tracking
       if (pkgId === 'vip') {
-        onTrackEvent('vip-interest', {
-          firstName: firstName,
-          projectName: projectName,
+        trackEvent('vip-interest', {
           action: 'vip-package-selected',
-          timestamp: new Date().toISOString(),
           referralSource: document.referrer || 'direct'
         });
+        
+        toast({
+          title: "VIP Package Selected! 👑",
+          description: "Get ready for the ultimate web development experience",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+          position: "top"
+        });
       }
-    }
-    
-    if (pkgId === 'vip') {
-      toast({
-        title: "VIP Package Selected! 👑",
-        description: "Get ready for the ultimate web development experience",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-        position: "top"
-      });
-    }
-  };
-
-  const handleHostingDetailsChange = (checked) => {
-    setWantsHostingDetails(checked);
-    
-    if (onTrackEvent) {
-      onTrackEvent('feature-interest', {
-        feature: 'hosting-details',
-        interested: checked,
-        packageType: selectedPackage,
-        timestamp: new Date().toISOString()
-      });
     }
   };
 
@@ -385,10 +299,12 @@ const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }
     
     const pkg = servicePackages.find(p => p.id === selectedPackage);
     
+    // Prepare data with proper formatting
     const data = {
       firstName,
       projectName,
       total,
+      clientType: selectedPackage ? 'new' : 'existing',
       ...(selectedPackage ? {
         packageType: selectedPackage,
         packageName: pkg?.name || '',
@@ -397,23 +313,21 @@ const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }
         isVip: selectedPackage === 'vip'
       } : {
         hours,
-        isServicePackage: false
+        packageType: 'hourly',
+        packageName: `${hours} hours`,
+        isServicePackage: false,
+        isVip: false,
+        wantsHostingDetails: false
       })
     };
 
     // Track form completion
-    if (onTrackEvent) {
-      onTrackEvent('project-inquiry', {
-        firstName: firstName,
-        projectName: projectName,
-        clientType: selectedPackage ? 'new' : 'existing',
-        packageInfo: selectedPackage || `${hours} hours`,
-        total: total,
-        action: 'form-completed',
-        fieldInteractionTimes: fieldInteractionTimes.current,
-        timestamp: new Date().toISOString()
-      });
-    }
+    trackEvent('project-inquiry', {
+      clientType: data.clientType,
+      packageInfo: selectedPackage || `${hours} hours`,
+      total: total,
+      action: 'form-completed'
+    });
 
     onContinue(data);
   };
@@ -487,7 +401,7 @@ const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }
                 </InputLeftElement>
                 <Input
                   value={firstName}
-                  onChange={(e) => handleFirstNameChange(e.target.value)}
+                  onChange={(e) => setFirstName(e.target.value)}
                   placeholder="John"
                   bg="rgba(255, 255, 255, 0.03)"
                   border="1.5px solid"
@@ -526,7 +440,7 @@ const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }
                 </InputLeftElement>
                 <Input
                   value={projectName}
-                  onChange={(e) => handleProjectNameChange(e.target.value)}
+                  onChange={(e) => setProjectName(e.target.value)}
                   placeholder="My Amazing Website"
                   bg="rgba(255, 255, 255, 0.03)"
                   border="1.5px solid"
@@ -568,7 +482,10 @@ const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }
                       bg="rgba(255, 255, 255, 0.03)"
                       cursor="pointer"
                       transition="all 0.3s"
-                      onClick={() => handleClientTypeSelection('existing')}
+                      onClick={() => {
+                        setClientType('existing');
+                        trackEvent('client-type-selected', { clientType: 'existing' });
+                      }}
                       _hover={{ 
                         borderColor: colors.brand.primary,
                         bg: 'rgba(0, 255, 255, 0.05)',
@@ -597,7 +514,10 @@ const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }
                       bg="rgba(255, 255, 255, 0.03)"
                       cursor="pointer"
                       transition="all 0.3s"
-                      onClick={() => handleClientTypeSelection('new')}
+                      onClick={() => {
+                        setClientType('new');
+                        trackEvent('client-type-selected', { clientType: 'new' });
+                      }}
                       _hover={{ 
                         borderColor: colors.accent.green,
                         bg: 'rgba(57, 255, 20, 0.05)',
@@ -635,16 +555,7 @@ const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }
                         size="xs"
                         variant="ghost"
                         color="gray.500"
-                        onClick={() => {
-                          setClientType('');
-                          if (onTrackEvent) {
-                            onTrackEvent('navigation', {
-                              action: 'changed-client-type',
-                              from: 'existing',
-                              timestamp: new Date().toISOString()
-                            });
-                          }
-                        }}
+                        onClick={() => setClientType('')}
                         _hover={{ color: 'white' }}
                       >
                         Change
@@ -778,16 +689,7 @@ const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }
                         size="xs"
                         variant="ghost"
                         color="gray.500"
-                        onClick={() => {
-                          setClientType('');
-                          if (onTrackEvent) {
-                            onTrackEvent('navigation', {
-                              action: 'changed-client-type',
-                              from: 'new',
-                              timestamp: new Date().toISOString()
-                            });
-                          }
-                        }}
+                        onClick={() => setClientType('')}
                         _hover={{ color: 'white' }}
                       >
                         Change
@@ -963,7 +865,7 @@ const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }
                           </List>
                           <Checkbox
                             isChecked={wantsHostingDetails}
-                            onChange={(e) => handleHostingDetailsChange(e.target.checked)}
+                            onChange={(e) => setWantsHostingDetails(e.target.checked)}
                             colorScheme="green"
                             size="md"
                             width="100%"
