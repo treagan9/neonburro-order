@@ -51,7 +51,7 @@ const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }
   const [selectedPackage, setSelectedPackage] = useState(initialData?.packageType || '');
   const [wantsHostingDetails, setWantsHostingDetails] = useState(false);
   
-  const hourlyRate = 44;
+  const hourlyRate = 1;
   
   // Calculate total based on selection
   const getTotal = () => {
