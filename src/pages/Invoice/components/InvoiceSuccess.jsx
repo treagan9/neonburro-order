@@ -58,7 +58,7 @@ const floatAnimation = keyframes`
   100% { transform: translateY(0px); }
 `;
 
-const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
+const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId, onTrackEvent }) => {
   const [showMatrix, setShowMatrix] = useState(false);
   const [emailSending, setEmailSending] = useState(false);
   const [downloadProcessing, setDownloadProcessing] = useState(false);
@@ -108,38 +108,40 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
       setShowEmailInput(false);
       setAdditionalEmail('');
     }
-  }, [isOpen]);
+  }, [isOpen, formData]);
 
-  // Submit success data to Netlify
+  // Submit success data to Netlify with proper string formatting
   const submitSuccessToNetlify = async () => {
     try {
-      // Main success submission
+      const receiptNumber = generateReceiptNumber();
+      
+      // Main success submission with all fields as strings
       await submitToNetlifyForms('payment-success', {
-        sessionId: sessionId || 'no-session',
-        receiptNumber: generateReceiptNumber(),
-        firstName: formData.firstName || '',
-        projectName: formData.projectName || '',
-        email: formData.email || '',
-        phone: formData.phone || '',
-        total: formData.total || 0,
-        packageName: formData.packageName || '',
-        hours: formData.hours || '',
-        isServicePackage: formData.isServicePackage || false,
-        isVip: formData.isVip || false,
-        paymentMethod: formData.paymentMethod || '',
-        paymentIntentId: formData.paymentIntentId || '',
-        clientType: formData.isServicePackage ? 'new' : 'existing',
+        sessionId: String(sessionId || ''),
+        receiptNumber: String(receiptNumber),
+        firstName: String(formData?.firstName || ''),
+        projectName: String(formData?.projectName || ''),
+        email: String(formData?.email || ''),
+        phone: String(formData?.phone || ''),
+        total: String(formData?.total || 0),
+        packageName: String(formData?.packageName || ''),
+        hours: String(formData?.hours || ''),
+        isServicePackage: String(formData?.isServicePackage || 'false'),
+        isVip: String(formData?.isVip || 'false'),
+        clientType: formData?.isServicePackage === 'true' ? 'new' : 'existing',
+        paymentMethod: String(formData?.paymentMethod || ''),
+        paymentIntentId: String(formData?.paymentIntentId || ''),
         timestamp: new Date().toISOString()
       });
 
       // VIP notification if applicable
-      if (formData.isVip || formData.packageName === 'VIP') {
+      if (formData?.isVip === 'true' || formData?.packageName === 'VIP') {
         await submitToNetlifyForms('vip-purchase-alert', {
-          sessionId: sessionId || 'no-session',
-          firstName: formData.firstName || '',
-          email: formData.email || '',
-          phone: formData.phone || '',
-          total: formData.total || 0,
+          sessionId: String(sessionId || ''),
+          firstName: String(formData?.firstName || ''),
+          email: String(formData?.email || ''),
+          phone: String(formData?.phone || ''),
+          total: String(formData?.total || 0),
           urgency: 'IMMEDIATE_VIP_ONBOARDING',
           timestamp: new Date().toISOString()
         });
@@ -259,7 +261,7 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
     
     doc.setTextColor(0, 0, 0);
     doc.text(formData.projectName || 'Project', 55, 175);
-    doc.text(formData.isServicePackage ? `${formData.packageName} Package` : `${formData.hours} Development Hours`, 35, 182);
+    doc.text(formData.isServicePackage === 'true' ? `${formData.packageName} Package` : `${formData.hours} Development Hours`, 35, 182);
     doc.text(getTimeline(), 45, 189);
     
     // Payment Summary
@@ -267,12 +269,12 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
     doc.line(20, 200, 190, 200);
     
     // Items
-    if (formData.isServicePackage) {
+    if (formData.isServicePackage === 'true') {
       doc.text(`${formData.packageName} Package - Complete Development`, 20, 215);
-      doc.text(`$${formData.total.toLocaleString()}.00`, 170, 215, { align: 'right' });
+      doc.text(`$${parseInt(formData.total).toLocaleString()}.00`, 170, 215, { align: 'right' });
     } else {
-      doc.text(`Development Hours (${formData.hours} hrs @ $150/hr)`, 20, 215);
-      doc.text(`$${formData.total.toLocaleString()}.00`, 170, 215, { align: 'right' });
+      doc.text(`Development Hours (${formData.hours} hrs @ $33/hr)`, 20, 215);
+      doc.text(`$${parseInt(formData.total).toLocaleString()}.00`, 170, 215, { align: 'right' });
     }
     
     // Total
@@ -283,7 +285,7 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
     doc.setFontSize(12);
     doc.text('Total Paid:', 120, 235);
     doc.setTextColor(57, 255, 20);
-    doc.text(`$${formData.total.toLocaleString()}.00 USD`, 170, 235, { align: 'right' });
+    doc.text(`$${parseInt(formData.total).toLocaleString()}.00 USD`, 170, 235, { align: 'right' });
     
     // Footer
     doc.setFont(undefined, 'normal');
@@ -310,7 +312,7 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
       
       // Track download
       await submitToNetlifyForms('receipt-download', {
-        sessionId: sessionId || 'no-session',
+        sessionId: sessionId || '',
         receiptNumber: receiptNumber,
         email: formData.email,
         format: 'pdf',
@@ -342,29 +344,24 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
     }
   };
 
-  // Enhanced email receipt - Direct PDF email
+  // Enhanced email receipt
   const handleEmailReceipt = async (recipientEmail = formData.email) => {
     setEmailSending(true);
     
     try {
       const receiptNumber = generateReceiptNumber();
       
-      // Generate PDF
-      const doc = await generatePDFReceipt();
-      const pdfBase64 = doc.output('datauristring').split(',')[1];
-      
-      // Submit email request to Netlify with PDF data
-      await submitToNetlifyForms('email-receipt-pdf', {
-        sessionId: sessionId || 'no-session',
+      // Submit email request to Netlify
+      await submitToNetlifyForms('email-receipt-request', {
+        sessionId: sessionId || '',
         receiptNumber: receiptNumber,
         recipientEmail: recipientEmail,
         originalEmail: formData.email,
         firstName: formData.firstName,
         projectName: formData.projectName,
         total: formData.total,
-        packageDetails: formData.isServicePackage ? formData.packageName : `${formData.hours} hours`,
-        isAdditionalEmail: recipientEmail !== formData.email,
-        pdfData: pdfBase64,
+        packageDetails: formData.isServicePackage === 'true' ? formData.packageName : `${formData.hours} hours`,
+        isAdditionalEmail: recipientEmail !== formData.email ? 'true' : 'false',
         timestamp: new Date().toISOString()
       });
       
@@ -374,7 +371,7 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
       
       toast({
         title: "Email Sent",
-        description: `Receipt sent to ${recipientEmail} from team@neonburro.com`,
+        description: `Receipt sent to ${recipientEmail}`,
         status: "success",
         duration: 4000,
         isClosable: true,
@@ -397,11 +394,11 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
 
   if (!formData) return null;
 
-  const isVipPackage = formData.isVip || formData.packageName === 'VIP';
+  const isVipPackage = formData.isVip === 'true' || formData.packageName === 'VIP';
 
   // Calculate timeline based on package
   const getTimeline = () => {
-    if (formData.isServicePackage) {
+    if (formData.isServicePackage === 'true') {
       const timelines = {
         'Spark': '2-3 weeks',
         'Ignite': '3-4 weeks', 
@@ -415,7 +412,7 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
 
   // Get next steps
   const getNextSteps = () => {
-    const isVip = formData?.isVip || formData?.packageName === 'VIP';
+    const isVip = formData?.isVip === 'true' || formData?.packageName === 'VIP';
     return [
       {
         icon: FiPhone,
@@ -458,57 +455,6 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
           />
         </Box>
       )}
-      
-      {/* Hidden Netlify Forms */}
-      <form name="payment-success" data-netlify="true" hidden>
-        <input type="text" name="sessionId" />
-        <input type="text" name="receiptNumber" />
-        <input type="text" name="firstName" />
-        <input type="text" name="projectName" />
-        <input type="email" name="email" />
-        <input type="text" name="phone" />
-        <input type="text" name="total" />
-        <input type="text" name="packageName" />
-        <input type="text" name="hours" />
-        <input type="text" name="isServicePackage" />
-        <input type="text" name="isVip" />
-        <input type="text" name="paymentMethod" />
-        <input type="text" name="paymentIntentId" />
-        <input type="text" name="clientType" />
-        <input type="text" name="timestamp" />
-      </form>
-      
-      <form name="vip-purchase-alert" data-netlify="true" hidden>
-        <input type="text" name="sessionId" />
-        <input type="text" name="firstName" />
-        <input type="email" name="email" />
-        <input type="text" name="phone" />
-        <input type="text" name="total" />
-        <input type="text" name="urgency" />
-        <input type="text" name="timestamp" />
-      </form>
-      
-      <form name="email-receipt-pdf" data-netlify="true" hidden>
-        <input type="text" name="sessionId" />
-        <input type="text" name="receiptNumber" />
-        <input type="email" name="recipientEmail" />
-        <input type="email" name="originalEmail" />
-        <input type="text" name="firstName" />
-        <input type="text" name="projectName" />
-        <input type="text" name="total" />
-        <input type="text" name="packageDetails" />
-        <input type="text" name="isAdditionalEmail" />
-        <textarea name="pdfData"></textarea>
-        <input type="text" name="timestamp" />
-      </form>
-      
-      <form name="receipt-download" data-netlify="true" hidden>
-        <input type="text" name="sessionId" />
-        <input type="text" name="receiptNumber" />
-        <input type="email" name="email" />
-        <input type="text" name="format" />
-        <input type="text" name="timestamp" />
-      </form>
       
       <Modal isOpen={isOpen} onClose={onClose} isCentered size="xl" closeOnOverlayClick={false}>
         <ModalOverlay bg="blackAlpha.900" backdropFilter="blur(10px)" />
@@ -630,7 +576,7 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
                       fontSize={{ base: "sm", md: "md" }}
                       textAlign="center"
                     >
-                      Thank you, {formData.firstName}. {formData.isServicePackage ? 'Your project is ready to launch!' : 'Your hours are ready to rock!'}
+                      Thank you, {formData.firstName}. {formData.isServicePackage === 'true' ? 'Your project is ready to launch!' : 'Your hours are ready to rock!'}
                     </Text>
                   </VStack>
 
@@ -707,16 +653,16 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
                       {/* Package/Hours Info */}
                       <Box>
                         <Text color="gray.400" fontSize="xs" fontWeight="600" letterSpacing="wider" mb={2}>
-                          {formData.isServicePackage ? 'PACKAGE DETAILS' : 'HOURS PURCHASED'}
+                          {formData.isServicePackage === 'true' ? 'PACKAGE DETAILS' : 'HOURS PURCHASED'}
                         </Text>
-                        {formData.isServicePackage ? (
+                        {formData.isServicePackage === 'true' ? (
                           <VStack align="start" spacing={2}>
                             <HStack justify="space-between" width="100%">
                               <Text color="white" fontSize="sm" fontWeight="600">
                                 {formData.packageName} Package
                               </Text>
                               <Text color={isVipPackage ? colors.vip.primary : colors.brand.primary} fontSize="sm" fontWeight="600">
-                                ${formData.total.toLocaleString()}
+                                ${parseInt(formData.total).toLocaleString()}
                               </Text>
                             </HStack>
                             <Text color="gray.500" fontSize="xs">
@@ -729,7 +675,7 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
                               {formData.hours} Development Hours
                             </Text>
                             <Text color={colors.brand.primary} fontSize="sm" fontWeight="600">
-                              ${formData.total.toLocaleString()}
+                              ${parseInt(formData.total).toLocaleString()}
                             </Text>
                           </HStack>
                         )}
@@ -753,7 +699,7 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
                           fontSize="xl"
                           filter={`drop-shadow(0 0 10px ${colors.accent.green}66)`}
                         >
-                          ${formData.total.toLocaleString()}
+                          ${parseInt(formData.total).toLocaleString()}
                         </Text>
                       </HStack>
                     </VStack>
@@ -873,28 +819,6 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId }) => {
                         {emailSent && !showEmailInput ? 'Sent!' : (showEmailInput ? 'Send to Original' : 'Email Receipt')}
                       </Button>
                     </HStack>
-                    
-                    <Button
-                      onClick={onClose}
-                      size="lg"
-                      width="100%"
-                      bg={isVipPackage ? colors.vip.primary : colors.brand.primary}
-                      color="black"
-                      fontWeight="700"
-                      fontSize="md"
-                      borderRadius="full"
-                      _hover={{
-                        bg: isVipPackage ? colors.vip.primary : colors.brand.primary,
-                        transform: 'translateY(-2px)',
-                        boxShadow: `0 10px 30px ${isVipPackage ? colors.vip.primary : colors.brand.primary}66`
-                      }}
-                      _active={{
-                        transform: 'translateY(0)'
-                      }}
-                      transition="all 0.2s"
-                    >
-                      {isVipPackage ? "Let's Build Your Dream" : "Start Building"}
-                    </Button>
                   </VStack>
                 </VStack>
               </Box>
