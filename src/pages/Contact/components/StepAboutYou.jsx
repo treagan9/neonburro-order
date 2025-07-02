@@ -1,6 +1,5 @@
 import { Box, VStack, Input, Select, Text, Button, FormControl, FormLabel, InputGroup, InputLeftElement, HStack } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { useState, useEffect, useCallback } from 'react';
 import { FiUser, FiMail, FiBriefcase, FiGlobe } from 'react-icons/fi';
 
 const MotionBox = motion(Box);
@@ -8,24 +7,10 @@ const MotionVStack = motion(VStack);
 
 const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched }) => {
   const colors = {
-    brand: { primary: '#00FFFF' },
-    accent: { green: '#39FF14' }
+    primary: '#00E5E5',
+    success: '#39FF14',
+    error: '#FF4444'
   };
-
-  // Memoize handleChange to prevent infinite loops
-  const memoizedHandleChange = useCallback((field, value) => {
-    handleChange(field, value);
-  }, [handleChange]);
-
-  // Auto-detect location based on timezone (only run once)
-  useEffect(() => {
-    if (!formData.source) {
-      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      if (timezone.includes('Denver') || timezone.includes('Mountain')) {
-        memoizedHandleChange('source', 'local');
-      }
-    }
-  }, []); // Empty dependency array - only run on mount
 
   const inputVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -56,14 +41,14 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
             color="white"
             letterSpacing="-0.02em"
           >
-            Hello there! 👋
+            Let's get started
           </Text>
           <Text 
             color="gray.400" 
-            fontSize={{ base: "sm", md: "lg" }}
-            fontWeight="500"
+            fontSize={{ base: "sm", md: "md" }}
+            fontWeight="400"
           >
-            Let's start with the basics
+            Tell us a bit about yourself
           </Text>
         </VStack>
 
@@ -83,51 +68,45 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
               <FormLabel 
                 color="gray.300" 
                 fontSize={{ base: "xs", md: "sm" }}
-                fontWeight="600"
+                fontWeight="500"
                 mb={2}
               >
                 Your Name
               </FormLabel>
               <InputGroup size="lg">
-                <InputLeftElement 
-                  pointerEvents="none"
-                  pl={1}
-                >
-                  <Box
-                    color={formData.name ? colors.brand.primary : 'gray.500'}
-                    transition="color 0.2s"
-                  >
-                    <FiUser size={18} />
+                <InputLeftElement pointerEvents="none">
+                  <Box color={formData.name ? colors.primary : 'gray.500'} transition="color 0.2s">
+                    <FiUser size={16} />
                   </Box>
                 </InputLeftElement>
                 <Input
                   value={formData.name || ''}
                   onChange={(e) => handleChange('name', e.target.value)}
                   placeholder="John Doe"
-                  bg="rgba(255, 255, 255, 0.03)"
-                  border="1.5px solid"
-                  borderColor={touched.name && !isFieldValid('name') ? 'red.400' : 'whiteAlpha.200'}
+                  bg="rgba(255, 255, 255, 0.02)"
+                  border="1px solid"
+                  borderColor={touched.name && !isFieldValid('name') ? colors.error : 'whiteAlpha.200'}
                   color="white"
                   fontSize={{ base: "sm", md: "md" }}
-                  height={{ base: "48px", md: "52px" }}
+                  height={{ base: "44px", md: "48px" }}
                   _placeholder={{ color: 'gray.600' }}
                   _hover={{ 
                     borderColor: 'whiteAlpha.300', 
-                    bg: 'rgba(255, 255, 255, 0.05)' 
+                    bg: 'rgba(255, 255, 255, 0.03)' 
                   }}
                   _focus={{ 
-                    borderColor: colors.brand.primary, 
-                    boxShadow: `0 0 0 1px ${colors.brand.primary}`,
-                    bg: 'rgba(255, 255, 255, 0.05)'
+                    borderColor: colors.primary, 
+                    boxShadow: `0 0 0 1px ${colors.primary}`,
+                    bg: 'rgba(255, 255, 255, 0.03)'
                   }}
-                  pl="3rem"
-                  borderRadius="xl"
+                  pl="2.5rem"
+                  borderRadius="lg"
                   autoComplete="name"
                   transition="all 0.2s"
                 />
               </InputGroup>
               {touched.name && !isFieldValid('name') && (
-                <Text fontSize="xs" color="red.400" mt={1.5} ml={1}>
+                <Text fontSize="xs" color={colors.error} mt={1} ml={1}>
                   Please enter at least 2 characters
                 </Text>
               )}
@@ -143,21 +122,15 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
               <FormLabel 
                 color="gray.300" 
                 fontSize={{ base: "xs", md: "sm" }}
-                fontWeight="600"
+                fontWeight="500"
                 mb={2}
               >
                 Email Address
               </FormLabel>
               <InputGroup size="lg">
-                <InputLeftElement 
-                  pointerEvents="none"
-                  pl={1}
-                >
-                  <Box
-                    color={formData.email && isFieldValid('email') ? colors.brand.primary : 'gray.500'}
-                    transition="color 0.2s"
-                  >
-                    <FiMail size={18} />
+                <InputLeftElement pointerEvents="none">
+                  <Box color={formData.email && isFieldValid('email') ? colors.primary : 'gray.500'} transition="color 0.2s">
+                    <FiMail size={16} />
                   </Box>
                 </InputLeftElement>
                 <Input
@@ -165,36 +138,31 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
                   value={formData.email || ''}
                   onChange={(e) => handleChange('email', e.target.value)}
                   placeholder="john@example.com"
-                  bg="rgba(255, 255, 255, 0.03)"
-                  border="1.5px solid"
-                  borderColor={touched.email && !isFieldValid('email') ? 'red.400' : 'whiteAlpha.200'}
+                  bg="rgba(255, 255, 255, 0.02)"
+                  border="1px solid"
+                  borderColor={touched.email && !isFieldValid('email') ? colors.error : 'whiteAlpha.200'}
                   color="white"
                   fontSize={{ base: "sm", md: "md" }}
-                  height={{ base: "48px", md: "52px" }}
+                  height={{ base: "44px", md: "48px" }}
                   _placeholder={{ color: 'gray.600' }}
                   _hover={{ 
                     borderColor: 'whiteAlpha.300', 
-                    bg: 'rgba(255, 255, 255, 0.05)' 
+                    bg: 'rgba(255, 255, 255, 0.03)' 
                   }}
                   _focus={{ 
-                    borderColor: colors.brand.primary, 
-                    boxShadow: `0 0 0 1px ${colors.brand.primary}`,
-                    bg: 'rgba(255, 255, 255, 0.05)'
+                    borderColor: colors.primary, 
+                    boxShadow: `0 0 0 1px ${colors.primary}`,
+                    bg: 'rgba(255, 255, 255, 0.03)'
                   }}
-                  pl="3rem"
-                  borderRadius="xl"
+                  pl="2.5rem"
+                  borderRadius="lg"
                   autoComplete="email"
                   transition="all 0.2s"
                 />
               </InputGroup>
               {touched.email && !isFieldValid('email') && formData.email && (
-                <Text fontSize="xs" color="red.400" mt={1.5} ml={1}>
+                <Text fontSize="xs" color={colors.error} mt={1} ml={1}>
                   Please enter a valid email address
-                </Text>
-              )}
-              {touched.email && isFieldValid('email') && (
-                <Text fontSize="xs" color={colors.accent.green} mt={1.5} ml={1} fontWeight="500">
-                  ✓ Looking good!
                 </Text>
               )}
             </FormControl>
@@ -209,7 +177,7 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
               <FormLabel 
                 color="gray.300" 
                 fontSize={{ base: "xs", md: "sm" }}
-                fontWeight="600"
+                fontWeight="500"
                 mb={2}
               >
                 Company{' '}
@@ -218,39 +186,33 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
                 </Text>
               </FormLabel>
               <InputGroup size="lg">
-                <InputLeftElement 
-                  pointerEvents="none"
-                  pl={1}
-                >
-                  <Box
-                    color={formData.company ? colors.brand.primary : 'gray.500'}
-                    transition="color 0.2s"
-                  >
-                    <FiBriefcase size={18} />
+                <InputLeftElement pointerEvents="none">
+                  <Box color={formData.company ? colors.primary : 'gray.500'} transition="color 0.2s">
+                    <FiBriefcase size={16} />
                   </Box>
                 </InputLeftElement>
                 <Input
                   value={formData.company || ''}
                   onChange={(e) => handleChange('company', e.target.value)}
                   placeholder="Awesome Inc."
-                  bg="rgba(255, 255, 255, 0.03)"
-                  border="1.5px solid"
+                  bg="rgba(255, 255, 255, 0.02)"
+                  border="1px solid"
                   borderColor="whiteAlpha.200"
                   color="white"
                   fontSize={{ base: "sm", md: "md" }}
-                  height={{ base: "48px", md: "52px" }}
+                  height={{ base: "44px", md: "48px" }}
                   _placeholder={{ color: 'gray.600' }}
                   _hover={{ 
                     borderColor: 'whiteAlpha.300', 
-                    bg: 'rgba(255, 255, 255, 0.05)' 
+                    bg: 'rgba(255, 255, 255, 0.03)' 
                   }}
                   _focus={{ 
-                    borderColor: colors.brand.primary, 
-                    boxShadow: `0 0 0 1px ${colors.brand.primary}`,
-                    bg: 'rgba(255, 255, 255, 0.05)'
+                    borderColor: colors.primary, 
+                    boxShadow: `0 0 0 1px ${colors.primary}`,
+                    bg: 'rgba(255, 255, 255, 0.03)'
                   }}
-                  pl="3rem"
-                  borderRadius="xl"
+                  pl="2.5rem"
+                  borderRadius="lg"
                   autoComplete="organization"
                   transition="all 0.2s"
                 />
@@ -267,7 +229,7 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
               <FormLabel 
                 color="gray.300" 
                 fontSize={{ base: "xs", md: "sm" }}
-                fontWeight="600"
+                fontWeight="500"
                 mb={2}
               >
                 How did you find us?
@@ -275,38 +237,38 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
               <Box position="relative">
                 <Box
                   position="absolute"
-                  left={4}
+                  left={3}
                   top="50%"
                   transform="translateY(-50%)"
-                  color={formData.source ? colors.brand.primary : 'gray.500'}
+                  color={formData.source ? colors.primary : 'gray.500'}
                   zIndex={2}
                   pointerEvents="none"
                   transition="color 0.2s"
                 >
-                  <FiGlobe size={18} />
+                  <FiGlobe size={16} />
                 </Box>
                 <Select
                   value={formData.source || ''}
                   onChange={(e) => handleChange('source', e.target.value)}
                   placeholder="Select one..."
                   size="lg"
-                  bg="rgba(255, 255, 255, 0.03)"
-                  border="1.5px solid"
+                  bg="rgba(255, 255, 255, 0.02)"
+                  border="1px solid"
                   borderColor="whiteAlpha.200"
                   color={formData.source ? 'white' : 'gray.500'}
                   fontSize={{ base: "sm", md: "md" }}
-                  height={{ base: "48px", md: "52px" }}
-                  pl="3rem"
+                  height={{ base: "44px", md: "48px" }}
+                  pl="2.5rem"
                   _hover={{ 
                     borderColor: 'whiteAlpha.300', 
-                    bg: 'rgba(255, 255, 255, 0.05)' 
+                    bg: 'rgba(255, 255, 255, 0.03)' 
                   }}
                   _focus={{ 
-                    borderColor: colors.brand.primary, 
-                    boxShadow: `0 0 0 1px ${colors.brand.primary}`,
-                    bg: 'rgba(255, 255, 255, 0.05)'
+                    borderColor: colors.primary, 
+                    boxShadow: `0 0 0 1px ${colors.primary}`,
+                    bg: 'rgba(255, 255, 255, 0.03)'
                   }}
-                  borderRadius="xl"
+                  borderRadius="lg"
                   transition="all 0.2s"
                   sx={{
                     option: {
@@ -318,10 +280,9 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
                   }}
                 >
                   <option value="google">Google Search</option>
-                  <option value="referral">Friend/Referral</option>
+                  <option value="referral">Friend or Referral</option>
                   <option value="social">Social Media</option>
                   <option value="local">Local Community</option>
-                  <option value="burro-spotting">Saw a Neon Burro 🦙</option>
                   <option value="other">Other</option>
                 </Select>
               </Box>
@@ -329,27 +290,31 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
           </MotionBox>
         </MotionVStack>
 
+        {/* Privacy Notice */}
+        <Text fontSize="xs" color="gray.500" textAlign="center" mt={2}>
+          Your information is secure and never shared
+        </Text>
+
         {/* Submit Button */}
         <MotionBox
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.5 }}
-          mt={2}
         >
           <Button
             size="lg"
-            bg={colors.brand.primary}
+            bg={colors.primary}
             color="black"
             onClick={onNext}
             isDisabled={!isFieldValid('name') || !isFieldValid('email')}
-            fontWeight="700"
+            fontWeight="600"
             fontSize={{ base: "sm", md: "md" }}
-            height={{ base: "52px", md: "56px" }}
+            height={{ base: "48px", md: "52px" }}
             width="100%"
             _hover={{
-              bg: colors.brand.primary,
+              bg: colors.primary,
               transform: 'translateY(-2px)',
-              boxShadow: `0 10px 30px ${colors.brand.primary}66`
+              boxShadow: `0 10px 30px ${colors.primary}66`
             }}
             _active={{ transform: 'translateY(0)' }}
             _disabled={{
@@ -361,7 +326,7 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
             borderRadius="full"
             transition="all 0.2s"
           >
-            Continue →
+            Continue
           </Button>
         </MotionBox>
       </VStack>

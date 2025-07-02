@@ -7,8 +7,8 @@ const MotionVStack = motion(VStack);
 
 const StepYourProject = ({ formData, handleChange, onNext, onBack }) => {
   const colors = {
-    brand: { primary: '#00FFFF' },
-    accent: { warm: '#FF6B00' }
+    primary: '#00E5E5',
+    warm: '#FF6B00'
   };
 
   const projectTypes = [
@@ -16,27 +16,23 @@ const StepYourProject = ({ formData, handleChange, onNext, onBack }) => {
     { value: 'redesign', label: 'Website Redesign' },
     { value: 'ecommerce', label: 'E-commerce Store' },
     { value: 'web-app', label: 'Web Application' },
-    { value: 'seo-content', label: 'SEO & Content' },
-    { value: 'branding', label: 'Brand Package' },
-    { value: 'maintenance', label: 'Maintenance' },
+    { value: 'seo-content', label: 'SEO & Content Strategy' },
+    { value: 'maintenance', label: 'Ongoing Maintenance' },
     { value: 'consultation', label: 'Consultation' },
     { value: 'other', label: 'Something Else' }
   ];
 
   const budgetRanges = [
-    { value: 'under-1k', label: 'Under $1k', desc: 'Essentials' },
-    { value: '1-3k', label: '$1k - $3k', desc: 'Professional' },
-    { value: '3-5k', label: '$3k - $5k', desc: 'Custom' },
-    { value: '5-10k', label: '$5k - $10k', desc: 'Advanced' },
-    { value: '10k+', label: '$10k+', desc: 'Enterprise' },
-    { value: 'flexible', label: 'Flexible', desc: 'Let\'s talk' }
+    { value: 'under-2k', label: 'Under $2k', desc: 'Essential' },
+    { value: '3-5k', label: '$3k - $5k', desc: 'Professional' },
+    { value: '5k-plus', label: '$5k+', desc: 'Visionary' },
+    { value: 'flexible', label: "Let's Discuss", desc: 'Open to options' }
   ];
 
   const timelines = [
     { value: 'asap', label: 'ASAP' },
-    { value: '2-weeks', label: '2 weeks' },
     { value: '1-month', label: '1 month' },
-    { value: '2-months', label: '2 months' },
+    { value: '2-3-months', label: '2-3 months' },
     { value: 'flexible', label: 'Flexible' }
   ];
 
@@ -73,20 +69,20 @@ const StepYourProject = ({ formData, handleChange, onNext, onBack }) => {
             color="white"
             letterSpacing="-0.02em"
           >
-            Your Vision 🎯
+            Project Details
           </Text>
           <Text 
             color="gray.400" 
-            fontSize={{ base: "sm", md: "lg" }}
-            fontWeight="500"
+            fontSize={{ base: "sm", md: "md" }}
+            fontWeight="400"
           >
-            Tell us what you're building
+            Help us understand your needs
           </Text>
         </VStack>
 
         {/* Form Fields */}
         <MotionVStack
-          spacing={4}
+          spacing={5}
           align="stretch"
           initial="hidden"
           animate="visible"
@@ -100,46 +96,46 @@ const StepYourProject = ({ formData, handleChange, onNext, onBack }) => {
               <FormLabel 
                 color="gray.300" 
                 fontSize={{ base: "xs", md: "sm" }}
-                fontWeight="600"
+                fontWeight="500"
                 mb={2}
               >
-                Project Type
+                What are we building?
               </FormLabel>
               <Box position="relative">
                 <Box
                   position="absolute"
-                  left={4}
+                  left={3}
                   top="50%"
                   transform="translateY(-50%)"
-                  color={formData.projectType ? colors.accent.warm : 'gray.500'}
+                  color={formData.projectType ? colors.warm : 'gray.500'}
                   zIndex={2}
                   pointerEvents="none"
                   transition="color 0.2s"
                 >
-                  <FiTarget size={18} />
+                  <FiTarget size={16} />
                 </Box>
                 <Select
                   value={formData.projectType || ''}
                   onChange={(e) => handleChange('projectType', e.target.value)}
-                  placeholder="What are we creating?"
+                  placeholder="Select project type"
                   size="lg"
-                  bg="rgba(255, 255, 255, 0.03)"
-                  border="1.5px solid"
+                  bg="rgba(255, 255, 255, 0.02)"
+                  border="1px solid"
                   borderColor="whiteAlpha.200"
                   color={formData.projectType ? 'white' : 'gray.500'}
                   fontSize={{ base: "sm", md: "md" }}
-                  height={{ base: "48px", md: "52px" }}
-                  pl="3rem"
+                  height={{ base: "44px", md: "48px" }}
+                  pl="2.5rem"
                   _hover={{ 
                     borderColor: 'whiteAlpha.300', 
-                    bg: 'rgba(255, 255, 255, 0.05)' 
+                    bg: 'rgba(255, 255, 255, 0.03)' 
                   }}
                   _focus={{ 
-                    borderColor: colors.accent.warm, 
-                    boxShadow: `0 0 0 1px ${colors.accent.warm}`,
-                    bg: 'rgba(255, 255, 255, 0.05)'
+                    borderColor: colors.warm, 
+                    boxShadow: `0 0 0 1px ${colors.warm}`,
+                    bg: 'rgba(255, 255, 255, 0.03)'
                   }}
-                  borderRadius="xl"
+                  borderRadius="lg"
                   transition="all 0.2s"
                   sx={{
                     option: {
@@ -160,7 +156,7 @@ const StepYourProject = ({ formData, handleChange, onNext, onBack }) => {
             </FormControl>
           </MotionBox>
 
-          {/* Budget Range - Grid Layout */}
+          {/* Budget Range */}
           <MotionBox
             custom={2}
             variants={inputVariants}
@@ -169,31 +165,31 @@ const StepYourProject = ({ formData, handleChange, onNext, onBack }) => {
               <FormLabel 
                 color="gray.300" 
                 fontSize={{ base: "xs", md: "sm" }}
-                fontWeight="600"
-                mb={2}
+                fontWeight="500"
+                mb={3}
                 display="flex"
                 alignItems="center"
                 gap={2}
               >
-                <FiDollarSign size={16} />
+                <FiDollarSign size={14} />
                 Budget Range
               </FormLabel>
               <RadioGroup value={formData.budget} onChange={(value) => handleChange('budget', value)}>
-                <SimpleGrid columns={{ base: 2, md: 3 }} spacing={{ base: 2, md: 3 }}>
+                <SimpleGrid columns={2} spacing={3}>
                   {budgetRanges.map(range => (
                     <Box
                       key={range.value}
                       as="label"
-                      p={{ base: 3, md: 4 }}
-                      borderRadius="xl"
-                      border="1.5px solid"
-                      borderColor={formData.budget === range.value ? colors.accent.warm : 'whiteAlpha.200'}
-                      bg={formData.budget === range.value ? 'rgba(255, 107, 0, 0.1)' : 'rgba(255, 255, 255, 0.03)'}
+                      p={4}
+                      borderRadius="lg"
+                      border="1px solid"
+                      borderColor={formData.budget === range.value ? colors.warm : 'whiteAlpha.200'}
+                      bg={formData.budget === range.value ? 'rgba(255, 107, 0, 0.08)' : 'rgba(255, 255, 255, 0.02)'}
                       cursor="pointer"
                       transition="all 0.2s"
                       _hover={{ 
-                        borderColor: colors.accent.warm, 
-                        bg: formData.budget === range.value ? 'rgba(255, 107, 0, 0.1)' : 'rgba(255, 255, 255, 0.05)'
+                        borderColor: colors.warm, 
+                        bg: formData.budget === range.value ? 'rgba(255, 107, 0, 0.08)' : 'rgba(255, 255, 255, 0.03)'
                       }}
                       onClick={() => handleChange('budget', range.value)}
                     >
@@ -208,7 +204,7 @@ const StepYourProject = ({ formData, handleChange, onNext, onBack }) => {
                         </Text>
                         <Text 
                           color={formData.budget === range.value ? 'gray.300' : 'gray.500'}
-                          fontSize={{ base: "2xs", md: "xs" }}
+                          fontSize="xs"
                         >
                           {range.desc}
                         </Text>
@@ -220,7 +216,7 @@ const StepYourProject = ({ formData, handleChange, onNext, onBack }) => {
             </FormControl>
           </MotionBox>
 
-          {/* Timeline - Horizontal Pills */}
+          {/* Timeline */}
           <MotionBox
             custom={3}
             variants={inputVariants}
@@ -229,43 +225,39 @@ const StepYourProject = ({ formData, handleChange, onNext, onBack }) => {
               <FormLabel 
                 color="gray.300" 
                 fontSize={{ base: "xs", md: "sm" }}
-                fontWeight="600"
-                mb={2}
+                fontWeight="500"
+                mb={3}
                 display="flex"
                 alignItems="center"
                 gap={2}
               >
-                <FiClock size={16} />
-                Timeline
+                <FiClock size={14} />
+                Project Timeline
               </FormLabel>
               <RadioGroup value={formData.timeline} onChange={(value) => handleChange('timeline', value)}>
-                <HStack 
-                  spacing={{ base: 2, md: 3 }}
-                  flexWrap="wrap"
-                  gap={{ base: 2, md: 0 }}
-                >
+                <HStack spacing={3} flexWrap="wrap">
                   {timelines.map(time => (
                     <Box
                       key={time.value}
                       as="label"
-                      px={{ base: 3, md: 4 }}
-                      py={{ base: 2, md: 2.5 }}
+                      px={4}
+                      py={2}
                       borderRadius="full"
-                      border="1.5px solid"
-                      borderColor={formData.timeline === time.value ? colors.accent.warm : 'whiteAlpha.200'}
-                      bg={formData.timeline === time.value ? 'rgba(255, 107, 0, 0.1)' : 'rgba(255, 255, 255, 0.03)'}
+                      border="1px solid"
+                      borderColor={formData.timeline === time.value ? colors.warm : 'whiteAlpha.200'}
+                      bg={formData.timeline === time.value ? 'rgba(255, 107, 0, 0.08)' : 'rgba(255, 255, 255, 0.02)'}
                       cursor="pointer"
                       transition="all 0.2s"
                       _hover={{ 
-                        borderColor: colors.accent.warm,
-                        bg: formData.timeline === time.value ? 'rgba(255, 107, 0, 0.1)' : 'rgba(255, 255, 255, 0.05)'
+                        borderColor: colors.warm,
+                        bg: formData.timeline === time.value ? 'rgba(255, 107, 0, 0.08)' : 'rgba(255, 255, 255, 0.03)'
                       }}
                       onClick={() => handleChange('timeline', time.value)}
                     >
                       <Radio value={time.value} display="none" />
                       <Text 
                         color={formData.timeline === time.value ? 'white' : 'gray.300'}
-                        fontSize={{ base: "xs", md: "sm" }}
+                        fontSize="sm"
                         fontWeight="500"
                         whiteSpace="nowrap"
                       >
@@ -278,7 +270,7 @@ const StepYourProject = ({ formData, handleChange, onNext, onBack }) => {
             </FormControl>
           </MotionBox>
 
-          {/* Project Details */}
+          {/* Project Description */}
           <MotionBox
             custom={4}
             variants={inputVariants}
@@ -287,10 +279,10 @@ const StepYourProject = ({ formData, handleChange, onNext, onBack }) => {
               <FormLabel 
                 color="gray.300" 
                 fontSize={{ base: "xs", md: "sm" }}
-                fontWeight="600"
+                fontWeight="500"
                 mb={2}
               >
-                Project Details{' '}
+                Tell us more{' '}
                 <Text as="span" color="gray.600" fontWeight="400">
                   (Optional)
                 </Text>
@@ -300,23 +292,23 @@ const StepYourProject = ({ formData, handleChange, onNext, onBack }) => {
                 onChange={(e) => handleChange('description', e.target.value)}
                 placeholder="Share your vision, goals, or any specific requirements..."
                 size="lg"
-                rows={{ base: 3, md: 4 }}
-                bg="rgba(255, 255, 255, 0.03)"
-                border="1.5px solid"
+                rows={4}
+                bg="rgba(255, 255, 255, 0.02)"
+                border="1px solid"
                 borderColor="whiteAlpha.200"
                 color="white"
                 fontSize={{ base: "sm", md: "md" }}
                 _placeholder={{ color: 'gray.600' }}
                 _hover={{ 
                   borderColor: 'whiteAlpha.300', 
-                  bg: 'rgba(255, 255, 255, 0.05)' 
+                  bg: 'rgba(255, 255, 255, 0.03)' 
                 }}
                 _focus={{ 
-                  borderColor: colors.accent.warm, 
-                  boxShadow: `0 0 0 1px ${colors.accent.warm}`,
-                  bg: 'rgba(255, 255, 255, 0.05)'
+                  borderColor: colors.warm, 
+                  boxShadow: `0 0 0 1px ${colors.warm}`,
+                  bg: 'rgba(255, 255, 255, 0.03)'
                 }}
-                borderRadius="xl"
+                borderRadius="lg"
                 resize="none"
                 transition="all 0.2s"
               />
@@ -338,33 +330,33 @@ const StepYourProject = ({ formData, handleChange, onNext, onBack }) => {
               borderColor="whiteAlpha.300"
               color="white"
               onClick={onBack}
-              fontWeight="600"
+              fontWeight="500"
               fontSize={{ base: "sm", md: "md" }}
-              height={{ base: "52px", md: "56px" }}
-              px={{ base: 4, md: 6 }}
+              height={{ base: "48px", md: "52px" }}
+              px={6}
               _hover={{ 
                 bg: 'whiteAlpha.100',
                 borderColor: 'whiteAlpha.400'
               }}
               borderRadius="full"
-              leftIcon={<FiArrowLeft />}
+              leftIcon={<FiArrowLeft size={16} />}
               transition="all 0.2s"
             >
               Back
             </Button>
             <Button
               size="lg"
-              bg={colors.accent.warm}
+              bg={colors.warm}
               color="white"
               onClick={onNext}
               isDisabled={!isStepValid()}
-              fontWeight="700"
+              fontWeight="600"
               fontSize={{ base: "sm", md: "md" }}
-              height={{ base: "52px", md: "56px" }}
+              height={{ base: "48px", md: "52px" }}
               _hover={{
-                bg: colors.accent.warm,
+                bg: colors.warm,
                 transform: 'translateY(-2px)',
-                boxShadow: `0 10px 30px ${colors.accent.warm}66`
+                boxShadow: `0 10px 30px ${colors.warm}66`
               }}
               _active={{ transform: 'translateY(0)' }}
               _disabled={{
@@ -375,10 +367,10 @@ const StepYourProject = ({ formData, handleChange, onNext, onBack }) => {
               }}
               flex={1}
               borderRadius="full"
-              rightIcon={<FiArrowRight />}
+              rightIcon={<FiArrowRight size={16} />}
               transition="all 0.2s"
             >
-              Almost There
+              Continue
             </Button>
           </HStack>
         </MotionBox>

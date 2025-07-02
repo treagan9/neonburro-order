@@ -11,21 +11,21 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmittin
   const [showBestTime, setShowBestTime] = useState(false);
   
   const colors = {
-    brand: { primary: '#00FFFF' },
-    accent: { purple: '#8B5CF6' }
+    primary: '#00E5E5',
+    purple: '#8B5CF6'
   };
 
   const contactMethods = [
     { value: 'email', label: 'Email', icon: FiMail },
     { value: 'phone', label: 'Phone', icon: FiPhone },
-    { value: 'video', label: 'Video', icon: FiVideo },
-    { value: 'text', label: 'Text', icon: FiMessageSquare }
+    { value: 'video', label: 'Video Call', icon: FiVideo },
+    { value: 'text', label: 'Text/SMS', icon: FiMessageSquare }
   ];
 
   const timeSlots = [
-    { value: 'morning', label: 'Morning', time: '9AM-12PM' },
-    { value: 'afternoon', label: 'Afternoon', time: '12PM-5PM' },
-    { value: 'evening', label: 'Evening', time: '5PM-8PM' },
+    { value: 'morning', label: 'Morning', time: '9AM-12PM MT' },
+    { value: 'afternoon', label: 'Afternoon', time: '12PM-5PM MT' },
+    { value: 'evening', label: 'Evening', time: '5PM-8PM MT' },
     { value: 'flexible', label: 'Flexible', time: 'Any time' }
   ];
 
@@ -50,22 +50,6 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmittin
     const hasTimeIfNeeded = !showBestTime || formData.bestTime;
     return hasContactMethod && hasPhoneIfNeeded && hasTimeIfNeeded;
   };
-
-  // Auto-detect timezone for best time suggestion
-  useEffect(() => {
-    if (!formData.bestTime) {
-      const hour = new Date().getHours();
-      if (hour >= 9 && hour < 12) {
-        handleChange('bestTime', 'morning');
-      } else if (hour >= 12 && hour < 17) {
-        handleChange('bestTime', 'afternoon');
-      } else if (hour >= 17 && hour < 20) {
-        handleChange('bestTime', 'evening');
-      } else {
-        handleChange('bestTime', 'flexible');
-      }
-    }
-  }, []);
 
   const inputVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -96,25 +80,25 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmittin
             color="white"
             letterSpacing="-0.02em"
           >
-            Let's Connect 💬
+            Contact Preferences
           </Text>
           <Text 
             color="gray.400" 
-            fontSize={{ base: "sm", md: "lg" }}
-            fontWeight="500"
+            fontSize={{ base: "sm", md: "md" }}
+            fontWeight="400"
           >
-            How should we reach you?
+            How should we reach out?
           </Text>
         </VStack>
 
         {/* Form Fields */}
         <MotionVStack
-          spacing={4}
+          spacing={5}
           align="stretch"
           initial="hidden"
           animate="visible"
         >
-          {/* Contact Methods - Grid Layout */}
+          {/* Contact Methods */}
           <MotionBox
             custom={1}
             variants={inputVariants}
@@ -123,12 +107,12 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmittin
               <FormLabel 
                 color="gray.300" 
                 fontSize={{ base: "xs", md: "sm" }}
-                fontWeight="600"
-                mb={2}
+                fontWeight="500"
+                mb={3}
               >
-                Preferred Contact Method(s)
+                Preferred contact method(s)
               </FormLabel>
-              <SimpleGrid columns={2} spacing={{ base: 2, md: 3 }}>
+              <SimpleGrid columns={2} spacing={3}>
                 {contactMethods.map(method => {
                   const Icon = method.icon;
                   const isSelected = (formData.contactMethod || []).includes(method.value);
@@ -136,17 +120,17 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmittin
                   return (
                     <Box
                       key={method.value}
-                      p={{ base: 3, md: 4 }}
-                      borderRadius="xl"
-                      border="1.5px solid"
-                      borderColor={isSelected ? colors.accent.purple : 'whiteAlpha.200'}
-                      bg={isSelected ? 'rgba(139, 92, 246, 0.1)' : 'rgba(255, 255, 255, 0.03)'}
+                      p={4}
+                      borderRadius="lg"
+                      border="1px solid"
+                      borderColor={isSelected ? colors.purple : 'whiteAlpha.200'}
+                      bg={isSelected ? 'rgba(139, 92, 246, 0.08)' : 'rgba(255, 255, 255, 0.02)'}
                       cursor="pointer"
                       transition="all 0.2s"
                       onClick={() => handleContactMethodChange(method.value)}
                       _hover={{ 
-                        borderColor: colors.accent.purple,
-                        bg: isSelected ? 'rgba(139, 92, 246, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                        borderColor: colors.purple,
+                        bg: isSelected ? 'rgba(139, 92, 246, 0.08)' : 'rgba(255, 255, 255, 0.03)',
                         transform: 'translateY(-2px)'
                       }}
                       _active={{
@@ -156,17 +140,17 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmittin
                       <VStack spacing={2}>
                         <Box
                           p={2}
-                          borderRadius="lg"
-                          bg={isSelected ? colors.accent.purple : 'whiteAlpha.100'}
+                          borderRadius="md"
+                          bg={isSelected ? colors.purple : 'whiteAlpha.100'}
                           color={isSelected ? 'white' : 'gray.400'}
                           transition="all 0.2s"
                         >
-                          <Icon size={20} />
+                          <Icon size={18} />
                         </Box>
                         <Text 
                           color={isSelected ? 'white' : 'gray.300'}
-                          fontSize={{ base: "xs", md: "sm" }}
-                          fontWeight="600"
+                          fontSize="sm"
+                          fontWeight="500"
                         >
                           {method.label}
                         </Text>
@@ -191,21 +175,15 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmittin
                   <FormLabel 
                     color="gray.300" 
                     fontSize={{ base: "xs", md: "sm" }}
-                    fontWeight="600"
+                    fontWeight="500"
                     mb={2}
                   >
                     Phone Number
                   </FormLabel>
                   <InputGroup size="lg">
-                    <InputLeftElement 
-                      pointerEvents="none"
-                      pl={1}
-                    >
-                      <Box
-                        color={formData.phone ? colors.accent.purple : 'gray.500'}
-                        transition="color 0.2s"
-                      >
-                        <FiPhone size={18} />
+                    <InputLeftElement pointerEvents="none">
+                      <Box color={formData.phone ? colors.purple : 'gray.500'} transition="color 0.2s">
+                        <FiPhone size={16} />
                       </Box>
                     </InputLeftElement>
                     <Input
@@ -213,24 +191,24 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmittin
                       value={formData.phone || ''}
                       onChange={(e) => handleChange('phone', e.target.value)}
                       placeholder="(555) 123-4567"
-                      bg="rgba(255, 255, 255, 0.03)"
-                      border="1.5px solid"
+                      bg="rgba(255, 255, 255, 0.02)"
+                      border="1px solid"
                       borderColor="whiteAlpha.200"
                       color="white"
                       fontSize={{ base: "sm", md: "md" }}
-                      height={{ base: "48px", md: "52px" }}
+                      height={{ base: "44px", md: "48px" }}
                       _placeholder={{ color: 'gray.600' }}
                       _hover={{ 
                         borderColor: 'whiteAlpha.300', 
-                        bg: 'rgba(255, 255, 255, 0.05)' 
+                        bg: 'rgba(255, 255, 255, 0.03)' 
                       }}
                       _focus={{ 
-                        borderColor: colors.accent.purple, 
-                        boxShadow: `0 0 0 1px ${colors.accent.purple}`,
-                        bg: 'rgba(255, 255, 255, 0.05)'
+                        borderColor: colors.purple, 
+                        boxShadow: `0 0 0 1px ${colors.purple}`,
+                        bg: 'rgba(255, 255, 255, 0.03)'
                       }}
-                      pl="3rem"
-                      borderRadius="xl"
+                      pl="2.5rem"
+                      borderRadius="lg"
                       autoComplete="tel"
                       transition="all 0.2s"
                     />
@@ -253,49 +231,46 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmittin
                   <FormLabel 
                     color="gray.300" 
                     fontSize={{ base: "xs", md: "sm" }}
-                    fontWeight="600"
-                    mb={2}
+                    fontWeight="500"
+                    mb={3}
                     display="flex"
                     alignItems="center"
                     gap={2}
                   >
-                    <FiClock size={16} />
-                    Best Time to Call{' '}
-                    <Text as="span" color="gray.600" fontWeight="400" fontSize="xs">
-                      (Mountain Time)
-                    </Text>
+                    <FiClock size={14} />
+                    Best time to reach you
                   </FormLabel>
-                  <SimpleGrid columns={2} spacing={{ base: 2, md: 3 }}>
+                  <SimpleGrid columns={2} spacing={3}>
                     {timeSlots.map(slot => {
                       const isSelected = formData.bestTime === slot.value;
                       
                       return (
                         <Box
                           key={slot.value}
-                          p={{ base: 3, md: 4 }}
-                          borderRadius="xl"
-                          border="1.5px solid"
-                          borderColor={isSelected ? colors.accent.purple : 'whiteAlpha.200'}
-                          bg={isSelected ? 'rgba(139, 92, 246, 0.1)' : 'rgba(255, 255, 255, 0.03)'}
+                          p={3}
+                          borderRadius="lg"
+                          border="1px solid"
+                          borderColor={isSelected ? colors.purple : 'whiteAlpha.200'}
+                          bg={isSelected ? 'rgba(139, 92, 246, 0.08)' : 'rgba(255, 255, 255, 0.02)'}
                           cursor="pointer"
                           transition="all 0.2s"
                           onClick={() => handleChange('bestTime', slot.value)}
                           _hover={{ 
-                            borderColor: colors.accent.purple,
-                            bg: isSelected ? 'rgba(139, 92, 246, 0.1)' : 'rgba(255, 255, 255, 0.05)'
+                            borderColor: colors.purple,
+                            bg: isSelected ? 'rgba(139, 92, 246, 0.08)' : 'rgba(255, 255, 255, 0.03)'
                           }}
                         >
                           <VStack spacing={0.5} align="center">
                             <Text 
                               color={isSelected ? 'white' : 'gray.300'}
-                              fontSize={{ base: "sm", md: "md" }}
+                              fontSize="sm"
                               fontWeight="600"
                             >
                               {slot.label}
                             </Text>
                             <Text 
                               color={isSelected ? 'gray.300' : 'gray.500'}
-                              fontSize={{ base: "2xs", md: "xs" }}
+                              fontSize="xs"
                             >
                               {slot.time}
                             </Text>
@@ -309,7 +284,7 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmittin
             )}
           </AnimatePresence>
 
-          {/* Additional Info */}
+          {/* Additional Information */}
           <MotionBox
             custom={2}
             variants={inputVariants}
@@ -318,10 +293,10 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmittin
               <FormLabel 
                 color="gray.300" 
                 fontSize={{ base: "xs", md: "sm" }}
-                fontWeight="600"
+                fontWeight="500"
                 mb={2}
               >
-                Anything else?{' '}
+                Additional information{' '}
                 <Text as="span" color="gray.600" fontWeight="400">
                   (Optional)
                 </Text>
@@ -329,25 +304,25 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmittin
               <Textarea
                 value={formData.additionalInfo || ''}
                 onChange={(e) => handleChange('additionalInfo', e.target.value)}
-                placeholder="Special requests, questions, or just say hi..."
+                placeholder="Any specific questions or requirements?"
                 size="lg"
-                rows={{ base: 3, md: 4 }}
-                bg="rgba(255, 255, 255, 0.03)"
-                border="1.5px solid"
+                rows={3}
+                bg="rgba(255, 255, 255, 0.02)"
+                border="1px solid"
                 borderColor="whiteAlpha.200"
                 color="white"
                 fontSize={{ base: "sm", md: "md" }}
                 _placeholder={{ color: 'gray.600' }}
                 _hover={{ 
                   borderColor: 'whiteAlpha.300', 
-                  bg: 'rgba(255, 255, 255, 0.05)' 
+                  bg: 'rgba(255, 255, 255, 0.03)' 
                 }}
                 _focus={{ 
-                  borderColor: colors.accent.purple, 
-                  boxShadow: `0 0 0 1px ${colors.accent.purple}`,
-                  bg: 'rgba(255, 255, 255, 0.05)'
+                  borderColor: colors.purple, 
+                  boxShadow: `0 0 0 1px ${colors.purple}`,
+                  bg: 'rgba(255, 255, 255, 0.03)'
                 }}
-                borderRadius="xl"
+                borderRadius="lg"
                 resize="none"
                 transition="all 0.2s"
               />
@@ -355,12 +330,16 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmittin
           </MotionBox>
         </MotionVStack>
 
+        {/* Privacy Notice */}
+        <Text fontSize="xs" color="gray.500" textAlign="center">
+          No spam, ever. We'll respond within 24 hours.
+        </Text>
+
         {/* Navigation Buttons */}
         <MotionBox
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
-          mt={2}
         >
           <HStack spacing={3}>
             <Button
@@ -369,35 +348,35 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmittin
               borderColor="whiteAlpha.300"
               color="white"
               onClick={onBack}
-              fontWeight="600"
+              fontWeight="500"
               fontSize={{ base: "sm", md: "md" }}
-              height={{ base: "52px", md: "56px" }}
-              px={{ base: 4, md: 6 }}
+              height={{ base: "48px", md: "52px" }}
+              px={6}
               _hover={{ 
                 bg: 'whiteAlpha.100',
                 borderColor: 'whiteAlpha.400'
               }}
               borderRadius="full"
-              leftIcon={<FiArrowLeft />}
+              leftIcon={<FiArrowLeft size={16} />}
               transition="all 0.2s"
             >
               Back
             </Button>
             <Button
               size="lg"
-              bg={colors.accent.purple}
+              bg={colors.purple}
               color="white"
               onClick={onSubmit}
               isLoading={isSubmitting}
               loadingText="Sending..."
               isDisabled={!isStepValid() || isSubmitting}
-              fontWeight="700"
+              fontWeight="600"
               fontSize={{ base: "sm", md: "md" }}
-              height={{ base: "52px", md: "56px" }}
+              height={{ base: "48px", md: "52px" }}
               _hover={{
-                bg: colors.accent.purple,
+                bg: colors.purple,
                 transform: 'translateY(-2px)',
-                boxShadow: `0 10px 30px ${colors.accent.purple}66`
+                boxShadow: `0 10px 30px ${colors.purple}66`
               }}
               _active={{ transform: 'translateY(0)' }}
               _disabled={{
@@ -408,10 +387,10 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmittin
               }}
               flex={1}
               borderRadius="full"
-              rightIcon={!isSubmitting && <FiSend />}
+              rightIcon={!isSubmitting && <FiSend size={16} />}
               transition="all 0.2s"
             >
-              {isSubmitting ? 'Sending...' : 'Launch Project'}
+              {isSubmitting ? 'Sending...' : 'Submit'}
             </Button>
           </HStack>
         </MotionBox>

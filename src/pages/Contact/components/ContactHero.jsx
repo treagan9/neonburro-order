@@ -1,329 +1,251 @@
-import { Box, Container, Heading, Text, VStack, HStack, Badge, keyframes } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, VStack, HStack, Button, keyframes } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { FiMail, FiClock, FiMapPin, FiDollarSign, FiMessageCircle } from 'react-icons/fi';
+import { FiArrowDown, FiClock, FiUsers, FiZap } from 'react-icons/fi';
 
 const MotionBox = motion(Box);
+const MotionHeading = motion(Heading);
 
-// Subtle floating animation
-const float = keyframes`
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-`;
+// Theme colors
+const colors = {
+  brand: {
+    primary: '#00E5E5',
+  },
+  accent: {
+    neon: '#39FF14',
+    warm: '#FF6B00',
+    banana: '#FFE500',
+  },
+  dark: {
+    black: '#0A0A0A',
+  }
+};
 
-// Gradient animation
-const gradientShift = keyframes`
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+// Subtle pulse for scroll indicator
+const pulse = keyframes`
+  0%, 100% { transform: translateY(0); opacity: 0.7; }
+  50% { transform: translateY(5px); opacity: 1; }
 `;
 
 const ContactHero = () => {
-  const colors = {
-    brand: {
-      primary: '#00E5E5',
-    },
-    accent: {
-      neon: '#39FF14',
-      warm: '#FF6B00',
-      purple: '#8B5CF6',
-    },
-    dark: {
-      black: '#0A0A0A',
-    }
-  };
-
-  const contactInfo = [
+  const benefits = [
     {
       icon: FiClock,
-      label: 'Response',
-      value: '< 24hrs',
+      text: 'Response within 24 hours',
       color: colors.accent.neon
     },
     {
-      icon: FiMapPin,
-      label: 'Location',
-      value: 'Colorado',
+      icon: FiUsers,
+      text: 'Direct access to founders',
       color: colors.brand.primary
     },
     {
-      icon: FiMail,
-      label: 'Direct',
-      value: 'Let\'s Chat',
+      icon: FiZap,
+      text: 'No lengthy contracts',
       color: colors.accent.warm
     }
   ];
 
+  const scrollToForm = () => {
+    window.scrollTo({ top: window.innerHeight * 0.8, behavior: 'smooth' });
+  };
+
   return (
     <Box
       position="relative"
-      minH={{ base: '85vh', md: '90vh' }}
+      minH={{ base: '70vh', md: '80vh' }}
       display="flex"
       alignItems="center"
       overflow="hidden"
       bg={colors.dark.black}
-      pt={{ base: 20, md: 28, lg: 32 }}
-      pb={{ base: 8, md: 12, lg: 16 }}
+      pt={{ base: 20, md: 24 }}
+      pb={{ base: 12, md: 16 }}
     >
-      {/* Animated Background Gradients - Desktop only */}
+      {/* Simple background gradient - no animations */}
       <Box
-        display={{ base: 'none', md: 'block' }}
         position="absolute"
-        top={0}
-        left={0}
-        right={0}
-        bottom={0}
-        opacity={0.05}
-      >
-        <Box
-          position="absolute"
-          top="-50%"
-          left="-10%"
-          width="300px"
-          height="300px"
-          borderRadius="full"
-          bg={colors.brand.primary}
-          filter="blur(100px)"
-          animation={`${float} 6s ease-in-out infinite`}
-        />
-        <Box
-          position="absolute"
-          bottom="-50%"
-          right="-10%"
-          width="300px"
-          height="300px"
-          borderRadius="full"
-          bg={colors.accent.warm}
-          filter="blur(100px)"
-          animation={`${float} 6s ease-in-out infinite 3s`}
-        />
-      </Box>
+        top="50%"
+        left="50%"
+        transform="translate(-50%, -50%)"
+        width="1200px"
+        height="600px"
+        bg={`radial-gradient(ellipse at center, ${colors.brand.primary}08 0%, transparent 50%)`}
+        pointerEvents="none"
+      />
 
-      <Container maxW="1400px" px={{ base: 4, md: 8 }} position="relative">
-        <VStack spacing={{ base: 6, md: 8 }} textAlign="center" align="center">
-          {/* Badge with Icon */}
-          <MotionBox
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <HStack
-              spacing={2}
-              px={{ base: 3, md: 4 }}
-              py={{ base: 1.5, md: 2 }}
-              borderRadius="full"
-              bg="whiteAlpha.100"
-              backdropFilter="blur(10px)"
-              border="1px solid"
-              borderColor="whiteAlpha.200"
-              color={colors.brand.primary}
-              fontSize={{ base: "xs", md: "sm" }}
-              fontWeight="600"
-              letterSpacing="0.05em"
-              boxShadow={`0 0 20px ${colors.brand.primary}22`}
+      {/* Subtle grid pattern */}
+      <Box
+        position="absolute"
+        inset={0}
+        opacity={0.02}
+        backgroundImage="repeating-linear-gradient(0deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px)"
+        pointerEvents="none"
+      />
+
+      <Container maxW="1200px" px={{ base: 4, md: 8 }} position="relative">
+        <VStack spacing={{ base: 8, md: 10 }} textAlign="center" align="center">
+          
+          {/* Main Content */}
+          <VStack spacing={{ base: 4, md: 6 }} maxW="800px">
+            {/* Badge */}
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
             >
-              <FiMessageCircle size={14} />
-              <Text>LET'S BUILD TOGETHER</Text>
-            </HStack>
-          </MotionBox>
+              <HStack
+                spacing={2}
+                px={4}
+                py={1.5}
+                borderRadius="full"
+                border="1px solid"
+                borderColor="whiteAlpha.200"
+                fontSize="xs"
+                fontWeight="medium"
+                letterSpacing="wider"
+                color="gray.400"
+              >
+                <Box 
+                  width="6px" 
+                  height="6px" 
+                  borderRadius="full" 
+                  bg={colors.accent.neon}
+                />
+                <Text>READY TO START YOUR PROJECT?</Text>
+              </HStack>
+            </MotionBox>
 
-          {/* Heading */}
-          <MotionBox
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            maxW="900px"
-          >
-            <Heading
+            {/* Heading */}
+            <MotionHeading
               as="h1"
-              fontSize={{ base: "2xl", sm: "3xl", md: "4xl", lg: "5xl", xl: "6xl" }}
-              fontFamily="'Inter', sans-serif"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              fontSize={{ base: "3xl", sm: "4xl", md: "5xl", lg: "6xl" }}
               fontWeight="800"
               color="white"
-              lineHeight={{ base: "1.2", md: "1.1" }}
+              lineHeight="1.1"
               letterSpacing="-0.02em"
             >
-              Your Vision Starts
+              Let's Build Something
               <Box
                 as="span"
                 display="block"
-                bgGradient={`linear(to-r, ${colors.brand.primary}, ${colors.accent.neon}, ${colors.accent.warm})`}
+                bgGradient={`linear(to-r, ${colors.accent.warm}, ${colors.accent.banana})`}
                 bgClip="text"
                 mt={1}
-                backgroundSize="200% 200%"
-                animation={{ base: 'none', md: `${gradientShift} 3s ease infinite` }}
               >
-                With a Conversation
+                Extraordinary Together
               </Box>
-            </Heading>
-          </MotionBox>
+            </MotionHeading>
 
-          {/* Description */}
+            {/* Description */}
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              maxW="600px"
+            >
+              <Text
+                fontSize={{ base: "md", md: "lg", lg: "xl" }}
+                color="gray.300"
+                lineHeight="1.6"
+              >
+                Tell us about your vision. We'll respond with ideas, insights, 
+                and a clear path forward. No jargon, no BS.
+              </Text>
+            </MotionBox>
+          </VStack>
+
+          {/* Benefits */}
           <MotionBox
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            maxW={{ base: "100%", md: "700px" }}
-          >
-            <Text
-              fontSize={{ base: "sm", md: "md", lg: "lg" }}
-              color="gray.300"
-              lineHeight={{ base: "1.6", md: "1.7" }}
-            >
-              Whether you're ready to launch or just exploring possibilities, 
-              we're here to help bring your digital dreams to life.
-            </Text>
-          </MotionBox>
-
-          {/* Contact Info Cards - Enhanced Design */}
-          <MotionBox
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             width="100%"
-            maxW={{ base: "100%", md: "700px" }}
+            maxW="600px"
           >
             <HStack
-              spacing={{ base: 3, md: 4 }}
+              spacing={{ base: 4, md: 8 }}
               justify="center"
               flexWrap={{ base: "wrap", md: "nowrap" }}
               gap={{ base: 3, md: 0 }}
             >
-              {contactInfo.map((info, index) => (
-                <Box
+              {benefits.map((benefit, index) => (
+                <HStack
                   key={index}
-                  flex={{ base: "1 1 calc(33.333% - 12px)", md: 1 }}
-                  minW={{ base: "90px", md: "auto" }}
+                  spacing={2}
+                  color="gray.400"
+                  fontSize={{ base: "sm", md: "md" }}
+                  opacity={0.8}
+                  transition="all 0.2s"
+                  _hover={{
+                    color: benefit.color,
+                    opacity: 1
+                  }}
                 >
-                  <VStack
-                    p={{ base: 2.5, md: 3 }}
-                    borderRadius="xl"
-                    bg="whiteAlpha.50"
-                    backdropFilter="blur(10px)"
-                    border="1px solid"
-                    borderColor="whiteAlpha.100"
-                    transition="all 0.3s"
-                    cursor="pointer"
-                    spacing={0.5}
-                    align="center"
-                    _hover={{
-                      bg: { base: 'whiteAlpha.50', md: 'whiteAlpha.100' },
-                      borderColor: { base: 'whiteAlpha.100', md: info.color },
-                      transform: { base: 'none', md: 'translateY(-4px)' },
-                      boxShadow: { base: 'none', md: `0 10px 30px ${info.color}22` }
-                    }}
-                  >
-                    <HStack spacing={2} align="center">
-                      <Box color={info.color}>
-                        <info.icon size={14} />
-                      </Box>
-                      <VStack align="start" spacing={0}>
-                        <Text 
-                          color="gray.500" 
-                          fontSize="2xs"
-                          fontWeight="600"
-                          textTransform="uppercase"
-                          letterSpacing="wider"
-                          whiteSpace="nowrap"
-                        >
-                          {info.label}
-                        </Text>
-                        <Text 
-                          color="white" 
-                          fontSize={{ base: "xs", md: "sm" }}
-                          fontWeight="700"
-                          whiteSpace="nowrap"
-                        >
-                          {info.value}
-                        </Text>
-                      </VStack>
-                    </HStack>
-                  </VStack>
-                </Box>
+                  <Box as={benefit.icon} size={16} />
+                  <Text>{benefit.text}</Text>
+                </HStack>
               ))}
             </HStack>
           </MotionBox>
 
-          {/* Enhanced Pricing Badge - Segmented Design */}
+          {/* CTA Section */}
           <MotionBox
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <HStack
-              spacing={0}
-              borderRadius="full"
-              overflow="hidden"
-              bg="whiteAlpha.50"
-              backdropFilter="blur(10px)"
-              border="1px solid"
-              borderColor="whiteAlpha.200"
-              transition="all 0.3s"
-              _hover={{
-                transform: { base: 'none', md: 'scale(1.05)' },
-                borderColor: { base: 'whiteAlpha.200', md: colors.accent.neon + '66' },
-                boxShadow: { base: 'none', md: `0 0 30px ${colors.accent.neon}22` }
-              }}
-            >
-              {/* Left Section - Dollar Icon */}
-              <Box
-                px={{ base: 3, md: 4 }}
-                py={{ base: 2, md: 2.5 }}
-                bg="whiteAlpha.100"
-                borderRight="1px solid"
-                borderColor="whiteAlpha.200"
+            <VStack spacing={4}>
+              <Button
+                size="lg"
+                height="56px"
+                px={10}
+                bg="white"
+                color={colors.dark.black}
+                fontSize="md"
+                fontWeight="bold"
+                borderRadius="full"
+                onClick={scrollToForm}
+                rightIcon={<FiArrowDown />}
+                _hover={{
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 15px 35px rgba(255, 255, 255, 0.2)',
+                }}
+                _active={{
+                  transform: 'translateY(0)',
+                }}
+                transition="all 0.3s"
               >
-                <FiDollarSign size={16} color={colors.accent.neon} />
-              </Box>
-              
-              {/* Middle Section - Starting Price */}
-              <HStack 
-                spacing={{ base: 1.5, md: 2 }} 
-                px={{ base: 3, md: 4 }}
-                py={{ base: 2, md: 2.5 }}
+                Start Your Project
+              </Button>
+
+              <Text
+                fontSize="sm"
+                color="gray.500"
               >
-                <Text 
-                  color="gray.400" 
-                  fontSize={{ base: "xs", md: "sm" }}
-                  fontWeight="500"
-                >
-                  Starting at
-                </Text>
-                <Text 
-                  color={colors.accent.neon} 
-                  fontSize={{ base: "sm", md: "md" }}
-                  fontWeight="800"
-                >
-                  $399
-                </Text>
-              </HStack>
-              
-              {/* Right Section - Plans Available */}
-              <Box
-                px={{ base: 3, md: 4 }}
-                py={{ base: 2, md: 2.5 }}
-                bg="whiteAlpha.100"
-                borderLeft="1px solid"
-                borderColor="whiteAlpha.200"
-              >
-                <HStack spacing={1}>
-                  <Box 
-                    width="6px" 
-                    height="6px" 
-                    borderRadius="full" 
-                    bg={colors.brand.primary}
-                    boxShadow={`0 0 10px ${colors.brand.primary}`}
-                  />
-                  <Text 
-                    color="gray.300" 
-                    fontSize={{ base: "xs", md: "sm" }}
-                    fontWeight="600"
-                    letterSpacing="0.05em"
-                  >
-                    PLANS AVAILABLE
-                  </Text>
-                </HStack>
-              </Box>
-            </HStack>
+                3-minute form • No spam • Real humans
+              </Text>
+            </VStack>
           </MotionBox>
+
+          {/* Scroll Indicator */}
+          <Box
+            position="absolute"
+            bottom={8}
+            left="50%"
+            transform="translateX(-50%)"
+            animation={`${pulse} 2s ease-in-out infinite`}
+            cursor="pointer"
+            onClick={scrollToForm}
+          >
+            <VStack spacing={1}>
+              <Text fontSize="xs" color="gray.500" letterSpacing="wider">
+                SCROLL
+              </Text>
+              <Box as={FiArrowDown} size={16} color="gray.500" />
+            </VStack>
+          </Box>
         </VStack>
       </Container>
     </Box>
