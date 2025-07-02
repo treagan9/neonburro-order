@@ -51,7 +51,7 @@ const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }
   const [selectedPackage, setSelectedPackage] = useState(initialData?.packageType || '');
   const [wantsHostingDetails, setWantsHostingDetails] = useState(false);
   
-  const hourlyRate = 1;
+  const hourlyRate = 44;
   
   // Calculate total based on selection
   const getTotal = () => {
@@ -370,7 +370,7 @@ const ProjectDetailsForm = ({ onContinue, initialData, sessionId, onTrackEvent }
         {/* Main Form Card */}
         <Box
           width="100%"
-          maxW="800px"
+          maxW={{ base: "100%", md: "600px", lg: "500px" }}
           mx="auto"
           p={{ base: 6, md: 8 }}
           bg="rgba(10, 10, 10, 0.8)"

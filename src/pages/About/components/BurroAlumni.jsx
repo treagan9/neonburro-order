@@ -1,112 +1,179 @@
-import { Box, Container, Heading, Text, VStack, Grid, HStack, Avatar, Badge, keyframes, SimpleGrid } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, VStack, Grid, HStack, Badge, keyframes } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { FiMapPin, FiBriefcase, FiStar, FiAward } from 'react-icons/fi';
+import { FiGlobe, FiClock, FiZap, FiWifi, FiCoffee } from 'react-icons/fi';
 import { useState } from 'react';
 
 const MotionBox = motion(Box);
 
-const sparkle = keyframes`
-  0%, 100% { opacity: 0.5; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.2); }
+// Subtle pulse for active status
+const pulse = keyframes`
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
 `;
 
-const BurroAlumni = () => {
-  const [hoveredAlum, setHoveredAlum] = useState(null);
+// Wave animation for connection lines
+const wave = keyframes`
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+`;
 
-  const alumni = [
+// Theme colors
+const colors = {
+  brand: {
+    primary: '#00E5E5',
+  },
+  accent: {
+    neon: '#39FF14',
+    warm: '#FF6B00',
+    purple: '#8B5CF6',
+    banana: '#FFE500',
+  },
+  dark: {
+    black: '#0A0A0A',
+    gray: '#1A1A1A',
+  }
+};
+
+const BurroAlumni = () => {
+  const [activeTimezone, setActiveTimezone] = useState('all');
+  const [hoveredMember, setHoveredMember] = useState(null);
+
+  // Remote team members with creative profiles
+  const remoteTeam = [
     {
-      name: 'Alex',
-      image: '/images/profiles/alex.png',
-      certification: 'Remote Team Member',
-      currentRole: 'Senior Frontend Developer',
-      location: 'Denver, CO',
-      testimonial: 'Joining the Neon Burro remote team transformed my career. The mentorship and real project experience are unmatched.',
-      year: '2023',
-      color: 'brand.primary'
+      id: 'alex',
+      name: 'Alex Chen',
+      image: '/images/profiles/alex-chen.png',
+      role: 'Full Stack Developer',
+      specialty: 'React & Node.js',
+      timezone: 'PST',
+      availability: 'Available',
+      currentProject: 'E-commerce Platform',
+      superpower: 'Can debug in their sleep',
+      coffeeIntake: '3-4 cups',
+      preferredHours: 'Night Owl',
+      color: colors.brand.primary
     },
     {
-      name: 'Maria',
-      image: '/images/profiles/maria.png',
-      certification: 'Remote Team Member',
-      currentRole: 'Full Stack Developer',
-      location: 'Austin, TX',
-      testimonial: 'The flexibility to work remotely while being part of such a creative team is exactly what I was looking for.',
-      year: '2023',
-      color: 'accent.neon'
+      id: 'maria',
+      name: 'Maria Rodriguez',
+      image: '/images/profiles/jamie-rodriguez.png',
+      role: 'UI/UX Designer',
+      specialty: 'Design Systems',
+      timezone: 'CST',
+      availability: 'In Project',
+      currentProject: 'Mobile App Redesign',
+      superpower: 'Pixel perfect at 3am',
+      coffeeIntake: 'Matcha convert',
+      preferredHours: 'Early Bird',
+      color: colors.accent.neon
     },
     {
-      name: 'Jake',
-      image: '/images/profiles/jake.png',
-      certification: 'Remote Team Member',
-      currentRole: 'UI/UX Developer',
-      location: 'Portland, OR',
-      testimonial: 'Working with Neon Burro taught me how to balance great design with functional code. Best decision I made.',
-      year: '2024',
-      color: 'accent.warm'
+      id: 'marcus',
+      name: 'Marcus Thompson',
+      image: '/images/profiles/sam-thompson.png',
+      role: 'Backend Engineer',
+      specialty: 'API Architecture',
+      timezone: 'EST',
+      availability: 'Available',
+      currentProject: 'Open for next sprint',
+      superpower: 'Makes databases sing',
+      coffeeIntake: 'Espresso only',
+      preferredHours: 'Flexible',
+      color: colors.accent.warm
     },
     {
-      name: 'Sarah',
-      image: '/images/profiles/sarah.png',
-      certification: 'Remote Team Member',
-      currentRole: 'Backend Developer',
-      location: 'Nashville, TN',
-      testimonial: 'The team culture here is incredible. Even working remotely, I feel more connected than any office job.',
-      year: '2024',
-      color: 'accent.banana'
+      id: 'riley',
+      name: 'Riley Park',
+      image: '/images/profiles/Riley-park.png',
+      role: 'Frontend Developer',
+      specialty: 'Animation & Motion',
+      timezone: 'MST',
+      availability: 'Available',
+      currentProject: 'Landing Page Magic',
+      superpower: 'CSS wizardry',
+      coffeeIntake: 'Cold brew fanatic',
+      preferredHours: 'Night Owl',
+      color: colors.accent.banana
     },
     {
-      name: 'Marcus',
-      image: '/images/profiles/marcus.png',
-      certification: 'Remote Team Member',
-      currentRole: 'DevOps Engineer',
-      location: 'Phoenix, AZ',
-      testimonial: 'Building infrastructure for innovative projects while working from anywhere. Living the dream.',
-      year: '2024',
-      color: 'accent.purple'
+      id: 'morgan',
+      name: 'Morgan Lee',
+      image: '/images/profiles/morgan-lee.png',
+      role: 'DevOps Engineer',
+      specialty: 'Cloud Architecture',
+      timezone: 'PST',
+      availability: 'In Project',
+      currentProject: 'Infrastructure Scale',
+      superpower: '99.99% uptime guarantee',
+      coffeeIntake: 'Tea enthusiast',
+      preferredHours: 'Always On-Call',
+      color: colors.accent.purple
     },
     {
-      name: 'Emma',
-      image: '/images/profiles/nicole.png',
-      certification: 'Remote Team Member',
-      currentRole: 'Product Designer',
-      location: 'Seattle, WA',
-      testimonial: 'The creative freedom and trust from the team pushed me to do my best work. Grateful for this opportunity.',
-      year: '2024',
-      color: 'brand.primary'
+      id: 'casey',
+      name: 'Casey Martinez',
+      image: '/images/profiles/Casey-marrtinez.png',
+      role: 'Mobile Developer',
+      specialty: 'React Native',
+      timezone: 'CST',
+      availability: 'Available Soon',
+      currentProject: 'Wrapping iOS app',
+      superpower: 'Cross-platform ninja',
+      coffeeIntake: 'Energy drinks',
+      preferredHours: 'Afternoon Peak',
+      color: colors.brand.primary
     }
   ];
 
+  // Filter by timezone
+  const filteredTeam = activeTimezone === 'all' 
+    ? remoteTeam 
+    : remoteTeam.filter(member => member.timezone === activeTimezone);
+
+  // Get unique timezones
+  const timezones = ['all', ...new Set(remoteTeam.map(m => m.timezone))];
+
   return (
-    <Box py={{ base: 16, md: 20 }} bg="dark.black" position="relative" overflow="hidden">
-      {/* Subtle background effects */}
+    <Box py={{ base: 16, md: 24 }} bg={colors.dark.black} position="relative" overflow="hidden">
+      {/* Network connection visualization */}
       <Box
         position="absolute"
         top={0}
         left={0}
         right={0}
         bottom={0}
-        opacity={0.02}
+        opacity={0.03}
+        pointerEvents="none"
       >
-        <Box
-          position="absolute"
-          top="30%"
-          left="20%"
-          width="300px"
-          height="300px"
-          borderRadius="full"
-          bg="brand.primary"
-          filter="blur(150px)"
-        />
-        <Box
-          position="absolute"
-          bottom="30%"
-          right="20%"
-          width="250px"
-          height="250px"
-          borderRadius="full"
-          bg="accent.banana"
-          filter="blur(150px)"
-        />
+        {/* Connection lines */}
+        <svg
+          style={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+          }}
+        >
+          <defs>
+            <linearGradient id="connectionGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor={colors.brand.primary} stopOpacity="0" />
+              <stop offset="50%" stopColor={colors.brand.primary} stopOpacity="0.5" />
+              <stop offset="100%" stopColor={colors.brand.primary} stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          {[...Array(5)].map((_, i) => (
+            <line
+              key={i}
+              x1="0"
+              y1={`${20 + i * 20}%`}
+              x2="100%"
+              y2={`${30 + i * 15}%`}
+              stroke="url(#connectionGradient)"
+              strokeWidth="1"
+              opacity="0.3"
+            />
+          ))}
+        </svg>
       </Box>
 
       <Container maxW="1400px" px={{ base: 4, md: 8 }} position="relative">
@@ -120,15 +187,15 @@ const BurroAlumni = () => {
               viewport={{ once: true }}
             >
               <HStack spacing={2} justify="center">
-                <Box as={FiAward} color="accent.banana" size={16} />
+                <Box as={FiGlobe} color={colors.accent.neon} size={16} />
                 <Text 
-                  color="accent.banana"
+                  color={colors.accent.neon}
                   fontSize={{ base: "xs", md: "sm" }}
                   fontWeight="semibold" 
                   letterSpacing="wider"
                   textTransform="uppercase"
                 >
-                  Our Growing Team
+                  Remote Network
                 </Text>
               </HStack>
             </MotionBox>
@@ -143,19 +210,19 @@ const BurroAlumni = () => {
                 as="h2"
                 fontSize={{ base: "26px", sm: "3xl", md: "4xl", lg: "5xl" }}
                 fontWeight="extrabold"
-                color="text.primary"
+                color="white"
                 lineHeight={{ base: "1.3", md: "1.2" }}
                 letterSpacing="tight"
               >
-                Meet Our
+                Our Digital
                 <Box
                   as="span"
                   display="block"
-                  bgGradient="linear(to-r, accent.banana, brand.primary)"
+                  bgGradient={`linear(to-r, ${colors.accent.neon}, ${colors.brand.primary})`}
                   bgClip="text"
                   mt={1}
                 >
-                  Remote Team
+                  Nomad Network
                 </Box>
               </Heading>
             </MotionBox>
@@ -168,244 +235,269 @@ const BurroAlumni = () => {
             >
               <Text
                 fontSize={{ base: "sm", md: "md", lg: "lg" }}
-                color="text.secondary"
+                color="gray.300"
                 maxW="600px"
                 lineHeight="relaxed"
               >
-                Since 2023, we've been building a distributed team of talented developers 
-                across the United States who share our passion for exceptional digital experiences.
+                Talented specialists across time zones, ready to jump in when you need 
+                that extra magic. No overhead, just outcomes.
               </Text>
             </MotionBox>
           </VStack>
 
-          {/* Team Grid */}
+          {/* Timezone Filter */}
+          <HStack spacing={2} flexWrap="wrap" justify="center">
+            {timezones.map((tz) => (
+              <Badge
+                key={tz}
+                px={4}
+                py={2}
+                borderRadius="full"
+                bg={activeTimezone === tz ? colors.accent.neon : 'whiteAlpha.100'}
+                color={activeTimezone === tz ? colors.dark.black : 'white'}
+                cursor="pointer"
+                fontWeight="medium"
+                fontSize="xs"
+                textTransform="uppercase"
+                onClick={() => setActiveTimezone(tz)}
+                transition="all 0.2s"
+                _hover={{
+                  bg: activeTimezone === tz ? colors.accent.neon : 'whiteAlpha.200',
+                  transform: 'translateY(-2px)'
+                }}
+              >
+                <HStack spacing={1}>
+                  <FiClock size={12} />
+                  <Text>{tz === 'all' ? 'All Timezones' : tz}</Text>
+                </HStack>
+              </Badge>
+            ))}
+          </HStack>
+
+          {/* Team Grid - Card Style */}
           <Grid
             templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }}
-            gap={{ base: 4, md: 6 }}
+            gap={{ base: 6, md: 8 }}
             width="100%"
           >
-            {alumni.map((alum, index) => (
+            {filteredTeam.map((member, index) => (
               <MotionBox
-                key={alum.name}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: index * 0.05 }}
-                viewport={{ once: true }}
-                onMouseEnter={() => setHoveredAlum(index)}
-                onMouseLeave={() => setHoveredAlum(null)}
+                key={member.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                onMouseEnter={() => setHoveredMember(member.id)}
+                onMouseLeave={() => setHoveredMember(null)}
               >
                 <Box
-                  p={{ base: 5, md: 6 }}
-                  borderRadius="xl"
+                  borderRadius="2xl"
                   bg="rgba(255, 255, 255, 0.02)"
-                  backdropFilter="blur(20px)"
+                  backdropFilter="blur(10px)"
                   border="2px solid"
-                  borderColor="rgba(255, 255, 255, 0.08)"
+                  borderColor={hoveredMember === member.id ? member.color : "rgba(255, 255, 255, 0.08)"}
                   height="100%"
                   position="relative"
                   overflow="hidden"
-                  role="group"
-                  cursor="pointer"
                   transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                  cursor="pointer"
                   _hover={{
-                    borderColor: alum.color,
-                    boxShadow: `0 20px 40px ${alum.color}22`,
-                    bg: 'rgba(255, 255, 255, 0.04)',
-                    transform: 'translateY(-4px)'
+                    transform: 'translateY(-4px)',
+                    boxShadow: `0 20px 40px ${member.color}22`,
+                    bg: 'rgba(255, 255, 255, 0.03)'
                   }}
                 >
-                  {/* Gradient overlay */}
+                  {/* Status indicator */}
                   <Box
                     position="absolute"
-                    top={0}
-                    left={0}
-                    right={0}
-                    height="80px"
-                    bgGradient={`linear(to-b, ${alum.color}08, transparent)`}
-                    opacity={0}
-                    _groupHover={{ opacity: 1 }}
-                    transition="opacity 0.3s"
-                    pointerEvents="none"
+                    top={4}
+                    right={4}
+                    width="12px"
+                    height="12px"
+                    borderRadius="full"
+                    bg={member.availability === 'Available' ? colors.accent.neon : 
+                       member.availability === 'In Project' ? colors.accent.warm : 
+                       colors.accent.banana}
+                    animation={member.availability === 'Available' ? `${pulse} 2s infinite` : 'none'}
+                    zIndex={2}
                   />
 
-                  <VStack spacing={4} align="start" position="relative">
-                    {/* Header */}
-                    <HStack spacing={4} width="100%">
-                      <Avatar
-                        size="lg"
-                        src={alum.image}
-                        name={alum.name}
-                        bg="gray.700"
-                        border="2px solid"
-                        borderColor={`${alum.color}44`}
-                        _groupHover={{
-                          borderColor: alum.color
-                        }}
-                        transition="all 0.3s"
-                      />
-                      <VStack align="start" spacing={1} flex={1}>
-                        <HStack>
-                          <Heading
-                            as="h3"
-                            fontSize={{ base: "md", md: "lg" }}
-                            color="text.primary"
-                            fontWeight="bold"
-                          >
-                            {alum.name}
-                          </Heading>
-                          <Badge
-                            bg={`${alum.color}22`}
-                            color={alum.color}
-                            fontSize="2xs"
-                            px={2}
-                            borderRadius="full"
-                            fontWeight="bold"
-                          >
-                            Since {alum.year}
-                          </Badge>
-                        </HStack>
-                        <Text
-                          color={alum.color}
-                          fontSize="xs"
-                          fontWeight="semibold"
-                          letterSpacing="wide"
-                        >
-                          {alum.certification}
-                        </Text>
-                      </VStack>
-                    </HStack>
-
-                    {/* Current Role */}
-                    <VStack align="start" spacing={1} width="100%">
-                      <HStack spacing={2} color="text.secondary">
-                        <Box as={FiBriefcase} size={14} color={alum.color} />
-                        <Text fontWeight="semibold" fontSize="sm">
-                          {alum.currentRole}
-                        </Text>
-                      </HStack>
-                      <HStack spacing={2} color="text.muted" fontSize="xs">
-                        <Box as={FiMapPin} size={12} />
-                        <Text>{alum.location}</Text>
-                      </HStack>
-                    </VStack>
-
-                    {/* Testimonial */}
-                    <Box position="relative">
-                      <Box
-                        position="absolute"
-                        top="-8px"
-                        left="-4px"
-                        fontSize="2xl"
-                        color={alum.color}
-                        opacity={0.3}
-                        fontFamily="serif"
-                      >
-                        "
-                      </Box>
-                      <Text
-                        color="text.secondary"
-                        fontSize="sm"
-                        lineHeight="relaxed"
-                        fontStyle="italic"
-                        pl={4}
-                      >
-                        {alum.testimonial}
-                      </Text>
-                    </Box>
-
-                    {/* Rating */}
-                    <HStack spacing={1}>
-                      {[...Array(5)].map((_, i) => (
+                  {/* Card Content */}
+                  <Box p={{ base: 5, md: 6 }}>
+                    {/* Header Section */}
+                    <VStack spacing={4} align="start">
+                      <HStack spacing={4} width="100%">
                         <Box
-                          key={i}
-                          as={FiStar}
-                          size={12}
-                          color="accent.banana"
-                          fill="accent.banana"
-                          sx={{
-                            animation: `${sparkle} ${2 + i * 0.3}s ease-in-out infinite`
-                          }}
-                          _groupHover={{
-                            transform: 'scale(1.1)'
-                          }}
-                          transition="transform 0.2s"
-                        />
-                      ))}
-                    </HStack>
-                  </VStack>
+                          width="60px"
+                          height="60px"
+                          borderRadius="xl"
+                          overflow="hidden"
+                          bg={colors.dark.gray}
+                          position="relative"
+                          flexShrink={0}
+                        >
+                          <Box
+                            as="img"
+                            src={member.image}
+                            alt={member.name}
+                            width="100%"
+                            height="100%"
+                            objectFit="cover"
+                            objectPosition="center 20%"
+                          />
+                          {/* Online indicator */}
+                          <Box
+                            position="absolute"
+                            bottom={1}
+                            right={1}
+                            width="14px"
+                            height="14px"
+                            borderRadius="full"
+                            bg={colors.accent.neon}
+                            border="2px solid"
+                            borderColor={colors.dark.black}
+                          />
+                        </Box>
+                        
+                        <VStack align="start" spacing={0} flex={1}>
+                          <Heading fontSize="lg" color="white">
+                            {member.name}
+                          </Heading>
+                          <Text color="gray.400" fontSize="xs">
+                            {member.role}
+                          </Text>
+                        </VStack>
+                      </HStack>
+
+                      {/* Specialty Badge */}
+                      <Badge
+                        colorScheme="gray"
+                        px={3}
+                        py={1}
+                        borderRadius="full"
+                        fontSize="xs"
+                        bg={`${member.color}22`}
+                        color={member.color}
+                        border="1px solid"
+                        borderColor={`${member.color}44`}
+                      >
+                        <HStack spacing={1}>
+                          <FiZap size={10} />
+                          <Text>{member.specialty}</Text>
+                        </HStack>
+                      </Badge>
+
+                      {/* Current Status */}
+                      <Box
+                        width="100%"
+                        p={3}
+                        borderRadius="lg"
+                        bg="whiteAlpha.50"
+                        border="1px solid"
+                        borderColor="whiteAlpha.100"
+                      >
+                        <Text color="gray.400" fontSize="xs" mb={1}>
+                          Current Project
+                        </Text>
+                        <Text color="white" fontSize="sm" fontWeight="medium">
+                          {member.currentProject}
+                        </Text>
+                      </Box>
+
+                      {/* Fun Stats */}
+                      <VStack spacing={2} width="100%" pt={2}>
+                        <HStack width="100%" justify="space-between">
+                          <HStack spacing={1}>
+                            <FiCoffee size={12} color={colors.accent.warm} />
+                            <Text fontSize="xs" color="gray.400">Coffee</Text>
+                          </HStack>
+                          <Text fontSize="xs" color="white">{member.coffeeIntake}</Text>
+                        </HStack>
+                        <HStack width="100%" justify="space-between">
+                          <HStack spacing={1}>
+                            <FiWifi size={12} color={colors.brand.primary} />
+                            <Text fontSize="xs" color="gray.400">Superpower</Text>
+                          </HStack>
+                          <Text fontSize="xs" color="white" textAlign="right">{member.superpower}</Text>
+                        </HStack>
+                        <HStack width="100%" justify="space-between">
+                          <HStack spacing={1}>
+                            <FiClock size={12} color={colors.accent.banana} />
+                            <Text fontSize="xs" color="gray.400">Peak Hours</Text>
+                          </HStack>
+                          <Text fontSize="xs" color="white">{member.preferredHours}</Text>
+                        </HStack>
+                      </VStack>
+
+                      {/* Availability Badge */}
+                      <Box width="100%">
+                        <Badge
+                          width="100%"
+                          textAlign="center"
+                          py={2}
+                          borderRadius="lg"
+                          bg={member.availability === 'Available' ? `${colors.accent.neon}22` : 
+                             member.availability === 'In Project' ? `${colors.accent.warm}22` : 
+                             `${colors.accent.banana}22`}
+                          color={member.availability === 'Available' ? colors.accent.neon : 
+                                member.availability === 'In Project' ? colors.accent.warm : 
+                                colors.accent.banana}
+                          fontSize="xs"
+                          fontWeight="bold"
+                          textTransform="uppercase"
+                          letterSpacing="wider"
+                        >
+                          {member.availability}
+                        </Badge>
+                      </Box>
+                    </VStack>
+                  </Box>
                 </Box>
               </MotionBox>
             ))}
           </Grid>
 
-          {/* Stats Section */}
+          {/* Network Stats */}
           <MotionBox
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
             width="100%"
+            maxW="800px"
+            mx="auto"
           >
-            <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} maxW="800px" mx="auto">
+            <HStack
+              spacing={0}
+              borderRadius="2xl"
+              overflow="hidden"
+              bg="whiteAlpha.50"
+              backdropFilter="blur(10px)"
+              border="1px solid"
+              borderColor="whiteAlpha.100"
+            >
               {[
-                { value: '12+', label: 'Team Members' },
-                { value: '15', label: 'States Represented' },
-                { value: '47', label: 'Projects Completed' },
-                { value: '100%', label: 'Remote First' }
+                { label: 'Timezones', value: '4', color: colors.brand.primary },
+                { label: 'Availability', value: '67%', color: colors.accent.neon },
+                { label: 'Response Time', value: '<2hrs', color: colors.accent.warm },
+                { label: 'Satisfaction', value: '100%', color: colors.accent.banana }
               ].map((stat, index) => (
-                <Box
-                  key={index}
+                <VStack
+                  key={stat.label}
+                  flex={1}
                   p={4}
-                  borderRadius="lg"
-                  bg="whiteAlpha.50"
-                  backdropFilter="blur(10px)"
-                  border="1px solid"
+                  spacing={1}
+                  borderRight={index < 3 ? '1px solid' : 'none'}
                   borderColor="whiteAlpha.100"
-                  textAlign="center"
                 >
-                  <Text fontSize="2xl" fontWeight="bold" color="brand.primary" fontFamily="mono">
+                  <Text color={stat.color} fontSize="xl" fontWeight="bold" fontFamily="mono">
                     {stat.value}
                   </Text>
-                  <Text fontSize="xs" color="text.muted" textTransform="uppercase" letterSpacing="wider">
+                  <Text color="gray.400" fontSize="xs" textTransform="uppercase" letterSpacing="wider">
                     {stat.label}
                   </Text>
-                </Box>
+                </VStack>
               ))}
-            </SimpleGrid>
-          </MotionBox>
-
-          {/* CTA Section */}
-          <MotionBox
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            textAlign="center"
-          >
-            <Box
-              p={6}
-              borderRadius="xl"
-              bg="rgba(255, 229, 0, 0.03)"
-              border="2px solid"
-              borderColor="rgba(255, 229, 0, 0.15)"
-              maxW="600px"
-              mx="auto"
-            >
-              <Text
-                color="accent.banana"
-                fontSize={{ base: "sm", md: "md" }}
-                fontWeight="semibold"
-                mb={2}
-              >
-                Join Our Growing Team
-              </Text>
-              <Text
-                color="text.secondary"
-                fontSize={{ base: "xs", md: "sm" }}
-              >
-                We're always looking for talented developers who value quality, creativity, and remote collaboration.
-              </Text>
-            </Box>
+            </HStack>
           </MotionBox>
         </VStack>
       </Container>

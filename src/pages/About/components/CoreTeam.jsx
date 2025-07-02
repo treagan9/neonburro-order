@@ -1,9 +1,26 @@
-import { Box, Container, Heading, Text, VStack, Grid, HStack, Image } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, VStack, Grid, HStack, Image, Badge } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { FiUsers, FiMail, FiMapPin } from 'react-icons/fi';
+import { FiMail, FiMapPin, FiAward, FiTrendingUp } from 'react-icons/fi';
 import { useState } from 'react';
 
 const MotionBox = motion(Box);
+
+// Theme colors
+const colors = {
+  brand: {
+    primary: '#00E5E5',
+  },
+  accent: {
+    neon: '#39FF14',
+    warm: '#FF6B00',
+    purple: '#8B5CF6',
+    banana: '#FFE500',
+  },
+  dark: {
+    black: '#0A0A0A',
+    gray: '#1A1A1A',
+  }
+};
 
 const CoreTeam = () => {
   const [hoveredMember, setHoveredMember] = useState(null);
@@ -14,98 +31,100 @@ const CoreTeam = () => {
       email: 'tyler@neonburro.com',
       role: 'Founder & Creative Director',
       image: '/images/profiles/tyler.png',
-      bio: 'Started Neon Burro with a vision to merge mountain life with digital excellence. Believes the best ideas come at altitude.',
-      expertise: ['Creative Strategy', 'Brand Development', 'Client Relations'],
+      imagePosition: 'center 20%',
+      bio: 'Started Neon Burro to merge mountain life with digital excellence.',
+      expertise: 'Creative Strategy',
+      years: '15+',
+      builds: 'Brand experiences that convert',
+      achievement: 'Led 200+ successful launches',
       location: 'Ridgway, CO',
-      color: 'brand.primary'
+      color: colors.brand.primary
     },
     {
       name: 'Collin',
       email: 'collin@neonburro.com',
       role: 'Co-Founder & Technical Architect',
       image: '/images/profiles/collin.png',
-      bio: 'Builds scalable systems that work as beautifully as our mountain views. Infrastructure wizard and performance optimizer.',
-      expertise: ['System Architecture', 'Cloud Infrastructure', 'Performance'],
+      imagePosition: 'center 20%',
+      bio: 'Builds scalable systems as beautiful as Colorado mountains.',
+      expertise: 'System Architecture',
+      years: '12+',
+      builds: 'Infrastructure that scales',
+      achievement: '99.9% uptime across all projects',
       location: 'Ridgway, CO',
-      color: 'accent.neon'
+      color: colors.accent.neon
     },
     {
       name: 'Jared',
       email: 'jared@neonburro.com',
       role: 'Head of Strategy',
       image: '/images/profiles/jared.png',
-      bio: 'Transforms market insights into actionable strategies. Always three steps ahead of the competition.',
-      expertise: ['Market Research', 'Growth Strategy', 'Analytics'],
+      imagePosition: 'center 20%',
+      bio: 'Transforms market insights into winning strategies.',
+      expertise: 'Growth Strategy',
+      years: '10+',
+      builds: 'Data-driven roadmaps',
+      achievement: '3x average client growth',
       location: 'Dallas, TX',
-      color: 'accent.warm'
+      color: colors.accent.warm
     },
     {
       name: 'Ted',
       email: 'ted@neonburro.com',
       role: 'Technical Product Manager',
       image: '/images/profiles/ted.png',
-      bio: 'Bridges the gap between vision and execution. Keeps projects on time, on budget, and exceeding expectations.',
-      expertise: ['Product Strategy', 'Agile Management', 'Team Leadership'],
-      location: 'Missoula, MO',
-      color: 'accent.banana'
+      imagePosition: 'center 20%',
+      bio: 'Bridges vision and execution with precision.',
+      expertise: 'Product Strategy',
+      years: '8+',
+      builds: 'Features users love',
+      achievement: '100% on-time delivery rate',
+      location: 'Missoula, MT',
+      color: colors.accent.banana
     },
     {
       name: 'Phil',
       email: 'phil@neonburro.com',
       role: 'Automation & Integration Lead',
       image: '/images/profiles/phil.png',
-      bio: 'Creates elegant solutions to complex problems. If it can be automated, Phil has already built it.',
-      expertise: ['Process Automation', 'API Integration', 'Workflow Design'],
+      imagePosition: 'center 20%',
+      bio: 'Creates elegant solutions to complex problems.',
+      expertise: 'Process Automation',
+      years: '10+',
+      builds: 'Workflows that work',
+      achievement: 'Saved clients 1000+ hours monthly',
       location: 'Ridgway, CO',
-      color: 'accent.purple'
+      color: colors.accent.purple
     },
     {
       name: 'Sarah',
       email: 'sarah@neonburro.com',
       role: 'Head of Design',
       image: '/images/profiles/sarah.png',
-      bio: 'Crafts experiences that delight users and drive results. Believes great design is invisible until you need it.',
-      expertise: ['UI/UX Design', 'Brand Systems', 'User Research'],
+      imagePosition: 'center 20%',
+      bio: 'Crafts experiences that delight and convert.',
+      expertise: 'UI/UX Design',
+      years: '9+',
+      builds: 'Interfaces that inspire',
+      achievement: '98% user satisfaction scores',
       location: 'Ridgway, CO',
-      color: 'brand.primary'
+      color: colors.brand.primary
     }
   ];
 
   return (
-    <Box py={{ base: 16, md: 20 }} bg="dark.black" position="relative" overflow="hidden">
-      {/* Dynamic background that responds to hover */}
+    <Box py={{ base: 16, md: 20 }} bg={colors.dark.black} position="relative" overflow="hidden">
+      {/* Simplified background gradient */}
       <Box
         position="absolute"
-        top={0}
-        left={0}
-        right={0}
-        bottom={0}
-        opacity={0.03}
-        transition="all 0.5s"
-      >
-        <Box
-          position="absolute"
-          top="30%"
-          left={hoveredMember !== null ? `${20 + hoveredMember * 10}%` : "20%"}
-          width="500px"
-          height="500px"
-          borderRadius="full"
-          bg="accent.banana"
-          filter="blur(150px)"
-          transition="all 0.5s ease-out"
-        />
-        <Box
-          position="absolute"
-          bottom="30%"
-          right={hoveredMember !== null ? `${20 + hoveredMember * 10}%` : "20%"}
-          width="400px"
-          height="400px"
-          borderRadius="full"
-          bg="brand.primary"
-          filter="blur(150px)"
-          transition="all 0.5s ease-out"
-        />
-      </Box>
+        top="50%"
+        left="50%"
+        transform="translate(-50%, -50%)"
+        width="1400px"
+        height="800px"
+        bg={`radial-gradient(ellipse at center, ${colors.accent.banana}05 0%, transparent 50%)`}
+        pointerEvents="none"
+      />
 
       <Container maxW="1400px" px={{ base: 4, md: 8 }} position="relative">
         <VStack spacing={{ base: 12, md: 16 }}>
@@ -118,20 +137,9 @@ const CoreTeam = () => {
               viewport={{ once: true }}
             >
               <HStack spacing={2} justify="center">
-                <Box 
-                  as={FiUsers} 
-                  color="accent.banana" 
-                  size={20}
-                  animation="pulse 2s infinite"
-                  sx={{
-                    '@keyframes pulse': {
-                      '0%, 100%': { opacity: 1, transform: 'scale(1)' },
-                      '50%': { opacity: 0.8, transform: 'scale(1.1)' }
-                    }
-                  }}
-                />
+                <Box width="40px" height="2px" bg={colors.accent.banana} />
                 <Text 
-                  color="accent.banana"
+                  color={colors.accent.banana}
                   fontSize={{ base: "xs", md: "sm" }}
                   fontWeight="semibold" 
                   letterSpacing="wider"
@@ -139,6 +147,7 @@ const CoreTeam = () => {
                 >
                   Leadership Team
                 </Text>
+                <Box width="40px" height="2px" bg={colors.accent.banana} />
               </HStack>
             </MotionBox>
 
@@ -152,7 +161,7 @@ const CoreTeam = () => {
                 as="h2"
                 fontSize={{ base: "26px", sm: "3xl", md: "4xl", lg: "5xl" }}
                 fontWeight="extrabold"
-                color="text.primary"
+                color="white"
                 lineHeight={{ base: "1.3", md: "1.2" }}
                 letterSpacing="tight"
               >
@@ -160,7 +169,7 @@ const CoreTeam = () => {
                 <Box
                   as="span"
                   display="block"
-                  bgGradient="linear(to-r, accent.banana, brand.primary)"
+                  bgGradient={`linear(to-r, ${colors.accent.banana}, ${colors.brand.primary})`}
                   bgClip="text"
                   mt={1}
                 >
@@ -177,7 +186,7 @@ const CoreTeam = () => {
             >
               <Text
                 fontSize={{ base: "sm", md: "md", lg: "lg" }}
-                color="text.secondary"
+                color="gray.300"
                 maxW="600px"
                 lineHeight="relaxed"
               >
@@ -187,7 +196,7 @@ const CoreTeam = () => {
             </MotionBox>
           </VStack>
 
-          {/* Team Grid */}
+          {/* Team Grid - Enhanced Cards */}
           <Grid
             templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }}
             gap={{ base: 6, md: 8 }}
@@ -204,180 +213,196 @@ const CoreTeam = () => {
                 onMouseLeave={() => setHoveredMember(null)}
               >
                 <Box
-                  p={{ base: 5, md: 6 }}
                   borderRadius="2xl"
                   bg="rgba(255, 255, 255, 0.02)"
-                  backdropFilter="blur(20px)"
+                  backdropFilter="blur(10px)"
                   border="2px solid"
-                  borderColor="rgba(255, 255, 255, 0.08)"
+                  borderColor={hoveredMember === index ? member.color : "rgba(255, 255, 255, 0.08)"}
                   height="100%"
                   position="relative"
                   overflow="hidden"
-                  role="group"
-                  cursor="pointer"
                   transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                  cursor="pointer"
                   _hover={{
-                    borderColor: member.color,
-                    transform: 'translateY(-8px)',
+                    transform: 'translateY(-6px)',
                     boxShadow: `0 30px 60px ${member.color}22`,
-                    bg: 'rgba(255, 255, 255, 0.04)'
+                    bg: 'rgba(255, 255, 255, 0.03)'
                   }}
                 >
-                  {/* Corner accent */}
+                  {/* Top accent bar */}
                   <Box
                     position="absolute"
                     top={0}
+                    left={0}
                     right={0}
-                    width="80px"
-                    height="80px"
-                    opacity={0}
-                    _groupHover={{ opacity: 1 }}
-                    transition="all 0.3s"
-                  >
-                    <Box
-                      position="absolute"
-                      top={0}
-                      right={0}
-                      width="100%"
-                      height="100%"
-                      bg={`linear-gradient(135deg, ${member.color}22 0%, transparent 50%)`}
-                      transform="scale(0)"
-                      transformOrigin="top right"
-                      _groupHover={{ transform: "scale(1)" }}
-                      transition="transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-                    />
-                  </Box>
+                    height="3px"
+                    bg={member.color}
+                    opacity={hoveredMember === index ? 1 : 0}
+                    transition="opacity 0.3s"
+                  />
 
-                  <VStack spacing={4} align="start" position="relative">
-                    {/* Profile Image - Smaller, fully contained */}
-                    <Box
-                      width="120px"
-                      height="120px"
-                      borderRadius="xl"
-                      overflow="hidden"
-                      position="relative"
-                      bg="dark.gray"
-                      border="2px solid"
-                      borderColor={`${member.color}22`}
-                      mx="auto"
-                      transition="all 0.3s"
-                      _groupHover={{
-                        borderColor: member.color,
-                        transform: 'scale(1.05)',
-                      }}
-                    >
-                      <Image
-                        src={member.image}
-                        alt={member.name}
-                        width="100%"
-                        height="100%"
-                        objectFit="cover"
-                        objectPosition="center top"
-                      />
-                    </Box>
-
-                    {/* Info */}
-                    <VStack align="start" spacing={2} width="100%">
-                      <Box width="100%">
+                  {/* Profile Section */}
+                  <Box p={{ base: 5, md: 6 }}>
+                    <HStack spacing={4} align="start" mb={4}>
+                      <Box
+                        width="90px"
+                        height="90px"
+                        borderRadius="2xl"
+                        overflow="hidden"
+                        bg={colors.dark.gray}
+                        flexShrink={0}
+                        position="relative"
+                        border="3px solid"
+                        borderColor={hoveredMember === index ? member.color : "transparent"}
+                        transition="all 0.3s"
+                      >
+                        <Image
+                          src={member.image}
+                          alt={member.name}
+                          width="100%"
+                          height="100%"
+                          objectFit="cover"
+                          objectPosition={member.imagePosition}
+                          loading="lazy"
+                        />
+                        {/* Achievement badge */}
+                        <Box
+                          position="absolute"
+                          bottom={-1}
+                          right={-1}
+                          p={1.5}
+                          borderRadius="lg"
+                          bg={member.color}
+                          color="white"
+                          opacity={hoveredMember === index ? 1 : 0}
+                          transform={hoveredMember === index ? "scale(1)" : "scale(0.8)"}
+                          transition="all 0.3s"
+                        >
+                          <FiAward size={14} />
+                        </Box>
+                      </Box>
+                      
+                      <VStack align="start" spacing={1} flex={1}>
                         <Heading
-                          as="h3"
                           fontSize={{ base: "lg", md: "xl" }}
-                          color="text.primary"
+                          color="white"
                           fontWeight="bold"
-                          mb={1}
                         >
                           {member.name}
                         </Heading>
                         <Text
                           color={member.color}
                           fontSize={{ base: "xs", md: "sm" }}
-                          fontWeight="semibold"
-                          letterSpacing="wide"
+                          fontWeight="medium"
                         >
                           {member.role}
                         </Text>
-                      </Box>
-
-                      {/* Location */}
-                      <HStack spacing={1} color="text.muted" fontSize="xs">
-                        <Box as={FiMapPin} size={12} />
-                        <Text>{member.location}</Text>
-                      </HStack>
-
-                      {/* Bio */}
-                      <Text
-                        color="text.secondary"
-                        fontSize={{ base: "xs", md: "sm" }}
-                        lineHeight="relaxed"
-                      >
-                        {member.bio}
-                      </Text>
-
-                      {/* Expertise Tags - Always visible but subtle */}
-                      <Box width="100%" pt={2}>
-                        <HStack spacing={2} flexWrap="wrap" gap={1}>
-                          {member.expertise.map((skill, i) => (
-                            <Box
-                              key={i}
-                              px={2}
-                              py={0.5}
-                              borderRadius="full"
-                              bg={`${member.color}11`}
-                              border="1px solid"
-                              borderColor={`${member.color}22`}
-                              fontSize="2xs"
-                              color="text.muted"
-                              fontWeight="medium"
-                              opacity={0.7}
-                              _groupHover={{
-                                opacity: 1,
-                                color: member.color,
-                                borderColor: `${member.color}44`,
-                                bg: `${member.color}22`,
-                              }}
-                              transition="all 0.3s"
-                            >
-                              {skill}
-                            </Box>
-                          ))}
+                        <HStack spacing={1} color="gray.500" fontSize="xs">
+                          <FiMapPin size={10} />
+                          <Text>{member.location}</Text>
                         </HStack>
-                      </Box>
+                      </VStack>
+                    </HStack>
 
-                      {/* Contact Email */}
-                      <HStack 
-                        spacing={2}
-                        pt={3}
-                        width="100%"
-                        borderTop="1px solid"
-                        borderColor="whiteAlpha.100"
-                        opacity={0}
-                        transform="translateY(10px)"
-                        _groupHover={{ 
-                          opacity: 1,
-                          transform: "translateY(0)"
-                        }}
-                        transition="all 0.3s 0.1s"
+                    {/* Bio */}
+                    <Text
+                      color="gray.300"
+                      fontSize={{ base: "sm", md: "md" }}
+                      lineHeight="relaxed"
+                      mb={4}
+                    >
+                      {member.bio}
+                    </Text>
+
+                    {/* Key Stats Grid */}
+                    <Grid templateColumns="repeat(2, 1fr)" gap={3} mb={4}>
+                      <Box
+                        p={3}
+                        borderRadius="lg"
+                        bg={`${member.color}08`}
+                        border="1px solid"
+                        borderColor={`${member.color}22`}
                       >
-                        <Box
-                          as="a"
-                          href={`mailto:${member.email}`}
-                          display="flex"
-                          alignItems="center"
-                          gap={2}
-                          color={member.color}
-                          fontSize="sm"
-                          fontWeight="medium"
-                          _hover={{ 
-                            textDecoration: 'underline'
-                          }}
-                          transition="all 0.2s"
-                        >
-                          <Box as={FiMail} size={14} />
-                          <Text>{member.email}</Text>
+                        <Text color="gray.500" fontSize="2xs" textTransform="uppercase" letterSpacing="wider">
+                          Experience
+                        </Text>
+                        <Text color="white" fontSize="lg" fontWeight="bold" fontFamily="mono">
+                          {member.years}
+                        </Text>
+                      </Box>
+                      <Box
+                        p={3}
+                        borderRadius="lg"
+                        bg="whiteAlpha.50"
+                        border="1px solid"
+                        borderColor="whiteAlpha.100"
+                      >
+                        <Text color="gray.500" fontSize="2xs" textTransform="uppercase" letterSpacing="wider">
+                          Focus
+                        </Text>
+                        <Text color={member.color} fontSize="xs" fontWeight="medium" noOfLines={1}>
+                          {member.expertise}
+                        </Text>
+                      </Box>
+                    </Grid>
+
+                    {/* Achievement highlight */}
+                    <Box
+                      p={3}
+                      borderRadius="lg"
+                      bg="whiteAlpha.50"
+                      border="1px solid"
+                      borderColor={hoveredMember === index ? member.color : "whiteAlpha.100"}
+                      mb={4}
+                      transition="all 0.3s"
+                    >
+                      <HStack spacing={2}>
+                        <Box color={member.color}>
+                          <FiTrendingUp size={14} />
                         </Box>
+                        <Text color="gray.300" fontSize="xs">
+                          {member.achievement}
+                        </Text>
                       </HStack>
-                    </VStack>
-                  </VStack>
+                    </Box>
+
+                    {/* What they build */}
+                    <Text
+                      color={member.color}
+                      fontSize="sm"
+                      fontWeight="medium"
+                      fontStyle="italic"
+                      mb={4}
+                    >
+                      "{member.builds}"
+                    </Text>
+
+                    {/* Contact - Always visible */}
+                    <HStack
+                      spacing={2}
+                      pt={4}
+                      borderTop="1px solid"
+                      borderColor="whiteAlpha.100"
+                    >
+                      <Box
+                        as="a"
+                        href={`mailto:${member.email}`}
+                        display="flex"
+                        alignItems="center"
+                        gap={2}
+                        color="gray.400"
+                        fontSize="sm"
+                        _hover={{ 
+                          color: member.color,
+                          textDecoration: 'underline'
+                        }}
+                        transition="color 0.2s"
+                      >
+                        <FiMail size={14} />
+                        <Text>{member.email}</Text>
+                      </Box>
+                    </HStack>
+                  </Box>
                 </Box>
               </MotionBox>
             ))}

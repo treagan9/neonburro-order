@@ -1,183 +1,104 @@
 import { Box, Container, Heading, Text, VStack, HStack, Grid, Button, keyframes } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
-import { FiLock, FiUnlock, FiCode, FiCoffee, FiZap, FiHeart, FiAward } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { FiCheck, FiX, FiTrendingUp, FiShield, FiClock, FiAward } from 'react-icons/fi';
 
 const MotionBox = motion(Box);
 
-// Subtle glitch effect
-const glitch = keyframes`
-  0%, 100% { 
-    text-shadow: 0 0 20px rgba(0, 229, 229, 0.3);
-  }
-  50% { 
-    text-shadow: 1px 0 20px rgba(255, 229, 0, 0.4), -1px 0 20px rgba(255, 107, 0, 0.2);
-  }
+// Minimal animations for performance
+const subtle = keyframes`
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
 `;
 
-// Enhanced code rain
-const CodeRain = ({ active }) => {
-  if (!active) return null;
-  
-  const codeSnippets = ['{ }', '< />', '[ ]', '( )', '///', '***', '===', '!=='];
-  
-  return (
-    <Box position="absolute" inset={0} overflow="hidden" pointerEvents="none">
-      {[0, 1, 2, 3].map(i => (
-        <Text
-          key={i}
-          position="absolute"
-          left={`${20 + i * 20}%`}
-          top="-20px"
-          color={i % 2 === 0 ? 'brand.primary' : 'accent.banana'}
-          fontSize="xs"
-          fontFamily="mono"
-          opacity={0.3}
-          animation={`fall ${3 + i * 0.5}s ${i * 0.3}s infinite linear`}
-          sx={{
-            '@keyframes fall': {
-              '0%': { transform: 'translateY(-20px) rotate(0deg)', opacity: 0 },
-              '10%': { opacity: 0.3 },
-              '90%': { opacity: 0.3 },
-              '100%': { transform: 'translateY(120px) rotate(360deg)', opacity: 0 }
-            }
-          }}
-        >
-          {codeSnippets[i % codeSnippets.length]}
-        </Text>
-      ))}
-    </Box>
-  );
+// Theme colors
+const colors = {
+  brand: {
+    primary: '#00E5E5',
+  },
+  accent: {
+    neon: '#39FF14',
+    warm: '#FF6B00',
+    banana: '#FFE500',
+  },
+  dark: {
+    black: '#0A0A0A',
+  }
 };
 
 const TheVault = () => {
-  const [isUnlocked, setIsUnlocked] = useState(false);
-  const [hoveredStat, setHoveredStat] = useState(null);
-  const [codeCount, setCodeCount] = useState(0);
-  const navigate = useNavigate();
+  const [activeApproach, setActiveApproach] = useState(0);
 
-  // Smooth counter animation
-  useEffect(() => {
-    const target = 847293;
-    const duration = 2000;
-    const increment = target / (duration / 16);
-    
-    const timer = setInterval(() => {
-      setCodeCount(prev => {
-        const next = prev + increment;
-        if (next >= target) {
-          clearInterval(timer);
-          return target;
-        }
-        return Math.floor(next);
-      });
-    }, 16);
-    
-    return () => clearInterval(timer);
-  }, []);
-
-  const stats = [
+  // What makes us different - focused content
+  const approaches = [
     {
-      icon: FiCode,
-      value: codeCount.toLocaleString(),
-      label: 'Lines Written',
-      color: 'brand.primary',
-      glow: 'cyan'
+      title: "No Committees",
+      description: "Direct access to makers. Your project lead codes, designs, and decides.",
+      icon: FiTrendingUp,
+      color: colors.brand.primary,
+      traditional: "6 people in meetings",
+      us: "1 expert who builds"
     },
     {
-      icon: FiCoffee,
-      value: '∞',
-      label: 'Coffees Consumed',
-      color: 'accent.warm',
-      glow: 'warm'
+      title: "Fixed Pricing",
+      description: "Know your investment upfront. No surprise invoices, ever.",
+      icon: FiShield,
+      color: colors.accent.warm,
+      traditional: "Hourly billing nightmares",
+      us: "One price, all inclusive"
     },
     {
-      icon: FiZap,
-      value: '24/7',
-      label: 'Brain Activity',
-      color: 'accent.banana',
-      glow: 'banana'
-    },
-    {
-      icon: FiHeart,
-      value: '100%',
-      label: 'Passion Level',
-      color: 'accent.neon',
-      glow: 'neon'
+      title: "Speed Matters",
+      description: "Launch in weeks, not months. We move at startup velocity.",
+      icon: FiClock,
+      color: colors.accent.neon,
+      traditional: "6-month timelines",
+      us: "4-week sprints"
     }
   ];
 
-  const processSteps = [
+  // Real differentiators
+  const guarantees = [
     {
-      phase: 'IDEATION',
-      description: 'Wild concepts meet mountain air',
-      icon: '🧠',
-      color: 'brand.primary',
-      glow: 'cyan'
+      promise: "Page speed scores above 90",
+      detail: "Or we optimize for free"
     },
     {
-      phase: 'CAFFEINATION',
-      description: 'Fuel the creative engine',
-      icon: '☕',
-      color: 'accent.warm',
-      glow: 'warm'
+      promise: "Direct Slack access to your team",
+      detail: "No tickets, no waiting"
     },
     {
-      phase: 'CREATION',
-      description: 'Code flows like mountain streams',
-      icon: '⚡',
-      color: 'accent.banana',
-      glow: 'banana'
+      promise: "Code you actually own",
+      detail: "No proprietary lock-ins"
     },
     {
-      phase: 'ELEVATION',
-      description: 'Launch at 7,200ft altitude',
-      icon: '🚀',
-      color: 'accent.neon',
-      glow: 'neon'
+      promise: "Launch on schedule",
+      detail: "Or 20% off your invoice"
     }
   ];
 
   return (
     <Box 
       position="relative" 
-      py={{ base: 16, md: 20 }} 
-      bg="dark.black"
+      py={{ base: 16, md: 24 }} 
+      bg={colors.dark.black}
       overflow="hidden"
     >
-      {/* Enhanced animated background */}
+      {/* Simple background gradient */}
       <Box
         position="absolute"
-        inset={0}
-        opacity={0.03}
-      >
-        <Box
-          position="absolute"
-          top="20%"
-          left="10%"
-          width="400px"
-          height="400px"
-          borderRadius="full"
-          bg="accent.banana"
-          filter="blur(150px)"
-          opacity={0.3}
-        />
-        <Box
-          position="absolute"
-          bottom="20%"
-          right="10%"
-          width="350px"
-          height="350px"
-          borderRadius="full"
-          bg="brand.primary"
-          filter="blur(150px)"
-          opacity={0.4}
-        />
-      </Box>
+        top="50%"
+        left="50%"
+        transform="translate(-50%, -50%)"
+        width="1000px"
+        height="600px"
+        bg={`radial-gradient(ellipse at center, ${colors.brand.primary}08 0%, transparent 60%)`}
+        pointerEvents="none"
+      />
 
       <Container maxW="1400px" px={{ base: 4, md: 8 }} position="relative">
         <VStack spacing={{ base: 12, md: 16 }}>
+          
           {/* Header */}
           <VStack spacing={4} textAlign="center" maxW="800px" mx="auto">
             <MotionBox
@@ -186,39 +107,18 @@ const TheVault = () => {
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <HStack 
-                spacing={2}
-                px={4}
-                py={2}
-                borderRadius="full"
-                bg="rgba(255, 229, 0, 0.1)"
-                backdropFilter="blur(10px)"
-                border="1px solid"
-                borderColor="rgba(255, 229, 0, 0.2)"
-                cursor="pointer"
-                onClick={() => setIsUnlocked(!isUnlocked)}
-                role="button"
-                aria-label="Toggle vault lock"
-                transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-                _hover={{ 
-                  borderColor: 'accent.banana',
-                  bg: 'rgba(255, 229, 0, 0.15)',
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 10px 30px rgba(255, 229, 0, 0.2)'
-                }}
-              >
-                <Box color="accent.banana" fontSize="lg">
-                  {isUnlocked ? <FiUnlock /> : <FiLock />}
-                </Box>
+              <HStack spacing={2} justify="center">
+                <Box width="40px" height="2px" bg={colors.accent.warm} />
                 <Text 
-                  color="accent.banana"
+                  color={colors.accent.warm}
                   fontSize={{ base: "xs", md: "sm" }}
                   fontWeight="semibold" 
                   letterSpacing="wider"
                   textTransform="uppercase"
                 >
-                  The Vault {isUnlocked ? '• Unlocked' : '• Secured'}
+                  The Vault
                 </Text>
+                <Box width="40px" height="2px" bg={colors.accent.warm} />
               </HStack>
             </MotionBox>
 
@@ -232,20 +132,19 @@ const TheVault = () => {
                 as="h2"
                 fontSize={{ base: "26px", sm: "3xl", md: "4xl", lg: "5xl" }}
                 fontWeight="extrabold"
-                color="text.primary"
+                color="white"
                 lineHeight={{ base: "1.3", md: "1.2" }}
                 letterSpacing="tight"
-                sx={isUnlocked ? { animation: `${glitch} 3s ease-in-out infinite` } : {}}
               >
-                Where Mountain Magic
+                The Anti-Agency
                 <Box 
                   as="span" 
                   display="block"
-                  bgGradient="linear(to-r, accent.banana, accent.neon)"
+                  bgGradient={`linear(to-r, ${colors.accent.warm}, ${colors.accent.banana})`}
                   bgClip="text"
                   mt={1}
                 >
-                  Meets Digital Craft
+                  Approach
                 </Box>
               </Heading>
             </MotionBox>
@@ -258,216 +157,179 @@ const TheVault = () => {
             >
               <Text
                 fontSize={{ base: "sm", md: "md", lg: "lg" }}
-                color="text.secondary"
+                color="gray.300"
                 lineHeight="relaxed"
                 maxW="600px"
               >
-                Deep in the Colorado mountains, we're cooking up digital experiences 
-                that defy gravity. This is where ideas crystallize at altitude.
+                We ditched the agency playbook. No account managers, no bureaucracy, 
+                no BS. Just elite builders working directly with you.
               </Text>
             </MotionBox>
           </VStack>
 
-          {/* Stats Grid - Enhanced Symmetry */}
+          {/* Approach Comparison - Main Feature */}
           <Grid
-            templateColumns={{ base: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }}
-            gap={{ base: 4, md: 5 }}
+            templateColumns={{ base: '1fr', lg: 'repeat(3, 1fr)' }}
+            gap={{ base: 6, md: 8 }}
             width="100%"
-            maxW="1000px"
+            maxW="1200px"
             mx="auto"
           >
-            {stats.map((stat, index) => (
+            {approaches.map((approach, index) => (
               <MotionBox
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                onMouseEnter={() => setHoveredStat(index)}
-                onMouseLeave={() => setHoveredStat(null)}
+                onMouseEnter={() => setActiveApproach(index)}
+                onMouseLeave={() => setActiveApproach(null)}
               >
                 <Box
-                  p={{ base: 5, md: 6 }}
-                  borderRadius="xl"
+                  p={{ base: 6, md: 8 }}
+                  borderRadius="2xl"
                   bg="rgba(255, 255, 255, 0.02)"
-                  backdropFilter="blur(20px)"
+                  backdropFilter="blur(10px)"
                   border="2px solid"
-                  borderColor={hoveredStat === index ? stat.color : 'rgba(255, 255, 255, 0.08)'}
+                  borderColor={activeApproach === index ? approach.color : "rgba(255, 255, 255, 0.08)"}
+                  height="100%"
                   position="relative"
                   overflow="hidden"
+                  transition="all 0.3s"
                   cursor="pointer"
-                  height="100%"
-                  minH="180px"
-                  transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                   _hover={{
-                    transform: 'translateY(-6px)',
-                    bg: 'rgba(255, 255, 255, 0.04)',
-                    boxShadow: `0 20px 40px ${stat.color}22`
+                    transform: 'translateY(-4px)',
+                    boxShadow: `0 20px 40px ${approach.color}22`
                   }}
                 >
-                  <CodeRain active={hoveredStat === index} />
-                  
-                  {/* Glow effect */}
+                  {/* Icon */}
                   <Box
-                    position="absolute"
-                    top="50%"
-                    left="50%"
-                    transform="translate(-50%, -50%)"
-                    width="120%"
-                    height="120%"
-                    bg={`radial-gradient(circle, ${stat.color}15 0%, transparent 70%)`}
-                    opacity={hoveredStat === index ? 1 : 0}
-                    transition="opacity 0.5s"
-                    pointerEvents="none"
-                  />
-                  
-                  <VStack spacing={3} position="relative" zIndex={1} height="100%" justify="center">
-                    <Box 
-                      p={3}
-                      borderRadius="lg"
-                      bg={`${stat.color}11`}
-                      color={stat.color}
-                      fontSize="2xl"
-                      transition="all 0.3s"
-                      _groupHover={{
-                        transform: 'scale(1.1) rotate(5deg)'
-                      }}
-                    >
-                      <stat.icon />
-                    </Box>
-                    <Text 
-                      fontSize={{ base: "2xl", md: "3xl" }}
-                      fontWeight="extrabold" 
-                      color={stat.color}
-                      fontFamily="mono"
-                      letterSpacing="tight"
-                    >
-                      {stat.value}
-                    </Text>
-                    <Text 
-                      fontSize="xs" 
-                      color="text.muted"
-                      textTransform="uppercase"
-                      letterSpacing="wider"
-                      fontWeight="semibold"
-                    >
-                      {stat.label}
-                    </Text>
+                    mb={4}
+                    p={3}
+                    borderRadius="xl"
+                    bg={`${approach.color}11`}
+                    display="inline-block"
+                    color={approach.color}
+                    fontSize="xl"
+                  >
+                    <approach.icon />
+                  </Box>
+
+                  {/* Title */}
+                  <Heading
+                    fontSize={{ base: "lg", md: "xl" }}
+                    color="white"
+                    mb={3}
+                    letterSpacing="tight"
+                  >
+                    {approach.title}
+                  </Heading>
+
+                  {/* Description */}
+                  <Text
+                    color="gray.300"
+                    fontSize={{ base: "sm", md: "md" }}
+                    mb={6}
+                    lineHeight="relaxed"
+                  >
+                    {approach.description}
+                  </Text>
+
+                  {/* Comparison */}
+                  <VStack spacing={3} align="stretch">
+                    <HStack spacing={3}>
+                      <Box color="red.400" fontSize="sm">
+                        <FiX />
+                      </Box>
+                      <Text color="gray.500" fontSize="sm" textDecoration="line-through">
+                        {approach.traditional}
+                      </Text>
+                    </HStack>
+                    <HStack spacing={3}>
+                      <Box color={approach.color} fontSize="sm">
+                        <FiCheck />
+                      </Box>
+                      <Text color="white" fontSize="sm" fontWeight="medium">
+                        {approach.us}
+                      </Text>
+                    </HStack>
                   </VStack>
                 </Box>
               </MotionBox>
             ))}
           </Grid>
 
-          {/* Creative Process - Enhanced */}
-          <Box width="100%" maxW="1200px" mx="auto">
-            <VStack spacing={{ base: 8, md: 10 }}>
-              <Heading
-                fontSize={{ base: "xl", md: "2xl", lg: "3xl" }}
-                fontWeight="bold"
-                color="text.primary"
-                textAlign="center"
-                letterSpacing="tight"
-              >
-                The Neon Burro Process™
-              </Heading>
-              
-              <Grid
-                templateColumns={{ base: '1fr', md: 'repeat(4, 1fr)' }}
-                gap={{ base: 4, md: 5 }}
-                width="100%"
-                position="relative"
-              >
-                {/* Enhanced connection line */}
-                <Box
-                  display={{ base: 'none', md: 'block' }}
-                  position="absolute"
-                  top="50%"
-                  left="12%"
-                  right="12%"
-                  height="2px"
-                  bgGradient="linear(to-r, brand.primary, accent.banana, accent.neon)"
-                  opacity={0.3}
-                  zIndex={0}
-                />
-                
-                {processSteps.map((step, index) => (
-                  <MotionBox
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                    position="relative"
-                    zIndex={1}
-                  >
-                    <VStack
+          {/* Our Guarantees */}
+          <MotionBox
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            width="100%"
+            maxW="900px"
+            mx="auto"
+          >
+            <Box
+              p={{ base: 6, md: 8 }}
+              borderRadius="2xl"
+              bg={`linear-gradient(135deg, ${colors.accent.neon}05 0%, ${colors.brand.primary}05 100%)`}
+              backdropFilter="blur(10px)"
+              border="2px solid"
+              borderColor={`${colors.accent.neon}22`}
+            >
+              <VStack spacing={6}>
+                <Heading
+                  fontSize={{ base: "xl", md: "2xl" }}
+                  color="white"
+                  textAlign="center"
+                  letterSpacing="tight"
+                >
+                  The Neon Burro Guarantee
+                </Heading>
+
+                <Grid
+                  templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
+                  gap={4}
+                  width="100%"
+                >
+                  {guarantees.map((item, index) => (
+                    <HStack
+                      key={index}
                       spacing={3}
-                      p={{ base: 5, md: 6 }}
-                      borderRadius="xl"
-                      bg="rgba(255, 255, 255, 0.02)"
-                      backdropFilter="blur(20px)"
-                      border="2px solid"
-                      borderColor="rgba(255, 255, 255, 0.08)"
-                      height="100%"
-                      minH="160px"
-                      justify="center"
-                      transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-                      role="group"
-                      cursor="pointer"
+                      align="start"
+                      p={3}
+                      borderRadius="lg"
+                      bg="whiteAlpha.50"
+                      transition="all 0.2s"
                       _hover={{
-                        borderColor: step.color,
-                        bg: 'rgba(255, 255, 255, 0.04)',
-                        transform: 'translateY(-6px)',
-                        boxShadow: `0 20px 40px ${step.color}22`
+                        bg: 'whiteAlpha.100',
+                        transform: 'translateX(4px)'
                       }}
                     >
-                      {/* Number badge */}
                       <Box
-                        position="absolute"
-                        top="-12px"
-                        left="50%"
-                        transform="translateX(-50%)"
-                        w="24px"
-                        h="24px"
-                        borderRadius="full"
-                        bg={step.color}
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        fontSize="xs"
-                        fontWeight="bold"
-                        color="dark.black"
+                        color={colors.accent.neon}
+                        fontSize="lg"
+                        flexShrink={0}
+                        mt={0.5}
                       >
-                        {index + 1}
+                        <FiCheck />
                       </Box>
-                      
-                      <Text fontSize="3xl" mb={1}>{step.icon}</Text>
-                      <Text
-                        color={step.color}
-                        fontSize="xs"
-                        fontWeight="bold"
-                        letterSpacing="wider"
-                        textTransform="uppercase"
-                      >
-                        {step.phase}
-                      </Text>
-                      <Text
-                        color="text.secondary"
-                        fontSize={{ base: "xs", md: "sm" }}
-                        textAlign="center"
-                        lineHeight="snug"
-                      >
-                        {step.description}
-                      </Text>
-                    </VStack>
-                  </MotionBox>
-                ))}
-              </Grid>
-            </VStack>
-          </Box>
+                      <VStack align="start" spacing={0}>
+                        <Text color="white" fontSize="sm" fontWeight="medium">
+                          {item.promise}
+                        </Text>
+                        <Text color="gray.400" fontSize="xs">
+                          {item.detail}
+                        </Text>
+                      </VStack>
+                    </HStack>
+                  ))}
+                </Grid>
+              </VStack>
+            </Box>
+          </MotionBox>
 
-          {/* Community Impact - Enhanced */}
+          {/* Community Impact - Simplified */}
           <MotionBox
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -481,36 +343,20 @@ const TheVault = () => {
               p={{ base: 8, md: 10 }}
               borderRadius="2xl"
               bg="rgba(255, 229, 0, 0.03)"
-              backdropFilter="blur(20px)"
+              backdropFilter="blur(10px)"
               border="2px solid"
               borderColor="rgba(255, 229, 0, 0.15)"
               textAlign="center"
               position="relative"
               overflow="hidden"
-              transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-              _hover={{
-                borderColor: 'accent.banana',
-                boxShadow: '0 20px 40px rgba(255, 229, 0, 0.15)'
-              }}
             >
-              {/* Gradient overlay */}
-              <Box
-                position="absolute"
-                top={0}
-                left={0}
-                right={0}
-                height="100px"
-                bgGradient="linear(to-b, rgba(255, 229, 0, 0.05), transparent)"
-                pointerEvents="none"
-              />
-              
-              <VStack spacing={6} position="relative">
+              <VStack spacing={6}>
                 <Box 
                   p={3}
                   borderRadius="full"
                   bg="rgba(255, 229, 0, 0.1)"
-                  color="accent.banana" 
-                  fontSize="3xl"
+                  color={colors.accent.banana}
+                  fontSize="2xl"
                 >
                   <FiAward />
                 </Box>
@@ -519,50 +365,21 @@ const TheVault = () => {
                   <Heading 
                     fontSize={{ base: "xl", md: "2xl" }}
                     fontWeight="bold"
-                    color="text.primary"
+                    color="white"
                     letterSpacing="tight"
                   >
-                    Ridgway Digital Initiative
+                    Ridgway Gives Back
                   </Heading>
                   <Text 
-                    color="text.secondary"
+                    color="gray.300"
                     fontSize={{ base: "sm", md: "md" }}
                     maxW="500px" 
                     lineHeight="relaxed"
                   >
-                    Every quarter, we transform one local business's digital presence. 
-                    No strings attached. Just our way of giving back to the community.
+                    Every quarter, we transform one local business's digital presence 
+                    at no cost. It's our way of supporting the community that supports us.
                   </Text>
                 </VStack>
-                
-                <HStack spacing={{ base: 6, md: 10 }} justify="center">
-                  <VStack spacing={1}>
-                    <Text color="brand.primary" fontSize={{ base: "2xl", md: "3xl" }} fontWeight="extrabold" fontFamily="mono">
-                      4
-                    </Text>
-                    <Text color="text.muted" fontSize="xs" textTransform="uppercase" letterSpacing="wider" fontWeight="semibold">
-                      Per Year
-                    </Text>
-                  </VStack>
-                  <Box w="1px" h="40px" bg="ui.border" />
-                  <VStack spacing={1}>
-                    <Text color="accent.banana" fontSize={{ base: "2xl", md: "3xl" }} fontWeight="extrabold" fontFamily="mono">
-                      $0
-                    </Text>
-                    <Text color="text.muted" fontSize="xs" textTransform="uppercase" letterSpacing="wider" fontWeight="semibold">
-                      Cost
-                    </Text>
-                  </VStack>
-                  <Box w="1px" h="40px" bg="ui.border" />
-                  <VStack spacing={1}>
-                    <Text color="accent.neon" fontSize={{ base: "2xl", md: "3xl" }} fontWeight="extrabold" fontFamily="mono">
-                      ∞
-                    </Text>
-                    <Text color="text.muted" fontSize="xs" textTransform="uppercase" letterSpacing="wider" fontWeight="semibold">
-                      Impact
-                    </Text>
-                  </VStack>
-                </HStack>
                 
                 <Button
                   size="lg"
@@ -570,39 +387,43 @@ const TheVault = () => {
                   py={{ base: 6, md: 7 }}
                   fontSize={{ base: "sm", md: "md" }}
                   fontWeight="bold"
-                  bgGradient="linear(to-r, accent.banana, accent.neon)"
-                  color="dark.black"
+                  bg="white"
+                  color={colors.dark.black}
                   borderRadius="full"
                   position="relative"
                   overflow="hidden"
+                  onClick={() => window.location.href = '/contact/'}
                   _before={{
                     content: '""',
                     position: 'absolute',
                     top: 0,
-                    left: '-100%',
+                    left: 0,
                     width: '100%',
                     height: '100%',
-                    bgGradient: 'linear(90deg, transparent, rgba(255, 255, 255, 0.3), transparent)',
-                    transition: 'left 0.5s'
+                    background: `linear-gradient(45deg, ${colors.accent.banana}, ${colors.accent.warm})`,
+                    opacity: 0,
+                    transition: 'opacity 0.3s',
+                    zIndex: -1,
                   }}
                   _hover={{
-                    transform: 'translateY(-2px) scale(1.05)',
-                    boxShadow: '0 20px 40px rgba(255, 229, 0, 0.4)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: `0 15px 35px ${colors.accent.banana}33`,
+                    color: 'white',
                     _before: {
-                      left: '100%'
+                      opacity: 1,
                     }
                   }}
                   _active={{
-                    transform: 'translateY(0) scale(0.98)'
+                    transform: 'translateY(0)'
                   }}
-                  transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-                  onClick={() => navigate('/contact/')}
+                  transition="all 0.3s"
                 >
-                  NOMINATE A BUSINESS
+                  Nominate a Local Business
                 </Button>
               </VStack>
             </Box>
           </MotionBox>
+
         </VStack>
       </Container>
     </Box>

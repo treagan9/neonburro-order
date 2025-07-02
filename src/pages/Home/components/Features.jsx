@@ -1,57 +1,71 @@
 import { Box, Container, Heading, Text, VStack, HStack, Grid, GridItem } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { FiZap, FiCode, FiTarget, FiCpu, FiLayers, FiGlobe } from 'react-icons/fi';
+import { useState } from 'react';
 
 const MotionBox = motion(Box);
+const MotionGrid = motion(Grid);
+
+// Theme colors
+const colors = {
+  brand: {
+    primary: '#00E5E5',
+  },
+  accent: {
+    neon: '#39FF14',
+    warm: '#FF6B00',
+    purple: '#8B5CF6',
+    banana: '#FFE500',
+  },
+  dark: {
+    black: '#0A0A0A',
+  }
+};
 
 const Features = () => {
+  const [hoveredCard, setHoveredCard] = useState(null);
+
   const features = [
     {
       icon: FiZap,
       title: "Lightning Fast",
       description: "Sub-second load times with cutting-edge optimization",
-      color: 'brand.primary',
-      glow: 'cyan',
+      color: colors.brand.primary,
       stat: "< 0.8s"
     },
     {
       icon: FiCode,
       title: "Clean Code",
       description: "Maintainable, scalable architecture built to last",
-      color: 'accent.warm',
-      glow: 'warm',
+      color: colors.accent.warm,
       stat: "100/100"
     },
     {
       icon: FiTarget,
       title: "Conversion Focused",
       description: "Every pixel designed to drive real business results",
-      color: 'accent.banana',
-      glow: 'banana',
+      color: colors.accent.banana,
       stat: "+47%"
     },
     {
       icon: FiCpu,
       title: "AI Enhanced",
       description: "Smart integrations that adapt to your users",
-      color: 'accent.neon',
-      glow: 'neon',
+      color: colors.accent.neon,
       stat: "GPT-4"
     },
     {
       icon: FiLayers,
       title: "Modular Design",
       description: "Flexible systems that grow with your business",
-      color: 'accent.purple',
-      glow: 'purple',
+      color: colors.accent.purple,
       stat: "∞"
     },
     {
       icon: FiGlobe,
       title: "SEO Optimized",
       description: "Built for visibility and organic growth",
-      color: 'brand.primary',
-      glow: 'cyan',
+      color: colors.brand.primary,
       stat: "Top 3"
     }
   ];
@@ -59,54 +73,21 @@ const Features = () => {
   return (
     <Box 
       position="relative" 
-      py={{ base: 16, md: 20 }} 
-      bg="dark.black"
+      py={{ base: 16, md: 24 }} 
+      bg={colors.dark.black}
       overflow="hidden"
     >
-      {/* Enhanced animated background gradient */}
+      {/* Single static background gradient - no animations */}
       <Box
         position="absolute"
-        top={0}
-        left={0}
-        right={0}
-        bottom={0}
-        opacity={0.03}
-      >
-        <Box
-          position="absolute"
-          top="20%"
-          left="10%"
-          width="500px"
-          height="500px"
-          borderRadius="full"
-          bg="brand.primary"
-          filter="blur(150px)"
-          opacity={0.6}
-        />
-        <Box
-          position="absolute"
-          bottom="20%"
-          right="10%"
-          width="400px"
-          height="400px"
-          borderRadius="full"
-          bg="accent.banana"
-          filter="blur(150px)"
-          opacity={0.4}
-        />
-        <Box
-          position="absolute"
-          top="50%"
-          left="50%"
-          transform="translate(-50%, -50%)"
-          width="300px"
-          height="300px"
-          borderRadius="full"
-          bg="accent.purple"
-          filter="blur(120px)"
-          opacity={0.3}
-        />
-      </Box>
+        top="50%"
+        left="50%"
+        transform="translate(-50%, -50%)"
+        width="120%"
+        height="120%"
+        bg={`radial-gradient(ellipse at center, ${colors.brand.primary}08 0%, ${colors.accent.banana}05 40%, transparent 70%)`}
+        pointerEvents="none"
+      />
 
       <Container maxW="1400px" px={{ base: 4, md: 8 }} position="relative">
         <Grid templateColumns={{ base: '1fr', lg: '1fr 1fr' }} gap={{ base: 12, lg: 20 }} alignItems="center">
@@ -120,22 +101,18 @@ const Features = () => {
                 transition={{ duration: 0.6 }}
                 viewport={{ once: true }}
               >
-                <HStack spacing={3}>
-                  <Box 
-                    width="40px" 
-                    height="2px" 
-                    bg="accent.banana"
-                    boxShadow="0 0 10px var(--chakra-colors-accent-banana)"
-                  />
+                <HStack spacing={2}>
+                  <Box width="40px" height="2px" bg={colors.accent.neon} />
                   <Text 
-                    color="accent.banana"
+                    color={colors.accent.neon}
                     fontSize={{ base: "xs", md: "sm" }}
                     fontWeight="semibold" 
                     letterSpacing="wider"
                     textTransform="uppercase"
                   >
-                    Crafted in Colorado
+                    The Neon Difference
                   </Text>
+                  <Box width="40px" height="2px" bg={colors.accent.neon} />
                 </HStack>
               </MotionBox>
 
@@ -149,19 +126,19 @@ const Features = () => {
                   as="h2"
                   fontSize={{ base: "26px", sm: "3xl", md: "4xl", lg: "5xl" }}
                   fontWeight="extrabold"
-                  color="text.primary"
+                  color="white"
                   lineHeight={{ base: "1.3", md: "1.2" }}
                   letterSpacing="tight"
                 >
-                  Built Different.
+                  Performance Meets
                   <Box 
                     as="span" 
                     display="block"
-                    bgGradient="linear(to-r, accent.warm, accent.banana, accent.neon)"
+                    bgGradient={`linear(to-r, ${colors.accent.warm}, #FF8C00, ${colors.accent.banana})`}
                     bgClip="text"
                     mt={1}
                   >
-                    Built Better.
+                    Artistry
                   </Box>
                 </Heading>
               </MotionBox>
@@ -174,7 +151,7 @@ const Features = () => {
               >
                 <Text
                   fontSize={{ base: "sm", md: "md", lg: "lg" }}
-                  color="text.secondary"
+                  color="gray.300"
                   lineHeight="relaxed"
                   maxW="500px"
                 >
@@ -184,54 +161,38 @@ const Features = () => {
               </MotionBox>
 
               <MotionBox
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
                 viewport={{ once: true }}
                 mt={{ base: 2, md: 4 }}
+                width="100%"
               >
                 <Box
-                  px={{ base: 5, md: 6 }}
-                  py={{ base: 3, md: 4 }}
-                  borderRadius="xl"
-                  bg="rgba(255, 229, 0, 0.03)"
-                  backdropFilter="blur(20px)"
+                  px={{ base: 6, md: 8 }}
+                  py={{ base: 4, md: 5 }}
+                  borderRadius="2xl"
+                  bg={`${colors.accent.neon}08`}
                   border="2px solid"
-                  borderColor="rgba(255, 229, 0, 0.2)"
+                  borderColor={`${colors.accent.neon}22`}
                   position="relative"
-                  overflow="hidden"
-                  transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-                  role="group"
-                  cursor="pointer"
+                  transition="all 0.3s"
                   _hover={{
-                    borderColor: 'accent.banana',
-                    bg: 'rgba(255, 229, 0, 0.05)',
+                    borderColor: colors.accent.neon,
                     transform: 'translateY(-2px)',
-                    boxShadow: '0 20px 40px rgba(255, 229, 0, 0.15)'
+                    boxShadow: `0 20px 40px ${colors.accent.neon}22`
                   }}
                 >
-                  {/* Animated gradient overlay */}
-                  <Box
-                    position="absolute"
-                    top={0}
-                    left="-100%"
-                    width="100%"
-                    height="100%"
-                    bgGradient="linear(90deg, transparent, rgba(255, 229, 0, 0.2), transparent)"
-                    transition="left 0.8s ease"
-                    _groupHover={{ left: '100%' }}
-                    pointerEvents="none"
-                  />
-                  
                   <Text
                     fontSize={{ base: "md", md: "lg" }}
-                    color="text.primary"
-                    fontWeight="semibold"
+                    color="white"
+                    fontWeight="bold"
                     fontStyle="italic"
-                    position="relative"
-                    textAlign={{ base: "center", md: "left" }}
+                    textAlign="center"
+                    letterSpacing="wide"
+                    textTransform="uppercase"
                   >
-                    No templates. No compromises. No limits.
+                    No templates • No compromises • No limits
                   </Text>
                 </Box>
               </MotionBox>
@@ -240,84 +201,57 @@ const Features = () => {
 
           {/* Right side - Feature Grid */}
           <GridItem>
-            <Grid 
+            <MotionGrid 
               templateColumns="repeat(2, 1fr)" 
               gap={{ base: 4, md: 5 }}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
             >
               {features.map((feature, index) => (
                 <MotionBox
                   key={index}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, delay: 0.05 * index }}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.05 }}
                   viewport={{ once: true }}
-                  whileHover={{ y: -8 }}
+                  onMouseEnter={() => setHoveredCard(index)}
+                  onMouseLeave={() => setHoveredCard(null)}
                 >
                   <Box
                     p={{ base: 4, md: 5 }}
                     borderRadius="xl"
                     bg="rgba(255, 255, 255, 0.02)"
-                    backdropFilter="blur(20px)"
+                    backdropFilter="blur(10px)"
                     border="2px solid"
-                    borderColor="rgba(255, 255, 255, 0.08)"
+                    borderColor={hoveredCard === index ? feature.color : "rgba(255, 255, 255, 0.08)"}
                     position="relative"
                     overflow="hidden"
-                    role="group"
                     cursor="pointer"
                     height="100%"
-                    transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                    transition="all 0.2s"
                     _hover={{
-                      borderColor: feature.color,
-                      bg: 'rgba(255, 255, 255, 0.04)',
+                      transform: 'translateY(-4px)',
                       boxShadow: `0 20px 40px ${feature.color}22`,
-                      '& .feature-icon': {
-                        transform: 'scale(1.15) rotate(5deg)',
-                        color: feature.color
-                      },
-                      '& .feature-stat': {
-                        opacity: 1,
-                        transform: 'translateY(0) scale(1)'
-                      },
-                      '& .feature-glow': {
-                        opacity: 1
-                      }
                     }}
                   >
-                    {/* Dynamic glow effect */}
+                    {/* Stat badge - simplified */}
                     <Box
-                      className="feature-glow"
                       position="absolute"
-                      top="50%"
-                      left="50%"
-                      transform="translate(-50%, -50%)"
-                      width="150%"
-                      height="150%"
-                      bg={`radial-gradient(circle, ${feature.color}15 0%, transparent 70%)`}
-                      opacity={0}
-                      transition="opacity 0.5s"
-                      pointerEvents="none"
-                    />
-                    
-                    {/* Stat badge - enhanced */}
-                    <Box
-                      className="feature-stat"
-                      position="absolute"
-                      top={3}
-                      right={3}
-                      px={3}
-                      py={1}
+                      top={2}
+                      right={2}
+                      px={2}
+                      py={0.5}
                       borderRadius="full"
                       bg={`${feature.color}22`}
                       border="1px solid"
                       borderColor={`${feature.color}44`}
-                      opacity={{ base: 0.8, md: 0 }}
-                      transform={{ base: "translateY(0) scale(1)", md: "translateY(-10px) scale(0.9)" }}
-                      transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                     >
                       <Text
                         fontSize="2xs"
                         fontFamily="mono"
-                        fontWeight="extrabold"
+                        fontWeight="bold"
                         color={feature.color}
                       >
                         {feature.stat}
@@ -329,15 +263,13 @@ const Features = () => {
                         p={2.5}
                         borderRadius="lg"
                         bg={`${feature.color}11`}
-                        position="relative"
                       >
                         <Box
-                          className="feature-icon"
                           as={feature.icon}
                           w={5}
                           h={5}
-                          color="text.muted"
-                          transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                          color={hoveredCard === index ? feature.color : "gray.400"}
+                          transition="color 0.2s"
                         />
                       </Box>
                       
@@ -345,7 +277,7 @@ const Features = () => {
                         <Text
                           fontSize={{ base: "md", md: "lg" }}
                           fontWeight="bold"
-                          color="text.primary"
+                          color="white"
                           letterSpacing="tight"
                           lineHeight="tight"
                         >
@@ -353,8 +285,8 @@ const Features = () => {
                         </Text>
                         <Text
                           fontSize={{ base: "xs", md: "sm" }}
-                          color="text.secondary"
-                          lineHeight="snug"
+                          color="gray.300"
+                          lineHeight="relaxed"
                         >
                           {feature.description}
                         </Text>
@@ -363,7 +295,7 @@ const Features = () => {
                   </Box>
                 </MotionBox>
               ))}
-            </Grid>
+            </MotionGrid>
           </GridItem>
         </Grid>
       </Container>

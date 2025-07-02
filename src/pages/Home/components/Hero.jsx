@@ -1,22 +1,23 @@
-import { Box, Container, Heading, Text, VStack, HStack, Button } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
-import { useEffect, useRef } from 'react';
+import { Box, Container, Heading, Text, VStack, HStack, Button, Badge, keyframes } from '@chakra-ui/react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+import { FiArrowRight, FiZap, FiCode, FiAward } from 'react-icons/fi';
 
 const MotionBox = motion(Box);
 const MotionHeading = motion(Heading);
 const MotionText = motion(Text);
 
-// Theme colors
+// Enhanced color palette
 const colors = {
-  matrix: {
-    400: '#39FF14',
-    500: '#00FF41',
-    700: '#008F11',
+  brand: {
+    primary: '#00E5E5',
+    primaryDark: '#00B8B8',
   },
-  neon: {
-    cyan: '#00FFFF',
-    pink: '#FF10F0',
-    orange: '#FF6B00',
+  accent: {
+    neon: '#39FF14',
+    warm: '#FF6B00',
+    purple: '#8B5CF6',
+    banana: '#FFE500',
   },
   dark: {
     void: '#000000',
@@ -25,7 +26,28 @@ const colors = {
   }
 };
 
-// Matrix Rain Component
+// Subtle floating animation
+const float = keyframes`
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
+`;
+
+// Gradient animation - smoother and slower
+const gradientShift = keyframes`
+  0% { background-position: 0% 50%; }
+  25% { background-position: 50% 100%; }
+  50% { background-position: 100% 50%; }
+  75% { background-position: 50% 0%; }
+  100% { background-position: 0% 50%; }
+`;
+
+// Pulse animation
+const pulse = keyframes`
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.05); }
+`;
+
+// Enhanced Matrix Rain Component
 const MatrixRain = () => {
   const canvasRef = useRef(null);
 
@@ -36,7 +58,7 @@ const MatrixRain = () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     
-    const matrix = 'NEONBURRO01';
+    const matrix = 'NEONBURRO01WEBDEVMOUNTAINCODE';
     const matrixArray = matrix.split('');
     
     const fontSize = 14;
@@ -48,10 +70,11 @@ const MatrixRain = () => {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      ctx.fillStyle = colors.neon.cyan;
-      ctx.font = `${fontSize}px monospace`;
-      
       drops.forEach((y, i) => {
+        const randomColor = Math.random() > 0.5 ? colors.brand.primary : colors.accent.neon;
+        ctx.fillStyle = randomColor;
+        ctx.font = `${fontSize}px monospace`;
+        
         const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
         ctx.fillText(text, i * fontSize, y * fontSize);
         
@@ -84,38 +107,131 @@ const MatrixRain = () => {
         position: 'absolute',
         top: 0,
         left: 0,
-        zIndex: 1,
-        opacity: 0.2,
+        zIndex: 5,
+        opacity: 0.3,
+        pointerEvents: 'none',
       }}
     />
   );
 };
 
 const Hero = () => {
-  // Replace these with your actual navigation functions
+  const containerRef = useRef(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, 300], [0, 30]);
+  const opacity = useTransform(scrollY, [0, 300], [1, 0.7]);
+
+  // Mouse parallax effect
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      const { clientX, clientY } = e;
+      const { innerWidth, innerHeight } = window;
+      const x = (clientX - innerWidth / 2) / innerWidth * 10;
+      const y = (clientY - innerHeight / 2) / innerHeight * 10;
+      setMousePosition({ x, y });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
   const handleContactClick = () => {
     window.location.href = '/contact/';
   };
   
-  const handlePaymentClick = () => {
-    window.location.href = '/invoice/';
+  const handlePricingClick = () => {
+    window.location.href = '/pricing/';
   };
+
+  const stats = [
+    { 
+      icon: FiZap, 
+      value: '24+', 
+      label: 'Years', 
+      subtext: 'of proven expertise',
+      color: colors.brand.primary 
+    },
+    { 
+      icon: FiCode, 
+      value: '200+', 
+      label: 'Projects', 
+      subtext: 'delivered on time',
+      color: colors.accent.neon 
+    },
+    { 
+      icon: FiAward, 
+      value: '98%', 
+      label: 'Score', 
+      subtext: 'client satisfaction',
+      color: colors.accent.warm 
+    }
+  ];
 
   return (
     <Box
+      ref={containerRef}
       position="relative"
       minH="100vh"
       display="flex"
       alignItems="center"
       overflow="hidden"
-      bg={colors.dark.void}
+      bg={colors.dark.black}
       pt={{ base: 20, md: 28, lg: 32 }}
       pb={{ base: 8, md: 12, lg: 16 }}
     >
-      {/* Matrix Rain Effect */}
-      <MatrixRain />
+      {/* Dynamic Background Gradients */}
+      <Box
+        position="absolute"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        opacity={0.4}
+        style={{ transform: `translate(${mousePosition.x}px, ${mousePosition.y}px)` }}
+        transition="transform 0.3s ease-out"
+        zIndex={1}
+      >
+        <Box
+          position="absolute"
+          top="-20%"
+          left="-10%"
+          width="600px"
+          height="600px"
+          borderRadius="full"
+          bg={colors.brand.primary}
+          opacity={0.1}
+          filter="blur(120px)"
+          animation={`${float} 12s ease-in-out infinite`}
+        />
+        <Box
+          position="absolute"
+          bottom="-30%"
+          right="-10%"
+          width="500px"
+          height="500px"
+          borderRadius="full"
+          bg={colors.accent.warm}
+          opacity={0.1}
+          filter="blur(120px)"
+          animation={`${float} 15s ease-in-out infinite 2s`}
+        />
+        <Box
+          position="absolute"
+          top="50%"
+          left="50%"
+          transform="translate(-50%, -50%)"
+          width="400px"
+          height="400px"
+          borderRadius="full"
+          bg={colors.accent.neon}
+          opacity={0.08}
+          filter="blur(100px)"
+          animation={`${pulse} 10s ease-in-out infinite`}
+        />
+      </Box>
 
-      {/* Hero Background */}
+      {/* Hero Background Image with Overlay */}
       <Box
         position="absolute"
         top={0}
@@ -130,7 +246,7 @@ const Hero = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          bg: `linear-gradient(135deg, ${colors.dark.void}CC 0%, ${colors.dark.black}99 100%)`,
+          bg: `linear-gradient(135deg, ${colors.dark.black}EE 0%, ${colors.dark.black}CC 50%, ${colors.dark.black}99 100%)`,
           zIndex: 2
         }}
       >
@@ -144,9 +260,39 @@ const Hero = () => {
           width="100%"
           height="100%"
           objectFit="cover"
-          opacity={0.3}
+          opacity={0.2}
         />
       </Box>
+
+      {/* Subtle grid pattern */}
+      <Box
+        position="absolute"
+        inset={0}
+        opacity={0.02}
+        backgroundImage="radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.4) 100%), repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px)"
+        pointerEvents="none"
+        zIndex={3}
+      />
+
+      {/* Matrix Rain Effect - Moved here with proper z-index */}
+      <MatrixRain />
+
+      {/* Floating particles */}
+      {[...Array(6)].map((_, i) => (
+        <Box
+          key={i}
+          position="absolute"
+          width="2px"
+          height="2px"
+          borderRadius="full"
+          bg={i % 2 === 0 ? colors.brand.primary : colors.accent.neon}
+          left={`${20 + i * 15}%`}
+          top={`${20 + i * 10}%`}
+          opacity={0.5}
+          animation={`${float} ${10 + i * 2}s ease-in-out infinite ${i * 0.5}s`}
+          zIndex={4}
+        />
+      ))}
       
       <Container 
         maxW="1400px"
@@ -154,21 +300,54 @@ const Hero = () => {
         position="relative"
         zIndex={10}
       >
-        <VStack spacing={{ base: 6, md: 8 }} align={{ base: "center", md: "flex-start" }} textAlign={{ base: "center", md: "left" }} maxW="900px">
-          {/* Main Title */}
-          <MotionBox
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <Heading
+        <motion.div style={{ y, opacity }}>
+          <VStack spacing={{ base: 6, md: 8 }} align={{ base: "center", md: "flex-start" }} textAlign={{ base: "center", md: "left" }} maxW="900px">
+            
+            {/* Enhanced Badge */}
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <HStack
+                spacing={2}
+                px={{ base: 3, md: 4 }}
+                py={{ base: 1.5, md: 2 }}
+                borderRadius="full"
+                bg="whiteAlpha.100"
+                backdropFilter="blur(10px)"
+                border="1px solid"
+                borderColor="whiteAlpha.200"
+                color={colors.brand.primary}
+                fontSize={{ base: "xs", md: "sm" }}
+                fontWeight="600"
+                letterSpacing="0.05em"
+                boxShadow={`0 0 20px ${colors.brand.primary}22`}
+              >
+                <Box 
+                  width="6px" 
+                  height="6px" 
+                  borderRadius="full" 
+                  bg={colors.accent.neon}
+                  boxShadow={`0 0 10px ${colors.accent.neon}`}
+                />
+                <Text>HAND-CRAFTED CODE • MODERN TECH • TIMELESS DESIGN</Text>
+              </HStack>
+            </MotionBox>
+
+            {/* Enhanced Main Title */}
+            <MotionHeading
               as="h1"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.1, type: "spring", stiffness: 100 }}
               fontSize={{ base: "2xl", sm: "3xl", md: "4xl", lg: "5xl", xl: "6xl" }}
-              fontWeight="800"
               fontFamily="'Inter', sans-serif"
+              fontWeight="800"
               color="white"
-              lineHeight={{ base: "1.2", md: "1.1" }}
+              lineHeight={{ base: "1.3", md: "1.2" }}
               letterSpacing="-0.02em"
+              position="relative"
             >
               Exceptional Websites.
               <br />
@@ -177,184 +356,251 @@ const Hero = () => {
                 position="relative"
                 display="inline-block"
                 sx={{
-                  background: `linear-gradient(135deg, #00FFFF 0%, #00D9FF 25%, #00B8E6 50%, #0099CC 75%, #00FFFF 100%)`,
+                  background: `linear-gradient(135deg, ${colors.brand.primary} 0%, ${colors.brand.primary}DD 25%, ${colors.brand.primaryDark} 50%, ${colors.accent.neon}AA 75%, ${colors.accent.neon} 100%)`,
                   backgroundClip: 'text',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
-                  backgroundSize: '200% 200%',
-                  animation: 'gradientShift 3s ease infinite',
-                  '@keyframes gradientShift': {
-                    '0%': { backgroundPosition: '0% 50%' },
-                    '50%': { backgroundPosition: '100% 50%' },
-                    '100%': { backgroundPosition: '0% 50%' }
+                  backgroundSize: '400% 400%',
+                  animation: `${gradientShift} 6s ease infinite`,
+                  filter: 'saturate(1.2)',
+                  textShadow: '0 0 80px rgba(0, 229, 229, 0.5)',
+                }}
+                _after={{
+                  content: '""',
+                  position: 'absolute',
+                  bottom: '-4px',
+                  left: 0,
+                  width: '100%',
+                  height: '2px',
+                  bgGradient: `linear(to-r, ${colors.brand.primary}, ${colors.accent.neon})`,
+                  opacity: 0,
+                  transform: 'scaleX(0)',
+                  transformOrigin: 'left',
+                  transition: 'all 0.3s ease-out'
+                }}
+                _hover={{
+                  _after: {
+                    opacity: 1,
+                    transform: 'scaleX(1)'
                   }
                 }}
               >
                 Built to Perform.
               </Box>
-            </Heading>
-          </MotionBox>
-          
-          {/* Description */}
-          <MotionBox
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            maxW={{ base: "100%", md: "700px" }}
-          >
-            <Text
+            </MotionHeading>
+            
+            {/* Enhanced Description */}
+            <MotionText
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
               fontSize={{ base: "sm", md: "md", lg: "lg" }}
               color="gray.300"
               lineHeight={{ base: "1.6", md: "1.7" }}
+              maxW={{ base: "100%", md: "700px" }}
+              position="relative"
             >
               We craft fast, elegant, and scalable websites that elevate your brand. 
               From clean design to smart SEO architecture, every project is built for 
               impact and growth.
-            </Text>
-          </MotionBox>
+            </MotionText>
 
-          {/* Stats Cards - WorkHero Style */}
-          <MotionBox
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            width="100%"
-            maxW={{ base: "100%", md: "700px" }}
-          >
-            <HStack
-              spacing={{ base: 3, md: 4 }}
-              justify={{ base: "center", md: "flex-start" }}
-              flexWrap={{ base: "wrap", md: "nowrap" }}
-              gap={{ base: 3, md: 0 }}
+            {/* Enhanced Stats Cards */}
+            <MotionBox
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              width="100%"
+              maxW={{ base: "100%", md: "700px" }}
             >
-              {[
-                { value: '24+', label: 'Years', subtext: 'of proven expertise' },
-                { value: '200+', label: 'Projects', subtext: 'delivered on time' },
-                { value: '98%', label: 'Score', subtext: 'client satisfaction' }
-              ].map((stat, index) => (
-                <Box
-                  key={index}
-                  flex={{ base: "1 1 calc(33.333% - 12px)", md: 1 }}
-                  minW={{ base: "90px", md: "auto" }}
-                >
-                  <VStack
-                    p={{ base: 2.5, md: 3 }}
-                    borderRadius="xl"
-                    bg="whiteAlpha.50"
-                    backdropFilter="blur(10px)"
-                    border="1px solid"
-                    borderColor="whiteAlpha.100"
-                    transition="all 0.3s"
-                    cursor="pointer"
-                    role="group"
-                    spacing={0.5}
-                    align="center"
-                    _hover={{
-                      bg: { base: 'whiteAlpha.50', md: 'whiteAlpha.100' },
-                      borderColor: { base: 'whiteAlpha.100', md: colors.neon.cyan },
-                      transform: { base: 'none', md: 'translateY(-4px)' },
-                      boxShadow: { base: 'none', md: `0 10px 30px ${colors.neon.cyan}22` }
-                    }}
+              <HStack
+                spacing={{ base: 3, md: 4 }}
+                justify={{ base: "center", md: "flex-start" }}
+                flexWrap={{ base: "wrap", md: "nowrap" }}
+                gap={{ base: 3, md: 0 }}
+              >
+                {stats.map((stat, index) => (
+                  <MotionBox
+                    key={index}
+                    flex={{ base: "1 1 calc(33.333% - 12px)", md: 1 }}
+                    minW={{ base: "90px", md: "auto" }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
                   >
-                    <HStack spacing={1} align="baseline">
-                      <Text 
-                        color={colors.neon.cyan} 
-                        fontSize={{ base: "lg", md: "xl" }}
-                        fontWeight="800"
-                        fontFamily="mono"
-                        lineHeight="1"
-                        transition="all 0.3s"
-                        _groupHover={{
-                          textShadow: `0 0 20px ${colors.neon.cyan}`,
-                        }}
-                      >
-                        {stat.value}
-                      </Text>
-                      <Text 
-                        color="white" 
-                        fontSize={{ base: "xs", md: "sm" }}
-                        fontWeight="600"
-                        textTransform="uppercase"
-                        letterSpacing="wider"
-                      >
-                        {stat.label}
-                      </Text>
-                    </HStack>
-                    <Text 
-                      color="gray.500" 
-                      fontSize="2xs" 
-                      letterSpacing="0.05em" 
-                      display={{ base: "none", md: "block" }}
-                      textAlign="center"
+                    <VStack
+                      p={{ base: 3, md: 4 }}
+                      borderRadius="xl"
+                      bg="rgba(255, 255, 255, 0.03)"
+                      backdropFilter="blur(20px)"
+                      border="1px solid"
+                      borderColor="rgba(255, 255, 255, 0.08)"
+                      transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                      cursor="pointer"
+                      spacing={1}
+                      position="relative"
+                      overflow="hidden"
+                      role="group"
+                      _hover={{
+                        bg: 'rgba(255, 255, 255, 0.05)',
+                        borderColor: stat.color,
+                        transform: 'translateY(-6px)',
+                        boxShadow: `0 20px 40px ${stat.color}22`
+                      }}
                     >
-                      {stat.subtext}
-                    </Text>
-                  </VStack>
-                </Box>
-              ))}
-            </HStack>
-          </MotionBox>
-          
-          {/* CTA Buttons - Updated copy for professional tone */}
-          <MotionBox
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            width={{ base: "100%", sm: "auto" }}
-          >
-            <HStack 
-              spacing={3} 
-              flexDirection={{ base: "column", sm: "row" }} 
+                      {/* Glow effect */}
+                      <Box
+                        position="absolute"
+                        inset={0}
+                        bg={`radial-gradient(circle at center, ${stat.color}11 0%, transparent 70%)`}
+                        opacity={0}
+                        _groupHover={{ opacity: 1 }}
+                        transition="opacity 0.3s"
+                      />
+                      
+                      {/* Icon */}
+                      <Box
+                        mb={1}
+                        color={stat.color}
+                        opacity={0.6}
+                        _groupHover={{ opacity: 1 }}
+                        transition="all 0.3s"
+                      >
+                        <Box as={stat.icon} size={20} />
+                      </Box>
+                      
+                      <HStack spacing={1} align="baseline">
+                        <Text 
+                          color="white" 
+                          fontSize={{ base: "xl", md: "2xl" }}
+                          fontWeight="800"
+                          fontFamily="mono"
+                          lineHeight="1"
+                          position="relative"
+                          transition="all 0.3s"
+                          _groupHover={{
+                            color: stat.color,
+                            textShadow: `0 0 20px ${stat.color}`
+                          }}
+                        >
+                          {stat.value}
+                        </Text>
+                        <Text 
+                          color="gray.400" 
+                          fontSize={{ base: "xs", md: "sm" }}
+                          fontWeight="600"
+                          textTransform="uppercase"
+                          letterSpacing="wider"
+                        >
+                          {stat.label}
+                        </Text>
+                      </HStack>
+                      <Text 
+                        color="gray.500" 
+                        fontSize="2xs" 
+                        letterSpacing="0.05em" 
+                        textAlign="center"
+                        position="relative"
+                      >
+                        {stat.subtext}
+                      </Text>
+                    </VStack>
+                  </MotionBox>
+                ))}
+              </HStack>
+            </MotionBox>
+            
+            {/* Enhanced CTA Buttons */}
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.7 }}
               width={{ base: "100%", sm: "auto" }}
             >
-              <Button
-                size="lg"
-                bg={colors.neon.cyan}
-                color="black"
-                fontWeight="700"
-                fontSize={{ base: "sm", md: "md" }}
-                height={{ base: "48px", md: "52px" }}
-                px={{ base: 6, md: 8 }}
+              <HStack 
+                spacing={3} 
+                flexDirection={{ base: "column", sm: "row" }} 
                 width={{ base: "100%", sm: "auto" }}
-                onClick={handleContactClick}
-                _hover={{
-                  bg: colors.neon.cyan,
-                  transform: 'translateY(-2px)',
-                  boxShadow: `0 10px 30px ${colors.neon.cyan}66`
-                }}
-                _active={{
-                  transform: 'translateY(0)'
-                }}
-                borderRadius="full"
-                transition="all 0.2s"
               >
-                START PROJECT
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                borderColor="whiteAlpha.300"
-                borderWidth="2px"
-                color="white"
-                fontWeight="600"
-                fontSize={{ base: "sm", md: "md" }}
-                height={{ base: "48px", md: "52px" }}
-                px={{ base: 6, md: 8 }}
-                width={{ base: "100%", sm: "auto" }}
-                onClick={handlePaymentClick}
-                _hover={{
-                  bg: 'whiteAlpha.100',
-                  borderColor: colors.neon.cyan,
-                  color: colors.neon.cyan
-                }}
-                borderRadius="full"
-                transition="all 0.2s"
-              >
-                VIEW PRICING
-              </Button>
-            </HStack>
-          </MotionBox>
-        </VStack>
+                <Button
+                  size="lg"
+                  bg="white"
+                  color="black"
+                  fontWeight="700"
+                  fontSize={{ base: "sm", md: "md" }}
+                  height={{ base: "52px", md: "56px" }}
+                  px={{ base: 8, md: 10 }}
+                  width={{ base: "100%", sm: "auto" }}
+                  rightIcon={<FiArrowRight />}
+                  onClick={handleContactClick}
+                  position="relative"
+                  overflow="hidden"
+                  _before={{
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    background: `linear-gradient(45deg, ${colors.brand.primary}, ${colors.accent.neon})`,
+                    opacity: 0,
+                    transition: 'opacity 0.3s',
+                    zIndex: -1,
+                  }}
+                  _hover={{
+                    transform: 'translateY(-2px)',
+                    boxShadow: `0 15px 35px ${colors.brand.primary}44`,
+                    color: 'white',
+                    _before: {
+                      opacity: 1,
+                    }
+                  }}
+                  _active={{
+                    transform: 'translateY(0)'
+                  }}
+                  borderRadius="full"
+                  transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                >
+                  START PROJECT
+                </Button>
+                
+                <Button
+                  size="lg"
+                  variant="ghost"
+                  color="white"
+                  fontWeight="600"
+                  fontSize={{ base: "sm", md: "md" }}
+                  height={{ base: "52px", md: "56px" }}
+                  px={{ base: 8, md: 10 }}
+                  width={{ base: "100%", sm: "auto" }}
+                  onClick={handlePricingClick}
+                  position="relative"
+                  _after={{
+                    content: '""',
+                    position: 'absolute',
+                    bottom: '10px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: '0%',
+                    height: '2px',
+                    bg: 'white',
+                    transition: 'width 0.3s ease'
+                  }}
+                  _hover={{
+                    bg: 'whiteAlpha.100',
+                    _after: {
+                      width: '80%'
+                    }
+                  }}
+                  borderRadius="full"
+                  transition="all 0.3s"
+                >
+                  VIEW PRICING
+                </Button>
+              </HStack>
+            </MotionBox>
+          </VStack>
+        </motion.div>
       </Container>
     </Box>
   );

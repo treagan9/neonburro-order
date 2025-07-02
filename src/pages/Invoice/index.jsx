@@ -100,7 +100,7 @@ const Invoice = () => {
   return (
     <Elements stripe={stripePromise}>
       <Box minH="100vh" bg="#0A0A0A">
-        <Container maxW="1200px" pt={32} pb={20} px={{ base: 4, md: 6 }}>
+        <Container maxW={{ base: "100%", md: "800px", lg: "900px" }} pt={32} pb={20} px={{ base: 4, md: 6 }}>
           <HourPurchaseForm 
             onSuccess={handleSuccess} 
             sessionId={sessionId}

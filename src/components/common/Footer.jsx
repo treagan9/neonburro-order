@@ -1,26 +1,57 @@
-import { Box, Container, VStack, HStack, Text, Link, IconButton, Button, Divider, Image, Grid, GridItem } from '@chakra-ui/react';
+import { Box, Container, VStack, HStack, Text, Link, IconButton, Button, Divider, Image, Grid, GridItem, keyframes } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { FiGithub, FiLinkedin, FiTwitter, FiArrowUpRight, FiMail, FiMapPin, FiPhone, FiMessageCircle } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
+import { FiGithub, FiLinkedin, FiTwitter, FiArrowUp, FiMail, FiMapPin, FiMessageCircle } from 'react-icons/fi';
+import { useState, useEffect } from 'react';
 
 const MotionBox = motion(Box);
 
+// Theme colors
+const colors = {
+  brand: {
+    primary: '#00E5E5',
+    primaryDark: '#00B8B8',
+  },
+  accent: {
+    neon: '#39FF14',
+    warm: '#FF6B00',
+    banana: '#FFE500',
+  },
+  dark: {
+    black: '#0A0A0A',
+  }
+};
+
+// Subtle pulse animation
+const pulse = keyframes`
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.95); }
+`;
+
 const Footer = () => {
-  const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const navigationLinks = [
-    { label: 'Services', href: '/services' },
-    { label: 'Our Work', href: '/work' },
-    { label: 'About', href: '/about' },
-    { label: 'Contact', href: '/contact' }
+    { label: 'Services', href: '/services/' },
+    { label: 'Work', href: '/work/' },
+    { label: 'About', href: '/about/' },
+    { label: 'Contact', href: '/contact/' }
   ];
 
   const resourceLinks = [
-    { label: 'Start a Project', href: '/contact' },
-    { label: 'Fuel Up', href: '/invoice' },
-    { label: 'FAQ', href: '/faq' },
-    { label: 'Apply to Visit', href: '/apply-to-burro' }
+    { label: 'Start a Project', href: '/contact/', highlight: true },
+    { label: 'Fuel Up', href: '/invoice/' },
+    { label: 'Base Camp', href: '/members/' },
+    { label: 'FAQ', href: '/faq/' }
   ];
 
   const socialLinks = [
@@ -32,77 +63,112 @@ const Footer = () => {
   return (
     <Box 
       as="footer"
-      bg="dark.black"
+      bg={colors.dark.black}
       borderTop="1px solid"
       borderColor="whiteAlpha.100"
       position="relative"
       overflow="hidden"
       mt={20}
     >
-      {/* Animated gradient backgrounds */}
+      {/* Simplified gradient background */}
       <Box
         position="absolute"
         bottom="-50%"
-        left="-10%"
-        width="400px"
+        left="50%"
+        transform="translateX(-50%)"
+        width="800px"
         height="400px"
-        opacity={0.02}
-        bgGradient="radial(circle, brand.primary 0%, transparent 70%)"
-        pointerEvents="none"
-      />
-      <Box
-        position="absolute"
-        top="-30%"
-        right="-10%"
-        width="300px"
-        height="300px"
-        opacity={0.02}
-        bgGradient="radial(circle, accent.banana 0%, transparent 70%)"
+        opacity={0.03}
+        bg={`radial-gradient(ellipse at center, ${colors.brand.primary} 0%, transparent 50%)`}
         pointerEvents="none"
       />
 
       <Container maxW="1400px" px={{ base: 4, md: 8 }} py={{ base: 12, md: 16 }} position="relative">
+        {/* Top CTA Section - New Addition */}
+        <Box
+          mb={12}
+          p={{ base: 6, md: 8 }}
+          borderRadius="2xl"
+          bg="whiteAlpha.50"
+          backdropFilter="blur(10px)"
+          border="1px solid"
+          borderColor="whiteAlpha.100"
+          textAlign="center"
+        >
+          <VStack spacing={4}>
+            <Heading
+              fontSize={{ base: "xl", md: "2xl" }}
+              fontWeight="bold"
+              color="white"
+              letterSpacing="tight"
+            >
+              Ready to Build Something Amazing?
+            </Heading>
+            <Text color="gray.400" fontSize={{ base: "sm", md: "md" }}>
+              Let's transform your digital vision into reality.
+            </Text>
+            <Button
+              size="lg"
+              bg="white"
+              color={colors.dark.black}
+              fontSize="sm"
+              fontWeight="semibold"
+              px={8}
+              borderRadius="full"
+              onClick={() => window.location.href = '/contact/'}
+              _hover={{
+                transform: 'translateY(-2px)',
+                boxShadow: '0 10px 30px rgba(255, 255, 255, 0.2)'
+              }}
+              transition="all 0.3s"
+            >
+              Start Your Project
+            </Button>
+          </VStack>
+        </Box>
+
         <Grid
           templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }}
           gap={{ base: 8, md: 10 }}
           mb={12}
         >
           {/* Brand Column */}
-          <GridItem>
+          <GridItem colSpan={{ base: 1, md: 2, lg: 1 }}>
             <VStack align="flex-start" spacing={4}>
-              <HStack spacing={3} mb={2}>
+              <Box mb={2}>
                 <Image 
                   src="/logo.svg" 
                   alt="Neon Burro"
-                  height="50px"
+                  height="45px"
                   width="auto"
-                  filter="brightness(1.8) contrast(1.2) saturate(1.5)"
+                  filter="brightness(1.2)"
                   cursor="pointer"
-                  onClick={() => navigate('/')}
+                  onClick={() => window.location.href = '/'}
                   _hover={{ 
-                    filter: 'brightness(2) contrast(1.3) saturate(1.6) drop-shadow(0 0 25px rgba(0, 229, 229, 0.9))'
+                    filter: 'brightness(1.3) drop-shadow(0 0 20px rgba(0, 229, 229, 0.5))'
                   }}
-                  transition="all 0.3s"
+                  transition="filter 0.3s"
                 />
-              </HStack>
-              <Text color="text.secondary" fontSize="sm" lineHeight="relaxed">
-                Digital outlaws building extraordinary experiences from the Colorado mountains.
+              </Box>
+              <Text color="gray.400" fontSize="sm" lineHeight="relaxed" maxW="280px">
+                Hand-crafted digital experiences from the Colorado mountains. 
+                No templates. No compromises.
               </Text>
               {/* Social Links */}
               <HStack spacing={2} pt={2}>
                 {socialLinks.map((social) => (
                   <IconButton
                     key={social.label}
-                    icon={<social.icon size={18} />}
+                    icon={<social.icon size={16} />}
                     variant="ghost"
                     size="sm"
-                    color="text.muted"
+                    color="gray.500"
                     aria-label={social.label}
                     onClick={() => window.open(social.href, '_blank')}
-                    borderRadius="lg"
+                    borderRadius="md"
                     _hover={{
-                      color: 'brand.primary',
-                      bg: 'brand.primaryAlpha.10',
+                      color: colors.brand.primary,
+                      bg: 'whiteAlpha.100',
                       transform: 'translateY(-2px)'
                     }}
                     transition="all 0.2s"
@@ -116,41 +182,29 @@ const Footer = () => {
           <GridItem>
             <VStack align="flex-start" spacing={3}>
               <Text 
-                color="text.primary" 
-                fontSize="sm" 
+                color="white" 
+                fontSize="xs" 
                 fontWeight="semibold"
                 textTransform="uppercase"
                 letterSpacing="wider"
-                mb={1}
+                mb={2}
               >
                 Navigate
               </Text>
               {navigationLinks.map((link) => (
                 <Link
                   key={link.label}
-                  onClick={() => navigate(link.href)}
-                  color="text.secondary"
+                  onClick={() => window.location.href = link.href}
+                  color="gray.400"
                   fontSize="sm"
                   cursor="pointer"
                   position="relative"
                   _hover={{ 
-                    color: 'text.primary',
+                    color: 'white',
                     textDecoration: 'none',
-                    _after: {
-                      width: '100%'
-                    }
+                    transform: 'translateX(2px)'
                   }}
-                  _after={{
-                    content: '""',
-                    position: 'absolute',
-                    bottom: '-2px',
-                    left: 0,
-                    width: 0,
-                    height: '1px',
-                    bg: 'brand.primary',
-                    transition: 'width 0.3s ease'
-                  }}
-                  transition="color 0.2s"
+                  transition="all 0.2s"
                 >
                   {link.label}
                 </Link>
@@ -162,41 +216,30 @@ const Footer = () => {
           <GridItem>
             <VStack align="flex-start" spacing={3}>
               <Text 
-                color="text.primary" 
-                fontSize="sm" 
+                color="white" 
+                fontSize="xs" 
                 fontWeight="semibold"
                 textTransform="uppercase"
                 letterSpacing="wider"
-                mb={1}
+                mb={2}
               >
                 Resources
               </Text>
               {resourceLinks.map((link) => (
                 <Link
                   key={link.label}
-                  onClick={() => navigate(link.href)}
-                  color="text.secondary"
+                  onClick={() => window.location.href = link.href}
+                  color={link.highlight ? colors.accent.neon : "gray.400"}
                   fontSize="sm"
                   cursor="pointer"
                   position="relative"
+                  fontWeight={link.highlight ? "medium" : "normal"}
                   _hover={{ 
-                    color: 'text.primary',
+                    color: link.highlight ? colors.accent.neon : 'white',
                     textDecoration: 'none',
-                    _after: {
-                      width: '100%'
-                    }
+                    transform: 'translateX(2px)'
                   }}
-                  _after={{
-                    content: '""',
-                    position: 'absolute',
-                    bottom: '-2px',
-                    left: 0,
-                    width: 0,
-                    height: '1px',
-                    bg: 'accent.banana',
-                    transition: 'width 0.3s ease'
-                  }}
-                  transition="color 0.2s"
+                  transition="all 0.2s"
                 >
                   {link.label}
                 </Link>
@@ -208,29 +251,31 @@ const Footer = () => {
           <GridItem>
             <VStack align="flex-start" spacing={3}>
               <Text 
-                color="text.primary" 
-                fontSize="sm" 
+                color="white" 
+                fontSize="xs" 
                 fontWeight="semibold"
                 textTransform="uppercase"
                 letterSpacing="wider"
-                mb={1}
+                mb={2}
               >
-                Get in Touch
+                Connect
               </Text>
-              <VStack align="flex-start" spacing={2}>
-                <HStack spacing={2} color="text.secondary" fontSize="sm">
-                  <FiMapPin size={14} color="var(--chakra-colors-brand-primary)" />
-                  <Text>Ridgway, Colorado</Text>
+              <VStack align="flex-start" spacing={3}>
+                <HStack spacing={2} color="gray.400" fontSize="sm">
+                  <Box color={colors.brand.primary}>
+                    <FiMapPin size={14} />
+                  </Box>
+                  <Text>Ridgway, CO 81432</Text>
                 </HStack>
                 <Link
                   href="mailto:hello@neonburro.com"
                   display="flex"
                   alignItems="center"
                   gap={2}
-                  color="text.secondary"
+                  color="gray.400"
                   fontSize="sm"
                   _hover={{ 
-                    color: 'brand.primary',
+                    color: colors.brand.primary,
                     textDecoration: 'none'
                   }}
                   transition="color 0.2s"
@@ -238,149 +283,152 @@ const Footer = () => {
                   <FiMail size={14} />
                   hello@neonburro.com
                 </Link>
-                <HStack spacing={2} color="text.secondary" fontSize="sm">
-                  <FiPhone size={14} color="var(--chakra-colors-accent-neon)" />
-                  <Text>(970) 973-8550</Text>
-                </HStack>
               </VStack>
               
-              {/* CTA Button */}
+              {/* Quick Chat Button */}
               <Button
                 size="sm"
-                mt={3}
-                bg="brand.primary"
-                color="dark.black"
+                mt={4}
+                variant="outline"
+                borderColor="whiteAlpha.200"
+                color="white"
                 borderRadius="full"
-                px={5}
-                fontWeight="600"
-                fontSize="sm"
-                rightIcon={<FiMessageCircle size={14} />}
-                onClick={() => navigate('/contact')}
+                px={4}
+                fontWeight="medium"
+                fontSize="xs"
+                leftIcon={<FiMessageCircle size={12} />}
+                onClick={() => window.location.href = '/contact/'}
                 _hover={{
-                  bg: 'brand.primaryDark',
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 10px 30px rgba(0, 229, 229, 0.3)'
-                }}
-                _active={{
-                  transform: 'translateY(0)'
+                  borderColor: colors.brand.primary,
+                  color: colors.brand.primary,
+                  transform: 'translateY(-2px)'
                 }}
                 transition="all 0.3s"
               >
-                Start a Project
+                Quick Chat
               </Button>
             </VStack>
           </GridItem>
         </Grid>
 
-        <Divider borderColor="whiteAlpha.100" opacity={0.5} />
+        <Divider borderColor="whiteAlpha.100" opacity={0.3} />
 
-        {/* Bottom Section */}
-        <HStack 
-          justify="space-between" 
-          width="100%"
-          flexDirection={{ base: 'column', md: 'row' }}
-          spacing={4}
-          pt={8}
-          color="text.muted"
-          fontSize="xs"
-        >
-          <VStack align={{ base: 'center', md: 'flex-start' }} spacing={1}>
-            <Text>
-              © {currentYear} Neon Burro, LLC. All rights reserved.
-            </Text>
-            <HStack spacing={2} fontSize="xs">
-              <Text>Built with</Text>
-              <Box 
-                as="span" 
-                color="accent.warm"
-                animation="pulse 2s ease-in-out infinite"
-                sx={{
-                  '@keyframes pulse': {
-                    '0%, 100%': { opacity: 1 },
-                    '50%': { opacity: 0.5 }
-                  }
-                }}
-              >
-                ♥
-              </Box>
-              <Text>at 7,200ft</Text>
-            </HStack>
-          </VStack>
-
-          <HStack 
-            spacing={{ base: 6, md: 8 }} 
-            fontSize="xs"
-            flexWrap="wrap"
-            justify={{ base: 'center', md: 'flex-end' }}
+        {/* Bottom Section - Simplified */}
+        <Box pt={8}>
+          <Grid
+            templateColumns={{ base: '1fr', md: '1fr 1fr' }}
+            gap={4}
+            alignItems="center"
           >
-            <Link 
-              onClick={() => navigate('/privacy')}
-              color="text.muted"
-              _hover={{ 
-                color: 'text.primary',
-                textDecoration: 'none'
-              }}
-              cursor="pointer"
-              transition="color 0.2s"
-            >
-              Privacy Policy
-            </Link>
-            <Link 
-              onClick={() => navigate('/terms')}
-              color="text.muted"
-              _hover={{ 
-                color: 'text.primary',
-                textDecoration: 'none'
-              }}
-              cursor="pointer"
-              transition="color 0.2s"
-            >
-              Terms of Service
-            </Link>
-            <Link 
-              onClick={() => navigate('/sitemap')}
-              color="text.muted"
-              _hover={{ 
-                color: 'text.primary',
-                textDecoration: 'none'
-              }}
-              cursor="pointer"
-              transition="color 0.2s"
-            >
-              Sitemap
-            </Link>
-          </HStack>
-        </HStack>
+            <GridItem>
+              <VStack align={{ base: 'center', md: 'flex-start' }} spacing={2}>
+                <Text color="gray.500" fontSize="xs">
+                  © {currentYear} Neon Burro, LLC. All rights reserved.
+                </Text>
+                <HStack spacing={1} fontSize="xs" color="gray.600">
+                  <Text>Crafted with</Text>
+                  <Box 
+                    as="span" 
+                    color={colors.accent.warm}
+                    animation={`${pulse} 3s ease-in-out infinite`}
+                  >
+                    ♥
+                  </Box>
+                  <Text>at 7,200ft elevation</Text>
+                </HStack>
+              </VStack>
+            </GridItem>
 
-        {/* Floating scroll to top button on hover */}
-        <MotionBox
-          position="fixed"
-          bottom={8}
-          right={8}
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 0, scale: 0 }}
-          whileHover={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.2 }}
-        >
-          <IconButton
-            icon={<FiArrowUpRight />}
-            aria-label="Scroll to top"
-            size="lg"
-            borderRadius="full"
-            bg="brand.primary"
-            color="dark.black"
-            boxShadow="0 10px 30px rgba(0, 229, 229, 0.3)"
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            _hover={{
-              transform: 'translateY(-4px)',
-              boxShadow: '0 15px 40px rgba(0, 229, 229, 0.4)'
-            }}
-            transition="all 0.3s"
-          />
-        </MotionBox>
+            <GridItem>
+              <HStack 
+                spacing={6}
+                fontSize="xs"
+                justify={{ base: 'center', md: 'flex-end' }}
+                flexWrap="wrap"
+              >
+                <Link 
+                  onClick={() => window.location.href = '/privacy/'}
+                  color="gray.600"
+                  _hover={{ 
+                    color: 'gray.400'
+                  }}
+                  cursor="pointer"
+                  transition="color 0.2s"
+                >
+                  Privacy
+                </Link>
+                <Link 
+                  onClick={() => window.location.href = '/terms/'}
+                  color="gray.600"
+                  _hover={{ 
+                    color: 'gray.400'
+                  }}
+                  cursor="pointer"
+                  transition="color 0.2s"
+                >
+                  Terms
+                </Link>
+                <Link 
+                  onClick={() => window.location.href = '/sitemap/'}
+                  color="gray.600"
+                  _hover={{ 
+                    color: 'gray.400'
+                  }}
+                  cursor="pointer"
+                  transition="color 0.2s"
+                >
+                  Sitemap
+                </Link>
+              </HStack>
+            </GridItem>
+          </Grid>
+        </Box>
+
+        {/* Scroll to top button - Fixed visibility */}
+        <AnimatePresence>
+          {showScrollTop && (
+            <MotionBox
+              position="fixed"
+              bottom={6}
+              right={6}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.2 }}
+            >
+              <IconButton
+                icon={<FiArrowUp />}
+                aria-label="Scroll to top"
+                size="md"
+                borderRadius="full"
+                bg="whiteAlpha.100"
+                backdropFilter="blur(10px)"
+                color="white"
+                border="1px solid"
+                borderColor="whiteAlpha.200"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                _hover={{
+                  bg: colors.brand.primary,
+                  color: colors.dark.black,
+                  transform: 'translateY(-4px)',
+                  boxShadow: `0 10px 30px ${colors.brand.primary}44`
+                }}
+                transition="all 0.3s"
+              />
+            </MotionBox>
+          )}
+        </AnimatePresence>
       </Container>
     </Box>
   );
 };
+
+// Add missing import
+const { AnimatePresence } = motion;
+
+// Add missing Heading component
+const Heading = ({ children, ...props }) => (
+  <Text as="h3" {...props}>{children}</Text>
+);
 
 export default Footer;
