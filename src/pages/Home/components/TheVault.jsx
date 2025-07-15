@@ -376,7 +376,7 @@ const TheVault = () => {
                     maxW="500px" 
                     lineHeight="relaxed"
                   >
-                    Every quarter, we transform one local business's digital presence 
+                    Every other quarter, we transform one local business's digital presence 
                     at no cost. It's our way of supporting the community that supports us.
                   </Text>
                 </VStack>
