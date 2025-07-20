@@ -140,8 +140,8 @@ const Hero = () => {
     window.location.href = '/contact/';
   };
   
-  const handlePricingClick = () => {
-    window.location.href = '/pricing/';
+  const handleServicesClick = () => {
+    window.location.href = '/services/';
   };
 
   const stats = [
@@ -303,7 +303,7 @@ const Hero = () => {
         <motion.div style={{ y, opacity }}>
           <VStack spacing={{ base: 6, md: 8 }} align={{ base: "center", md: "flex-start" }} textAlign={{ base: "center", md: "left" }} maxW="900px">
             
-            {/* Enhanced Badge */}
+            {/* Enhanced Badge - Removed background */}
             <MotionBox
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -314,15 +314,10 @@ const Hero = () => {
                 px={{ base: 3, md: 4 }}
                 py={{ base: 1.5, md: 2 }}
                 borderRadius="full"
-                bg="whiteAlpha.100"
-                backdropFilter="blur(10px)"
-                border="1px solid"
-                borderColor="whiteAlpha.200"
                 color={colors.brand.primary}
                 fontSize={{ base: "xs", md: "sm" }}
                 fontWeight="600"
                 letterSpacing="0.05em"
-                boxShadow={`0 0 20px ${colors.brand.primary}22`}
               >
                 <Box 
                   width="6px" 
@@ -335,13 +330,13 @@ const Hero = () => {
               </HStack>
             </MotionBox>
 
-            {/* Enhanced Main Title */}
+            {/* Enhanced Main Title - Bigger on mobile */}
             <MotionHeading
               as="h1"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1, type: "spring", stiffness: 100 }}
-              fontSize={{ base: "2xl", sm: "3xl", md: "4xl", lg: "5xl", xl: "6xl" }}
+              fontSize={{ base: "3xl", sm: "4xl", md: "4xl", lg: "5xl", xl: "6xl" }}
               fontFamily="'Inter', sans-serif"
               fontWeight="800"
               color="white"
@@ -405,16 +400,16 @@ const Hero = () => {
               impact and growth.
             </MotionText>
 
-            {/* Enhanced Stats Cards */}
+            {/* Enhanced Stats Cards - Fixed desktop size */}
             <MotionBox
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.3 }}
               width="100%"
-              maxW={{ base: "100%", md: "700px" }}
+              maxW={{ base: "100%", md: "600px" }}
             >
               <HStack
-                spacing={{ base: 2, md: 4 }}
+                spacing={{ base: 2, md: 3 }}
                 justify={{ base: "center", md: "flex-start" }}
                 flexWrap={{ base: "wrap", md: "nowrap" }}
                 gap={{ base: 2, md: 0 }}
@@ -429,7 +424,7 @@ const Hero = () => {
                     transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
                   >
                     <VStack
-                      p={{ base: 2, md: 4 }}
+                      p={{ base: 2, md: 3 }}
                       borderRadius="xl"
                       bg="rgba(255, 255, 255, 0.03)"
                       backdropFilter="blur(20px)"
@@ -437,7 +432,7 @@ const Hero = () => {
                       borderColor="rgba(255, 255, 255, 0.08)"
                       transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                       cursor="pointer"
-                      spacing={{ base: 0.5, md: 1 }}
+                      spacing={{ base: 0.5, md: 0.5 }}
                       position="relative"
                       overflow="hidden"
                       role="group"
@@ -460,19 +455,19 @@ const Hero = () => {
                       
                       {/* Icon */}
                       <Box
-                        mb={{ base: 0.5, md: 1 }}
+                        mb={{ base: 0.5, md: 0.5 }}
                         color={stat.color}
                         opacity={0.6}
                         _groupHover={{ opacity: 1 }}
                         transition="all 0.3s"
                       >
-                        <Box as={stat.icon} size={{ base: 16, md: 20 }} />
+                        <Box as={stat.icon} size={{ base: 16, md: 18 }} />
                       </Box>
                       
-                      <HStack spacing={{ base: 0.5, md: 1 }} align="baseline">
+                      <HStack spacing={{ base: 0.5, md: 0.5 }} align="baseline">
                         <Text 
                           color="white" 
-                          fontSize={{ base: "lg", md: "2xl" }}
+                          fontSize={{ base: "lg", md: "xl" }}
                           fontWeight="800"
                           fontFamily="mono"
                           lineHeight="1"
@@ -487,7 +482,7 @@ const Hero = () => {
                         </Text>
                         <Text 
                           color="gray.400" 
-                          fontSize={{ base: "2xs", md: "sm" }}
+                          fontSize={{ base: "2xs", md: "xs" }}
                           fontWeight="600"
                           textTransform="uppercase"
                           letterSpacing="wider"
@@ -497,7 +492,7 @@ const Hero = () => {
                       </HStack>
                       <Text 
                         color="gray.500" 
-                        fontSize={{ base: "3xs", md: "2xs" }}
+                        fontSize="2xs"
                         letterSpacing="0.05em" 
                         textAlign="center"
                         position="relative"
@@ -511,26 +506,26 @@ const Hero = () => {
               </HStack>
             </MotionBox>
             
-            {/* Enhanced CTA Buttons */}
+            {/* Enhanced CTA Buttons - Thinner and 75% width on mobile */}
             <MotionBox
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.7 }}
-              width={{ base: "100%", sm: "auto" }}
+              width={{ base: "75%", sm: "auto" }}
             >
               <HStack 
                 spacing={3} 
                 flexDirection={{ base: "column", sm: "row" }} 
-                width={{ base: "100%", sm: "auto" }}
+                width="100%"
               >
                 <Button
-                  size="lg"
+                  size={{ base: "md", md: "lg" }}
                   bg="white"
                   color="black"
                   fontWeight="700"
                   fontSize={{ base: "sm", md: "md" }}
-                  height={{ base: "52px", md: "56px" }}
-                  px={{ base: 8, md: 10 }}
+                  height={{ base: "44px", md: "56px" }}
+                  px={{ base: 6, md: 10 }}
                   width={{ base: "100%", sm: "auto" }}
                   rightIcon={<FiArrowRight />}
                   onClick={handleContactClick}
@@ -566,15 +561,15 @@ const Hero = () => {
                 </Button>
                 
                 <Button
-                  size="lg"
+                  size={{ base: "md", md: "lg" }}
                   variant="ghost"
                   color="white"
                   fontWeight="600"
                   fontSize={{ base: "sm", md: "md" }}
-                  height={{ base: "52px", md: "56px" }}
-                  px={{ base: 8, md: 10 }}
+                  height={{ base: "44px", md: "56px" }}
+                  px={{ base: 6, md: 10 }}
                   width={{ base: "100%", sm: "auto" }}
-                  onClick={handlePricingClick}
+                  onClick={handleServicesClick}
                   position="relative"
                   _after={{
                     content: '""',
@@ -596,7 +591,7 @@ const Hero = () => {
                   borderRadius="full"
                   transition="all 0.3s"
                 >
-                  VIEW PRICING
+                  VIEW SERVICES
                 </Button>
               </HStack>
             </MotionBox>
