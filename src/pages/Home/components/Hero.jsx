@@ -1,6 +1,6 @@
 import { Box, Container, Heading, Text, VStack, HStack, Button, Badge, keyframes } from '@chakra-ui/react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { FiArrowRight, FiZap, FiCode, FiAward } from 'react-icons/fi';
 
 const MotionBox = motion(Box);
@@ -47,56 +47,77 @@ const pulse = keyframes`
   50% { opacity: 0.5; transform: scale(1.05); }
 `;
 
-// Enhanced Matrix Rain Component
+// Enhanced Matrix Rain Component with performance optimizations
 const MatrixRain = () => {
   const canvasRef = useRef(null);
+  const animationRef = useRef(null);
+  const dropsRef = useRef([]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    if (!canvas) return;
     
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const ctx = canvas.getContext('2d', { alpha: false });
+    
+    // Initial setup
+    const setupCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      
+      const fontSize = 14;
+      const columns = Math.floor(canvas.width / fontSize);
+      dropsRef.current = Array(columns).fill(1);
+    };
+    
+    setupCanvas();
     
     const matrix = 'NEONBURRO01WEBDEVMOUNTAINCODE';
     const matrixArray = matrix.split('');
-    
     const fontSize = 14;
-    const columns = canvas.width / fontSize;
     
-    const drops = Array(Math.floor(columns)).fill(1);
-    
+    // Optimized draw function
     const draw = () => {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      drops.forEach((y, i) => {
+      ctx.font = `${fontSize}px monospace`;
+      
+      dropsRef.current.forEach((y, i) => {
         const randomColor = Math.random() > 0.5 ? colors.brand.primary : colors.accent.neon;
         ctx.fillStyle = randomColor;
-        ctx.font = `${fontSize}px monospace`;
         
         const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
         ctx.fillText(text, i * fontSize, y * fontSize);
         
         if (y * fontSize > canvas.height && Math.random() > 0.975) {
-          drops[i] = 0;
+          dropsRef.current[i] = 0;
         }
-        drops[i]++;
+        dropsRef.current[i]++;
       });
+      
+      animationRef.current = requestAnimationFrame(draw);
     };
     
-    const interval = setInterval(draw, 35);
+    // Start animation
+    animationRef.current = requestAnimationFrame(draw);
     
+    // Debounced resize handler
+    let resizeTimeout;
     const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        setupCanvas();
+      }, 250);
     };
     
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
     
     return () => {
-      clearInterval(interval);
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
       window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimeout);
     };
   }, []);
 
@@ -110,6 +131,7 @@ const MatrixRain = () => {
         zIndex: 5,
         opacity: 0.3,
         pointerEvents: 'none',
+        willChange: 'opacity',
       }}
     />
   );
@@ -119,32 +141,47 @@ const Hero = () => {
   const containerRef = useRef(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const { scrollY } = useScroll();
-  const y = useTransform(scrollY, [0, 300], [0, 30]);
-  const opacity = useTransform(scrollY, [0, 300], [1, 0.7]);
+  const y = useTransform(scrollY, [0, 300], [0, 30], { clamp: true });
+  const opacity = useTransform(scrollY, [0, 300], [1, 0.7], { clamp: true });
 
-  // Mouse parallax effect
-  useEffect(() => {
-    const handleMouseMove = (e) => {
+  // Debounced mouse move handler
+  const handleMouseMove = useCallback((e) => {
+    requestAnimationFrame(() => {
       const { clientX, clientY } = e;
       const { innerWidth, innerHeight } = window;
-      const x = (clientX - innerWidth / 2) / innerWidth * 10;
-      const y = (clientY - innerHeight / 2) / innerHeight * 10;
+      const x = ((clientX - innerWidth / 2) / innerWidth) * 10;
+      const y = ((clientY - innerHeight / 2) / innerHeight) * 10;
       setMousePosition({ x, y });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    });
   }, []);
 
-  const handleContactClick = () => {
-    window.location.href = '/contact/';
-  };
-  
-  const handleServicesClick = () => {
-    window.location.href = '/services/';
-  };
+  // Throttled mouse move
+  useEffect(() => {
+    let ticking = false;
+    const throttledMouseMove = (e) => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          handleMouseMove(e);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
 
-  const stats = [
+    window.addEventListener('mousemove', throttledMouseMove, { passive: true });
+    return () => window.removeEventListener('mousemove', throttledMouseMove);
+  }, [handleMouseMove]);
+
+  const handleContactClick = useCallback(() => {
+    window.location.href = '/contact/';
+  }, []);
+  
+  const handleServicesClick = useCallback(() => {
+    window.location.href = '/services/';
+  }, []);
+
+  // Memoize stats to prevent re-renders
+  const stats = useMemo(() => [
     { 
       icon: FiZap, 
       value: '24+', 
@@ -166,7 +203,7 @@ const Hero = () => {
       subtext: 'client satisfaction',
       color: colors.accent.warm 
     }
-  ];
+  ], []);
 
   return (
     <Box
@@ -179,8 +216,12 @@ const Hero = () => {
       bg={colors.dark.black}
       pt={{ base: 20, md: 28, lg: 32 }}
       pb={{ base: 8, md: 12, lg: 16 }}
+      css={{
+        WebkitFontSmoothing: 'antialiased',
+        MozOsxFontSmoothing: 'grayscale',
+      }}
     >
-      {/* Dynamic Background Gradients */}
+      {/* Dynamic Background Gradients with GPU acceleration */}
       <Box
         position="absolute"
         top={0}
@@ -188,8 +229,9 @@ const Hero = () => {
         right={0}
         bottom={0}
         opacity={0.4}
-        style={{ transform: `translate(${mousePosition.x}px, ${mousePosition.y}px)` }}
-        transition="transform 0.3s ease-out"
+        willChange="transform"
+        transform={`translate3d(${mousePosition.x}px, ${mousePosition.y}px, 0)`}
+        transition="transform 0.2s cubic-bezier(0.23, 1, 0.32, 1)"
         zIndex={1}
       >
         <Box
@@ -203,6 +245,7 @@ const Hero = () => {
           opacity={0.1}
           filter="blur(120px)"
           animation={`${float} 12s ease-in-out infinite`}
+          willChange="transform"
         />
         <Box
           position="absolute"
@@ -215,6 +258,7 @@ const Hero = () => {
           opacity={0.1}
           filter="blur(120px)"
           animation={`${float} 15s ease-in-out infinite 2s`}
+          willChange="transform"
         />
         <Box
           position="absolute"
@@ -228,6 +272,7 @@ const Hero = () => {
           opacity={0.08}
           filter="blur(100px)"
           animation={`${pulse} 10s ease-in-out infinite`}
+          willChange="opacity, transform"
         />
       </Box>
 
@@ -261,6 +306,7 @@ const Hero = () => {
           height="100%"
           objectFit="cover"
           opacity={0.2}
+          loading="eager"
         />
       </Box>
 
@@ -274,7 +320,7 @@ const Hero = () => {
         zIndex={3}
       />
 
-      {/* Matrix Rain Effect - Moved here with proper z-index */}
+      {/* Matrix Rain Effect */}
       <MatrixRain />
 
       {/* Floating particles */}
@@ -291,6 +337,7 @@ const Hero = () => {
           opacity={0.5}
           animation={`${float} ${10 + i * 2}s ease-in-out infinite ${i * 0.5}s`}
           zIndex={4}
+          willChange="transform"
         />
       ))}
       
@@ -300,14 +347,19 @@ const Hero = () => {
         position="relative"
         zIndex={10}
       >
-        <motion.div style={{ y, opacity }}>
+        <motion.div 
+          style={{ y, opacity }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+        >
           <VStack spacing={{ base: 6, md: 8 }} align={{ base: "center", md: "flex-start" }} textAlign={{ base: "center", md: "left" }} maxW="900px">
             
             {/* Enhanced Badge - Removed background */}
             <MotionBox
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
             >
               <HStack
                 spacing={2}
@@ -335,7 +387,7 @@ const Hero = () => {
               as="h1"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.1, type: "spring", stiffness: 100 }}
+              transition={{ duration: 0.8, delay: 0.1, type: "spring", stiffness: 100, damping: 15 }}
               fontSize={{ base: "3xl", sm: "4xl", md: "4xl", lg: "5xl", xl: "6xl" }}
               fontFamily="'Inter', sans-serif"
               fontWeight="800"
@@ -371,7 +423,7 @@ const Hero = () => {
                   opacity: 0,
                   transform: 'scaleX(0)',
                   transformOrigin: 'left',
-                  transition: 'all 0.3s ease-out'
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
                 _hover={{
                   _after: {
@@ -388,7 +440,7 @@ const Hero = () => {
             <MotionText
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
               fontSize={{ base: "sm", md: "md", lg: "lg" }}
               color="gray.300"
               lineHeight={{ base: "1.6", md: "1.7" }}
@@ -400,16 +452,16 @@ const Hero = () => {
               impact and growth.
             </MotionText>
 
-            {/* Enhanced Stats Cards - Fixed desktop size */}
+            {/* Enhanced Stats Cards - Creative desktop design */}
             <MotionBox
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
+              transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
               width="100%"
-              maxW={{ base: "100%", md: "600px" }}
+              maxW={{ base: "100%", md: "500px" }}
             >
               <HStack
-                spacing={{ base: 2, md: 3 }}
+                spacing={{ base: 2, md: 6 }}
                 justify={{ base: "center", md: "flex-start" }}
                 flexWrap={{ base: "wrap", md: "nowrap" }}
                 gap={{ base: 2, md: 0 }}
@@ -417,86 +469,109 @@ const Hero = () => {
                 {stats.map((stat, index) => (
                   <MotionBox
                     key={index}
-                    flex={{ base: "1 1 calc(33.333% - 8px)", md: 1 }}
+                    flex={{ base: "1 1 calc(33.333% - 8px)", md: "0 0 auto" }}
                     minW={{ base: "80px", md: "auto" }}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
+                    transition={{ duration: 0.5, delay: 0.4 + index * 0.1, ease: "easeOut" }}
                   >
                     <VStack
-                      p={{ base: 2, md: 3 }}
-                      borderRadius="xl"
-                      bg="rgba(255, 255, 255, 0.03)"
-                      backdropFilter="blur(20px)"
-                      border="1px solid"
-                      borderColor="rgba(255, 255, 255, 0.08)"
-                      transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                      p={{ base: 2, md: 0 }}
+                      borderRadius={{ base: "xl", md: "none" }}
+                      bg={{ base: "rgba(255, 255, 255, 0.03)", md: "transparent" }}
+                      backdropFilter={{ base: "blur(20px)", md: "none" }}
+                      border={{ base: "1px solid", md: "none" }}
+                      borderColor={{ base: "rgba(255, 255, 255, 0.08)", md: "transparent" }}
+                      transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
                       cursor="pointer"
-                      spacing={{ base: 0.5, md: 0.5 }}
+                      spacing={{ base: 0.5, md: 0 }}
                       position="relative"
                       overflow="hidden"
                       role="group"
+                      align={{ base: "center", md: "flex-start" }}
                       _hover={{
-                        bg: 'rgba(255, 255, 255, 0.05)',
-                        borderColor: stat.color,
-                        transform: 'translateY(-6px)',
-                        boxShadow: `0 20px 40px ${stat.color}22`
+                        bg: { base: 'rgba(255, 255, 255, 0.05)', md: 'transparent' },
+                        borderColor: { base: stat.color, md: 'transparent' },
+                        transform: { base: 'translateY(-6px)', md: 'translateY(-2px)' },
+                        boxShadow: { base: `0 20px 40px ${stat.color}22`, md: 'none' }
                       }}
                     >
-                      {/* Glow effect */}
+                      {/* Mobile glow effect */}
                       <Box
+                        display={{ base: "block", md: "none" }}
                         position="absolute"
                         inset={0}
                         bg={`radial-gradient(circle at center, ${stat.color}11 0%, transparent 70%)`}
                         opacity={0}
                         _groupHover={{ opacity: 1 }}
-                        transition="opacity 0.3s"
+                        transition="opacity 0.2s"
                       />
                       
-                      {/* Icon */}
-                      <Box
-                        mb={{ base: 0.5, md: 0.5 }}
-                        color={stat.color}
-                        opacity={0.6}
-                        _groupHover={{ opacity: 1 }}
-                        transition="all 0.3s"
+                      {/* Desktop design - horizontal layout */}
+                      <HStack 
+                        spacing={{ base: 0.5, md: 2 }} 
+                        align="center"
+                        position="relative"
                       >
-                        <Box as={stat.icon} size={{ base: 16, md: 18 }} />
-                      </Box>
-                      
-                      <HStack spacing={{ base: 0.5, md: 0.5 }} align="baseline">
-                        <Text 
-                          color="white" 
-                          fontSize={{ base: "lg", md: "xl" }}
-                          fontWeight="800"
-                          fontFamily="mono"
-                          lineHeight="1"
-                          position="relative"
-                          transition="all 0.3s"
-                          _groupHover={{
-                            color: stat.color,
-                            textShadow: `0 0 20px ${stat.color}`
-                          }}
+                        {/* Icon - hidden on desktop */}
+                        <Box
+                          display={{ base: "block", md: "none" }}
+                          mb={{ base: 0.5, md: 0 }}
+                          color={stat.color}
+                          opacity={0.6}
+                          _groupHover={{ opacity: 1 }}
+                          transition="all 0.2s"
                         >
-                          {stat.value}
-                        </Text>
-                        <Text 
-                          color="gray.400" 
-                          fontSize={{ base: "2xs", md: "xs" }}
-                          fontWeight="600"
-                          textTransform="uppercase"
-                          letterSpacing="wider"
+                          <Box as={stat.icon} size={16} />
+                        </Box>
+                        
+                        {/* Desktop mini icon */}
+                        <Box
+                          display={{ base: "none", md: "block" }}
+                          color={stat.color}
+                          opacity={0.7}
+                          _groupHover={{ opacity: 1 }}
+                          transition="all 0.2s"
                         >
-                          {stat.label}
-                        </Text>
+                          <Box as={stat.icon} size={14} />
+                        </Box>
+                        
+                        <HStack spacing={{ base: 0.5, md: 1 }} align="baseline">
+                          <Text 
+                            color="white" 
+                            fontSize={{ base: "lg", md: "lg" }}
+                            fontWeight="800"
+                            fontFamily="mono"
+                            lineHeight="1"
+                            position="relative"
+                            transition="all 0.2s"
+                            _groupHover={{
+                              color: { base: stat.color, md: "white" },
+                              textShadow: { base: `0 0 20px ${stat.color}`, md: `0 0 15px ${stat.color}55` }
+                            }}
+                          >
+                            {stat.value}
+                          </Text>
+                          <Text 
+                            color="gray.400" 
+                            fontSize={{ base: "2xs", md: "2xs" }}
+                            fontWeight="600"
+                            textTransform="uppercase"
+                            letterSpacing="wider"
+                          >
+                            {stat.label}
+                          </Text>
+                        </HStack>
                       </HStack>
+                      
+                      {/* Subtext - hidden on all sizes for cleaner look */}
                       <Text 
                         color="gray.500" 
                         fontSize="2xs"
                         letterSpacing="0.05em" 
                         textAlign="center"
                         position="relative"
-                        display={{ base: "none", sm: "block" }}
+                        display="none"
                       >
                         {stat.subtext}
                       </Text>
@@ -510,7 +585,7 @@ const Hero = () => {
             <MotionBox
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.7 }}
+              transition={{ duration: 0.6, delay: 0.7, ease: "easeOut" }}
               width={{ base: "75%", sm: "auto" }}
             >
               <HStack 
@@ -540,7 +615,7 @@ const Hero = () => {
                     height: '100%',
                     background: `linear-gradient(45deg, ${colors.brand.primary}, ${colors.accent.neon})`,
                     opacity: 0,
-                    transition: 'opacity 0.3s',
+                    transition: 'opacity 0.2s',
                     zIndex: -1,
                   }}
                   _hover={{
@@ -555,7 +630,7 @@ const Hero = () => {
                     transform: 'translateY(0)'
                   }}
                   borderRadius="full"
-                  transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                  transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
                 >
                   START PROJECT
                 </Button>
@@ -580,7 +655,7 @@ const Hero = () => {
                     width: '0%',
                     height: '2px',
                     bg: 'white',
-                    transition: 'width 0.3s ease'
+                    transition: 'width 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
                   }}
                   _hover={{
                     bg: 'whiteAlpha.100',
@@ -589,7 +664,7 @@ const Hero = () => {
                     }
                   }}
                   borderRadius="full"
-                  transition="all 0.3s"
+                  transition="all 0.2s"
                 >
                   VIEW SERVICES
                 </Button>
