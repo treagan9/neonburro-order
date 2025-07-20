@@ -33,7 +33,7 @@ const TheVault = () => {
   const approaches = [
     {
       title: "No Committees",
-      description: "Direct access to makers. Your project lead codes, designs, and decides.",
+      description: "Talk directly with your developer, that designs, codes, designs, and builds your vision.",
       icon: FiTrendingUp,
       color: colors.brand.primary,
       traditional: "6 people in meetings",

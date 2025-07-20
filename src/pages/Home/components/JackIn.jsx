@@ -189,7 +189,7 @@ const JackIn = () => {
                 lineHeight="relaxed"
               >
                 Drop us a quick message or schedule a call. We're here to turn your 
-                vision into reality—no corporate nonsense, just real conversation.
+                vision into reality, no corporate nonsense, just real conversation.
               </Text>
             </MotionBox>
 
