@@ -345,7 +345,7 @@ const Hero = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1, type: "spring", stiffness: 100 }}
-              fontSize={{ base: "4xl", sm: "5xl", md: "5xl", lg: "6xl", xl: "7xl" }}
+              fontSize={{ base: "3xl", sm: "5xl", md: "5xl", lg: "6xl", xl: "7xl" }}
               fontFamily="'Inter', sans-serif"
               fontWeight="800"
               color="white"
@@ -466,19 +466,7 @@ const Hero = () => {
                         align="center"
                         position="relative"
                       >
-                        {/* Mobile icon */}
-                        <Box
-                          display={{ base: "block", md: "none" }}
-                          mb={{ base: 0.5, md: 0 }}
-                          color={stat.color}
-                          opacity={0.6}
-                          _groupHover={{ opacity: 1 }}
-                          transition="all 0.3s"
-                        >
-                          <stat.icon size={18} />
-                        </Box>
-                        
-                        {/* Desktop icon */}
+                        {/* Desktop icon only */}
                         <Box
                           display={{ base: "none", md: "block" }}
                           color={stat.color}
