@@ -412,11 +412,11 @@ const Hero = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.3 }}
               width="100%"
-              maxW={{ base: "100%", md: "500px" }}
+              maxW={{ base: "100%", md: "600px" }}
             >
               <HStack
-                spacing={{ base: 2, md: 6 }}
-                justify={{ base: "center", md: "flex-start" }}
+                spacing={{ base: 2, md: 12 }}
+                justify="center"
                 flexWrap={{ base: "wrap", md: "nowrap" }}
                 gap={{ base: 2, md: 0 }}
               >
@@ -424,29 +424,29 @@ const Hero = () => {
                   <MotionBox
                     key={index}
                     flex={{ base: "1 1 calc(33.333% - 8px)", md: "0 0 auto" }}
-                    minW={{ base: "75px", md: "auto" }}
+                    minW={{ base: "75px", md: "120px" }}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
                   >
                     <VStack
-                      p={{ base: 1.5, md: 0 }}
-                      borderRadius={{ base: "xl", md: "none" }}
+                      p={{ base: 1.5, md: 3 }}
+                      borderRadius={{ base: "xl", md: "lg" }}
                       bg={{ base: "rgba(255, 255, 255, 0.03)", md: "transparent" }}
                       backdropFilter={{ base: "blur(20px)", md: "none" }}
                       border={{ base: "1px solid", md: "none" }}
                       borderColor={{ base: "rgba(255, 255, 255, 0.08)", md: "transparent" }}
                       transition="all 0.3s ease"
                       cursor="pointer"
-                      spacing={{ base: 0, md: 0 }}
+                      spacing={{ base: 0, md: 2 }}
                       position="relative"
                       overflow="hidden"
                       role="group"
-                      align={{ base: "center", md: "flex-start" }}
+                      align="center"
                       _hover={{
-                        bg: { base: 'rgba(255, 255, 255, 0.05)', md: 'transparent' },
+                        bg: { base: 'rgba(255, 255, 255, 0.05)', md: 'rgba(255, 255, 255, 0.02)' },
                         borderColor: { base: stat.color, md: 'transparent' },
-                        transform: { base: 'translateY(-4px)', md: 'translateY(-2px)' },
+                        transform: { base: 'translateY(-4px)', md: 'translateY(-4px)' },
                         boxShadow: { base: `0 10px 30px ${stat.color}22`, md: 'none' }
                       }}
                     >
@@ -461,41 +461,32 @@ const Hero = () => {
                         transition="opacity 0.3s"
                       />
                       
+                      {/* Mobile design */}
                       <HStack 
-                        spacing={{ base: 0.5, md: 2 }} 
+                        spacing={0.5}
                         align="center"
                         position="relative"
+                        display={{ base: "flex", md: "none" }}
                       >
-                        {/* Desktop icon only */}
-                        <Box
-                          display={{ base: "none", md: "block" }}
-                          color={stat.color}
-                          opacity={0.7}
-                          _groupHover={{ opacity: 1 }}
-                          transition="all 0.3s"
-                        >
-                          <stat.icon size={14} />
-                        </Box>
-                        
-                        <HStack spacing={{ base: 0.5, md: 1 }} align="baseline">
+                        <HStack spacing={0.5} align="baseline">
                           <Text 
                             color="white" 
-                            fontSize={{ base: "lg", md: "lg" }}
+                            fontSize="lg"
                             fontWeight="800"
                             fontFamily="mono"
                             lineHeight="1"
                             position="relative"
                             transition="all 0.3s"
                             _groupHover={{
-                              color: { base: stat.color, md: "white" },
-                              textShadow: { base: `0 0 20px ${stat.color}`, md: `0 0 15px ${stat.color}55` }
+                              color: stat.color,
+                              textShadow: `0 0 20px ${stat.color}`
                             }}
                           >
                             {stat.value}
                           </Text>
                           <Text 
                             color="gray.400" 
-                            fontSize={{ base: "2xs", md: "2xs" }}
+                            fontSize="2xs"
                             fontWeight="600"
                             textTransform="uppercase"
                             letterSpacing="wider"
@@ -504,6 +495,57 @@ const Hero = () => {
                           </Text>
                         </HStack>
                       </HStack>
+
+                      {/* Desktop - icon above text */}
+                      <VStack 
+                        spacing={2} 
+                        align="center"
+                        display={{ base: "none", md: "flex" }}
+                      >
+                        <Box
+                          p={2}
+                          borderRadius="lg"
+                          bg={`${stat.color}08`}
+                          border="1px solid"
+                          borderColor={`${stat.color}20`}
+                          color={stat.color}
+                          transition="all 0.3s"
+                          _groupHover={{ 
+                            bg: `${stat.color}15`,
+                            borderColor: `${stat.color}40`,
+                            transform: 'scale(1.1)'
+                          }}
+                        >
+                          <stat.icon size={20} />
+                        </Box>
+                        
+                        <VStack spacing={0.5} align="center">
+                          <Text 
+                            color="white" 
+                            fontSize="xl"
+                            fontWeight="800"
+                            fontFamily="mono"
+                            lineHeight="1"
+                            position="relative"
+                            transition="all 0.3s"
+                            _groupHover={{
+                              color: stat.color,
+                              textShadow: `0 0 15px ${stat.color}55`
+                            }}
+                          >
+                            {stat.value}
+                          </Text>
+                          <Text 
+                            color="gray.400" 
+                            fontSize="xs"
+                            fontWeight="600"
+                            textTransform="uppercase"
+                            letterSpacing="wider"
+                          >
+                            {stat.label}
+                          </Text>
+                        </VStack>
+                      </VStack>
                     </VStack>
                   </MotionBox>
                 ))}

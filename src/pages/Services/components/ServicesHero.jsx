@@ -14,8 +14,8 @@ const ServicesHero = () => {
   };
 
   const stats = [
-    { value: '3', label: 'Starter Packages', icon: FiPackage },
-    { value: '12+', label: 'Power Features', icon: FiTrendingUp },
+    { value: '4', label: 'Packages', icon: FiPackage },
+    { value: '13+', label: 'Features', icon: FiTrendingUp },
     { value: '∞', label: 'Possibilities', icon: FiZap }
   ];
 
@@ -64,31 +64,34 @@ const ServicesHero = () => {
 
       <Container maxW="1400px" px={{ base: 4, md: 8 }} position="relative">
         <VStack spacing={{ base: 6, md: 8 }} align={{ base: "center", md: "flex-start" }} textAlign={{ base: "center", md: "left" }}>
-          {/* Badge */}
+          {/* Badge - Transparent style */}
           <MotionBox
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <Badge
+            <HStack
+              spacing={2}
               px={{ base: 3, md: 4 }}
               py={{ base: 1.5, md: 2 }}
               borderRadius="full"
-              bg="whiteAlpha.100"
-              backdropFilter="blur(10px)"
-              border="1px solid"
-              borderColor="whiteAlpha.200"
               color={colors.brand.primary}
               fontSize={{ base: "xs", md: "sm" }}
               fontWeight="600"
               letterSpacing="0.05em"
-              boxShadow={`0 0 20px ${colors.brand.primary}22`}
             >
-              SERVICES & SOLUTIONS
-            </Badge>
+              <Box 
+                width="6px" 
+                height="6px" 
+                borderRadius="full" 
+                bg={colors.accent.green}
+                boxShadow={`0 0 10px ${colors.accent.green}`}
+              />
+              <Text>SERVICES & SOLUTIONS</Text>
+            </HStack>
           </MotionBox>
 
-          {/* Main Heading */}
+          {/* Main Heading - Bigger on mobile */}
           <MotionBox
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -97,7 +100,7 @@ const ServicesHero = () => {
           >
             <Heading
               as="h1"
-              fontSize={{ base: "2xl", sm: "3xl", md: "4xl", lg: "5xl", xl: "6xl" }}
+              fontSize={{ base: "3xl", sm: "4xl", md: "4xl", lg: "5xl", xl: "6xl" }}
               fontFamily="'Inter', sans-serif"
               fontWeight="800"
               color="white"
@@ -117,7 +120,7 @@ const ServicesHero = () => {
             </Heading>
           </MotionBox>
 
-          {/* Description */}
+          {/* Description - Bigger text */}
           <MotionBox
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -125,9 +128,9 @@ const ServicesHero = () => {
             maxW={{ base: "100%", md: "700px" }}
           >
             <Text
-              fontSize={{ base: "sm", md: "md", lg: "lg" }}
+              fontSize={{ base: "md", md: "lg", lg: "xl" }}
               color="gray.300"
-              lineHeight={{ base: "1.6", md: "1.7" }}
+              lineHeight={{ base: "1.7", md: "1.8" }}
               px={{ base: 2, md: 0 }}
             >
               From quick-start packages to enterprise solutions, we build digital experiences 
@@ -135,82 +138,141 @@ const ServicesHero = () => {
             </Text>
           </MotionBox>
 
-          {/* Stats Cards */}
+          {/* Stats Cards - Smaller on mobile, clean on desktop */}
           <MotionBox
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             width="100%"
-            maxW={{ base: "100%", md: "700px" }}
+            maxW={{ base: "100%", md: "600px" }}
           >
             <HStack
-              spacing={{ base: 3, md: 4 }}
-              justify={{ base: "center", md: "flex-start" }}
+              spacing={{ base: 2, md: 12 }}
+              justify="center"
               flexWrap={{ base: "wrap", md: "nowrap" }}
-              gap={{ base: 3, md: 0 }}
+              gap={{ base: 2, md: 0 }}
             >
               {stats.map((stat, index) => {
                 const Icon = stat.icon;
                 return (
-                  <Box
+                  <MotionBox
                     key={index}
-                    flex={{ base: "1 1 calc(33.333% - 12px)", md: 1 }}
-                    minW={{ base: "90px", md: "auto" }}
+                    flex={{ base: "1 1 calc(33.333% - 8px)", md: "0 0 auto" }}
+                    minW={{ base: "75px", md: "120px" }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
                   >
                     <VStack
-                      p={{ base: 2.5, md: 3 }}
-                      borderRadius="xl"
-                      bg="whiteAlpha.50"
-                      backdropFilter="blur(10px)"
-                      border="1px solid"
-                      borderColor="whiteAlpha.100"
-                      transition="all 0.3s"
+                      p={{ base: 1.5, md: 3 }}
+                      borderRadius={{ base: "xl", md: "lg" }}
+                      bg={{ base: "whiteAlpha.50", md: "transparent" }}
+                      backdropFilter={{ base: "blur(10px)", md: "none" }}
+                      border={{ base: "1px solid", md: "none" }}
+                      borderColor={{ base: "whiteAlpha.100", md: "transparent" }}
+                      transition="all 0.3s ease"
                       cursor="pointer"
-                      spacing={0.5}
+                      spacing={{ base: 0, md: 2 }}
+                      position="relative"
+                      overflow="hidden"
+                      role="group"
                       align="center"
                       _hover={{
-                        bg: { base: 'whiteAlpha.50', md: 'whiteAlpha.100' },
-                        borderColor: { base: 'whiteAlpha.100', md: colors.brand.primary },
-                        transform: { base: 'none', md: 'translateY(-4px)' },
-                        boxShadow: { base: 'none', md: `0 10px 30px ${colors.brand.primary}22` }
+                        bg: { base: 'whiteAlpha.50', md: 'rgba(255, 255, 255, 0.02)' },
+                        borderColor: { base: colors.brand.primary, md: 'transparent' },
+                        transform: { base: 'translateY(-4px)', md: 'translateY(-4px)' },
+                        boxShadow: { base: `0 10px 30px ${colors.brand.primary}22`, md: 'none' }
                       }}
                     >
-                      <HStack spacing={2} align="center">
-                        <Box color={colors.brand.primary}>
-                          <Icon size={14} />
-                        </Box>
+                      {/* Mobile simple design */}
+                      <HStack 
+                        spacing={1} 
+                        align="center"
+                        display={{ base: "flex", md: "none" }}
+                      >
                         <Text 
                           color="white" 
-                          fontSize={{ base: "lg", md: "xl" }}
+                          fontSize="lg"
                           fontWeight="800"
+                          fontFamily="mono"
                           lineHeight="1"
                         >
                           {stat.value}
                         </Text>
+                        <Text 
+                          color="gray.400" 
+                          fontSize="2xs"
+                          fontWeight="600"
+                          textTransform="uppercase"
+                          letterSpacing="wider"
+                        >
+                          {stat.label}
+                        </Text>
                       </HStack>
-                      <Text 
-                        color="gray.500" 
-                        fontSize="2xs"
-                        fontWeight="600"
-                        textTransform="uppercase"
-                        letterSpacing="wider"
-                        whiteSpace="nowrap"
+
+                      {/* Desktop - icon above text */}
+                      <VStack 
+                        spacing={2} 
+                        align="center"
+                        display={{ base: "none", md: "flex" }}
                       >
-                        {stat.label}
-                      </Text>
+                        <Box
+                          p={2}
+                          borderRadius="lg"
+                          bg={`${colors.brand.primary}08`}
+                          border="1px solid"
+                          borderColor={`${colors.brand.primary}20`}
+                          color={colors.brand.primary}
+                          transition="all 0.3s"
+                          _groupHover={{ 
+                            bg: `${colors.brand.primary}15`,
+                            borderColor: `${colors.brand.primary}40`,
+                            transform: 'scale(1.1)'
+                          }}
+                        >
+                          <Icon size={20} />
+                        </Box>
+                        
+                        <VStack spacing={0.5} align="center">
+                          <Text 
+                            color="white" 
+                            fontSize="xl"
+                            fontWeight="800"
+                            fontFamily="mono"
+                            lineHeight="1"
+                            position="relative"
+                            transition="all 0.3s"
+                            _groupHover={{
+                              color: colors.brand.primary,
+                              textShadow: `0 0 15px ${colors.brand.primary}55`
+                            }}
+                          >
+                            {stat.value}
+                          </Text>
+                          <Text 
+                            color="gray.400" 
+                            fontSize="xs"
+                            fontWeight="600"
+                            textTransform="uppercase"
+                            letterSpacing="wider"
+                          >
+                            {stat.label}
+                          </Text>
+                        </VStack>
+                      </VStack>
                     </VStack>
-                  </Box>
+                  </MotionBox>
                 );
               })}
             </HStack>
           </MotionBox>
 
-          {/* CTA Buttons */}
+          {/* CTA Buttons - 75% width on mobile */}
           <MotionBox
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            width={{ base: "100%", sm: "auto" }}
+            width={{ base: "75%", sm: "auto" }}
           >
             <HStack 
               spacing={3} 
@@ -218,13 +280,13 @@ const ServicesHero = () => {
               width={{ base: "100%", sm: "auto" }}
             >
               <Button
-                size="lg"
+                size={{ base: "md", md: "lg" }}
                 bg={colors.brand.primary}
                 color="black"
                 fontWeight="700"
                 fontSize={{ base: "sm", md: "md" }}
-                height={{ base: "48px", md: "52px" }}
-                px={{ base: 6, md: 8 }}
+                height={{ base: "44px", md: "56px" }}
+                px={{ base: 6, md: 10 }}
                 width={{ base: "100%", sm: "auto" }}
                 rightIcon={<FiArrowRight />}
                 onClick={() => document.getElementById('packages')?.scrollIntoView({ behavior: 'smooth' })}
@@ -242,21 +304,25 @@ const ServicesHero = () => {
                 View Packages
               </Button>
               <Button
-                size="lg"
-                variant="outline"
-                borderColor="whiteAlpha.300"
-                borderWidth="2px"
+                size={{ base: "md", md: "lg" }}
+                variant="ghost"
                 color="white"
                 fontWeight="600"
                 fontSize={{ base: "sm", md: "md" }}
-                height={{ base: "48px", md: "52px" }}
-                px={{ base: 6, md: 8 }}
+                height={{ base: "44px", md: "56px" }}
+                px={{ base: 6, md: 10 }}
                 width={{ base: "100%", sm: "auto" }}
                 onClick={() => window.location.href = '/contact/'}
+                position="relative"
+                border="1px solid transparent"
                 _hover={{
-                  bg: 'whiteAlpha.100',
-                  borderColor: colors.brand.primary,
-                  color: colors.brand.primary
+                  bg: 'transparent',
+                  borderColor: 'white',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 10px 25px rgba(255, 255, 255, 0.15)'
+                }}
+                _active={{
+                  transform: 'translateY(0)'
                 }}
                 borderRadius="full"
                 transition="all 0.2s"

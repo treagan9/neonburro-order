@@ -52,13 +52,13 @@ const ContactHero = () => {
   return (
     <Box
       position="relative"
-      minH={{ base: '70vh', md: '80vh' }}
+      minH={{ base: '85vh', md: '90vh' }}
       display="flex"
       alignItems="center"
       overflow="hidden"
       bg={colors.dark.black}
-      pt={{ base: 20, md: 24 }}
-      pb={{ base: 12, md: 16 }}
+      pt={{ base: 20, md: 28, lg: 32 }}
+      pb={{ base: 8, md: 12, lg: 16 }}
     >
       {/* Simple background gradient - no animations */}
       <Box
@@ -86,7 +86,7 @@ const ContactHero = () => {
           
           {/* Main Content */}
           <VStack spacing={{ base: 4, md: 6 }} maxW="800px">
-            {/* Badge */}
+            {/* Badge - Transparent style */}
             <MotionBox
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -97,8 +97,6 @@ const ContactHero = () => {
                 px={4}
                 py={1.5}
                 borderRadius="full"
-                border="1px solid"
-                borderColor="whiteAlpha.200"
                 fontSize="xs"
                 fontWeight="medium"
                 letterSpacing="wider"
@@ -109,18 +107,19 @@ const ContactHero = () => {
                   height="6px" 
                   borderRadius="full" 
                   bg={colors.accent.neon}
+                  boxShadow={`0 0 10px ${colors.accent.neon}`}
                 />
                 <Text>READY TO START YOUR PROJECT?</Text>
               </HStack>
             </MotionBox>
 
-            {/* Heading */}
+            {/* Heading - Bigger on mobile */}
             <MotionHeading
               as="h1"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              fontSize={{ base: "3xl", sm: "4xl", md: "5xl", lg: "6xl" }}
+              fontSize={{ base: "3xl", sm: "4xl", md: "4xl", lg: "5xl", xl: "6xl" }}
               fontWeight="800"
               color="white"
               lineHeight="1.1"
@@ -138,7 +137,7 @@ const ContactHero = () => {
               </Box>
             </MotionHeading>
 
-            {/* Description */}
+            {/* Description - Bigger text */}
             <MotionBox
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -148,7 +147,7 @@ const ContactHero = () => {
               <Text
                 fontSize={{ base: "md", md: "lg", lg: "xl" }}
                 color="gray.300"
-                lineHeight="1.6"
+                lineHeight="1.7"
               >
                 Tell us about your vision. We'll respond with ideas, insights, 
                 and a clear path forward. No jargon, no BS.
@@ -156,58 +155,137 @@ const ContactHero = () => {
             </MotionBox>
           </VStack>
 
-          {/* Benefits */}
+          {/* Benefits - Enhanced layout */}
           <MotionBox
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             width="100%"
-            maxW="600px"
+            maxW={{ base: "100%", md: "700px" }}
           >
             <HStack
-              spacing={{ base: 4, md: 8 }}
+              spacing={{ base: 2, md: 12 }}
               justify="center"
               flexWrap={{ base: "wrap", md: "nowrap" }}
-              gap={{ base: 3, md: 0 }}
+              gap={{ base: 2, md: 0 }}
             >
               {benefits.map((benefit, index) => (
-                <HStack
+                <Box
                   key={index}
-                  spacing={2}
-                  color="gray.400"
-                  fontSize={{ base: "sm", md: "md" }}
-                  opacity={0.8}
-                  transition="all 0.2s"
-                  _hover={{
-                    color: benefit.color,
-                    opacity: 1
-                  }}
+                  flex={{ base: "1 1 calc(33.333% - 8px)", md: "0 0 auto" }}
+                  minW={{ base: "80px", md: "140px" }}
                 >
-                  <Box as={benefit.icon} size={16} />
-                  <Text>{benefit.text}</Text>
-                </HStack>
+                  <VStack
+                    p={{ base: 1.5, md: 3 }}
+                    borderRadius={{ base: "xl", md: "lg" }}
+                    bg={{ base: "rgba(255, 255, 255, 0.03)", md: "transparent" }}
+                    backdropFilter={{ base: "blur(20px)", md: "none" }}
+                    border={{ base: "1px solid", md: "none" }}
+                    borderColor={{ base: "rgba(255, 255, 255, 0.08)", md: "transparent" }}
+                    transition="all 0.3s ease"
+                    cursor="pointer"
+                    spacing={{ base: 0, md: 2 }}
+                    position="relative"
+                    overflow="hidden"
+                    role="group"
+                    align="center"
+                    opacity={0.8}
+                    _hover={{
+                      bg: { base: 'rgba(255, 255, 255, 0.05)', md: 'rgba(255, 255, 255, 0.02)' },
+                      borderColor: { base: benefit.color, md: 'transparent' },
+                      transform: { base: 'translateY(-4px)', md: 'translateY(-4px)' },
+                      boxShadow: { base: `0 10px 30px ${benefit.color}22`, md: 'none' },
+                      opacity: 1
+                    }}
+                  >
+                    {/* Mobile glow */}
+                    <Box
+                      display={{ base: "block", md: "none" }}
+                      position="absolute"
+                      inset={0}
+                      bg={`radial-gradient(circle at center, ${benefit.color}11 0%, transparent 70%)`}
+                      opacity={0}
+                      _groupHover={{ opacity: 1 }}
+                      transition="opacity 0.3s"
+                    />
+                    
+                    {/* Mobile design */}
+                    <HStack
+                      spacing={1.5}
+                      color="gray.400"
+                      display={{ base: "flex", md: "none" }}
+                      fontSize="xs"
+                      transition="all 0.2s"
+                      _groupHover={{
+                        color: benefit.color
+                      }}
+                    >
+                      <Box as={benefit.icon} size={14} />
+                      <Text>{benefit.text.split(' ')[0]}</Text>
+                    </HStack>
+
+                    {/* Desktop - icon above text */}
+                    <VStack 
+                      spacing={2} 
+                      align="center"
+                      display={{ base: "none", md: "flex" }}
+                    >
+                      <Box
+                        p={2}
+                        borderRadius="lg"
+                        bg={`${benefit.color}08`}
+                        border="1px solid"
+                        borderColor={`${benefit.color}20`}
+                        color={benefit.color}
+                        transition="all 0.3s"
+                        _groupHover={{ 
+                          bg: `${benefit.color}15`,
+                          borderColor: `${benefit.color}40`,
+                          transform: 'scale(1.1)'
+                        }}
+                      >
+                        <benefit.icon size={20} />
+                      </Box>
+                      
+                      <Text
+                        color="gray.400"
+                        fontSize="sm"
+                        fontWeight="500"
+                        textAlign="center"
+                        transition="all 0.3s"
+                        _groupHover={{
+                          color: "gray.300"
+                        }}
+                      >
+                        {benefit.text}
+                      </Text>
+                    </VStack>
+                  </VStack>
+                </Box>
               ))}
             </HStack>
           </MotionBox>
 
-          {/* CTA Section */}
+          {/* CTA Section - Optimized button */}
           <MotionBox
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
+            width={{ base: "75%", sm: "auto" }}
           >
             <VStack spacing={4}>
               <Button
-                size="lg"
-                height="56px"
-                px={10}
+                size={{ base: "md", md: "lg" }}
+                height={{ base: "48px", md: "56px" }}
+                px={{ base: 8, md: 10 }}
                 bg="white"
                 color={colors.dark.black}
-                fontSize="md"
+                fontSize={{ base: "sm", md: "md" }}
                 fontWeight="bold"
                 borderRadius="full"
                 onClick={scrollToForm}
                 rightIcon={<FiArrowDown />}
+                width={{ base: "100%", sm: "auto" }}
                 _hover={{
                   transform: 'translateY(-2px)',
                   boxShadow: '0 15px 35px rgba(255, 255, 255, 0.2)',
@@ -215,37 +293,19 @@ const ContactHero = () => {
                 _active={{
                   transform: 'translateY(0)',
                 }}
-                transition="all 0.3s"
+                transition="all 0.2s"
               >
                 Start Your Project
               </Button>
 
               <Text
-                fontSize="sm"
+                fontSize={{ base: "xs", md: "sm" }}
                 color="gray.500"
               >
                 3-minute form • No spam • Real humans
               </Text>
             </VStack>
           </MotionBox>
-
-          {/* Scroll Indicator */}
-          <Box
-            position="absolute"
-            bottom={8}
-            left="50%"
-            transform="translateX(-50%)"
-            animation={`${pulse} 2s ease-in-out infinite`}
-            cursor="pointer"
-            onClick={scrollToForm}
-          >
-            <VStack spacing={1}>
-              <Text fontSize="xs" color="gray.500" letterSpacing="wider">
-                SCROLL
-              </Text>
-              <Box as={FiArrowDown} size={16} color="gray.500" />
-            </VStack>
-          </Box>
         </VStack>
       </Container>
     </Box>

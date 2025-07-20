@@ -31,9 +31,9 @@ const scanline = keyframes`
 const WorkHero = () => {
   const containerRef = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
-  const { scrollY } = useScroll();
-  const opacity = useTransform(scrollY, [0, 200], [1, 0.8]);
-  const scale = useTransform(scrollY, [0, 200], [1, 0.98]);
+  const { scrollYProgress } = useScroll();
+  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0.8]);
+  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.98]);
 
   const securityFeatures = [
     { 
@@ -56,10 +56,12 @@ const WorkHero = () => {
     }
   ];
 
-  // Mouse parallax for background
+  // Mouse parallax for background - desktop only
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   
   useEffect(() => {
+    if (window.innerWidth < 768) return;
+
     const handleMouseMove = (e) => {
       const { clientX, clientY } = e;
       const { innerWidth, innerHeight } = window;
@@ -89,8 +91,9 @@ const WorkHero = () => {
         position="absolute"
         inset={0}
         opacity={0.5}
-        style={{ transform: `translate(${mousePosition.x}px, ${mousePosition.y}px)` }}
+        transform={`translate(${mousePosition.x}px, ${mousePosition.y}px)`}
         transition="transform 0.3s ease-out"
+        pointerEvents="none"
       >
         {/* Multiple gradient orbs */}
         <Box
@@ -119,8 +122,9 @@ const WorkHero = () => {
         />
       </Box>
 
-      {/* Scan line effect */}
+      {/* Scan line effect - desktop only */}
       <Box
+        display={{ base: "none", md: "block" }}
         position="absolute"
         top={0}
         left={0}
@@ -132,31 +136,10 @@ const WorkHero = () => {
         opacity={0.5}
       />
 
-      {/* Digital rain effect */}
-      {[...Array(10)].map((_, i) => (
-        <Box
-          key={i}
-          position="absolute"
-          left={`${i * 10 + 5}%`}
-          top="-50px"
-          width="1px"
-          height="50px"
-          bg="linear-gradient(to-b, transparent, #00E5E5, transparent)"
-          opacity={0.1}
-          animation={`fall ${5 + i * 0.5}s ${i * 0.2}s linear infinite`}
-          sx={{
-            '@keyframes fall': {
-              '0%': { transform: 'translateY(-50px)' },
-              '100%': { transform: 'translateY(calc(100vh + 50px))' }
-            }
-          }}
-        />
-      ))}
-
       <Container maxW="1400px" px={{ base: 4, md: 8 }} position="relative">
         <motion.div style={{ opacity, scale }}>
           <VStack spacing={{ base: 8, md: 10 }} textAlign="center" align="center">
-            {/* Enhanced Security Badge */}
+            {/* Enhanced Security Badge - Transparent style */}
             <MotionBox
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -167,10 +150,6 @@ const WorkHero = () => {
                 px={{ base: 3, md: 4 }}
                 py={{ base: 1.5, md: 2 }}
                 borderRadius="full"
-                bg="rgba(255, 107, 0, 0.08)"
-                backdropFilter="blur(20px)"
-                border="1px solid"
-                borderColor="rgba(255, 107, 0, 0.2)"
                 color="#FF6B00"
                 fontSize={{ base: "xs", md: "sm" }}
                 fontWeight="600"
@@ -182,18 +161,9 @@ const WorkHero = () => {
                 cursor="pointer"
                 transition="all 0.3s"
                 _hover={{
-                  borderColor: 'rgba(255, 107, 0, 0.4)',
                   transform: 'scale(1.05)',
-                  boxShadow: '0 0 30px rgba(255, 107, 0, 0.3)'
                 }}
               >
-                <Box
-                  position="absolute"
-                  inset={0}
-                  bg="linear-gradient(90deg, transparent, rgba(255, 107, 0, 0.1), transparent)"
-                  transform={isHovered ? "translateX(100%)" : "translateX(-100%)"}
-                  transition="transform 0.8s"
-                />
                 <Box 
                   as={FiLock} 
                   size={14}
@@ -203,7 +173,7 @@ const WorkHero = () => {
               </HStack>
             </MotionBox>
 
-            {/* Enhanced Main Heading */}
+            {/* Enhanced Main Heading - Bigger on mobile */}
             <MotionBox
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -212,7 +182,7 @@ const WorkHero = () => {
             >
               <Heading
                 as="h1"
-                fontSize={{ base: "2xl", sm: "3xl", md: "4xl", lg: "5xl", xl: "6xl" }}
+                fontSize={{ base: "3xl", sm: "4xl", md: "4xl", lg: "5xl", xl: "6xl" }}
                 fontFamily="'Inter', sans-serif"
                 fontWeight="800"
                 color="white"
@@ -232,20 +202,6 @@ const WorkHero = () => {
                     bgGradient="linear(to-r, #00E5E5, #39FF14)"
                     bgClip="text"
                     position="relative"
-                    sx={{
-                      '&::before': {
-                        content: '""',
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        background: 'inherit',
-                        filter: 'blur(20px)',
-                        opacity: 0.4,
-                        zIndex: -1
-                      }
-                    }}
                   >
                     Stays Confidential
                   </Box>
@@ -253,7 +209,7 @@ const WorkHero = () => {
               </Heading>
             </MotionBox>
 
-            {/* Enhanced Description */}
+            {/* Enhanced Description - Bigger text */}
             <MotionBox
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -261,240 +217,193 @@ const WorkHero = () => {
               maxW={{ base: "100%", md: "700px" }}
             >
               <Text
-                fontSize={{ base: "sm", md: "md", lg: "lg" }}
+                fontSize={{ base: "md", md: "lg", lg: "xl" }}
                 color="gray.300"
-                lineHeight={{ base: "1.6", md: "1.7" }}
+                lineHeight={{ base: "1.7", md: "1.8" }}
               >
                 We protect our clients' competitive advantage with the same intensity we bring to their projects. 
                 Each solution is proprietary, each innovation confidential.
               </Text>
             </MotionBox>
 
-            {/* Enhanced Security Features Cards */}
+            {/* Enhanced Security Features Cards - Streamlined */}
             <MotionBox
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.3 }}
               width="100%"
-              maxW={{ base: "100%", md: "800px" }}
+              maxW={{ base: "100%", md: "600px" }}
             >
-              <Grid
-                templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }}
-                gap={{ base: 4, md: 6 }}
+              <HStack
+                spacing={{ base: 2, md: 12 }}
+                justify="center"
+                flexWrap={{ base: "wrap", md: "nowrap" }}
+                gap={{ base: 2, md: 0 }}
               >
                 {securityFeatures.map((feature, index) => {
                   const Icon = feature.icon;
                   return (
                     <MotionBox
                       key={index}
+                      flex={{ base: "1 1 calc(33.333% - 8px)", md: "0 0 auto" }}
+                      minW={{ base: "75px", md: "120px" }}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
-                      whileHover={{ y: -5 }}
                     >
                       <VStack
-                        p={{ base: 4, md: 5 }}
-                        borderRadius="xl"
-                        bg="rgba(255, 255, 255, 0.02)"
-                        backdropFilter="blur(20px)"
-                        border="2px solid"
-                        borderColor="rgba(255, 255, 255, 0.08)"
-                        transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                        p={{ base: 1.5, md: 3 }}
+                        borderRadius={{ base: "xl", md: "lg" }}
+                        bg={{ base: "rgba(255, 255, 255, 0.03)", md: "transparent" }}
+                        backdropFilter={{ base: "blur(20px)", md: "none" }}
+                        border={{ base: "1px solid", md: "none" }}
+                        borderColor={{ base: "rgba(255, 255, 255, 0.08)", md: "transparent" }}
+                        transition="all 0.3s ease"
                         cursor="pointer"
-                        role="group"
-                        spacing={3}
-                        align="center"
-                        height="100%"
+                        spacing={{ base: 0, md: 2 }}
                         position="relative"
                         overflow="hidden"
+                        role="group"
+                        align="center"
                         _hover={{
-                          bg: 'rgba(255, 255, 255, 0.04)',
-                          borderColor: feature.color,
-                          boxShadow: `0 20px 40px ${feature.color}22`
+                          bg: { base: 'rgba(255, 255, 255, 0.05)', md: 'rgba(255, 255, 255, 0.02)' },
+                          borderColor: { base: feature.color, md: 'transparent' },
+                          transform: { base: 'translateY(-4px)', md: 'translateY(-4px)' },
+                          boxShadow: { base: `0 10px 30px ${feature.color}22`, md: 'none' }
                         }}
                       >
-                        {/* Glow effect */}
+                        {/* Mobile glow */}
                         <Box
+                          display={{ base: "block", md: "none" }}
                           position="absolute"
-                          top="50%"
-                          left="50%"
-                          transform="translate(-50%, -50%)"
-                          width="150%"
-                          height="150%"
-                          bg={`radial-gradient(circle, ${feature.color}15 0%, transparent 60%)`}
+                          inset={0}
+                          bg={`radial-gradient(circle, ${feature.color}11 0%, transparent 70%)`}
                           opacity={0}
                           _groupHover={{ opacity: 1 }}
-                          transition="opacity 0.5s"
-                          pointerEvents="none"
+                          transition="opacity 0.3s"
                         />
                         
-                        <Box 
-                          p={3}
-                          borderRadius="lg"
-                          bg={`${feature.color}11`}
-                          color={feature.color}
-                          transition="all 0.3s"
+                        <HStack 
+                          spacing={{ base: 0, md: 0 }} 
+                          align="center"
                           position="relative"
-                          _groupHover={{
-                            transform: 'scale(1.1) rotate(5deg)',
-                            bg: `${feature.color}22`
-                          }}
+                          display={{ base: "flex", md: "none" }}
                         >
-                          <Icon size={24} />
-                        </Box>
-                        
-                        <VStack spacing={1}>
-                          <Text 
-                            color="white" 
-                            fontSize={{ base: "sm", md: "md" }}
-                            fontWeight="700"
+                          <VStack spacing={0} align="center">
+                            <Text 
+                              color="white" 
+                              fontSize="xs"
+                              fontWeight="700"
+                              position="relative"
+                              transition="all 0.3s"
+                              _groupHover={{
+                                color: feature.color,
+                                textShadow: `0 0 20px ${feature.color}`
+                              }}
+                            >
+                              {feature.label}
+                            </Text>
+                          </VStack>
+                        </HStack>
+
+                        {/* Desktop - icon above text */}
+                        <VStack 
+                          spacing={2} 
+                          align="center"
+                          display={{ base: "none", md: "flex" }}
+                        >
+                          <Box
+                            p={2}
+                            borderRadius="lg"
+                            bg={`${feature.color}08`}
+                            border="1px solid"
+                            borderColor={`${feature.color}20`}
+                            color={feature.color}
+                            transition="all 0.3s"
+                            _groupHover={{ 
+                              bg: `${feature.color}15`,
+                              borderColor: `${feature.color}40`,
+                              transform: 'scale(1.1)'
+                            }}
                           >
-                            {feature.label}
-                          </Text>
-                          <Text
-                            color="gray.500"
-                            fontSize="xs"
-                            fontWeight="medium"
-                          >
-                            {feature.description}
-                          </Text>
+                            <Icon size={20} />
+                          </Box>
+                          
+                          <VStack spacing={0.5} align="center">
+                            <Text 
+                              color="white" 
+                              fontSize="md"
+                              fontWeight="700"
+                              position="relative"
+                              transition="all 0.3s"
+                              _groupHover={{
+                                color: feature.color,
+                                textShadow: `0 0 15px ${feature.color}55`
+                              }}
+                            >
+                              {feature.label}
+                            </Text>
+                            <Text
+                              color="gray.500"
+                              fontSize="xs"
+                              fontWeight="medium"
+                            >
+                              {feature.description}
+                            </Text>
+                          </VStack>
                         </VStack>
                       </VStack>
                     </MotionBox>
                   );
                 })}
-              </Grid>
+              </HStack>
             </MotionBox>
 
-            {/* Enhanced Trust Badge with Animation */}
+            {/* Enhanced Trust Badge - Streamlined */}
             <MotionBox
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.7 }}
+              mt={{ base: 4, md: 6 }}
             >
-              <Box
-                position="relative"
-                borderRadius="2xl"
-                overflow="hidden"
-                bg="rgba(0, 229, 229, 0.03)"
-                backdropFilter="blur(20px)"
-                p={1}
+              <HStack
+                spacing={{ base: 3, md: 6 }}
+                fontSize={{ base: "xs", md: "sm" }}
+                color="gray.400"
               >
-                {/* Animated border */}
-                <Box
-                  position="absolute"
-                  inset="-2px"
-                  borderRadius="2xl"
-                  background="linear-gradient(45deg, #00E5E5, #39FF14, #FF6B00, #00E5E5)"
-                  backgroundSize="300% 300%"
-                  animation="borderGlow 4s linear infinite"
-                  opacity={0.5}
-                  sx={{
-                    '@keyframes borderGlow': {
-                      '0%': { backgroundPosition: '0% 50%' },
-                      '50%': { backgroundPosition: '100% 50%' },
-                      '100%': { backgroundPosition: '0% 50%' }
-                    }
-                  }}
-                />
-                
-                <HStack
-                  spacing={0}
-                  borderRadius="xl"
-                  bg="#0A0A0A"
-                  position="relative"
-                  overflow="hidden"
-                >
-                  {/* Left Section - Icon */}
-                  <Box
-                    px={{ base: 4, md: 5 }}
-                    py={{ base: 3, md: 4 }}
-                    bg="rgba(0, 229, 229, 0.05)"
-                    borderRight="1px solid"
-                    borderColor="rgba(255, 255, 255, 0.1)"
+                <HStack spacing={2}>
+                  <Box as={FiAward} size={16} color="#00E5E5" />
+                  <Text>Trusted by</Text>
+                  <Text 
+                    color="#00E5E5" 
+                    fontSize={{ base: "lg", md: "xl" }}
+                    fontWeight="800"
                   >
-                    <Box as={FiAward} size={20} color="#00E5E5" />
-                  </Box>
-                  
-                  {/* Middle Section - Main Stats */}
-                  <VStack 
-                    spacing={0} 
-                    px={{ base: 4, md: 6 }}
-                    py={{ base: 3, md: 4 }}
-                    align="start"
-                  >
-                    <HStack spacing={2}>
-                      <Text 
-                        color="gray.400" 
-                        fontSize={{ base: "xs", md: "sm" }}
-                        fontWeight="500"
-                      >
-                        Trusted by
-                      </Text>
-                      <Text 
-                        color="#00E5E5" 
-                        fontSize={{ base: "lg", md: "xl" }}
-                        fontWeight="800"
-                        textShadow="0 0 20px rgba(0, 229, 229, 0.5)"
-                      >
-                        50+
-                      </Text>
-                      <Text 
-                        color="gray.400" 
-                        fontSize={{ base: "xs", md: "sm" }}
-                        fontWeight="500"
-                      >
-                        companies
-                      </Text>
-                    </HStack>
-                    <Text
-                      color="gray.500"
-                      fontSize="2xs"
-                      fontWeight="medium"
-                      letterSpacing="wider"
-                    >
-                      ENTERPRISE TO STARTUP
-                    </Text>
-                  </VStack>
-                  
-                  {/* Right Section - Additional Info */}
-                  <Box
-                    px={{ base: 4, md: 5 }}
-                    py={{ base: 3, md: 4 }}
-                    bg="rgba(57, 255, 20, 0.05)"
-                    borderLeft="1px solid"
-                    borderColor="rgba(255, 255, 255, 0.1)"
-                  >
-                    <HStack spacing={2}>
-                      <Box 
-                        width="8px" 
-                        height="8px" 
-                        borderRadius="full" 
-                        bg="#39FF14"
-                        boxShadow="0 0 15px #39FF14"
-                        animation="pulse 2s ease-in-out infinite"
-                      />
-                      <VStack spacing={0} align="start">
-                        <Text 
-                          color="#39FF14" 
-                          fontSize={{ base: "xs", md: "sm" }}
-                          fontWeight="700"
-                          letterSpacing="0.05em"
-                        >
-                          ZERO LEAKS
-                        </Text>
-                        <Text
-                          color="gray.500"
-                          fontSize="2xs"
-                          fontWeight="medium"
-                        >
-                          100% SECURE
-                        </Text>
-                      </VStack>
-                    </HStack>
-                  </Box>
+                    50+
+                  </Text>
+                  <Text>companies</Text>
                 </HStack>
-              </Box>
+
+                <Box 
+                  width="1px" 
+                  height="20px" 
+                  bg="whiteAlpha.200" 
+                  display={{ base: "none", md: "block" }}
+                />
+
+                <HStack spacing={2} display={{ base: "none", md: "flex" }}>
+                  <Box 
+                    width="6px" 
+                    height="6px" 
+                    borderRadius="full" 
+                    bg="#39FF14"
+                    boxShadow={`0 0 10px #39FF14`}
+                  />
+                  <Text color="#39FF14" fontWeight="600">
+                    ZERO LEAKS
+                  </Text>
+                </HStack>
+              </HStack>
             </MotionBox>
           </VStack>
         </motion.div>

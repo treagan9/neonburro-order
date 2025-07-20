@@ -1,6 +1,6 @@
 import { Box, Container, Heading, Text, VStack, HStack, Button, keyframes } from '@chakra-ui/react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { FiArrowRight, FiMapPin } from 'react-icons/fi';
+import { FiArrowRight, FiMapPin, FiUsers, FiAward } from 'react-icons/fi';
 import { useRef, useState, useEffect } from 'react';
 
 const MotionBox = motion(Box);
@@ -22,17 +22,19 @@ const pulse = keyframes`
 const AboutHero = () => {
   const containerRef = useRef(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const { scrollY } = useScroll();
-  const y = useTransform(scrollY, [0, 300], [0, 30]);
-  const opacity = useTransform(scrollY, [0, 300], [1, 0.7]);
+  const { scrollYProgress } = useScroll();
+  const y = useTransform(scrollYProgress, [0, 0.3], [0, 50]);
+  const opacity = useTransform(scrollYProgress, [0, 0.3], [1, 0.8]);
 
-  // Subtle mouse parallax
+  // Mouse parallax - desktop only
   useEffect(() => {
+    if (window.innerWidth < 768) return;
+
     const handleMouseMove = (e) => {
       const { clientX, clientY } = e;
       const { innerWidth, innerHeight } = window;
-      const x = (clientX - innerWidth / 2) / innerWidth * 10;
-      const y = (clientY - innerHeight / 2) / innerHeight * 10;
+      const x = (clientX - innerWidth / 2) / innerWidth * 20;
+      const y = (clientY - innerHeight / 2) / innerHeight * 20;
       setMousePosition({ x, y });
     };
 
@@ -57,8 +59,9 @@ const AboutHero = () => {
         position="absolute"
         inset={0}
         opacity={0.4}
-        style={{ transform: `translate(${mousePosition.x}px, ${mousePosition.y}px)` }}
+        transform={`translate(${mousePosition.x}px, ${mousePosition.y}px)`}
         transition="transform 0.3s ease-out"
+        pointerEvents="none"
       >
         <Box
           position="absolute"
@@ -130,10 +133,15 @@ const AboutHero = () => {
         position="relative"
         zIndex={10}
       >
-        <motion.div style={{ y, opacity }}>
+        <MotionBox
+          style={{ y, opacity }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+        >
           <VStack spacing={{ base: 6, md: 8 }} align={{ base: "center", md: "flex-start" }} textAlign={{ base: "center", md: "left" }} maxW="900px">
             
-            {/* Enhanced Location Badge */}
+            {/* Enhanced Location Badge - Transparent like main hero */}
             <MotionBox
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -144,10 +152,6 @@ const AboutHero = () => {
                 px={{ base: 2.5, md: 3 }}
                 py={{ base: 1, md: 1.5 }}
                 borderRadius="full"
-                bg="rgba(0, 229, 229, 0.08)"
-                backdropFilter="blur(20px)"
-                border="1px solid"
-                borderColor="rgba(0, 229, 229, 0.2)"
                 color="#00E5E5"
                 fontSize={{ base: "2xs", md: "xs" }}
                 fontWeight="600"
@@ -158,35 +162,25 @@ const AboutHero = () => {
                 cursor="pointer"
                 transition="all 0.3s"
                 _hover={{
-                  borderColor: 'rgba(0, 229, 229, 0.4)',
-                  bg: 'rgba(0, 229, 229, 0.1)',
                   transform: 'scale(1.02)'
                 }}
               >
-                <Box
-                  position="absolute"
-                  inset={0}
-                  bg="linear-gradient(90deg, transparent, rgba(0, 229, 229, 0.1), transparent)"
-                  transform="translateX(-100%)"
-                  _groupHover={{ transform: 'translateX(100%)' }}
-                  transition="transform 0.8s"
-                />
                 <Box as={FiMapPin} size={12} />
-                <Text position="relative" fontSize="2xs">RIDGWAY, COLORADO • 7,200FT</Text>
+                <Text position="relative" fontSize="xs">RIDGWAY, COLORADO • 7,200FT</Text>
               </HStack>
             </MotionBox>
 
-            {/* Main Heading with enhanced animation */}
+            {/* Main Heading - Bigger on mobile */}
             <MotionHeading
               as="h1"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1, type: "spring", stiffness: 100 }}
-              fontSize={{ base: "2xl", sm: "3xl", md: "4xl", lg: "5xl", xl: "6xl" }}
+              fontSize={{ base: "3xl", sm: "4xl", md: "4xl", lg: "5xl", xl: "6xl" }}
               fontFamily="'Inter', sans-serif"
               fontWeight="800"
               color="white"
-              lineHeight={{ base: "1.3", md: "1.2" }}
+              lineHeight={{ base: "1.2", md: "1.1" }}
               letterSpacing="-0.02em"
               position="relative"
             >
@@ -227,14 +221,14 @@ const AboutHero = () => {
               </Box>
             </MotionHeading>
 
-            {/* Enhanced Tagline */}
+            {/* Enhanced Tagline - Bigger text */}
             <MotionText
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              fontSize={{ base: "sm", md: "md", lg: "lg" }}
+              fontSize={{ base: "md", md: "lg", lg: "xl" }}
               color="gray.300"
-              lineHeight={{ base: "1.6", md: "1.7" }}
+              lineHeight={{ base: "1.7", md: "1.8" }}
               maxW={{ base: "100%", md: "700px" }}
               position="relative"
             >
@@ -242,55 +236,57 @@ const AboutHero = () => {
               extraordinary experiences with creativity in our veins and mountain air in our lungs.
             </MotionText>
 
-            {/* Enhanced Stats Section */}
+            {/* Enhanced Stats Section - Smaller on mobile */}
             <MotionBox
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.3 }}
               width="100%"
-              maxW={{ base: "100%", md: "700px" }}
+              maxW={{ base: "100%", md: "600px" }}
             >
               <HStack 
-                spacing={{ base: 3, md: 4 }}
-                justify={{ base: "center", md: "flex-start" }}
+                spacing={{ base: 2, md: 12 }}
+                justify="center"
                 flexWrap={{ base: "wrap", md: "nowrap" }}
-                gap={{ base: 3, md: 0 }}
+                gap={{ base: 2, md: 0 }}
               >
                 {[
-                  { value: '12+', label: 'Core Team', color: '#00E5E5', delay: 0.4 },
-                  { value: '100%', label: 'Client Success', color: '#39FF14', delay: 0.5 },
-                  { value: '2023', label: 'Est. in Mountains', color: '#FF6B00', delay: 0.6 }
+                  { value: '12+', label: 'Core Team', color: '#00E5E5', delay: 0.4, icon: FiUsers },
+                  { value: '100%', label: 'Client Success', color: '#39FF14', delay: 0.5, icon: FiAward },
+                  { value: '2023', label: 'Est. in Mountains', color: '#FF6B00', delay: 0.6, icon: FiMapPin }
                 ].map((stat, index) => (
                   <MotionBox
                     key={index}
-                    flex={{ base: "1 1 calc(33.333% - 12px)", md: 1 }}
-                    minW={{ base: "90px", md: "auto" }}
+                    flex={{ base: "1 1 calc(33.333% - 8px)", md: "0 0 auto" }}
+                    minW={{ base: "75px", md: "120px" }}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: stat.delay }}
                   >
                     <VStack
-                      p={{ base: 3, md: 4 }}
-                      borderRadius="xl"
-                      bg="rgba(255, 255, 255, 0.03)"
-                      backdropFilter="blur(20px)"
-                      border="1px solid"
-                      borderColor="rgba(255, 255, 255, 0.08)"
-                      transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                      p={{ base: 1.5, md: 3 }}
+                      borderRadius={{ base: "xl", md: "lg" }}
+                      bg={{ base: "rgba(255, 255, 255, 0.03)", md: "transparent" }}
+                      backdropFilter={{ base: "blur(20px)", md: "none" }}
+                      border={{ base: "1px solid", md: "none" }}
+                      borderColor={{ base: "rgba(255, 255, 255, 0.08)", md: "transparent" }}
+                      transition="all 0.3s ease"
                       cursor="pointer"
-                      spacing={1}
+                      spacing={{ base: 0, md: 2 }}
                       position="relative"
                       overflow="hidden"
                       role="group"
+                      align="center"
                       _hover={{
-                        bg: 'rgba(255, 255, 255, 0.05)',
-                        borderColor: stat.color,
-                        transform: 'translateY(-6px)',
-                        boxShadow: `0 20px 40px ${stat.color}22`
+                        bg: { base: 'rgba(255, 255, 255, 0.05)', md: 'rgba(255, 255, 255, 0.02)' },
+                        borderColor: { base: stat.color, md: 'transparent' },
+                        transform: { base: 'translateY(-4px)', md: 'translateY(-4px)' },
+                        boxShadow: { base: `0 10px 30px ${stat.color}22`, md: 'none' }
                       }}
                     >
-                      {/* Glow effect */}
+                      {/* Mobile glow */}
                       <Box
+                        display={{ base: "block", md: "none" }}
                         position="absolute"
                         inset={0}
                         bg={`radial-gradient(circle at center, ${stat.color}11 0%, transparent 70%)`}
@@ -299,57 +295,115 @@ const AboutHero = () => {
                         transition="opacity 0.3s"
                       />
                       
-                      <Text 
-                        color="white" 
-                        fontSize={{ base: "xl", md: "2xl" }}
-                        fontWeight="800"
-                        lineHeight="1"
-                        position="relative"
-                        transition="all 0.3s"
-                        _groupHover={{
-                          color: stat.color,
-                          textShadow: `0 0 20px ${stat.color}`
-                        }}
+                      {/* Mobile design */}
+                      <HStack 
+                        spacing={0.5} 
+                        align="baseline"
+                        display={{ base: "flex", md: "none" }}
                       >
-                        {stat.value}
-                      </Text>
-                      <Text 
-                        color="gray.500" 
-                        fontSize="2xs"
-                        fontWeight="600"
-                        textTransform="uppercase"
-                        letterSpacing="wider"
-                        whiteSpace="nowrap"
-                        position="relative"
+                        <Text 
+                          color="white" 
+                          fontSize="lg"
+                          fontWeight="800"
+                          lineHeight="1"
+                          position="relative"
+                          transition="all 0.3s"
+                          _groupHover={{
+                            color: stat.color,
+                            textShadow: `0 0 20px ${stat.color}`
+                          }}
+                        >
+                          {stat.value}
+                        </Text>
+                        <Text 
+                          color="gray.500" 
+                          fontSize="2xs"
+                          fontWeight="600"
+                          textTransform="uppercase"
+                          letterSpacing="wider"
+                          whiteSpace="nowrap"
+                          position="relative"
+                        >
+                          {stat.label}
+                        </Text>
+                      </HStack>
+
+                      {/* Desktop - icon above text */}
+                      <VStack 
+                        spacing={2} 
+                        align="center"
+                        display={{ base: "none", md: "flex" }}
                       >
-                        {stat.label}
-                      </Text>
+                        <Box
+                          p={2}
+                          borderRadius="lg"
+                          bg={`${stat.color}08`}
+                          border="1px solid"
+                          borderColor={`${stat.color}20`}
+                          color={stat.color}
+                          transition="all 0.3s"
+                          _groupHover={{ 
+                            bg: `${stat.color}15`,
+                            borderColor: `${stat.color}40`,
+                            transform: 'scale(1.1)'
+                          }}
+                        >
+                          <stat.icon size={20} />
+                        </Box>
+                        
+                        <VStack spacing={0.5} align="center">
+                          <Text 
+                            color="white" 
+                            fontSize="xl"
+                            fontWeight="800"
+                            lineHeight="1"
+                            position="relative"
+                            transition="all 0.3s"
+                            _groupHover={{
+                              color: stat.color,
+                              textShadow: `0 0 15px ${stat.color}55`
+                            }}
+                          >
+                            {stat.value}
+                          </Text>
+                          <Text 
+                            color="gray.400" 
+                            fontSize="xs"
+                            fontWeight="600"
+                            textTransform="uppercase"
+                            letterSpacing="wider"
+                            whiteSpace="nowrap"
+                          >
+                            {stat.label}
+                          </Text>
+                        </VStack>
+                      </VStack>
                     </VStack>
                   </MotionBox>
                 ))}
               </HStack>
             </MotionBox>
 
-            {/* Enhanced CTA Buttons */}
+            {/* Enhanced CTA Buttons - 75% width on mobile */}
             <MotionBox
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.7 }}
-              width={{ base: "100%", sm: "auto" }}
+              width={{ base: "75%", sm: "auto" }}
             >
               <HStack 
                 spacing={3}
                 flexDirection={{ base: "column", sm: "row" }}
-                width={{ base: "100%", sm: "auto" }}
+                width="100%"
               >
                 <Button
-                  size="lg"
+                  size={{ base: "md", md: "lg" }}
                   bg="white"
                   color="black"
                   fontWeight="700"
                   fontSize={{ base: "sm", md: "md" }}
-                  height={{ base: "52px", md: "56px" }}
-                  px={{ base: 8, md: 10 }}
+                  height={{ base: "44px", md: "56px" }}
+                  px={{ base: 6, md: 10 }}
                   width={{ base: "100%", sm: "auto" }}
                   rightIcon={<FiArrowRight />}
                   onClick={() => window.location.href = '/contact/'}
@@ -379,48 +433,41 @@ const AboutHero = () => {
                     transform: 'translateY(0)'
                   }}
                   borderRadius="full"
-                  transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                  transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
                 >
                   Start a Project
                 </Button>
                 
                 <Button
-                  size="lg"
+                  size={{ base: "md", md: "lg" }}
                   variant="ghost"
                   color="white"
                   fontWeight="600"
                   fontSize={{ base: "sm", md: "md" }}
-                  height={{ base: "52px", md: "56px" }}
-                  px={{ base: 8, md: 10 }}
+                  height={{ base: "44px", md: "56px" }}
+                  px={{ base: 6, md: 10 }}
                   width={{ base: "100%", sm: "auto" }}
                   onClick={() => document.getElementById('our-story')?.scrollIntoView({ behavior: 'smooth' })}
                   position="relative"
-                  _after={{
-                    content: '""',
-                    position: 'absolute',
-                    bottom: '10px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: '0%',
-                    height: '2px',
-                    bg: 'white',
-                    transition: 'width 0.3s ease'
-                  }}
+                  border="1px solid transparent"
                   _hover={{
-                    bg: 'whiteAlpha.100',
-                    _after: {
-                      width: '80%'
-                    }
+                    bg: 'transparent',
+                    borderColor: 'white',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 10px 25px rgba(255, 255, 255, 0.15)'
+                  }}
+                  _active={{
+                    transform: 'translateY(0)'
                   }}
                   borderRadius="full"
-                  transition="all 0.3s"
+                  transition="all 0.2s"
                 >
                   Learn Our Story
                 </Button>
               </HStack>
             </MotionBox>
           </VStack>
-        </motion.div>
+        </MotionBox>
       </Container>
     </Box>
   );
