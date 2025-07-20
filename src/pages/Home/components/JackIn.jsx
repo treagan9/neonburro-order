@@ -90,7 +90,7 @@ const JackIn = () => {
       description: 'Mountain Time (MT)',
       action: 'tel:+19709738550',
       color: colors.accent.banana,
-      availability: 'Mon-Fri 9AM-6PM MT'
+      availability: "Anytime works, we're up"
     },
     {
       icon: FiCalendar,
