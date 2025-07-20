@@ -117,10 +117,10 @@ const StarterPackages = () => {
           'Basic maintenance guidance'
         ],
         process: [
-          { phase: 'Discovery', duration: '1-2 weeks', description: 'Understanding your brand, goals, and requirements' },
-          { phase: 'Design', duration: '2-3 weeks', description: 'Creating mockups and getting your approval' },
-          { phase: 'Development', duration: '3-4 weeks', description: 'Building your website with clean, modern code' },
-          { phase: 'Launch', duration: '1 week', description: 'Testing, optimization, and going live' }
+          { phase: 'Mind Meld', description: 'We dive into your brain (painlessly) to understand your vision' },
+          { phase: 'Design Magic', description: 'Our designers work their sorcery to create something beautiful' },
+          { phase: 'Code Wizardry', description: 'We speak to computers in their native tongue' },
+          { phase: 'Launch Party', description: 'Your site goes live and we celebrate with virtual confetti' }
         ]
       }
     },
@@ -179,11 +179,11 @@ const StarterPackages = () => {
           'Content update training'
         ],
         process: [
-          { phase: 'Strategy', duration: '2 weeks', description: 'Deep dive into your business goals and user needs' },
-          { phase: 'Design System', duration: '2 weeks', description: 'Creating a comprehensive design language' },
-          { phase: 'Development', duration: '4 weeks', description: 'Building advanced features and functionality' },
-          { phase: 'Optimization', duration: '2 weeks', description: 'Performance tuning and SEO enhancement' },
-          { phase: 'Launch', duration: '2 weeks', description: 'Staged rollout with monitoring' }
+          { phase: 'Strategy Summit', description: 'We put on our thinking caps and plot world domination' },
+          { phase: 'Design Alchemy', description: 'Turning your ideas into pixel-perfect gold' },
+          { phase: 'Feature Factory', description: 'Building all the bells and whistles (and making them whistle)' },
+          { phase: 'Performance Tuning', description: 'Making your site faster than a caffeinated cheetah' },
+          { phase: 'Grand Opening', description: 'Red carpet rollout for your digital masterpiece' }
         ]
       }
     },
@@ -242,10 +242,10 @@ const StarterPackages = () => {
           'Priority feature requests'
         ],
         process: [
-          { phase: 'Intensive Discovery', duration: '1 week', description: 'Deep collaboration to understand every aspect' },
-          { phase: 'Rapid Prototyping', duration: '2 weeks', description: 'Quick iterations to nail the vision' },
-          { phase: 'Sprint Development', duration: '3 weeks', description: 'Focused building with daily check-ins' },
-          { phase: 'Polish & Launch', duration: '2 weeks', description: 'Perfecting every detail before launch' }
+          { phase: 'Deep Dive', description: 'We become temporary members of your team (bring snacks)' },
+          { phase: 'Rapid Fire', description: 'Ideas fly, prototypes appear, magic happens' },
+          { phase: 'Beast Mode', description: 'Full steam ahead with all burros on deck' },
+          { phase: 'Polish & Shine', description: 'Making everything sparkle like a disco ball' }
         ]
       }
     },
@@ -316,10 +316,10 @@ const StarterPackages = () => {
           'Equity discussion possibilities'
         ],
         process: [
-          { phase: 'Onboarding', duration: '1 week', description: 'Red carpet treatment and deep integration' },
-          { phase: 'Sprint Cycles', duration: 'Ongoing', description: 'Agile development with weekly releases' },
-          { phase: 'Innovation', duration: 'Continuous', description: 'Always exploring new opportunities' },
-          { phase: 'Growth', duration: 'Forever', description: 'Your success is our success' }
+          { phase: 'Royal Welcome', description: 'Red carpet treatment and champagne (virtually)' },
+          { phase: 'Dream Team Assembly', description: 'Your personal digital avengers assemble' },
+          { phase: 'Innovation Lab', description: 'Where impossible becomes "hold my coffee"' },
+          { phase: 'Continuous Evolution', description: 'Your success is our never-ending mission' }
         ]
       }
     }
@@ -840,38 +840,10 @@ const StarterPackages = () => {
                       <TabPanel>
                         <VStack align="stretch" spacing={4}>
                           <Heading size="md" color="white" mb={2}>
-                            Development Process
+                            How We Roll
                           </Heading>
                           
-                          {/* Weekly Breakdown */}
-                          {selectedPackage.detailedInfo.weeklyBreakdown && (
-                            <Box mb={6}>
-                              <Text color="gray.400" fontSize="sm" mb={3} fontWeight="600">
-                                TIMELINE OVERVIEW
-                              </Text>
-                              <VStack align="stretch" spacing={2}>
-                                {selectedPackage.detailedInfo.weeklyBreakdown.map((week, idx) => (
-                                  <HStack 
-                                    key={idx}
-                                    p={3}
-                                    bg="rgba(255,255,255,0.02)"
-                                    borderRadius="md"
-                                    border="1px solid"
-                                    borderColor="whiteAlpha.100"
-                                  >
-                                    <Box color={selectedPackage.color}>
-                                      <FiCalendar size={16} />
-                                    </Box>
-                                    <Text color="gray.300" fontSize="sm">
-                                      {week}
-                                    </Text>
-                                  </HStack>
-                                ))}
-                              </VStack>
-                            </Box>
-                          )}
-
-                          {/* Process Phases */}
+                          {/* Simple Process Steps */}
                           <VStack align="stretch" spacing={4}>
                             {selectedPackage.detailedInfo.process.map((phase, idx) => (
                               <Box
@@ -892,17 +864,14 @@ const StarterPackages = () => {
                                   height="2px"
                                   bg={selectedPackage.color}
                                 />
-                                <HStack justify="space-between" mb={2}>
-                                  <Text color="white" fontWeight="600">
-                                    {phase.phase}
+                                <VStack align="start" spacing={2}>
+                                  <Text color={selectedPackage.color} fontWeight="700" fontSize="lg">
+                                    {idx + 1}. {phase.phase}
                                   </Text>
-                                  <Text color={selectedPackage.color} fontSize="sm">
-                                    {phase.duration}
+                                  <Text color="gray.400" fontSize="sm">
+                                    {phase.description}
                                   </Text>
-                                </HStack>
-                                <Text color="gray.400" fontSize="sm">
-                                  {phase.description}
-                                </Text>
+                                </VStack>
                               </Box>
                             ))}
                           </VStack>
@@ -962,37 +931,43 @@ const StarterPackages = () => {
                   </Tabs>
 
                   {/* CTA Buttons */}
-                  <HStack spacing={4} pt={4}>
+                  <HStack spacing={4} pt={4} flexDirection={{ base: "column", sm: "row" }}>
                     <Button
                       flex={1}
-                      size="lg"
+                      size={{ base: "md", sm: "lg" }}
                       bg={selectedPackage.color}
                       color="#0A0A0A"
                       borderRadius="full"
                       fontWeight="700"
+                      fontSize={{ base: "sm", sm: "md" }}
+                      px={{ base: 4, sm: 6 }}
                       onClick={() => window.location.href = '/contact/'}
                       _hover={{
                         transform: 'translateY(-2px)',
                         boxShadow: `0 10px 30px ${selectedPackage.color}66`
                       }}
+                      width={{ base: "100%", sm: "auto" }}
                     >
                       {selectedPackage.cta}
                     </Button>
                     <Button
                       flex={1}
-                      size="lg"
+                      size={{ base: "md", sm: "lg" }}
                       variant="outline"
                       borderColor={selectedPackage.color}
                       color={selectedPackage.color}
                       borderRadius="full"
                       fontWeight="700"
+                      fontSize={{ base: "sm", sm: "md" }}
+                      px={{ base: 4, sm: 6 }}
                       onClick={() => window.location.href = '/contact/'}
                       _hover={{
                         bg: `${selectedPackage.color}11`,
                         transform: 'translateY(-2px)'
                       }}
+                      width={{ base: "100%", sm: "auto" }}
                     >
-                      Schedule Consultation
+                      Schedule Call
                     </Button>
                   </HStack>
                 </VStack>
