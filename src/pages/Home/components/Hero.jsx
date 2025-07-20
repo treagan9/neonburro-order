@@ -424,13 +424,13 @@ const Hero = () => {
                   <MotionBox
                     key={index}
                     flex={{ base: "1 1 calc(33.333% - 8px)", md: "0 0 auto" }}
-                    minW={{ base: "85px", md: "auto" }}
+                    minW={{ base: "75px", md: "auto" }}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
                   >
                     <VStack
-                      p={{ base: 2.5, md: 0 }}
+                      p={{ base: 1.5, md: 0 }}
                       borderRadius={{ base: "xl", md: "none" }}
                       bg={{ base: "rgba(255, 255, 255, 0.03)", md: "transparent" }}
                       backdropFilter={{ base: "blur(20px)", md: "none" }}
@@ -438,7 +438,7 @@ const Hero = () => {
                       borderColor={{ base: "rgba(255, 255, 255, 0.08)", md: "transparent" }}
                       transition="all 0.3s ease"
                       cursor="pointer"
-                      spacing={{ base: 0.5, md: 0 }}
+                      spacing={{ base: 0, md: 0 }}
                       position="relative"
                       overflow="hidden"
                       role="group"
@@ -480,7 +480,7 @@ const Hero = () => {
                         <HStack spacing={{ base: 0.5, md: 1 }} align="baseline">
                           <Text 
                             color="white" 
-                            fontSize={{ base: "xl", md: "lg" }}
+                            fontSize={{ base: "lg", md: "lg" }}
                             fontWeight="800"
                             fontFamily="mono"
                             lineHeight="1"
@@ -495,7 +495,7 @@ const Hero = () => {
                           </Text>
                           <Text 
                             color="gray.400" 
-                            fontSize={{ base: "xs", md: "2xs" }}
+                            fontSize={{ base: "2xs", md: "2xs" }}
                             fontWeight="600"
                             textTransform="uppercase"
                             letterSpacing="wider"
@@ -575,22 +575,15 @@ const Hero = () => {
                   width={{ base: "100%", sm: "auto" }}
                   onClick={handleServicesClick}
                   position="relative"
-                  _after={{
-                    content: '""',
-                    position: 'absolute',
-                    bottom: '10px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: '0%',
-                    height: '2px',
-                    bg: 'white',
-                    transition: 'width 0.3s ease'
-                  }}
+                  border="1px solid transparent"
                   _hover={{
-                    bg: 'whiteAlpha.100',
-                    _after: {
-                      width: '80%'
-                    }
+                    bg: 'transparent',
+                    borderColor: 'white',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 10px 25px rgba(255, 255, 255, 0.15)'
+                  }}
+                  _active={{
+                    transform: 'translateY(0)'
                   }}
                   borderRadius="full"
                   transition="all 0.3s"
