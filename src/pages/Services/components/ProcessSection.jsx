@@ -330,7 +330,7 @@ const ProcessSection = () => {
               fontSize={{ base: "xs", md: "sm" }}
               fontStyle="italic"
             >
-              Most projects complete in 4-8 weeks, depending on scope
+              Most projects complete based of hours per week, depending on scope and complexity.
             </Text>
           </MotionBox>
         </VStack>

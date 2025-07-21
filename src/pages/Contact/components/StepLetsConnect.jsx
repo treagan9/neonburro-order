@@ -7,8 +7,16 @@ const MotionBox = motion(Box);
 const MotionVStack = motion(VStack);
 
 const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmitting }) => {
-  const [showPhoneField, setShowPhoneField] = useState(false);
-  const [showBestTime, setShowBestTime] = useState(false);
+  // Initialize state based on existing formData
+  const [showPhoneField, setShowPhoneField] = useState(() => {
+    const methods = formData.contactMethod || [];
+    return methods.includes('phone') || methods.includes('video') || methods.includes('text');
+  });
+  
+  const [showBestTime, setShowBestTime] = useState(() => {
+    const methods = formData.contactMethod || [];
+    return methods.includes('phone') || methods.includes('video');
+  });
   
   const colors = {
     primary: '#00E5E5',
@@ -29,6 +37,13 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmittin
     { value: 'flexible', label: 'Flexible', time: 'Any time' }
   ];
 
+  // Update visibility when formData changes
+  useEffect(() => {
+    const methods = formData.contactMethod || [];
+    setShowPhoneField(methods.includes('phone') || methods.includes('video') || methods.includes('text'));
+    setShowBestTime(methods.includes('phone') || methods.includes('video'));
+  }, [formData.contactMethod]);
+
   const handleContactMethodChange = (method) => {
     const currentMethods = formData.contactMethod || [];
     let newMethods;
@@ -40,15 +55,34 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmittin
     }
     
     handleChange('contactMethod', newMethods);
-    setShowPhoneField(newMethods.includes('phone') || newMethods.includes('video') || newMethods.includes('text'));
-    setShowBestTime(newMethods.includes('phone') || newMethods.includes('video'));
   };
 
   const isStepValid = () => {
     const hasContactMethod = formData.contactMethod && formData.contactMethod.length > 0;
-    const hasPhoneIfNeeded = !showPhoneField || (formData.phone && formData.phone.length >= 10);
+    const hasPhoneIfNeeded = !showPhoneField || (formData.phone && formData.phone.replace(/\D/g, '').length >= 10);
     const hasTimeIfNeeded = !showBestTime || formData.bestTime;
     return hasContactMethod && hasPhoneIfNeeded && hasTimeIfNeeded;
+  };
+
+  const formatPhoneNumber = (value) => {
+    // Remove all non-digit characters
+    const phoneNumber = value.replace(/\D/g, '');
+    
+    // Format as (XXX) XXX-XXXX
+    if (phoneNumber.length <= 3) {
+      return phoneNumber;
+    } else if (phoneNumber.length <= 6) {
+      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
+    } else if (phoneNumber.length <= 10) {
+      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6)}`;
+    } else {
+      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+    }
+  };
+
+  const handlePhoneChange = (e) => {
+    const formatted = formatPhoneNumber(e.target.value);
+    handleChange('phone', formatted);
   };
 
   const inputVariants = {
@@ -163,12 +197,13 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmittin
           </MotionBox>
 
           {/* Phone Field - Conditional */}
-          <AnimatePresence>
+          <AnimatePresence mode="wait">
             {showPhoneField && (
               <MotionBox
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
+                key="phone-field"
+                initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                animate={{ opacity: 1, height: 'auto', marginTop: 20 }}
+                exit={{ opacity: 0, height: 0, marginTop: 0 }}
                 transition={{ duration: 0.3 }}
               >
                 <FormControl isRequired>
@@ -189,7 +224,7 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmittin
                     <Input
                       type="tel"
                       value={formData.phone || ''}
-                      onChange={(e) => handleChange('phone', e.target.value)}
+                      onChange={handlePhoneChange}
                       placeholder="(555) 123-4567"
                       bg="rgba(255, 255, 255, 0.02)"
                       border="1px solid"
@@ -211,20 +246,27 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmittin
                       borderRadius="lg"
                       autoComplete="tel"
                       transition="all 0.2s"
+                      maxLength={14} // Limit to formatted phone length
                     />
                   </InputGroup>
+                  {formData.phone && formData.phone.replace(/\D/g, '').length < 10 && (
+                    <Text fontSize="xs" color="gray.500" mt={1} ml={1}>
+                      Please enter a complete phone number
+                    </Text>
+                  )}
                 </FormControl>
               </MotionBox>
             )}
           </AnimatePresence>
 
           {/* Best Time - Conditional */}
-          <AnimatePresence>
+          <AnimatePresence mode="wait">
             {showBestTime && (
               <MotionBox
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
+                key="best-time-field"
+                initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                animate={{ opacity: 1, height: 'auto', marginTop: 20 }}
+                exit={{ opacity: 0, height: 0, marginTop: 0 }}
                 transition={{ duration: 0.3 }}
               >
                 <FormControl isRequired>
@@ -359,6 +401,7 @@ const StepLetsConnect = ({ formData, handleChange, onBack, onSubmit, isSubmittin
               borderRadius="full"
               leftIcon={<FiArrowLeft size={16} />}
               transition="all 0.2s"
+              isDisabled={isSubmitting}
             >
               Back
             </Button>

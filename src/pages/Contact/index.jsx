@@ -1,4 +1,4 @@
-import { Box, Container } from '@chakra-ui/react';
+import { Box, Container, useToast } from '@chakra-ui/react';
 import { useState, useEffect, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import ContactHero from './components/ContactHero';
@@ -13,7 +13,7 @@ const Contact = () => {
   const [formData, setFormData] = useState({
     // Step 1
     name: '',
-    email: '', // Removed localStorage usage
+    email: '',
     company: '',
     source: '',
     // Step 2
@@ -31,14 +31,13 @@ const Contact = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Ref for form section
   const formSectionRef = useRef(null);
+  const toast = useToast();
 
   // Scroll to form when step changes
   useEffect(() => {
     if (formSectionRef.current && currentStep > 1) {
-      // Scroll to form with offset for navigation
-      const yOffset = -20; // Adjust this value based on your needs
+      const yOffset = -20;
       const element = formSectionRef.current;
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
       
@@ -87,27 +86,55 @@ const Contact = () => {
     setIsSubmitting(true);
     
     try {
-      // Submit to Netlify with proper encoding
+      // Format the data for submission
+      const submissionData = {
+        'form-name': 'contact-form',
+        'name': formData.name,
+        'email': formData.email,
+        'company': formData.company || 'Not provided',
+        'source': formData.source || 'Not specified',
+        'projectType': formData.projectType,
+        'budget': formData.budget,
+        'timeline': formData.timeline,
+        'description': formData.description || 'No additional details',
+        'contactMethod': Array.isArray(formData.contactMethod) ? formData.contactMethod.join(', ') : '',
+        'phone': formData.phone || 'Not provided',
+        'bestTime': formData.bestTime || 'Any time',
+        'additionalInfo': formData.additionalInfo || 'None'
+      };
+
       const response = await fetch('/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: encode({
-          'form-name': 'contact-form',
-          ...formData,
-          contactMethod: formData.contactMethod.join(', '), // Convert array to string
-        })
+        body: encode(submissionData)
       });
 
       if (response.ok) {
         setIsSubmitted(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // Show success toast
+        toast({
+          title: "Success! 🎉",
+          description: "Your message has been received. We'll be in touch within 24 hours!",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+          position: "top",
+        });
       } else {
-        console.error('Form submission failed');
-        // You might want to add toast notification here
+        throw new Error('Submission failed');
       }
     } catch (error) {
       console.error('Submission error:', error);
-      // You might want to add toast notification here
+      toast({
+        title: "Oops! Something went wrong",
+        description: "Please try again or email us directly at hello@neonburro.com",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -119,6 +146,28 @@ const Contact = () => {
 
   return (
     <Box minH="100vh" bg="#0A0A0A">
+      {/* Hidden form for Netlify - CRITICAL for detection */}
+      <form 
+        name="contact-form" 
+        data-netlify="true" 
+        netlify-honeypot="bot-field"
+        hidden
+      >
+        <input type="hidden" name="form-name" value="contact-form" />
+        <input type="text" name="name" />
+        <input type="email" name="email" />
+        <input type="text" name="company" />
+        <input type="text" name="source" />
+        <input type="text" name="projectType" />
+        <input type="text" name="budget" />
+        <input type="text" name="timeline" />
+        <textarea name="description"></textarea>
+        <input type="text" name="contactMethod" />
+        <input type="tel" name="phone" />
+        <input type="text" name="bestTime" />
+        <textarea name="additionalInfo"></textarea>
+        <input type="text" name="bot-field" />
+      </form>
       
       {/* Hero Section */}
       <ContactHero />
@@ -142,6 +191,17 @@ const Contact = () => {
               position="relative"
               overflow="hidden"
             >
+              {/* Subtle gradient background */}
+              <Box
+                position="absolute"
+                top={0}
+                left={0}
+                right={0}
+                bottom={0}
+                bgGradient="radial(at top left, rgba(0, 229, 229, 0.05) 0%, transparent 50%)"
+                pointerEvents="none"
+              />
+              
               <AnimatePresence mode="wait">
                 {currentStep === 1 && (
                   <StepAboutYou
