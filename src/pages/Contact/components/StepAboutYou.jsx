@@ -80,6 +80,7 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
                   </Box>
                 </InputLeftElement>
                 <Input
+                  name="name"
                   value={formData.name || ''}
                   onChange={(e) => handleChange('name', e.target.value)}
                   placeholder="John Doe"
@@ -134,6 +135,7 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
                   </Box>
                 </InputLeftElement>
                 <Input
+                  name="email"
                   type="email"
                   value={formData.email || ''}
                   onChange={(e) => handleChange('email', e.target.value)}
@@ -157,6 +159,9 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
                   pl="2.5rem"
                   borderRadius="lg"
                   autoComplete="email"
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  spellCheck="false"
                   transition="all 0.2s"
                 />
               </InputGroup>
@@ -192,6 +197,7 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
                   </Box>
                 </InputLeftElement>
                 <Input
+                  name="company"
                   value={formData.company || ''}
                   onChange={(e) => handleChange('company', e.target.value)}
                   placeholder="Awesome Inc."
@@ -248,6 +254,7 @@ const StepAboutYou = ({ formData, handleChange, onNext, isFieldValid, touched })
                   <FiGlobe size={16} />
                 </Box>
                 <Select
+                  name="source"
                   value={formData.source || ''}
                   onChange={(e) => handleChange('source', e.target.value)}
                   placeholder="Select one..."

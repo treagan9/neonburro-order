@@ -39,7 +39,7 @@ const FormSuccessEnhanced = ({ formData, onNavigateHome }) => {
     { 
       icon: FiMail,
       title: 'Check Your Inbox',
-      description: 'Confirmation sent to ' + formData.email.split('@')[0] + '@...',
+      description: 'Confirmation sent to hello@neonburro.com',
       color: colors.primary
     },
     { 
@@ -59,14 +59,14 @@ const FormSuccessEnhanced = ({ formData, onNavigateHome }) => {
   // Fun messages based on project type
   const getPersonalizedMessage = () => {
     const messages = {
-      'new-website': "A fresh new website? We're already sketching ideas! 🎨",
-      'redesign': "Time for a glow-up! We love a good transformation story. ✨",
-      'ecommerce': "E-commerce excellence coming right up! Let's boost those sales. 💰",
-      'web-app': "Web apps are our jam! Can't wait to build something amazing. 🚀",
-      'seo-content': "SEO success story in the making! Let's climb those rankings. 📈",
-      'maintenance': "We'll keep your site running smoother than a fresh jar of skippy. 🥜",
-      'consultation': "Ready to share our mountain wisdom! Let's chat strategy. 🏔️",
-      'other': "Mystery project? We love surprises! Can't wait to learn more. 🎁"
+      'new-website': "A fresh new website? We're already sketching ideas!",
+      'redesign': "Time for a glow-up! We love a good transformation story.",
+      'ecommerce': "E-commerce excellence coming right up! Let's boost those sales.",
+      'web-app': "Web apps are our jam! Can't wait to build something amazing.",
+      'seo-content': "SEO success story in the making! Let's climb those rankings.",
+      'maintenance': "We'll keep your site running smoother than a fresh jar of skippy.",
+      'consultation': "Ready to share our mountain wisdom! Let's chat strategy.",
+      'other': "Mystery project? We love surprises! Can't wait to learn more."
     };
     return messages[formData.projectType] || "Your project sounds amazing! We're excited to learn more.";
   };
@@ -133,7 +133,7 @@ const FormSuccessEnhanced = ({ formData, onNavigateHome }) => {
             />
 
             <VStack spacing={{ base: 6, md: 8 }} position="relative">
-              {/* Success Icon with Enhanced Animation */}
+              {/* Success Image Instead of Icon */}
               <MotionBox
                 initial={{ scale: 0, rotate: -360 }}
                 animate={{ scale: 1, rotate: 0 }}
@@ -146,21 +146,17 @@ const FormSuccessEnhanced = ({ formData, onNavigateHome }) => {
                 }}
               >
                 <Box position="relative">
-                  <Box
-                    width="90px"
-                    height="90px"
+                  <Image
+                    src="/services-hero-sms.png"
+                    alt="Success"
+                    width="120px"
+                    height="120px"
                     borderRadius="full"
-                    bg={`linear-gradient(135deg, ${colors.success}33, ${colors.primary}33)`}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
+                    objectFit="cover"
                     border="3px solid"
                     borderColor={colors.success}
-                    position="relative"
                     boxShadow={`0 0 40px ${colors.success}60`}
-                  >
-                    <FiCheck size={40} color={colors.success} strokeWidth={3} />
-                  </Box>
+                  />
                   {/* Multiple pulse rings */}
                   {[1, 2, 3].map((ring) => (
                     <Box
@@ -198,7 +194,7 @@ const FormSuccessEnhanced = ({ formData, onNavigateHome }) => {
                   letterSpacing="-0.02em"
                   textAlign="center"
                 >
-                  Woohoo! 🎉 Message Received
+                  Woohoo! Message Received
                 </MotionHeading>
                 
                 <VStack spacing={2}>
@@ -387,7 +383,7 @@ const FormSuccessEnhanced = ({ formData, onNavigateHome }) => {
                     </Text>
                     <Box width="1px" height="12px" bg="whiteAlpha.200" />
                     <Text>
-                      Saved to: <Text as="span" color="gray.400">{formData.email}</Text>
+                      Saved to: <Text as="span" color="gray.400">hello@neonburro.com</Text>
                     </Text>
                   </HStack>
                 </VStack>

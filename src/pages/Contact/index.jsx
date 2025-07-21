@@ -85,6 +85,9 @@ const Contact = () => {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     
+    // Check if we're in development/local environment
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    
     try {
       // Format the data for submission
       const submissionData = {
@@ -103,33 +106,53 @@ const Contact = () => {
         'additionalInfo': formData.additionalInfo || 'None'
       };
 
-      const response = await fetch('/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: encode(submissionData)
-      });
-
-      if (response.ok) {
+      if (isLocal) {
+        // Simulate successful submission in local development
+        console.log('Form submission (local):', submissionData);
+        
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
         setIsSubmitted(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
         
-        // Show success toast
         toast({
-          title: "Success! 🎉",
-          description: "Your message has been received. We'll be in touch within 24 hours!",
+          title: "Success! (Local Test)",
+          description: "Form submission simulated. In production, this will be sent to Netlify.",
           status: "success",
           duration: 5000,
           isClosable: true,
           position: "top",
         });
       } else {
-        throw new Error('Submission failed');
+        // Production submission to Netlify
+        const response = await fetch('/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: encode(submissionData)
+        });
+
+        if (response.ok) {
+          setIsSubmitted(true);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          
+          toast({
+            title: "Success! 🎉",
+            description: "Your message has been received. We'll be in touch within 24 hours!",
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+            position: "top",
+          });
+        } else {
+          throw new Error('Submission failed');
+        }
       }
     } catch (error) {
       console.error('Submission error:', error);
       toast({
         title: "Oops! Something went wrong",
-        description: "Please try again or email us directly at hello@neonburro.com",
+        description: isLocal ? "This is expected in local development. Deploy to Netlify to test real submissions." : "Please try again or email us directly at hello@neonburro.com",
         status: "error",
         duration: 5000,
         isClosable: true,
