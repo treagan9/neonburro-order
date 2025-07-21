@@ -24,7 +24,7 @@ import {
   Fade,
   keyframes
 } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FiCheck, 
   FiMail, 
@@ -38,24 +38,28 @@ import {
   FiSend,
   FiPhone,
   FiFileText,
-  FiCheckCircle
+  FiCheckCircle,
+  FiZap,
+  FiCoffee
 } from 'react-icons/fi';
 import { useEffect, useState } from 'react';
 import MatrixRain from '../../../components/effects/MatrixRain';
 import jsPDF from 'jspdf';
-import Confetti from 'react-confetti';
-import { useWindowSize } from 'react-use';
 
 const MotionBox = motion(Box);
+const MotionVStack = motion(VStack);
+const MotionHeading = motion(Heading);
+const MotionText = motion(Text);
 
-// Confetti colors
-const confettiColors = ['#00FFFF', '#FF6B35', '#FFD700', '#39FF14', '#D4AF37'];
+// Animation for success elements
+const pulseAnimation = keyframes`
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.05); }
+`;
 
-// Animation for success icon
-const floatAnimation = keyframes`
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
+const neonGlowAnimation = keyframes`
+  0%, 100% { opacity: 0.5; filter: drop-shadow(0 0 20px rgba(0, 229, 229, 0.5)); }
+  50% { opacity: 1; filter: drop-shadow(0 0 40px rgba(0, 229, 229, 0.8)); }
 `;
 
 const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId, onTrackEvent }) => {
@@ -66,16 +70,16 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId, onTrackEvent }) 
   const [showEmailInput, setShowEmailInput] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [downloadComplete, setDownloadComplete] = useState(false);
-  const [showConfetti, setShowConfetti] = useState(false);
+  const [showNeonEffect, setShowNeonEffect] = useState(false);
   const toast = useToast();
-  const { width, height } = useWindowSize();
   
   const colors = {
-    brand: { primary: '#00FFFF' },
-    accent: { green: '#39FF14' },
-    vip: { primary: '#D4AF37' },
-    copper: '#FF6B35',
-    banana: '#FFD700'
+    primary: '#00E5E5',
+    success: '#39FF14',
+    warm: '#FF6B00',
+    purple: '#8B5CF6',
+    banana: '#FFE500',
+    vip: '#D4AF37'
   };
 
   useEffect(() => {
@@ -83,13 +87,8 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId, onTrackEvent }) 
       // Trigger effects after modal animation
       const timer = setTimeout(() => {
         setShowMatrix(true);
-        setShowConfetti(true);
+        setShowNeonEffect(true);
       }, 400);
-      
-      // Stop confetti after 5 seconds
-      const confettiTimer = setTimeout(() => {
-        setShowConfetti(false);
-      }, 5000);
       
       // Submit to Netlify Forms for tracking
       if (formData) {
@@ -98,11 +97,10 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId, onTrackEvent }) 
       
       return () => {
         clearTimeout(timer);
-        clearTimeout(confettiTimer);
       };
     } else {
       setShowMatrix(false);
-      setShowConfetti(false);
+      setShowNeonEffect(false);
       setEmailSent(false);
       setDownloadComplete(false);
       setShowEmailInput(false);
@@ -273,7 +271,7 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId, onTrackEvent }) 
       doc.text(`${formData.packageName} Package - Complete Development`, 20, 215);
       doc.text(`$${parseInt(formData.total).toLocaleString()}.00`, 170, 215, { align: 'right' });
     } else {
-      doc.text(`Development Hours (${formData.hours} hrs @ $33/hr)`, 20, 215);
+      doc.text(`Development Hours (${formData.hours} hrs @ $44/hr)`, 20, 215);
       doc.text(`$${parseInt(formData.total).toLocaleString()}.00`, 170, 215, { align: 'right' });
     }
     
@@ -414,27 +412,41 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId, onTrackEvent }) 
   const getNextSteps = () => {
     const isVip = formData?.isVip === 'true' || formData?.packageName === 'VIP';
     return [
-      {
-        icon: FiPhone,
-        text: isVip ? "VIP team contact within 30 minutes" : "Team contact within 2 hours",
-        highlight: isVip
+      { 
+        icon: FiMail,
+        title: 'Check Your Inbox',
+        description: 'Confirmation sent to hello@neonburro.com',
+        color: colors.primary
       },
-      {
-        icon: FiFileText,
-        text: "Project roadmap and timeline delivery",
-        highlight: false
+      { 
+        icon: FiCoffee,
+        title: 'We\'re On It',
+        description: 'Reviewing your project details',
+        color: colors.success
       },
-      {
-        icon: FiCheckCircle,
-        text: "Access credentials for project dashboard",
-        highlight: false
-      },
-      {
-        icon: FiUser,
-        text: isVip ? "Direct line to founders" : "Dedicated project manager assignment",
-        highlight: isVip
+      { 
+        icon: FiZap,
+        title: 'Lightning Fast Reply',
+        description: isVip ? 'VIP response within 30 minutes' : 'Expect our response in 24hrs',
+        color: colors.banana
       }
     ];
+  };
+
+  // Fun messages based on project type
+  const getPersonalizedMessage = () => {
+    const messages = {
+      'Spark': "Your Spark is about to ignite something amazing!",
+      'Ignite': "Time to set your digital presence on fire!",
+      'Burro': "The Burro pack is loaded and ready to climb!",
+      'VIP': "Welcome to the VIP experience - your dedicated team is already mobilizing!",
+      'default': formData?.hours ? `${formData.hours} hours locked and loaded!` : "Your project is ready to launch!"
+    };
+    
+    if (formData?.isServicePackage === 'true' && formData?.packageName) {
+      return messages[formData.packageName] || messages.default;
+    }
+    return messages.default;
   };
 
   return (
@@ -442,49 +454,33 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId, onTrackEvent }) 
       {/* Matrix Rain Background */}
       <MatrixRain isActive={showMatrix} duration={3000} />
       
-      {/* Confetti Effect */}
-      {showConfetti && (
-        <Box position="fixed" top={0} left={0} width="100%" height="100%" pointerEvents="none" zIndex={9999}>
-          <Confetti
-            width={width}
-            height={height}
-            numberOfPieces={200}
-            recycle={false}
-            colors={confettiColors}
-            gravity={0.15}
-          />
-        </Box>
-      )}
-      
       <Modal isOpen={isOpen} onClose={onClose} isCentered size="xl" closeOnOverlayClick={false}>
-        <ModalOverlay bg="blackAlpha.900" backdropFilter="blur(10px)" />
+        <ModalOverlay bg="blackAlpha.950" backdropFilter="blur(10px)" />
         
         <ModalContent
           bg="transparent"
           border="none"
           boxShadow="none"
           overflow="visible"
-          maxW="600px"
+          maxW="650px"
         >
           <ModalBody p={0}>
             <MotionBox
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ duration: 0.4, type: "spring" }}
+              initial={{ scale: 0.8, opacity: 0, y: 30 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 30 }}
+              transition={{ delay: 0.2, duration: 0.8, type: "spring", stiffness: 120 }}
             >
               <Box
                 position="relative"
-                bg="rgba(10, 10, 10, 0.95)"
+                p={{ base: 8, md: 12 }}
+                bg="rgba(10, 10, 10, 0.9)"
                 backdropFilter="blur(20px)"
-                border="1.5px solid"
-                borderColor={isVipPackage ? colors.vip.primary + '44' : 'whiteAlpha.200'}
-                borderRadius="2xl"
+                border="2px solid"
+                borderColor={colors.success}
+                borderRadius="3xl"
                 overflow="hidden"
-                boxShadow={isVipPackage 
-                  ? `0 20px 40px rgba(212, 175, 55, 0.3)`
-                  : '0 20px 40px rgba(0,0,0,0.6)'
-                }
+                boxShadow={`0 20px 60px rgba(57, 255, 20, 0.15)`}
               >
                 {/* Close button */}
                 <Button
@@ -502,324 +498,377 @@ const InvoiceSuccess = ({ isOpen, onClose, formData, sessionId, onTrackEvent }) 
                   <FiX size={20} />
                 </Button>
 
-                {/* Success gradient border */}
+                {/* Animated background gradient */}
                 <Box
                   position="absolute"
-                  top={0}
-                  left={0}
-                  right={0}
-                  height="3px"
-                  bg={isVipPackage 
-                    ? `linear-gradient(90deg, ${colors.vip.primary}, ${colors.accent.green})`
-                    : `linear-gradient(90deg, ${colors.brand.primary}, ${colors.accent.green})`
-                  }
+                  top="-50%"
+                  left="-50%"
+                  width="200%"
+                  height="200%"
+                  background={`radial-gradient(circle at center, ${colors.success}06 0%, transparent 40%)`}
+                  pointerEvents="none"
+                  animation={`${pulseAnimation} 4s ease-in-out infinite`}
                 />
 
-                <VStack spacing={{ base: 6, md: 8 }} p={{ base: 8, md: 10 }} position="relative">
+                <VStack spacing={{ base: 6, md: 8 }} position="relative">
                   
-                  {/* Success Icon with Logo */}
+                  {/* Success Image Instead of Icon */}
                   <MotionBox
-                    initial={{ scale: 0, rotate: -180 }}
+                    initial={{ scale: 0, rotate: -360 }}
                     animate={{ scale: 1, rotate: 0 }}
                     transition={{ 
-                      delay: 0.2, 
-                      duration: 0.6, 
+                      delay: 0.3, 
+                      duration: 1, 
                       type: "spring",
-                      stiffness: 200
+                      stiffness: 150,
+                      damping: 15
                     }}
-                    animation={`${floatAnimation} 3s ease-in-out infinite`}
                   >
                     <Box position="relative">
-                      <Box
-                        p={4}
-                        borderRadius="2xl"
-                        bg={isVipPackage ? 'rgba(212, 175, 55, 0.1)' : 'rgba(57, 255, 20, 0.1)'}
-                        border="1px solid"
-                        borderColor={isVipPackage ? 'rgba(212, 175, 55, 0.2)' : 'rgba(57, 255, 20, 0.2)'}
-                      >
-                        <Image
-                          src="/favicon.svg"
-                          alt="Neon Burro"
-                          width="60px"
-                          height="60px"
-                          filter={`drop-shadow(0 0 20px ${isVipPackage ? colors.vip.primary : colors.accent.green}66)`}
-                        />
-                      </Box>
-                      <Box
-                        position="absolute"
-                        bottom="-6px"
-                        right="-6px"
-                        bg={isVipPackage ? colors.vip.primary : colors.accent.green}
+                      <Image
+                        src="/services-hero-sms.png"
+                        alt="Success"
+                        width="120px"
+                        height="120px"
                         borderRadius="full"
-                        p={1.5}
-                        border="2px solid"
-                        borderColor="#0A0A0A"
-                      >
-                        <FiCheck size={16} color="#0A0A0A" strokeWidth={4} />
-                      </Box>
+                        objectFit="cover"
+                        border="3px solid"
+                        borderColor={colors.success}
+                        boxShadow={`0 0 40px ${colors.success}60`}
+                        animation={showNeonEffect ? `${neonGlowAnimation} 3s ease-in-out infinite` : undefined}
+                      />
+                      {/* Multiple pulse rings */}
+                      {[1, 2, 3].map((ring) => (
+                        <Box
+                          key={ring}
+                          position="absolute"
+                          inset={0}
+                          borderRadius="full"
+                          border="1px solid"
+                          borderColor={colors.success}
+                          opacity={0.3}
+                          animation={`expand ${1.5 + ring * 0.3}s ease-out infinite`}
+                          animationDelay={`${ring * 0.2}s`}
+                          sx={{
+                            '@keyframes expand': {
+                              '0%': { transform: 'scale(1)', opacity: 0.6 },
+                              '100%': { transform: 'scale(1.8)', opacity: 0 }
+                            }
+                          }}
+                        />
+                      ))}
                     </Box>
                   </MotionBox>
 
                   {/* Success Message */}
-                  <VStack spacing={2}>
-                    <Heading 
-                      size={{ base: "md", md: "lg" }}
-                      color="white"
-                      textAlign="center"
-                      fontWeight="700"
-                      letterSpacing="-0.02em"
-                    >
-                      {isVipPackage ? 'Welcome to VIP Status' : 'Payment Successful'}
-                    </Heading>
-                    <Text 
-                      color="gray.400" 
-                      fontSize={{ base: "sm", md: "md" }}
-                      textAlign="center"
-                    >
-                      Thank you, {formData.firstName}. {formData.isServicePackage === 'true' ? 'Your project is ready to launch!' : 'Your hours are ready to rock!'}
-                    </Text>
-                  </VStack>
-
-                  {/* Enhanced Order Details */}
-                  <Box
-                    width="100%"
-                    p={{ base: 5, md: 6 }}
-                    bg="rgba(255, 255, 255, 0.03)"
-                    borderRadius="xl"
-                    border="1px solid"
-                    borderColor="whiteAlpha.100"
+                  <MotionVStack
+                    spacing={4}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6, duration: 0.5 }}
                   >
-                    <VStack spacing={4} align="stretch">
-                      {/* Receipt Header */}
-                      <HStack justify="space-between">
-                        <VStack align="start" spacing={0}>
-                          <Text color="gray.500" fontSize="xs" fontWeight="600" letterSpacing="wider">
-                            RECEIPT
-                          </Text>
-                          <Text color="gray.400" fontSize="sm" fontFamily="mono">
-                            #{generateReceiptNumber()}
-                          </Text>
-                        </VStack>
-                        <Badge
-                          bg={isVipPackage ? colors.vip.primary : colors.accent.green}
-                          color="black"
-                          px={3}
-                          py={1}
+                    <MotionHeading 
+                      size={{ base: "lg", md: "xl" }}
+                      color="white"
+                      fontWeight="800"
+                      letterSpacing="-0.02em"
+                      textAlign="center"
+                    >
+                      {isVipPackage ? 'Welcome to VIP Status!' : 'Payment Successful!'}
+                    </MotionHeading>
+                    
+                    <VStack spacing={2}>
+                      <Text 
+                        color="gray.300" 
+                        fontSize={{ base: "md", md: "lg" }}
+                        textAlign="center"
+                        maxW="450px"
+                        lineHeight="1.6"
+                      >
+                        Thank you, <Text as="span" color={colors.primary} fontWeight="700">{formData.firstName}</Text>!
+                        We're thrilled to bring your vision to life.
+                      </Text>
+                      
+                      <MotionText
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.8 }}
+                        color={colors.banana}
+                        fontSize={{ base: "sm", md: "md" }}
+                        textAlign="center"
+                        fontWeight="500"
+                        maxW="400px"
+                      >
+                        {getPersonalizedMessage()}
+                      </MotionText>
+                    </VStack>
+                  </MotionVStack>
+
+                  {/* Next Steps */}
+                  <MotionVStack
+                    spacing={4}
+                    width="100%"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.8, duration: 0.5 }}
+                  >
+                    <Divider borderColor="whiteAlpha.200" />
+                    
+                    <Text 
+                      fontSize="xs"
+                      color="gray.500"
+                      fontWeight="600"
+                      textTransform="uppercase"
+                      letterSpacing="wider"
+                    >
+                      Here's What Happens Next
+                    </Text>
+                    
+                    <VStack spacing={3} width="100%">
+                      {getNextSteps().map((step, index) => {
+                        const Icon = step.icon;
+                        return (
+                          <MotionBox
+                            key={index}
+                            width="100%"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.9 + index * 0.1 }}
+                          >
+                            <HStack
+                              width="100%"
+                              p={4}
+                              bg="rgba(255, 255, 255, 0.02)"
+                              borderRadius="xl"
+                              border="1px solid"
+                              borderColor="whiteAlpha.100"
+                              spacing={4}
+                              transition="all 0.3s"
+                              _hover={{
+                                bg: 'rgba(255, 255, 255, 0.04)',
+                                borderColor: step.color,
+                                transform: 'translateX(4px)'
+                              }}
+                            >
+                              <Box
+                                p={2.5}
+                                borderRadius="lg"
+                                bg={`${step.color}15`}
+                                color={step.color}
+                                border="1px solid"
+                                borderColor={`${step.color}30`}
+                              >
+                                <Icon size={18} />
+                              </Box>
+                              <VStack align="start" spacing={0.5} flex={1}>
+                                <Text 
+                                  color="white" 
+                                  fontSize="sm"
+                                  fontWeight="600"
+                                >
+                                  {step.title}
+                                </Text>
+                                <Text 
+                                  color="gray.400" 
+                                  fontSize="xs"
+                                  noOfLines={1}
+                                >
+                                  {step.description}
+                                </Text>
+                              </VStack>
+                            </HStack>
+                          </MotionBox>
+                        );
+                      })}
+                    </VStack>
+                  </MotionVStack>
+
+                  {/* Project Summary Badge */}
+                  <MotionBox
+                    width="100%"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 1.2, duration: 0.5 }}
+                  >
+                    <HStack
+                      p={4}
+                      bg={`linear-gradient(135deg, ${colors.purple}08, ${colors.primary}08)`}
+                      borderRadius="xl"
+                      border="1px solid"
+                      borderColor="whiteAlpha.200"
+                      justify="center"
+                      spacing={3}
+                      flexWrap="wrap"
+                    >
+                      <Badge
+                        px={3}
+                        py={1.5}
+                        borderRadius="full"
+                        bg={`${colors.purple}22`}
+                        color={colors.purple}
+                        fontSize="xs"
+                        fontWeight="700"
+                        border="1px solid"
+                        borderColor={`${colors.purple}40`}
+                      >
+                        {formData?.isServicePackage === 'true' 
+                          ? formData?.packageName?.toUpperCase() 
+                          : `${formData?.hours} HOURS`
+                        }
+                      </Badge>
+                      <Box width="4px" height="4px" borderRadius="full" bg="whiteAlpha.400" />
+                      <Text color="gray.300" fontSize="sm" fontWeight="600">
+                        {formData?.projectName}
+                      </Text>
+                      <Box width="4px" height="4px" borderRadius="full" bg="whiteAlpha.400" />
+                      <Text color="gray.300" fontSize="sm" fontWeight="600">
+                        Total: ${formData?.total}
+                      </Text>
+                    </HStack>
+                  </MotionBox>
+
+                  {/* Action Buttons */}
+                  <MotionBox
+                    width="100%"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.4, duration: 0.5 }}
+                  >
+                    <VStack spacing={4} width="100%">
+                      {/* Email Input (when shown) */}
+                      <AnimatePresence>
+                        {showEmailInput && (
+                          <MotionBox
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.3 }}
+                            width="100%"
+                          >
+                            <InputGroup size="md">
+                              <InputLeftElement pointerEvents="none">
+                                <FiMail color="gray.300" />
+                              </InputLeftElement>
+                              <Input
+                                placeholder="Enter additional email"
+                                value={additionalEmail}
+                                onChange={(e) => setAdditionalEmail(e.target.value)}
+                                bg="rgba(255, 255, 255, 0.05)"
+                                border="1px solid"
+                                borderColor="whiteAlpha.200"
+                                color="white"
+                                _placeholder={{ color: 'gray.500' }}
+                                _hover={{ borderColor: 'whiteAlpha.300' }}
+                                _focus={{ borderColor: colors.primary }}
+                                pr="4.5rem"
+                              />
+                              <Button
+                                position="absolute"
+                                right={1}
+                                top={1}
+                                bottom={1}
+                                size="sm"
+                                bg={colors.primary}
+                                color="black"
+                                _hover={{ bg: colors.primary }}
+                                onClick={() => handleEmailReceipt(additionalEmail)}
+                                isLoading={emailSending}
+                                isDisabled={!additionalEmail || !additionalEmail.includes('@')}
+                                borderRadius="md"
+                              >
+                                <FiSend />
+                              </Button>
+                            </InputGroup>
+                          </MotionBox>
+                        )}
+                      </AnimatePresence>
+                      
+                      <HStack spacing={3} width="100%">
+                        <Button
+                          size="lg"
+                          flex={1}
+                          variant="outline"
+                          borderColor={downloadComplete ? colors.success : "whiteAlpha.300"}
+                          color={downloadComplete ? colors.success : "white"}
+                          fontWeight="600"
+                          fontSize="md"
+                          leftIcon={downloadComplete ? <FiCheckCircle size={18} /> : <FiDownload size={18} />}
                           borderRadius="full"
-                          fontSize="xs"
-                          fontWeight="700"
+                          onClick={handleDownloadReceipt}
+                          isLoading={downloadProcessing}
+                          loadingText="Creating PDF..."
+                          _hover={{
+                            bg: 'whiteAlpha.100',
+                            borderColor: 'whiteAlpha.400'
+                          }}
                         >
-                          PAID
-                        </Badge>
+                          {downloadComplete ? 'Downloaded!' : 'Download Receipt'}
+                        </Button>
+                        <Button
+                          size="lg"
+                          flex={1}
+                          variant="outline"
+                          borderColor={emailSent && !showEmailInput ? colors.success : "whiteAlpha.300"}
+                          color={emailSent && !showEmailInput ? colors.success : "white"}
+                          fontWeight="600"
+                          fontSize="md"
+                          leftIcon={emailSent && !showEmailInput ? <FiCheckCircle size={18} /> : <FiMail size={18} />}
+                          borderRadius="full"
+                          onClick={() => {
+                            if (showEmailInput) {
+                              handleEmailReceipt(formData.email);
+                            } else if (emailSent) {
+                              setShowEmailInput(true);
+                            } else {
+                              handleEmailReceipt(formData.email);
+                            }
+                          }}
+                          isLoading={emailSending && !showEmailInput}
+                          loadingText="Sending..."
+                          _hover={{
+                            bg: 'whiteAlpha.100',
+                            borderColor: 'whiteAlpha.400'
+                          }}
+                        >
+                          {emailSent && !showEmailInput ? 'Sent!' : 'Email Receipt'}
+                        </Button>
                       </HStack>
                       
-                      <Divider borderColor="whiteAlpha.100" />
+                      <Button
+                        size="lg"
+                        width="100%"
+                        bg="white"
+                        color="black"
+                        fontWeight="700"
+                        fontSize={{ base: "md", md: "lg" }}
+                        height={{ base: "52px", md: "56px" }}
+                        onClick={onClose}
+                        _hover={{
+                          bg: colors.success,
+                          transform: 'translateY(-2px)',
+                          boxShadow: `0 15px 40px ${colors.success}40`
+                        }}
+                        _active={{ 
+                          transform: 'translateY(0)',
+                          bg: colors.success
+                        }}
+                        borderRadius="full"
+                        transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                      >
+                        Continue
+                      </Button>
                       
-                      {/* Project Details */}
-                      <VStack spacing={3} align="stretch">
-                        <HStack>
-                          <Box color="gray.500">
-                            <FiUser size={16} />
-                          </Box>
-                          <Text color="gray.400" fontSize="sm">Client:</Text>
-                          <Text color="white" fontSize="sm" fontWeight="600" ml="auto">
-                            {formData.firstName}
-                          </Text>
-                        </HStack>
-                        
-                        <HStack>
-                          <Box color="gray.500">
-                            <FiPackage size={16} />
-                          </Box>
-                          <Text color="gray.400" fontSize="sm">Project:</Text>
-                          <Text color="white" fontSize="sm" fontWeight="600" ml="auto">
-                            {formData.projectName}
-                          </Text>
-                        </HStack>
-                        
-                        <HStack>
-                          <Box color="gray.500">
-                            <FiCalendar size={16} />
-                          </Box>
-                          <Text color="gray.400" fontSize="sm">Timeline:</Text>
-                          <Text color={colors.brand.primary} fontSize="sm" fontWeight="600" ml="auto">
-                            {getTimeline()}
-                          </Text>
-                        </HStack>
-                      </VStack>
-                      
-                      <Divider borderColor="whiteAlpha.100" />
-                      
-                      {/* Package/Hours Info */}
-                      <Box>
-                        <Text color="gray.400" fontSize="xs" fontWeight="600" letterSpacing="wider" mb={2}>
-                          {formData.isServicePackage === 'true' ? 'PACKAGE DETAILS' : 'HOURS PURCHASED'}
+                      <HStack spacing={4} fontSize="xs" color="gray.500">
+                        <Text>
+                          Receipt: <Text as="span" color="gray.400" fontFamily="mono">#{generateReceiptNumber()}</Text>
                         </Text>
-                        {formData.isServicePackage === 'true' ? (
-                          <VStack align="start" spacing={2}>
-                            <HStack justify="space-between" width="100%">
-                              <Text color="white" fontSize="sm" fontWeight="600">
-                                {formData.packageName} Package
-                              </Text>
-                              <Text color={isVipPackage ? colors.vip.primary : colors.brand.primary} fontSize="sm" fontWeight="600">
-                                ${parseInt(formData.total).toLocaleString()}
-                              </Text>
-                            </HStack>
-                            <Text color="gray.500" fontSize="xs">
-                              Full website development with all features included
-                            </Text>
-                          </VStack>
-                        ) : (
-                          <HStack justify="space-between">
-                            <Text color="white" fontSize="sm" fontWeight="600">
-                              {formData.hours} Development Hours
-                            </Text>
-                            <Text color={colors.brand.primary} fontSize="sm" fontWeight="600">
-                              ${parseInt(formData.total).toLocaleString()}
-                            </Text>
-                          </HStack>
-                        )}
-                      </Box>
-                      
-                      <Divider borderColor="whiteAlpha.100" />
-                      
-                      {/* Total */}
-                      <HStack justify="space-between">
-                        <HStack>
-                          <Box color={colors.accent.green}>
-                            <FiDollarSign size={20} />
-                          </Box>
-                          <Text color="white" fontWeight="700" fontSize="lg">
-                            Total Paid
-                          </Text>
-                        </HStack>
-                        <Text 
-                          color={colors.accent.green} 
-                          fontWeight="800" 
-                          fontSize="xl"
-                          filter={`drop-shadow(0 0 10px ${colors.accent.green}66)`}
-                        >
-                          ${parseInt(formData.total).toLocaleString()}
+                        <Box width="1px" height="12px" bg="whiteAlpha.200" />
+                        <Text>
+                          Saved to: <Text as="span" color="gray.400">hello@neonburro.com</Text>
                         </Text>
                       </HStack>
                     </VStack>
-                  </Box>
-
-                  {/* What Happens Next */}
-                  <Box
-                    width="100%"
-                    p={4}
-                    bg={isVipPackage ? 'rgba(212, 175, 55, 0.05)' : 'rgba(0, 255, 255, 0.05)'}
-                    borderRadius="xl"
-                    border="1px solid"
-                    borderColor={isVipPackage ? 'rgba(212, 175, 55, 0.2)' : 'rgba(0, 255, 255, 0.2)'}
-                  >
-                    <Text color="gray.400" fontSize="xs" fontWeight="600" letterSpacing="wider" mb={3}>
-                      WHAT HAPPENS NEXT
-                    </Text>
-                    <List spacing={2}>
-                      {getNextSteps().map((step, index) => (
-                        <ListItem key={index} fontSize="sm" color={step.highlight ? 'white' : 'gray.300'}>
-                          <ListIcon as={step.icon} color={step.highlight ? colors.vip.primary : colors.accent.green} />
-                          {step.text}
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Box>
-
-                  {/* Action Buttons */}
-                  <VStack spacing={3} width="100%">
-                    {/* Email Input (when shown) */}
-                    <Fade in={showEmailInput}>
-                      {showEmailInput && (
-                        <InputGroup size="md">
-                          <InputLeftElement pointerEvents="none">
-                            <FiMail color="gray.300" />
-                          </InputLeftElement>
-                          <Input
-                            placeholder="Enter additional email"
-                            value={additionalEmail}
-                            onChange={(e) => setAdditionalEmail(e.target.value)}
-                            bg="rgba(255, 255, 255, 0.05)"
-                            border="1px solid"
-                            borderColor="whiteAlpha.200"
-                            color="white"
-                            _placeholder={{ color: 'gray.500' }}
-                            _hover={{ borderColor: 'whiteAlpha.300' }}
-                            _focus={{ borderColor: colors.brand.primary }}
-                            pr="4.5rem"
-                          />
-                          <Button
-                            position="absolute"
-                            right={1}
-                            top={1}
-                            bottom={1}
-                            size="sm"
-                            bg={colors.brand.primary}
-                            color="black"
-                            _hover={{ bg: colors.brand.primary }}
-                            onClick={() => handleEmailReceipt(additionalEmail)}
-                            isLoading={emailSending}
-                            isDisabled={!additionalEmail || !additionalEmail.includes('@')}
-                            borderRadius="md"
-                          >
-                            <FiSend />
-                          </Button>
-                        </InputGroup>
-                      )}
-                    </Fade>
-                    
-                    <HStack spacing={3} width="100%">
-                      <Button
-                        size="md"
-                        flex={1}
-                        variant="outline"
-                        borderColor={downloadComplete ? colors.accent.green : "whiteAlpha.300"}
-                        color={downloadComplete ? colors.accent.green : "white"}
-                        fontWeight="600"
-                        fontSize="sm"
-                        leftIcon={downloadComplete ? <FiCheckCircle size={16} /> : <FiDownload size={16} />}
-                        borderRadius="full"
-                        onClick={handleDownloadReceipt}
-                        isLoading={downloadProcessing}
-                        loadingText="Creating PDF..."
-                        _hover={{
-                          bg: 'whiteAlpha.100',
-                          borderColor: 'whiteAlpha.400'
-                        }}
-                      >
-                        {downloadComplete ? 'Downloaded!' : 'Download PDF'}
-                      </Button>
-                      <Button
-                        size="md"
-                        flex={1}
-                        variant="outline"
-                        borderColor={emailSent && !showEmailInput ? colors.accent.green : "whiteAlpha.300"}
-                        color={emailSent && !showEmailInput ? colors.accent.green : "white"}
-                        fontWeight="600"
-                        fontSize="sm"
-                        leftIcon={emailSent && !showEmailInput ? <FiCheckCircle size={16} /> : <FiMail size={16} />}
-                        borderRadius="full"
-                        onClick={() => {
-                          if (showEmailInput) {
-                            handleEmailReceipt(formData.email);
-                          } else if (emailSent) {
-                            setShowEmailInput(true);
-                          } else {
-                            handleEmailReceipt(formData.email);
-                          }
-                        }}
-                        isLoading={emailSending && !showEmailInput}
-                        loadingText="Sending..."
-                        _hover={{
-                          bg: 'whiteAlpha.100',
-                          borderColor: 'whiteAlpha.400'
-                        }}
-                      >
-                        {emailSent && !showEmailInput ? 'Sent!' : (showEmailInput ? 'Send to Original' : 'Email Receipt')}
-                      </Button>
-                    </HStack>
-                  </VStack>
+                  </MotionBox>
                 </VStack>
               </Box>
             </MotionBox>
