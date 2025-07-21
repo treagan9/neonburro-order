@@ -1,6 +1,6 @@
 import { Box, Container, Heading, Text, VStack, Link, Grid, GridItem, HStack } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { FiArrowRight } from 'react-icons/fi';
+import { FiArrowRight, FiExternalLink } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
 const MotionBox = motion(Box);
@@ -10,28 +10,34 @@ const Sitemap = () => {
 
   const mainPages = [
     { title: 'Home', path: '/', description: 'Welcome to Neon Burro' },
-    { title: 'Services', path: '/services', description: 'Our digital solutions' },
-    { title: 'Work', path: '/work', description: 'Portfolio & case studies' },
-    { title: 'About', path: '/about', description: 'Our story and team' },
-    { title: 'Contact', path: '/contact', description: 'Start your project' }
+    { title: 'Services', path: '/services/', description: 'Our digital solutions' },
+    { title: 'Work', path: '/work/', description: 'Portfolio & case studies' },
+    { title: 'About', path: '/about/', description: 'Our story and team' },
+    { title: 'Contact', path: '/contact/', description: 'Start your project' }
   ];
 
   const resourcePages = [
-    { title: 'Fuel Up', path: '/invoice', description: 'Purchase development hours' },
-    { title: 'FAQ', path: '/faq', description: 'Frequently asked questions' },
-    { title: 'Apply to Burro', path: '/apply-to-burro', description: 'Join our adventure' }
+    { title: 'Fuel Up', path: '/invoice/', description: 'Purchase development hours' },
+    { title: 'FAQ', path: '/faq/', description: 'Frequently asked questions' },
+    { title: 'Apply to Burro', path: '/apply-to-burro/', description: 'Join our adventure' }
   ];
 
   const labPages = [
-    { title: 'Lab', path: '/lab', description: 'Experimental projects (password protected)' },
-    { title: 'Gnarly Tacos', path: '/lab/gnarly-tacos', description: 'Taco shop website' },
-    { title: 'Trace Gallery', path: '/lab/trace-gallery', description: 'Art gallery showcase' },
-    { title: 'Colorado Boy', path: '/lab/colorado-boy', description: 'Pizza restaurant site' }
+    { title: 'Lab', path: '/lab/', description: 'Experimental projects showcase' },
+    { title: 'Gnarly Tacos', path: '/lab/gnarly-tacos/', description: 'Taco shop website (password protected)' },
+    { title: 'Trace Gallery', path: '/lab/trace-gallery/', description: 'Art gallery showcase (password protected)' },
+    { title: 'Colorado Boy', path: '/lab/colorado-boy/', description: 'Pizza restaurant site (password protected)' }
+  ];
+
+  const memberPages = [
+    { title: 'Members Login', path: '/members/login/', description: 'Access member dashboard' },
+    { title: 'Members Dashboard', path: '/members/', description: 'Member area (requires login)' }
   ];
 
   const legalPages = [
-    { title: 'Privacy Policy', path: '/privacy', description: 'How we handle your data' },
-    { title: 'Terms of Service', path: '/terms', description: 'Legal terms and conditions' }
+    { title: 'Privacy Policy', path: '/privacy/', description: 'How we handle your data' },
+    { title: 'Terms of Service', path: '/terms/', description: 'Legal terms and conditions' },
+    { title: 'Sitemap', path: '/sitemap/', description: 'This page - all site links' }
   ];
 
   const PageLink = ({ page }) => (
@@ -59,12 +65,18 @@ const Sitemap = () => {
           <Text color="text.muted" fontSize={{ base: "xs", md: "sm" }}>
             {page.description}
           </Text>
+          <Text color="gray.600" fontSize="xs" fontFamily="mono">
+            {page.path}
+          </Text>
         </VStack>
         <FiArrowRight size={16} color="var(--chakra-colors-text-muted)" />
       </HStack>
     </Box>
   );
 
+  // Generate XML sitemap content for display
+  const xmlSitemapUrl = 'https://neonburro.com/sitemap.xml';
+  
   return (
     <Box bg="dark.black" minH="100vh">
       <Box
@@ -95,6 +107,20 @@ const Sitemap = () => {
                 <Text color="text.secondary" fontSize={{ base: "sm", md: "md" }}>
                   Explore all pages and resources on Neon Burro
                 </Text>
+                <HStack spacing={2} color="gray.500" fontSize="sm">
+                  <Text>XML Sitemap for search engines:</Text>
+                  <Link 
+                    href={xmlSitemapUrl} 
+                    isExternal 
+                    color="brand.primary" 
+                    _hover={{ textDecoration: 'underline' }}
+                    display="flex"
+                    alignItems="center"
+                    gap={1}
+                  >
+                    {xmlSitemapUrl} <FiExternalLink />
+                  </Link>
+                </HStack>
               </VStack>
             </MotionBox>
 
@@ -146,10 +172,29 @@ const Sitemap = () => {
               <VStack align="start" spacing={4} width="100%">
                 <Heading as="h2" size="md" color="white">Lab Projects</Heading>
                 <Text color="text.muted" fontSize="sm" mb={2}>
-                  Note: Lab section requires password authentication
+                  Note: Individual lab projects require password authentication (BURRO2049)
                 </Text>
                 <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }} gap={4} width="100%">
                   {labPages.map((page) => (
+                    <GridItem key={page.path}>
+                      <PageLink page={page} />
+                    </GridItem>
+                  ))}
+                </Grid>
+              </VStack>
+            </MotionBox>
+
+            {/* Members Area */}
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.35 }}
+              width="100%"
+            >
+              <VStack align="start" spacing={4} width="100%">
+                <Heading as="h2" size="md" color="white">Members Area</Heading>
+                <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4} width="100%">
+                  {memberPages.map((page) => (
                     <GridItem key={page.path}>
                       <PageLink page={page} />
                     </GridItem>
@@ -166,8 +211,8 @@ const Sitemap = () => {
               width="100%"
             >
               <VStack align="start" spacing={4} width="100%">
-                <Heading as="h2" size="md" color="white">Legal</Heading>
-                <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4} width="100%">
+                <Heading as="h2" size="md" color="white">Legal & Info</Heading>
+                <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }} gap={4} width="100%">
                   {legalPages.map((page) => (
                     <GridItem key={page.path}>
                       <PageLink page={page} />
@@ -176,6 +221,13 @@ const Sitemap = () => {
                 </Grid>
               </VStack>
             </MotionBox>
+
+            {/* Last Updated */}
+            <Box width="100%" pt={8} borderTop="1px solid" borderColor="whiteAlpha.100">
+              <Text color="gray.600" fontSize="xs">
+                Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+              </Text>
+            </Box>
           </VStack>
         </Container>
       </Box>

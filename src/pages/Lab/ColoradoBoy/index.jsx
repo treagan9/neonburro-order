@@ -1,11 +1,12 @@
 import React from 'react';
 import { Box, Container, Heading, Text, VStack, HStack, Grid, Badge, Image } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
+import LabPasswordWrapper from '../../../components/lab/LabPasswordWrapper';
 
 const MotionBox = motion(Box);
 const MotionImage = motion(Image);
 
-const ColoradoBoyLab = () => {
+const ColoradoBoyContent = () => {
   const [brewProgress] = React.useState(12);
   const [currentStage, setCurrentStage] = React.useState(0);
   const [bubbles, setBubbles] = React.useState([]);
@@ -84,13 +85,13 @@ const ColoradoBoyLab = () => {
         >
           <HStack
             as="a"
-            href="/"
+            href="/lab"
             spacing={2}
             color="gray.500"
             _hover={{ color: '#00D9FF' }}
             cursor="pointer"
           >
-            <Text>← Back to The Vault</Text>
+            <Text>← Back to The Lab</Text>
           </HStack>
         </MotionBox>
 
@@ -408,6 +409,19 @@ const ColoradoBoyLab = () => {
         </VStack>
       </Container>
     </Box>
+  );
+};
+
+const ColoradoBoyLab = () => {
+  return (
+    <LabPasswordWrapper
+      projectName="Colorado Boy Brewery"
+      projectIcon="🍺"
+      projectColor="#FFC107"
+      teaserText="We're crafting a digital taproom experience that brings the brewery's unique mountain vibe online. Real-time tap lists, pizza ordering, and event calendars - all served with a side of Colorado charm."
+    >
+      <ColoradoBoyContent />
+    </LabPasswordWrapper>
   );
 };
 

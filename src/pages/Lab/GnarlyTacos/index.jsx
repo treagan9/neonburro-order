@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Container, Heading, Text, VStack, HStack, Progress, Image, Grid, Badge, keyframes } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
+import LabPasswordWrapper from '../../../components/lab/LabPasswordWrapper';
 
 const MotionBox = motion(Box);
 const MotionImage = motion(Image);
@@ -11,7 +12,7 @@ const blinkAnimation = keyframes`
   51%, 100% { opacity: 0; }
 `;
 
-const GnarlyTacosLab = () => {
+const GnarlyTacosContent = () => {
   const [progress] = React.useState(67);
   const [messageIndex, setMessageIndex] = React.useState(0);
   const [terminalLines, setTerminalLines] = React.useState([
@@ -87,13 +88,13 @@ const GnarlyTacosLab = () => {
         >
           <HStack
             as="a"
-            href="/"
+            href="/lab"
             spacing={2}
             color="gray.500"
             _hover={{ color: '#00D9FF' }}
             cursor="pointer"
           >
-            <Text>← Back to The Vault</Text>
+            <Text>← Back to The Lab</Text>
           </HStack>
         </MotionBox>
 
@@ -308,6 +309,19 @@ const GnarlyTacosLab = () => {
         </VStack>
       </Container>
     </Box>
+  );
+};
+
+const GnarlyTacosLab = () => {
+  return (
+    <LabPasswordWrapper
+      projectName="Gnarly Tacos 2.0"
+      projectIcon="🌮"
+      projectColor="#FF6B35"
+      teaserText="We're cooking up a mobile-first ordering experience that's as gnarly as the tacos themselves. Skip the generic platforms - this custom solution speaks fluent hot sauce and knows your spice tolerance by heart."
+    >
+      <GnarlyTacosContent />
+    </LabPasswordWrapper>
   );
 };
 

@@ -1,11 +1,12 @@
 import React from 'react';
 import { Box, Container, Heading, Text, VStack, HStack, Grid, SimpleGrid, Image } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
+import LabPasswordWrapper from '../../../components/lab/LabPasswordWrapper';
 
 const MotionBox = motion(Box);
 const MotionImage = motion(Image);
 
-const TraceGalleryLab = () => {
+const TraceGalleryContent = () => {
   const [activeFrame, setActiveFrame] = React.useState(null);
   const [designPhase, setDesignPhase] = React.useState(0);
   const [progress] = React.useState(34);
@@ -54,13 +55,13 @@ const TraceGalleryLab = () => {
         >
           <HStack
             as="a"
-            href="/"
+            href="/lab"
             spacing={2}
             color="gray.500"
             _hover={{ color: '#00D9FF' }}
             cursor="pointer"
           >
-            <Text>← Back to The Vault</Text>
+            <Text>← Back to The Lab</Text>
           </HStack>
         </MotionBox>
 
@@ -326,6 +327,19 @@ const TraceGalleryLab = () => {
         </VStack>
       </Container>
     </Box>
+  );
+};
+
+const TraceGalleryLab = () => {
+  return (
+    <LabPasswordWrapper
+      projectName="TRACE Gallery"
+      projectIcon="🎨"
+      projectColor="#8B5CF6"
+      teaserText="Reimagining how art galleries connect with their audience. Virtual exhibitions, artist spotlights, and immersive digital experiences - where every pixel tells a story and white space has purpose."
+    >
+      <TraceGalleryContent />
+    </LabPasswordWrapper>
   );
 };
 
