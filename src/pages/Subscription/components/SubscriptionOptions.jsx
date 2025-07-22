@@ -461,7 +461,7 @@ const SubscriptionOptions = ({ onSuccess }) => {
 
   return (
     <Box py={{ base: 8, md: 16 }} bg="dark.black">
-      <Container maxW={{ base: "100%", md: "1200px" }}>
+      <Container maxW={{ base: "100%", md: "1200px" }} px={{ base: 4, md: 8 }}>
         <VStack spacing={{ base: 8, md: 10 }} align="stretch">
           
           {!showPaymentForm ? (
@@ -473,7 +473,7 @@ const SubscriptionOptions = ({ onSuccess }) => {
                 transition={{ duration: 0.6 }}
               >
                 <Box
-                  p={{ base: 6, md: 8 }}
+                  p={{ base: 5, md: 8 }}
                   bg="rgba(20, 241, 149, 0.05)"
                   border="2px solid"
                   borderColor={tierColors.base}
@@ -491,7 +491,7 @@ const SubscriptionOptions = ({ onSuccess }) => {
                   />
                   
                   <VStack spacing={4} align="stretch">
-                    <HStack justify="space-between" align="start">
+                    <HStack justify="space-between" align="start" flexWrap="wrap" gap={2}>
                       <VStack align="start" spacing={1}>
                         <Badge
                           colorScheme="teal"
@@ -502,12 +502,12 @@ const SubscriptionOptions = ({ onSuccess }) => {
                         >
                           REQUIRED
                         </Badge>
-                        <Heading size={{ base: "md", md: "lg" }} color="white">
+                        <Heading size={{ base: "sm", md: "lg" }} color="white">
                           {basePlan.name}
                         </Heading>
                       </VStack>
                       <VStack align="end">
-                        <Text fontSize={{ base: "2xl", md: "3xl" }} fontWeight="700" color={tierColors.base}>
+                        <Text fontSize={{ base: "xl", md: "3xl" }} fontWeight="700" color={tierColors.base}>
                           ${basePlan.price}
                         </Text>
                         <Text color="gray.500" fontSize="xs">/month</Text>
@@ -516,16 +516,16 @@ const SubscriptionOptions = ({ onSuccess }) => {
 
                     <VStack align="start" spacing={2}>
                       {basePlan.features.map((feature, i) => (
-                        <HStack key={i} spacing={2}>
-                          <Icon as={FiCheck} color={tierColors.base} boxSize={4} />
-                          <Text color="gray.300" fontSize={{ base: "sm", md: "md" }}>{feature}</Text>
+                        <HStack key={i} spacing={2} align="start">
+                          <Icon as={FiCheck} color={tierColors.base} boxSize={4} mt={0.5} flexShrink={0} />
+                          <Text color="gray.300" fontSize={{ base: "xs", md: "md" }}>{feature}</Text>
                         </HStack>
                       ))}
                     </VStack>
 
                     {/* Terms Checkbox */}
                     <Box
-                      p={4}
+                      p={{ base: 3, md: 4 }}
                       bg="whiteAlpha.50"
                       borderRadius="md"
                       border="1px solid"
@@ -535,9 +535,9 @@ const SubscriptionOptions = ({ onSuccess }) => {
                         isChecked={termsAccepted}
                         onChange={(e) => setTermsAccepted(e.target.checked)}
                         colorScheme="teal"
-                        size="lg"
+                        size={{ base: "md", md: "lg" }}
                       >
-                        <Text fontSize="sm" color="gray.300">
+                        <Text fontSize={{ base: "xs", md: "sm" }} color="gray.300">
                           I accept the{' '}
                           <Link href="/terms/" color={tierColors.base} textDecoration="underline">
                             terms and conditions
@@ -548,7 +548,7 @@ const SubscriptionOptions = ({ onSuccess }) => {
 
                     {/* Continue Button - Always visible */}
                     <Button
-                      size="lg"
+                      size={{ base: "md", md: "lg" }}
                       bg={tierColors.base}
                       color="black"
                       fontWeight="700"
@@ -556,6 +556,8 @@ const SubscriptionOptions = ({ onSuccess }) => {
                       onClick={handleContinueToPayment}
                       opacity={termsAccepted ? 1 : 0.5}
                       cursor={termsAccepted ? 'pointer' : 'not-allowed'}
+                      fontSize={{ base: "sm", md: "md" }}
+                      py={{ base: 6, md: 7 }}
                       _hover={termsAccepted ? {
                         transform: 'translateY(-2px)',
                         boxShadow: `0 10px 30px ${tierColors.base}44`
@@ -574,10 +576,10 @@ const SubscriptionOptions = ({ onSuccess }) => {
               {/* Optional Add-ons */}
               <Box>
                 <Box textAlign="center" mb={6}>
-                  <Heading size={{ base: "lg", md: "xl" }} color="white" mb={2}>
+                  <Heading size={{ base: "md", md: "xl" }} color="white" mb={2}>
                     Enhance Your Growth
                   </Heading>
-                  <Text color="gray.400" fontSize={{ base: "sm", md: "md" }}>
+                  <Text color="gray.400" fontSize={{ base: "xs", md: "md" }}>
                     Add a support tier for ongoing development and optimization
                   </Text>
                 </Box>
@@ -607,67 +609,71 @@ const SubscriptionOptions = ({ onSuccess }) => {
                       >
                         {/* Tier Header */}
                         <Box
-                          p={{ base: 4, md: 5 }}
+                          p={{ base: 3, md: 5 }}
                           cursor="pointer"
                           onClick={() => handleTierToggle(tier.productId)}
                           bg={selectedTier?.productId === tier.productId ? `${tier.color}11` : 'transparent'}
                           _hover={{ bg: 'whiteAlpha.50' }}
                           transition="all 0.2s"
                         >
-                          <HStack justify="space-between" align="center">
-                            <VStack align="start" spacing={1} flex={1}>
-                              <HStack>
-                                <Heading 
-                                  size="sm" 
-                                  color={tier.color}
-                                  fontSize={{ base: "md", md: "lg" }}
-                                >
-                                  {tier.name}
-                                </Heading>
-                                {tier.popular && (
-                                  <Badge colorScheme="green" fontSize="xs">
-                                    MOST POPULAR
-                                  </Badge>
-                                )}
-                              </HStack>
-                              {tier.tagline && (
-                                <Text color="gray.300" fontSize="xs" fontWeight="500">
-                                  {tier.tagline}
-                                </Text>
-                              )}
-                              <HStack spacing={3} fontSize={{ base: "xs", md: "sm" }} color="gray.400">
-                                <HStack spacing={1}>
-                                  <Icon as={FiClock} boxSize={3} />
-                                  <Text>
-                                    {typeof tier.hours === 'number' 
-                                      ? `${tier.hours} hr${tier.hours > 1 ? 's' : ''}/month` 
-                                      : tier.hours}
-                                  </Text>
+                          <VStack spacing={2} align="stretch">
+                            <HStack justify="space-between" align="start">
+                              <VStack align="start" spacing={1} flex={1}>
+                                <HStack flexWrap="wrap" gap={2}>
+                                  <Heading 
+                                    size="sm" 
+                                    color={tier.color}
+                                    fontSize={{ base: "sm", md: "lg" }}
+                                  >
+                                    {tier.name}
+                                  </Heading>
+                                  {tier.popular && (
+                                    <Badge colorScheme="green" fontSize="xs">
+                                      MOST POPULAR
+                                    </Badge>
+                                  )}
                                 </HStack>
-                                <Text>•</Text>
-                                <Text fontWeight="600" color="white">
-                                  +${tier.price}/mo
-                                </Text>
-                              </HStack>
-                            </VStack>
-                            
-                            <HStack spacing={3}>
-                              {selectedTier?.productId === tier.productId && (
-                                <Badge
-                                  colorScheme="green"
-                                  variant="subtle"
-                                  fontSize="xs"
-                                >
-                                  Selected
-                                </Badge>
-                              )}
+                                {tier.tagline && (
+                                  <Text color="gray.300" fontSize={{ base: "xs", md: "xs" }} fontWeight="500">
+                                    {tier.tagline}
+                                  </Text>
+                                )}
+                              </VStack>
+                              
                               <Icon
                                 as={expandedTier === tier.productId ? FiMinus : FiPlus}
                                 color={tier.color}
-                                boxSize={5}
+                                boxSize={{ base: 4, md: 5 }}
+                                flexShrink={0}
                               />
                             </HStack>
-                          </HStack>
+                            
+                            <HStack spacing={3} fontSize={{ base: "xs", md: "sm" }} color="gray.400" flexWrap="wrap">
+                              <HStack spacing={1}>
+                                <Icon as={FiClock} boxSize={3} />
+                                <Text>
+                                  {typeof tier.hours === 'number' 
+                                    ? `${tier.hours} hr${tier.hours > 1 ? 's' : ''}/month` 
+                                    : tier.hours}
+                                </Text>
+                              </HStack>
+                              <Text>•</Text>
+                              <Text fontWeight="600" color="white">
+                                +${tier.price}/mo
+                              </Text>
+                            </HStack>
+                            
+                            {selectedTier?.productId === tier.productId && (
+                              <Badge
+                                colorScheme="green"
+                                variant="subtle"
+                                fontSize="xs"
+                                width="fit-content"
+                              >
+                                Selected
+                              </Badge>
+                            )}
+                          </VStack>
                         </Box>
 
                         {/* Expandable Content */}
@@ -688,7 +694,7 @@ const SubscriptionOptions = ({ onSuccess }) => {
                                     mt={0.5}
                                     flexShrink={0}
                                   />
-                                  <Text color="gray.300" fontSize={{ base: "sm", md: "md" }}>
+                                  <Text color="gray.300" fontSize={{ base: "xs", md: "md" }}>
                                     {feature}
                                   </Text>
                                 </HStack>
@@ -701,6 +707,8 @@ const SubscriptionOptions = ({ onSuccess }) => {
                                 color="black"
                                 fontWeight="700"
                                 width="full"
+                                fontSize={{ base: "xs", md: "md" }}
+                                py={{ base: 6, md: 7 }}
                                 onClick={() => {
                                   handleTierSelect(tier);
                                   if (termsAccepted) {
@@ -717,7 +725,7 @@ const SubscriptionOptions = ({ onSuccess }) => {
                                 transition="all 0.2s"
                               >
                                 {selectedTier?.productId === tier.productId 
-                                  ? 'Selected - Continue to Payment' 
+                                  ? 'Selected - Continue' 
                                   : `Add ${tier.name} (+$${tier.price}/mo)`}
                               </Button>
                             </VStack>
@@ -736,7 +744,7 @@ const SubscriptionOptions = ({ onSuccess }) => {
                   bottom={{ base: 0, md: "auto" }}
                   left={{ base: 0, md: "auto" }}
                   right={{ base: 0, md: "auto" }}
-                  p={4}
+                  p={{ base: 3, md: 4 }}
                   bg="rgba(10, 10, 10, 0.95)"
                   backdropFilter="blur(20px)"
                   borderTop={{ base: "1px solid", md: "none" }}
@@ -748,17 +756,18 @@ const SubscriptionOptions = ({ onSuccess }) => {
                   <HStack justify="space-between" align="center">
                     <VStack align="start" spacing={0}>
                       <Text color="gray.400" fontSize="xs">Monthly Total</Text>
-                      <Text fontSize="2xl" fontWeight="800" color="white">
+                      <Text fontSize={{ base: "xl", md: "2xl" }} fontWeight="800" color="white">
                         ${getTotalPrice()}
                       </Text>
                     </VStack>
                     <Button
-                      size="lg"
-                      px={8}
+                      size={{ base: "md", md: "lg" }}
+                      px={{ base: 6, md: 8 }}
                       bg={selectedTier ? selectedTier.color : tierColors.base}
                       color="black"
                       fontWeight="700"
                       borderRadius="full"
+                      fontSize={{ base: "sm", md: "md" }}
                       onClick={handleContinueToPayment}
                       _hover={{
                         transform: 'translateY(-2px)',
@@ -779,8 +788,8 @@ const SubscriptionOptions = ({ onSuccess }) => {
             /* Payment Form */
             <Grid templateColumns={{ base: "1fr", lg: "420px 600px" }} gap={{ base: 8, lg: 12 }} justifyContent="center">
               
-              {/* Order Summary */}
-              <GridItem>
+              {/* Order Summary - Hidden on mobile until after form */}
+              <GridItem display={{ base: "none", lg: "block" }}>
                 <Box
                   position={{ base: "relative", lg: "sticky" }}
                   top={{ base: "0", lg: "100px" }}
@@ -891,22 +900,52 @@ const SubscriptionOptions = ({ onSuccess }) => {
               {/* Payment Details */}
               <GridItem>
                 <VStack spacing={6} align="stretch">
+                  {/* Mobile Order Summary */}
+                  <Box display={{ base: "block", lg: "none" }} mb={4}>
+                    <Box
+                      p={4}
+                      bg="rgba(10, 10, 10, 0.95)"
+                      backdropFilter="blur(20px)"
+                      border="1px solid"
+                      borderColor="whiteAlpha.200"
+                      borderRadius="lg"
+                    >
+                      <HStack justify="space-between" mb={3}>
+                        <Text color="white" fontWeight="600">Order Total</Text>
+                        <Text color="#39FF14" fontWeight="700" fontSize="xl">
+                          ${getTotalPrice()}/mo
+                        </Text>
+                      </HStack>
+                      
+                      <VStack align="start" spacing={1} fontSize="xs">
+                        <Text color="gray.400">
+                          • {basePlan.name} (${basePlan.price})
+                        </Text>
+                        {selectedTier && (
+                          <Text color="gray.400">
+                            • {selectedTier.name} (+${selectedTier.price})
+                          </Text>
+                        )}
+                      </VStack>
+                    </Box>
+                  </Box>
+
                   <MotionBox
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
                   >
-                    <Heading size="lg" color="white" mb={2}>
+                    <Heading size={{ base: "md", lg: "lg" }} color="white" mb={2}>
                       Complete Your Subscription
                     </Heading>
-                    <Text color="gray.400">
+                    <Text color="gray.400" fontSize={{ base: "sm", md: "md" }}>
                       Secure checkout powered by Stripe
                     </Text>
                   </MotionBox>
 
                   {/* Contact Information */}
                   <Box>
-                    <Text color="white" fontSize="lg" fontWeight="600" mb={4}>
+                    <Text color="white" fontSize={{ base: "md", md: "lg" }} fontWeight="600" mb={4}>
                       Contact Information
                     </Text>
                     <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4}>
@@ -914,7 +953,7 @@ const SubscriptionOptions = ({ onSuccess }) => {
                         placeholder="First Name"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
-                        size="lg"
+                        size={{ base: "md", md: "lg" }}
                         bg="rgba(255, 255, 255, 0.05)"
                         border="1px solid"
                         borderColor="rgba(255, 255, 255, 0.15)"
@@ -928,7 +967,7 @@ const SubscriptionOptions = ({ onSuccess }) => {
                         placeholder="Last Name"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
-                        size="lg"
+                        size={{ base: "md", md: "lg" }}
                         bg="rgba(255, 255, 255, 0.05)"
                         border="1px solid"
                         borderColor="rgba(255, 255, 255, 0.15)"
@@ -944,7 +983,7 @@ const SubscriptionOptions = ({ onSuccess }) => {
                       placeholder="Email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      size="lg"
+                      size={{ base: "md", md: "lg" }}
                       bg="rgba(255, 255, 255, 0.05)"
                       border="1px solid"
                       borderColor="rgba(255, 255, 255, 0.15)"
@@ -960,7 +999,7 @@ const SubscriptionOptions = ({ onSuccess }) => {
                       placeholder="Phone (optional)"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      size="lg"
+                      size={{ base: "md", md: "lg" }}
                       bg="rgba(255, 255, 255, 0.05)"
                       border="1px solid"
                       borderColor="rgba(255, 255, 255, 0.15)"
@@ -974,7 +1013,7 @@ const SubscriptionOptions = ({ onSuccess }) => {
 
                   {/* Payment Method Selection */}
                   <Box>
-                    <Text color="white" fontSize="lg" fontWeight="600" mb={4}>
+                    <Text color="white" fontSize={{ base: "md", md: "lg" }} fontWeight="600" mb={4}>
                       Payment Method
                     </Text>
                     
@@ -1022,7 +1061,7 @@ const SubscriptionOptions = ({ onSuccess }) => {
                             borderColor="rgba(255, 255, 255, 0.15)"
                             borderRadius="lg"
                             borderBottomRadius={0}
-                            minH="52px"
+                            minH={{ base: "48px", md: "52px" }}
                             display="flex"
                             alignItems="center"
                             _hover={{ borderColor: 'rgba(255, 255, 255, 0.25)' }}
@@ -1044,7 +1083,7 @@ const SubscriptionOptions = ({ onSuccess }) => {
                               borderTopRadius={0}
                               borderRightWidth={0}
                               flex={1}
-                              minH="52px"
+                              minH={{ base: "48px", md: "52px" }}
                               display="flex"
                               alignItems="center"
                               _hover={{ borderColor: 'rgba(255, 255, 255, 0.25)' }}
@@ -1062,7 +1101,7 @@ const SubscriptionOptions = ({ onSuccess }) => {
                               borderRadius="lg"
                               borderTopRadius={0}
                               flex={1}
-                              minH="52px"
+                              minH={{ base: "48px", md: "52px" }}
                               display="flex"
                               alignItems="center"
                               _hover={{ borderColor: 'rgba(255, 255, 255, 0.25)' }}
@@ -1088,7 +1127,7 @@ const SubscriptionOptions = ({ onSuccess }) => {
                             border="1px solid"
                             borderColor="rgba(255, 255, 255, 0.15)"
                             color="white"
-                            height="52px"
+                            height={{ base: "48px", md: "52px" }}
                             fontSize="16px"
                             _placeholder={{ color: 'gray.500' }}
                             _hover={{ borderColor: 'rgba(255, 255, 255, 0.25)' }}
@@ -1110,7 +1149,7 @@ const SubscriptionOptions = ({ onSuccess }) => {
                               border="1px solid"
                               borderColor="rgba(255, 255, 255, 0.15)"
                               color="white"
-                              height="52px"
+                              height={{ base: "48px", md: "52px" }}
                               fontSize="16px"
                               _hover={{ borderColor: 'rgba(255, 255, 255, 0.25)' }}
                               _focus={{ borderColor: 'rgba(255, 255, 255, 0.4)', boxShadow: 'none' }}
@@ -1127,7 +1166,7 @@ const SubscriptionOptions = ({ onSuccess }) => {
                               border="1px solid"
                               borderColor="rgba(255, 255, 255, 0.15)"
                               color="white"
-                              height="52px"
+                              height={{ base: "48px", md: "52px" }}
                               fontSize="16px"
                               _placeholder={{ color: 'gray.500' }}
                               _hover={{ borderColor: 'rgba(255, 255, 255, 0.25)' }}
@@ -1145,7 +1184,7 @@ const SubscriptionOptions = ({ onSuccess }) => {
                                   border="1px solid"
                                   borderColor="rgba(255, 255, 255, 0.15)"
                                   color="white"
-                                  height="52px"
+                                  height={{ base: "48px", md: "52px" }}
                                   fontSize="16px"
                                   _placeholder={{ color: 'gray.500' }}
                                   _hover={{ borderColor: 'rgba(255, 255, 255, 0.25)' }}
@@ -1163,7 +1202,7 @@ const SubscriptionOptions = ({ onSuccess }) => {
                                   border="1px solid"
                                   borderColor="rgba(255, 255, 255, 0.15)"
                                   color="white"
-                                  height="52px"
+                                  height={{ base: "48px", md: "52px" }}
                                   fontSize="16px"
                                   _placeholder={{ color: 'gray.500' }}
                                   _hover={{ borderColor: 'rgba(255, 255, 255, 0.25)' }}
@@ -1182,7 +1221,7 @@ const SubscriptionOptions = ({ onSuccess }) => {
                                   border="1px solid"
                                   borderColor="rgba(255, 255, 255, 0.15)"
                                   color="white"
-                                  height="52px"
+                                  height={{ base: "48px", md: "52px" }}
                                   fontSize="16px"
                                   _placeholder={{ color: 'gray.500' }}
                                   _hover={{ borderColor: 'rgba(255, 255, 255, 0.25)' }}
@@ -1199,15 +1238,15 @@ const SubscriptionOptions = ({ onSuccess }) => {
                     {/* Submit Button */}
                     <Button
                       mt={6}
-                      size="lg"
+                      size={{ base: "md", md: "lg" }}
                       bg="#39FF14"
                       color="black"
                       width="100%"
                       isLoading={isLoading}
                       loadingText="Processing..."
                       fontWeight="700"
-                      height="56px"
-                      fontSize="16px"
+                      height={{ base: "48px", md: "56px" }}
+                      fontSize={{ base: "sm", md: "16px" }}
                       onClick={handleCardPayment}
                       _hover={{
                         bg: '#39FF14',

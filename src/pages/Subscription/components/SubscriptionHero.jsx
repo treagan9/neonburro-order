@@ -155,7 +155,7 @@ const SubscriptionHero = () => {
             </MotionBox>
           </VStack>
 
-          {/* Benefits - Enhanced layout */}
+          {/* Benefits - Enhanced mobile layout */}
           <MotionBox
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -163,107 +163,100 @@ const SubscriptionHero = () => {
             width="100%"
             maxW={{ base: "100%", md: "700px" }}
           >
-            <HStack
-              spacing={{ base: 2, md: 12 }}
-              justify="center"
-              flexWrap={{ base: "wrap", md: "nowrap" }}
-              gap={{ base: 2, md: 0 }}
-            >
-              {benefits.map((benefit, index) => (
-                <Box
-                  key={index}
-                  flex={{ base: "1 1 calc(33.333% - 8px)", md: "0 0 auto" }}
-                  minW={{ base: "80px", md: "140px" }}
-                >
+            <VStack spacing={{ base: 3, md: 0 }}>
+              {/* Mobile: Vertical stack with transparent backgrounds */}
+              <VStack
+                spacing={3}
+                width="100%"
+                display={{ base: "flex", md: "none" }}
+              >
+                {benefits.map((benefit, index) => (
+                  <HStack
+                    key={index}
+                    spacing={3}
+                    p={3}
+                    width="100%"
+                    opacity={0.9}
+                    transition="all 0.3s"
+                    _hover={{
+                      opacity: 1,
+                      transform: 'translateX(4px)'
+                    }}
+                  >
+                    <Box
+                      p={2}
+                      borderRadius="full"
+                      bg={`${benefit.color}15`}
+                      color={benefit.color}
+                    >
+                      <benefit.icon size={20} />
+                    </Box>
+                    <Text
+                      color="gray.300"
+                      fontSize="sm"
+                      fontWeight="500"
+                    >
+                      {benefit.text}
+                    </Text>
+                  </HStack>
+                ))}
+              </VStack>
+
+              {/* Desktop: Horizontal layout */}
+              <HStack
+                spacing={12}
+                justify="center"
+                display={{ base: "none", md: "flex" }}
+              >
+                {benefits.map((benefit, index) => (
                   <VStack
-                    p={{ base: 1.5, md: 3 }}
-                    borderRadius={{ base: "xl", md: "lg" }}
-                    bg={{ base: "rgba(255, 255, 255, 0.03)", md: "transparent" }}
-                    backdropFilter={{ base: "blur(20px)", md: "none" }}
-                    border={{ base: "1px solid", md: "none" }}
-                    borderColor={{ base: "rgba(255, 255, 255, 0.08)", md: "transparent" }}
+                    key={index}
+                    p={3}
                     transition="all 0.3s ease"
                     cursor="pointer"
-                    spacing={{ base: 0, md: 2 }}
+                    spacing={2}
                     position="relative"
-                    overflow="hidden"
                     role="group"
                     align="center"
                     opacity={0.8}
                     _hover={{
-                      bg: { base: 'rgba(255, 255, 255, 0.05)', md: 'rgba(255, 255, 255, 0.02)' },
-                      borderColor: { base: benefit.color, md: 'transparent' },
-                      transform: { base: 'translateY(-4px)', md: 'translateY(-4px)' },
-                      boxShadow: { base: `0 10px 30px ${benefit.color}22`, md: 'none' },
+                      transform: 'translateY(-4px)',
                       opacity: 1
                     }}
                   >
-                    {/* Mobile glow */}
                     <Box
-                      display={{ base: "block", md: "none" }}
-                      position="absolute"
-                      inset={0}
-                      bg={`radial-gradient(circle at center, ${benefit.color}11 0%, transparent 70%)`}
-                      opacity={0}
-                      _groupHover={{ opacity: 1 }}
-                      transition="opacity 0.3s"
-                    />
-                    
-                    {/* Mobile design */}
-                    <HStack
-                      spacing={1.5}
-                      color="gray.400"
-                      display={{ base: "flex", md: "none" }}
-                      fontSize="xs"
-                      transition="all 0.2s"
-                      _groupHover={{
-                        color: benefit.color
+                      p={2}
+                      borderRadius="lg"
+                      bg={`${benefit.color}08`}
+                      border="1px solid"
+                      borderColor={`${benefit.color}20`}
+                      color={benefit.color}
+                      transition="all 0.3s"
+                      _groupHover={{ 
+                        bg: `${benefit.color}15`,
+                        borderColor: `${benefit.color}40`,
+                        transform: 'scale(1.1)'
                       }}
                     >
-                      <Box as={benefit.icon} size={14} />
-                      <Text>{benefit.text.split(' ')[0]}</Text>
-                    </HStack>
-
-                    {/* Desktop - icon above text */}
-                    <VStack 
-                      spacing={2} 
-                      align="center"
-                      display={{ base: "none", md: "flex" }}
+                      <benefit.icon size={20} />
+                    </Box>
+                    
+                    <Text
+                      color="gray.400"
+                      fontSize="sm"
+                      fontWeight="500"
+                      textAlign="center"
+                      transition="all 0.3s"
+                      _groupHover={{
+                        color: "gray.300"
+                      }}
                     >
-                      <Box
-                        p={2}
-                        borderRadius="lg"
-                        bg={`${benefit.color}08`}
-                        border="1px solid"
-                        borderColor={`${benefit.color}20`}
-                        color={benefit.color}
-                        transition="all 0.3s"
-                        _groupHover={{ 
-                          bg: `${benefit.color}15`,
-                          borderColor: `${benefit.color}40`,
-                          transform: 'scale(1.1)'
-                        }}
-                      >
-                        <benefit.icon size={20} />
-                      </Box>
-                      
-                      <Text
-                        color="gray.400"
-                        fontSize="sm"
-                        fontWeight="500"
-                        textAlign="center"
-                        transition="all 0.3s"
-                        _groupHover={{
-                          color: "gray.300"
-                        }}
-                      >
-                        {benefit.text}
-                      </Text>
-                    </VStack>
+                      {benefit.text}
+                    </Text>
                   </VStack>
-                </Box>
-              ))}
-            </HStack>
+                ))}
+              </HStack>
+            </VStack>
           </MotionBox>
 
           {/* CTA Section - Optimized button */}
@@ -271,7 +264,7 @@ const SubscriptionHero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            width={{ base: "75%", sm: "auto" }}
+            width={{ base: "100%", sm: "auto" }}
           >
             <VStack spacing={4}>
               <Button
@@ -285,7 +278,7 @@ const SubscriptionHero = () => {
                 borderRadius="full"
                 onClick={scrollToPlans}
                 rightIcon={<FiArrowDown />}
-                width={{ base: "100%", sm: "auto" }}
+                width={{ base: "200px", sm: "auto" }}
                 _hover={{
                   transform: 'translateY(-2px)',
                   boxShadow: '0 15px 35px rgba(255, 255, 255, 0.2)',
