@@ -1,13 +1,12 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import theme from './theme';
-import ShopNavigation from './components/navigation/ShopNavigation';
+import OrderNavigation from './components/navigation/OrderNavigation';
 import CartDrawer from './components/cart/CartDrawer';
 import Footer from './components/common/Footer';
 import Home from './pages/Home';
 import ItemDetail from './pages/ItemDetail';
-import Invoice from './pages/Invoice';
 import Cart from './pages/Cart';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
@@ -32,13 +31,12 @@ function AppContent() {
   return (
     <>
       <ScrollToTop />
-      <ShopNavigation />
+      <OrderNavigation />
       <CartDrawer />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/item/:itemId" element={<ItemDetail />} />
         <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<Invoice />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/faq" element={<FAQ />} />
