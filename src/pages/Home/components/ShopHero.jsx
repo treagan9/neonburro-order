@@ -1,4 +1,4 @@
-import { Box, Container, Heading, Text, VStack, Image, Button } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, VStack, Image, Button, HStack } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { FiArrowDown } from 'react-icons/fi';
 
@@ -24,142 +24,193 @@ const ShopHero = () => {
       bg="dark.black"
       pt="70px" // Account for fixed nav
     >
-      {/* Background Gradient */}
+      {/* Sharp geometric background */}
       <Box
         position="absolute"
-        top="50%"
-        left="50%"
-        transform="translate(-50%, -50%)"
-        width="800px"
-        height="800px"
-        bg="radial-gradient(circle, rgba(0, 217, 255, 0.1) 0%, transparent 70%)"
-        pointerEvents="none"
-      />
+        inset={0}
+        opacity={0.03}
+      >
+        <Box
+          position="absolute"
+          top="-50%"
+          right="-20%"
+          width="800px"
+          height="800px"
+          transform="rotate(45deg)"
+          border="2px solid"
+          borderColor="#00D9FF"
+        />
+        <Box
+          position="absolute"
+          bottom="-50%"
+          left="-20%"
+          width="600px"
+          height="600px"
+          transform="rotate(45deg)"
+          border="2px solid"
+          borderColor="#39FF14"
+        />
+      </Box>
 
-      <Container maxW="800px" position="relative">
+      <Container maxW="900px" position="relative">
         <VStack spacing={8} align="center" textAlign="center">
           {/* Hero Image */}
           <MotionImage
-            src="/shop-hero-sms.png"
+            src="/shopping-burro-head.png"
             alt="Neon Burro Shop"
-            maxW={{ base: "250px", md: "350px" }}
+            maxW={{ base: "200px", md: "300px" }}
             height="auto"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            filter="drop-shadow(0 0 30px rgba(0, 217, 255, 0.5))"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
             mb={4}
           />
 
-          {/* Badge */}
-          <MotionBox
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <Text
-              color="#00D9FF"
-              fontSize="sm"
-              fontWeight="600"
-              letterSpacing="wider"
-              textTransform="uppercase"
+          {/* Main Content */}
+          <VStack spacing={6} maxW="700px">
+            {/* Heading */}
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
             >
-              Limited Edition Collection
-            </Text>
-          </MotionBox>
-
-          {/* Main Heading */}
-          <MotionBox
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
-            <Heading
-              fontSize={{ base: "3xl", md: "5xl", lg: "6xl" }}
-              fontWeight="800"
-              color="white"
-              lineHeight="1.1"
-              letterSpacing="-0.02em"
-            >
-              Digital Meets
-              <Box
-                as="span"
-                display="block"
-                bgGradient="linear(to-r, #00D9FF, #39FF14)"
-                bgClip="text"
-                mt={2}
+              <Heading
+                fontSize={{ base: "4xl", md: "6xl", lg: "7xl" }}
+                fontWeight="900"
+                color="white"
+                lineHeight="0.9"
+                letterSpacing="-0.03em"
               >
-                Physical Reality
-              </Box>
-            </Heading>
-          </MotionBox>
+                DIGITAL
+                <Box as="span" display="block" mt={2}>
+                  <Box
+                    as="span"
+                    bgGradient="linear(to-r, #00D9FF, #39FF14)"
+                    bgClip="text"
+                  >
+                    CULTURE
+                  </Box>
+                </Box>
+              </Heading>
+            </MotionBox>
 
-          {/* Description */}
-          <MotionBox
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            maxW="600px"
-          >
-            <Text
-              fontSize={{ base: "md", md: "lg" }}
-              color="gray.300"
-              lineHeight="1.7"
+            {/* Subtitle */}
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
             >
-              Exclusive merch infused with mountain magic and digital dreams. 
-              Every purchase includes a mystery gift that bridges the virtual and physical realms.
-            </Text>
-          </MotionBox>
+              <Text
+                fontSize={{ base: "lg", md: "xl" }}
+                color="gray.300"
+                fontWeight="300"
+                letterSpacing="0.02em"
+              >
+                Premium merch for the modern mountain dweller
+              </Text>
+            </MotionBox>
 
-          {/* Mystery Gift Notice */}
-          <MotionBox
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            p={4}
-            bg="rgba(57, 255, 20, 0.1)"
-            border="1px solid"
-            borderColor="rgba(57, 255, 20, 0.3)"
-            borderRadius="lg"
-            maxW="400px"
-          >
-            <Text color="#39FF14" fontWeight="600" fontSize="sm" mb={1}>
-              ✨ Mystery Gift Included
-            </Text>
-            <Text color="gray.400" fontSize="xs">
-              Each order comes with a surprise digital or physical gift
-            </Text>
-          </MotionBox>
-
-          {/* CTA Button */}
-          <MotionBox
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-          >
-            <Button
-              size="lg"
-              bg="white"
-              color="black"
-              fontWeight="700"
-              px={8}
-              borderRadius="full"
-              rightIcon={<FiArrowDown />}
-              onClick={scrollToProducts}
-              _hover={{
-                transform: 'translateY(-2px)',
-                boxShadow: '0 20px 40px rgba(255, 255, 255, 0.2)'
-              }}
-              _active={{
-                transform: 'translateY(0)'
-              }}
-              transition="all 0.2s"
+            {/* Stats/Features */}
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              width="100%"
             >
-              Explore Collection
-            </Button>
-          </MotionBox>
+              <HStack
+                spacing={{ base: 8, md: 16 }}
+                justify="center"
+                py={6}
+                flexWrap="wrap"
+              >
+                <VStack spacing={1}>
+                  <Text fontSize="2xl" fontWeight="800" color="#00D9FF">
+                    100%
+                  </Text>
+                  <Text fontSize="xs" color="gray.500" textTransform="uppercase" letterSpacing="wider">
+                    Sustainable
+                  </Text>
+                </VStack>
+                <VStack spacing={1}>
+                  <Text fontSize="2xl" fontWeight="800" color="#39FF14">
+                    10
+                  </Text>
+                  <Text fontSize="xs" color="gray.500" textTransform="uppercase" letterSpacing="wider">
+                    Limited Items
+                  </Text>
+                </VStack>
+                <VStack spacing={1}>
+                  <Text fontSize="2xl" fontWeight="800" color="#FF6B35">
+                    CO
+                  </Text>
+                  <Text fontSize="xs" color="gray.500" textTransform="uppercase" letterSpacing="wider">
+                    Made Local
+                  </Text>
+                </VStack>
+              </HStack>
+            </MotionBox>
+
+            {/* CTA */}
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+            >
+              <Button
+                size="lg"
+                height="56px"
+                px={10}
+                bg="white"
+                color="black"
+                fontWeight="800"
+                fontSize="sm"
+                letterSpacing="0.05em"
+                textTransform="uppercase"
+                borderRadius="none"
+                rightIcon={<FiArrowDown />}
+                onClick={scrollToProducts}
+                position="relative"
+                overflow="hidden"
+                _hover={{
+                  bg: 'white',
+                  transform: 'translateY(-2px)',
+                  '&::after': {
+                    transform: 'translateX(0)'
+                  }
+                }}
+                _active={{
+                  transform: 'translateY(0)'
+                }}
+                transition="all 0.2s"
+                _after={{
+                  content: '""',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  bg: '#00D9FF',
+                  transform: 'translateX(-100%)',
+                  transition: 'transform 0.3s',
+                  zIndex: -1
+                }}
+              >
+                Shop Collection
+              </Button>
+            </MotionBox>
+          </VStack>
         </VStack>
       </Container>
+
+      {/* Bottom gradient line */}
+      <Box
+        position="absolute"
+        bottom={0}
+        left={0}
+        right={0}
+        height="1px"
+        bgGradient="linear(to-r, transparent, #00D9FF, #39FF14, transparent)"
+      />
     </Box>
   );
 };

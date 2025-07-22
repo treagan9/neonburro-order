@@ -3,8 +3,10 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { useEffect, useState } from 'react';
 import theme from './theme';
 import ShopNavigation from './components/navigation/ShopNavigation';
+import CartDrawer from './components/cart/CartDrawer';
 import Footer from './components/common/Footer';
 import Home from './pages/Home';
+import ProductDetail from './pages/ProductDetail';
 import Invoice from './pages/Invoice';
 import Cart from './pages/Cart';
 import Privacy from './pages/Privacy';
@@ -14,7 +16,7 @@ import './styles/global.css';
 
 // Cart Context Provider
 import { CartProvider } from './context/CartContext';
-import CartDrawer from './components/cart/CartDrawer';
+
 // Scroll to top component
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -31,8 +33,10 @@ function AppContent() {
     <>
       <ScrollToTop />
       <ShopNavigation />
-      <CartDrawer />      <Routes>
+      <CartDrawer />
+      <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/product/:productId" element={<ProductDetail />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Invoice />} />
         <Route path="/privacy" element={<Privacy />} />

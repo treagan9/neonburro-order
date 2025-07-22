@@ -1,132 +1,108 @@
-import { Box, Container, Grid, Heading, Text, VStack, HStack, Button, Image, Badge } from '@chakra-ui/react';
+import { Box, Container, Grid, Heading, Text, VStack, Image } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { FiShoppingBag, FiZap } from 'react-icons/fi';
-import { useCart } from '../../../context/CartContext';
+import { useNavigate } from 'react-router-dom';
+import { keyframes } from '@emotion/react';
 
 const MotionBox = motion(Box);
 
+// Gradient flow animation for hover
+const gradientFlow = keyframes`
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+`;
+
 const ProductGrid = () => {
-  const { addToCart } = useCart();
-  const [hoveredProduct, setHoveredProduct] = useState(null);
+  const navigate = useNavigate();
+  const [clickedProduct, setClickedProduct] = useState(null);
 
   const products = [
     {
-      id: 1,
+      id: 'prod_organic_tee',
       name: 'Organic Cotton Tee',
-      subtitle: 'Mountain Comfort',
       price: 45,
-      image: '/images/products/tee-organic.jpg',
-      category: 'Apparel',
-      material: 'GOTS Certified Organic Cotton',
+      featuredImage: '/images/products/tee-organic-main.jpg',
       color: '#00D9FF',
-      description: 'Soft as mountain air, sustainable as our valleys'
     },
     {
-      id: 2,
+      id: 'prod_bamboo_shirt',
       name: 'Bamboo Blend Shirt',
-      subtitle: 'Eco Warrior',
       price: 55,
-      image: '/images/products/tee-bamboo.jpg',
-      category: 'Apparel',
-      material: 'Bamboo Viscose Blend',
+      featuredImage: '/images/products/tee-bamboo-main.jpg',
       color: '#39FF14',
-      description: 'Naturally antimicrobial, impossibly soft'
     },
     {
-      id: 3,
+      id: 'prod_hemp_tee',
       name: 'Hemp Heritage Tee',
-      subtitle: 'Earth\'s Favorite',
       price: 50,
-      image: '/images/products/tee-hemp.jpg',
-      category: 'Apparel',
-      material: 'Hemp & Organic Cotton',
+      featuredImage: '/images/products/tee-hemp-main.jpg',
       color: '#FF6B35',
-      description: 'Durable as the mountains, gentle on the planet'
     },
     {
-      id: 4,
+      id: 'prod_neon_bidet',
       name: 'Neon Bidet 3000',
-      subtitle: 'Japanese Tech Marvel',
       price: 299,
-      image: '/images/products/bidet-neon.jpg',
-      category: 'Tech',
-      material: 'ABS Plastic with LED',
+      featuredImage: '/images/products/bidet-neon-main.jpg',
       color: '#E2FF00',
-      glow: true,
-      description: 'Inline neon glow for the ultimate throne experience'
     },
     {
-      id: 5,
+      id: 'prod_nomad_cap',
       name: 'Digital Nomad Cap',
-      subtitle: 'UV Protection',
       price: 35,
-      image: '/images/products/cap.jpg',
-      category: 'Accessories',
-      material: 'Recycled Polyester',
+      featuredImage: '/images/products/cap-main.jpg',
       color: '#00D9FF',
-      description: 'Shield your mind from harsh rays and bad vibes'
     },
     {
-      id: 6,
+      id: 'prod_mountain_beanie',
       name: 'Mountain Beanie',
-      subtitle: 'Cozy Companion',
       price: 30,
-      image: '/images/products/beanie.jpg',
-      category: 'Accessories',
-      material: 'Merino Wool Blend',
+      featuredImage: '/images/products/beanie-main.jpg',
       color: '#FF00FF',
-      description: 'Keep your ideas warm at altitude'
     },
     {
-      id: 7,
+      id: 'prod_magic_socks',
       name: 'Mismatched Magic Socks',
-      subtitle: 'Intentionally Different',
       price: 25,
-      image: '/images/products/socks.jpg',
-      category: 'Accessories',
-      material: 'Bamboo & Cotton Blend',
+      featuredImage: '/images/products/socks-main.jpg',
       color: '#39FF14',
-      description: 'Because symmetry is overrated'
     },
     {
-      id: 8,
+      id: 'prod_wisdom_booklet',
       name: 'Digital Wisdom Booklet',
-      subtitle: 'Pocket Philosophy',
       price: 20,
-      image: '/images/products/booklet.jpg',
-      category: 'Reading',
-      material: 'Recycled Paper',
+      featuredImage: '/images/products/booklet-main.jpg',
       color: '#FF6B35',
-      description: '48 pages of mountain wisdom meets digital insights'
     },
     {
-      id: 9,
+      id: 'prod_sacred_bundle',
       name: 'Sacred Bundle',
-      subtitle: 'Sage & Palo Santo',
       price: 40,
-      image: '/images/products/sacred-bundle.jpg',
-      category: 'Wellness',
-      material: 'Ethically Sourced',
+      featuredImage: '/images/products/sacred-bundle-main.jpg',
       color: '#8B5CF6',
-      description: 'Clear your cache, cleanse your space'
     },
     {
-      id: 10,
+      id: 'prod_tenugui',
       name: 'Tenugui Towel',
-      subtitle: 'Japanese Tradition',
       price: 28,
-      image: '/images/products/tenugui.jpg',
-      category: 'Home',
-      material: '100% Cotton',
+      featuredImage: '/images/products/tenugui-main.jpg',
       color: '#00D9FF',
-      description: 'Multi-use marvel from the land of rising sun'
     }
   ];
 
-  const handleAddToCart = (product) => {
-    addToCart(product);
-    // You could add a toast notification here
+  const handleProductClick = (productId) => {
+    setClickedProduct(productId);
+    
+    // Create explosion effect
+    setTimeout(() => {
+      navigate(`/product/${productId}`);
+    }, 300);
   };
 
   return (
@@ -163,177 +139,97 @@ const ProductGrid = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                onHoverStart={() => setHoveredProduct(product.id)}
-                onHoverEnd={() => setHoveredProduct(null)}
+                onClick={() => handleProductClick(product.id)}
+                position="relative"
               >
                 <Box
-                  bg="rgba(255, 255, 255, 0.02)"
-                  border="1px solid"
-                  borderColor={hoveredProduct === product.id ? product.color : "whiteAlpha.100"}
-                  borderRadius="xl"
-                  overflow="hidden"
+                  cursor="pointer"
                   position="relative"
+                  bg="rgba(255, 255, 255, 0.02)"
+                  borderRadius="lg"
+                  overflow="hidden"
                   transition="all 0.3s"
                   _hover={{
-                    transform: 'translateY(-8px)',
-                    boxShadow: `0 20px 40px ${product.color}22`,
-                    bg: 'rgba(255, 255, 255, 0.04)'
+                    transform: 'translateY(-4px)',
+                    '&::before': {
+                      opacity: 1,
+                    }
                   }}
-                  height="100%"
+                  _before={{
+                    content: '""',
+                    position: 'absolute',
+                    inset: '-2px',
+                    borderRadius: 'lg',
+                    padding: '2px',
+                    background: `linear-gradient(135deg, ${product.color}, #FF00FF, ${product.color}, #00D9FF, ${product.color})`,
+                    backgroundSize: '400% 400%',
+                    animation: `${gradientFlow} 3s ease infinite`,
+                    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                    WebkitMaskComposite: 'xor',
+                    maskComposite: 'exclude',
+                    opacity: 0,
+                    transition: 'opacity 0.3s',
+                    zIndex: -1,
+                  }}
                 >
+                  {/* Glow effect on click */}
+                  {clickedProduct === product.id && (
+                    <Box
+                      position="absolute"
+                      inset={0}
+                      bg={product.color}
+                      opacity={0.5}
+                      filter="blur(40px)"
+                      animation="pulse 0.3s ease-out"
+                      zIndex={10}
+                    />
+                  )}
+
                   {/* Product Image */}
                   <Box
-                    height="250px"
+                    height={{ base: "300px", md: "350px" }}
                     bg="black"
                     position="relative"
                     overflow="hidden"
                   >
-                    {/* Placeholder for image */}
+                    {/* Placeholder - replace with actual images */}
                     <Box
                       width="100%"
                       height="100%"
-                      bg={`linear-gradient(135deg, ${product.color}22 0%, transparent 100%)`}
+                      bg={`linear-gradient(135deg, ${product.color}11 0%, transparent 100%)`}
                       display="flex"
                       alignItems="center"
                       justifyContent="center"
                     >
-                      <Text fontSize="6xl" opacity={0.3}>
-                        {product.category === 'Apparel' ? '👕' :
-                         product.category === 'Tech' ? '🚽' :
-                         product.category === 'Accessories' ? '🧢' :
-                         product.category === 'Reading' ? '📖' :
-                         product.category === 'Wellness' ? '🌿' :
-                         product.category === 'Home' ? '🏠' : '✨'}
+                      <Text fontSize="8xl" opacity={0.1} color={product.color}>
+                        {product.name.charAt(0)}
                       </Text>
                     </Box>
-
-                    {/* Category Badge */}
-                    <Badge
-                      position="absolute"
-                      top={4}
-                      left={4}
-                      bg={`${product.color}22`}
-                      color={product.color}
-                      px={2}
-                      py={1}
-                      borderRadius="md"
-                      fontSize="xs"
-                      fontWeight="600"
-                    >
-                      {product.category}
-                    </Badge>
-
-                    {/* Glow Badge for Bidet */}
-                    {product.glow && (
-                      <Badge
-                        position="absolute"
-                        top={4}
-                        right={4}
-                        bg="#E2FF00"
-                        color="black"
-                        px={2}
-                        py={1}
-                        borderRadius="md"
-                        fontSize="xs"
-                        fontWeight="600"
-                        display="flex"
-                        alignItems="center"
-                        gap={1}
-                      >
-                        <FiZap size={12} />
-                        GLOW
-                      </Badge>
-                    )}
                   </Box>
 
                   {/* Product Info */}
-                  <VStack align="stretch" p={6} spacing={4}>
-                    <VStack align="start" spacing={1}>
-                      <Text
-                        color={product.color}
-                        fontSize="xs"
-                        fontWeight="600"
-                        letterSpacing="wider"
-                      >
-                        {product.subtitle}
-                      </Text>
-                      <Heading
-                        size="md"
-                        color="white"
-                        fontWeight="700"
-                      >
-                        {product.name}
-                      </Heading>
-                      <Text
-                        color="gray.500"
-                        fontSize="xs"
-                        fontWeight="500"
-                      >
-                        {product.material}
-                      </Text>
-                    </VStack>
-
-                    <Text
-                      color="gray.400"
-                      fontSize="sm"
-                      lineHeight="1.6"
+                  <VStack align="stretch" p={6} spacing={3}>
+                    <Heading
+                      size="md"
+                      color="white"
+                      fontWeight="700"
+                      noOfLines={1}
                     >
-                      {product.description}
+                      {product.name}
+                    </Heading>
+                    
+                    <Text
+                      fontSize="xl"
+                      fontWeight="700"
+                      color="gray.300"
+                    >
+                      ${product.price}
                     </Text>
-
-                    <HStack justify="space-between" align="end" pt={2}>
-                      <Text
-                        fontSize="2xl"
-                        fontWeight="700"
-                        color="white"
-                      >
-                        ${product.price}
-                      </Text>
-                      
-                      <Button
-                        size="sm"
-                        bg={product.color}
-                        color="black"
-                        fontWeight="700"
-                        leftIcon={<FiShoppingBag />}
-                        onClick={() => handleAddToCart(product)}
-                        _hover={{
-                          transform: 'scale(1.05)',
-                          boxShadow: `0 10px 20px ${product.color}44`
-                        }}
-                        _active={{
-                          transform: 'scale(0.98)'
-                        }}
-                        transition="all 0.2s"
-                      >
-                        Add
-                      </Button>
-                    </HStack>
                   </VStack>
                 </Box>
               </MotionBox>
             ))}
           </Grid>
-
-          {/* Mystery Gift Reminder */}
-          <Box
-            p={8}
-            bg="rgba(57, 255, 20, 0.05)"
-            border="2px solid"
-            borderColor="rgba(57, 255, 20, 0.2)"
-            borderRadius="xl"
-            textAlign="center"
-            maxW="600px"
-          >
-            <Text fontSize="2xl" mb={2}>✨</Text>
-            <Heading size="md" color="#39FF14" mb={2}>
-              Every Order is Special
-            </Heading>
-            <Text color="gray.300" fontSize="sm">
-              Each purchase includes a mystery gift - could be a digital download, 
-              exclusive access code, or a physical surprise. The universe decides!
-            </Text>
-          </Box>
         </VStack>
       </Container>
     </Box>
