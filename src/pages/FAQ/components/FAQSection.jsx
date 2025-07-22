@@ -30,7 +30,7 @@ const FAQSection = () => {
       questions: [
         {
           q: 'How much does a typical website cost?',
-          a: 'Our starter packages begin at $199 for initial consultation and strategy. Full website projects typically range from $2,500 to $15,000+ depending on complexity, features, and scale. We also offer hourly packages starting at $25/hour for ongoing work.'
+          a: 'Our starter packages begin at $199 for initial consultation and strategy. Full website projects typically range from $2,500 to $15,000+ depending on complexity, features, and scale. We also offer hourly packages starting at $44/hour for ongoing work or you may find a promo hidden in a digital pocket somewhere.'
         },
         {
           q: 'Do you offer payment plans?',

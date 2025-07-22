@@ -10,6 +10,7 @@ export default defineConfig({
       input: {
         main: path.resolve(__dirname, 'index.html'),
         invoice: path.resolve(__dirname, 'invoice.html'),
+        subscription: path.resolve(__dirname, 'subscription.html'),
       },
     },
   },

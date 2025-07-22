@@ -11,6 +11,12 @@
   to = "/invoice.html"
   status = 200
 
+# Specific redirect for subscription page to use the custom HTML with proper meta tags
+[[redirects]]
+  from = "/subscription"
+  to = "/subscription.html"
+  status = 200
+
 # Catch-all redirect for all other routes (SPA behavior)
 [[redirects]]
   from = "/*"

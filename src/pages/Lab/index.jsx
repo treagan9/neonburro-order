@@ -8,70 +8,72 @@ const LabIndex = () => {
   const [activeExperiment, setActiveExperiment] = useState(null);
   const [particles, setParticles] = useState([]);
 
+  // Updated color scheme with teal and banana as primary
   const neonColors = {
-    orange: '#FF6B35',
-    cyan: '#00D9FF',
-    purple: '#8B5CF6',
-    amber: '#FFC107'
+    teal: '#14F195',      // Bright teal
+    banana: '#FFE135',    // Banana yellow
+    tacoOrange: '#FF6B35', // Keep for Gnarly Tacos
+    brewGold: '#F7931E',   // Warmer gold for Colorado Boy
+    galleryPurple: '#9945FF' // Softer purple for Trace
   };
 
   const experiments = [
     {
       id: 'gnarly-tacos',
       name: 'Gnarly Tacos',
-      status: 'Active Development',
-      location: 'The StackHouse',
-      progress: 67,
-      color: neonColors.orange,
+      status: 'Awaiting Integration',
+      location: 'Staging Environment',
+      progress: 93,
+      color: neonColors.tacoOrange,
       description: 'Custom ordering system replacing generic platforms',
-      link: '/lab/gnarly-tacos',
-      icon: '🌮'
-    },
-    {
-      id: 'trace-gallery',
-      name: 'TRACE Gallery',
-      status: 'Design Phase',
-      location: 'The Digital Saloon',
-      progress: 34,
-      color: neonColors.purple,
-      description: 'Virtual gallery experience for local art space',
-      link: '/lab/trace-gallery',
-      icon: '🎨'
+      link: '/lab/gnarly-tacos/',
+      badge: 'INTEGRATION PENDING'
     },
     {
       id: 'colorado-boy',
       name: 'Colorado Boy Brewery',
-      status: 'Early Concepts',
-      location: 'The Idea Brewery',
-      progress: 12,
-      color: neonColors.amber,
-      description: 'Digital taproom and ordering platform',
-      link: '/lab/colorado-boy',
-      icon: '🍺'
+      status: 'Awaiting Integration',
+      location: 'Staging Environment',
+      progress: 93,
+      color: neonColors.brewGold,
+      description: 'Digital taproom with e-commerce capabilities',
+      link: '/lab/colorado-boy/',
+      badge: 'INTEGRATION PENDING'
+    },
+    {
+      id: 'trace-gallery',
+      name: 'TRACE Gallery',
+      status: 'Styling Phase',
+      location: 'Design Studio',
+      progress: 60,
+      color: neonColors.galleryPurple,
+      description: 'Immersive digital gallery experience',
+      link: '/lab/trace-gallery/',
+      badge: 'IN PROGRESS'
     }
   ];
 
-  // Particle effect
+  // Particle effect with new colors
   useEffect(() => {
     const interval = setInterval(() => {
       setParticles(prev => [
-        ...prev.filter(p => Date.now() - p.created < 3000),
+        ...prev.filter(p => Date.now() - p.created < 4000),
         {
           id: Date.now(),
           created: Date.now(),
           x: Math.random() * 100,
           y: Math.random() * 100,
-          color: Object.values(neonColors)[Math.floor(Math.random() * 4)]
+          color: Math.random() > 0.5 ? neonColors.teal : neonColors.banana
         }
       ].slice(-10));
-    }, 500);
+    }, 600);
 
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <Box minH="100vh" bg="dark.black" position="relative" overflow="hidden">
-      {/* Animated particles */}
+    <Box minH="100vh" bg="#0A0A0A" position="relative" overflow="hidden">
+      {/* Subtle animated particles */}
       {particles.map((particle) => (
         <Box
           key={particle.id}
@@ -82,13 +84,13 @@ const LabIndex = () => {
           height="4px"
           bg={particle.color}
           borderRadius="full"
-          opacity={1 - ((Date.now() - particle.created) / 3000)}
-          filter={`blur(${(Date.now() - particle.created) / 1000}px)`}
+          opacity={0.4 - ((Date.now() - particle.created) / 4000)}
+          filter={`blur(${(Date.now() - particle.created) / 2000}px)`}
           pointerEvents="none"
         />
       ))}
 
-      {/* Grid background */}
+      {/* Minimal gradient background */}
       <Box
         position="absolute"
         top={0}
@@ -96,301 +98,221 @@ const LabIndex = () => {
         right={0}
         bottom={0}
         opacity={0.02}
-        bgImage="repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 100px,
-          rgba(255, 255, 255, 0.05) 100px,
-          rgba(255, 255, 255, 0.05) 101px
-        ),
-        repeating-linear-gradient(
-          90deg,
-          transparent,
-          transparent 100px,
-          rgba(255, 255, 255, 0.05) 100px,
-          rgba(255, 255, 255, 0.05) 101px
-        )"
+        bgImage={`
+          radial-gradient(circle at 10% 20%, ${neonColors.teal}22 0%, transparent 40%),
+          radial-gradient(circle at 90% 80%, ${neonColors.banana}22 0%, transparent 40%)
+        `}
         pointerEvents="none"
       />
 
       <Container maxW="1200px" pt={20} pb={10} position="relative">
         {/* Back link */}
         <MotionBox
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          mb={8}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
         >
           <HStack
             as="a"
             href="/"
             spacing={2}
-            color="gray.500"
-            _hover={{ color: neonColors.cyan }}
+            color="gray.600"
+            fontSize="sm"
+            _hover={{ color: neonColors.teal }}
             transition="color 0.3s"
           >
-            <Box fontSize="sm">←</Box>
-            <Text fontSize="sm">Back to Home</Text>
+            <Box>←</Box>
+            <Text>Exit Lab</Text>
           </HStack>
         </MotionBox>
 
-        <VStack spacing={12} align="stretch">
+        <VStack spacing={16} align="stretch" mt={12}>
           {/* Header */}
           <MotionBox
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.8 }}
           >
-            <VStack spacing={6} textAlign="center">
-              <HStack spacing={3} justify="center">
-                <Text fontSize="xl">🧪</Text>
-                <Text 
-                  color={neonColors.cyan}
-                  fontSize="sm" 
-                  fontWeight="600" 
-                  letterSpacing="0.1em"
-                  textTransform="uppercase"
-                >
-                  The Neon Burro Lab
-                </Text>
-                <Text fontSize="xl">🧪</Text>
-              </HStack>
+            <VStack spacing={8} textAlign="center">
+              <Text 
+                color={neonColors.teal}
+                fontSize="xs" 
+                fontWeight="500" 
+                letterSpacing="0.2em"
+                textTransform="uppercase"
+              >
+                Neon Burro Laboratory
+              </Text>
               
               <Heading
-                fontSize={{ base: "4xl", md: "6xl", lg: "7xl" }}
+                fontSize={{ base: "3xl", md: "5xl", lg: "6xl" }}
                 color="white"
-                fontWeight="800"
-                letterSpacing="-0.03em"
+                fontWeight="300"
+                letterSpacing="-0.02em"
                 lineHeight="1"
               >
                 Where Ideas
                 <Box 
                   as="span" 
                   display="block"
-                  bgGradient={`linear(to-r, ${neonColors.cyan}, ${neonColors.purple}, ${neonColors.orange})`}
+                  fontWeight="700"
+                  bgGradient={`linear(to-r, ${neonColors.teal}, ${neonColors.banana})`}
                   bgClip="text"
                   mt={2}
                 >
-                  Come Alive
+                  Transform
                 </Box>
               </Heading>
               
-              <Text color="gray.400" fontSize="xl" maxW="600px" mx="auto">
-                Welcome to our digital laboratory. Watch real projects evolve from concept to completion.
+              <Text color="gray.500" fontSize="md" maxW="500px" mx="auto" fontWeight="300">
+                Witness digital experiments in various stages of evolution
               </Text>
             </VStack>
           </MotionBox>
 
-          {/* Active Experiments */}
+          {/* Experiments Grid */}
           <MotionBox
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <VStack spacing={8} align="stretch">
-              <HStack justify="space-between" align="center">
-                <Text color="white" fontSize="xl" fontWeight="600">
-                  Active Experiments
-                </Text>
-                <HStack spacing={2}>
-                  <Box w={4} h={4} bg={neonColors.cyan} borderRadius="sm" />
-                  <Text color={neonColors.cyan} fontSize="sm" fontWeight="600">
-                    {experiments.length} Projects Brewing
-                  </Text>
-                </HStack>
-              </HStack>
-
-              <Grid templateColumns={{ base: '1fr', lg: 'repeat(3, 1fr)' }} gap={6}>
-                {experiments.map((experiment, index) => (
-                  <MotionBox
-                    key={experiment.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    whileHover={{ y: -8 }}
+            <Grid templateColumns={{ base: '1fr', lg: 'repeat(3, 1fr)' }} gap={8}>
+              {experiments.map((experiment, index) => (
+                <MotionBox
+                  key={experiment.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  whileHover={{ y: -4 }}
+                >
+                  <Box
+                    as="a"
+                    href={experiment.link}
+                    display="block"
+                    p={8}
+                    bg="rgba(255,255,255,0.02)"
+                    backdropFilter="blur(10px)"
+                    border="1px solid"
+                    borderColor={activeExperiment === experiment.id ? experiment.color + '44' : 'whiteAlpha.100'}
+                    borderRadius="md"
+                    position="relative"
+                    overflow="hidden"
+                    cursor="pointer"
+                    onMouseEnter={() => setActiveExperiment(experiment.id)}
+                    onMouseLeave={() => setActiveExperiment(null)}
+                    _hover={{
+                      borderColor: experiment.color + '44',
+                      bg: 'rgba(255,255,255,0.03)'
+                    }}
+                    transition="all 0.3s"
+                    height="100%"
                   >
-                    <Box
-                      as="a"
-                      href={experiment.link}
-                      display="block"
-                      p={6}
-                      bg="rgba(0,0,0,0.6)"
-                      backdropFilter="blur(20px)"
-                      border="2px solid"
-                      borderColor={activeExperiment === experiment.id ? experiment.color : 'whiteAlpha.100'}
-                      borderRadius="xl"
-                      position="relative"
-                      overflow="hidden"
-                      role="group"
-                      cursor="pointer"
-                      onMouseEnter={() => setActiveExperiment(experiment.id)}
-                      onMouseLeave={() => setActiveExperiment(null)}
-                      _hover={{
-                        borderColor: experiment.color,
-                        boxShadow: `0 20px 40px ${experiment.color}22`
-                      }}
-                      transition="all 0.3s"
-                      height="100%"
+                    {/* Minimal badge */}
+                    <Text
+                      position="absolute"
+                      top={4}
+                      right={4}
+                      fontSize="2xs"
+                      color={experiment.color}
+                      fontWeight="500"
+                      letterSpacing="0.1em"
+                      opacity={0.8}
                     >
-                      {/* Progress bar */}
+                      {experiment.badge}
+                    </Text>
+
+                    {/* Progress indicator - subtle line */}
+                    <Box
+                      position="absolute"
+                      bottom={0}
+                      left={0}
+                      right={0}
+                      height="1px"
+                      bg="whiteAlpha.100"
+                    >
                       <Box
-                        position="absolute"
-                        bottom={0}
-                        left={0}
-                        right={0}
-                        height="3px"
-                        bg="whiteAlpha.100"
+                        height="100%"
+                        bg={experiment.color}
+                        width={`${experiment.progress}%`}
+                        opacity={0.6}
+                        transition="width 0.5s"
+                      />
+                    </Box>
+
+                    <VStack align="start" spacing={6}>
+                      {/* Progress percentage */}
+                      <Text
+                        fontSize="3xl"
+                        fontWeight="100"
+                        color={experiment.color}
+                        fontFamily="mono"
                       >
-                        <Box
-                          height="100%"
-                          bg={experiment.color}
-                          width={`${experiment.progress}%`}
-                          transition="width 0.5s"
-                        />
+                        {experiment.progress}%
+                      </Text>
+
+                      {/* Title and Location */}
+                      <Box>
+                        <Heading size="md" color="white" fontWeight="500" mb={2}>
+                          {experiment.name}
+                        </Heading>
+                        <Text color="gray.600" fontSize="xs" letterSpacing="0.1em">
+                          {experiment.location}
+                        </Text>
                       </Box>
 
-                      <VStack align="start" spacing={4}>
-                        {/* Icon and Status */}
-                        <HStack justify="space-between" width="100%">
-                          <Text fontSize="3xl">{experiment.icon}</Text>
-                          <Badge
-                            px={2}
-                            py={1}
-                            borderRadius="md"
-                            bg={`${experiment.color}22`}
-                            color={experiment.color}
-                            fontSize="xs"
-                            fontWeight="600"
-                          >
-                            {experiment.progress}%
-                          </Badge>
-                        </HStack>
+                      {/* Description */}
+                      <Text color="gray.500" fontSize="sm" fontWeight="300" lineHeight="1.6">
+                        {experiment.description}
+                      </Text>
 
-                        {/* Title and Location */}
-                        <Box>
-                          <Heading size="md" color="white" mb={1}>
-                            {experiment.name}
-                          </Heading>
-                          <Text color="gray.500" fontSize="xs" fontWeight="600" letterSpacing="wider">
-                            {experiment.location}
-                          </Text>
-                        </Box>
-
-                        {/* Description */}
-                        <Text color="gray.400" fontSize="sm" lineHeight="1.6">
-                          {experiment.description}
-                        </Text>
-
-                        {/* Status */}
-                        <HStack spacing={2} mt="auto">
-                          <Box w={3} h={3} bg={experiment.color} borderRadius="full" />
-                          <Text color={experiment.color} fontSize="xs" fontWeight="600">
-                            {experiment.status}
-                          </Text>
-                        </HStack>
-
-                        {/* Hover Arrow */}
-                        <HStack
-                          position="absolute"
-                          bottom={6}
-                          right={6}
-                          spacing={1}
-                          opacity={0}
-                          transform="translateX(-10px)"
-                          _groupHover={{
-                            opacity: 1,
-                            transform: 'translateX(0)'
-                          }}
-                          transition="all 0.3s"
-                          color={experiment.color}
+                      {/* Status */}
+                      <HStack spacing={2} mt="auto">
+                        <Box 
+                          w={2} 
+                          h={2} 
+                          bg={experiment.color} 
+                          borderRadius="full"
+                          opacity={0.6}
+                        />
+                        <Text 
+                          color="gray.400" 
+                          fontSize="xs" 
+                          fontWeight="400"
                         >
-                          <Text fontSize="sm" fontWeight="600">Enter Lab</Text>
-                          <Box fontSize="sm">→</Box>
-                        </HStack>
-                      </VStack>
-                    </Box>
-                  </MotionBox>
-                ))}
-              </Grid>
-            </VStack>
+                          {experiment.status}
+                        </Text>
+                      </HStack>
+                    </VStack>
+                  </Box>
+                </MotionBox>
+              ))}
+            </Grid>
           </MotionBox>
 
-          {/* Lab Info */}
+          {/* Lab Philosophy - Minimal */}
           <MotionBox
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
           >
             <Box
-              p={8}
-              bg="whiteAlpha.50"
-              backdropFilter="blur(10px)"
-              border="1px solid"
-              borderColor="whiteAlpha.100"
-              borderRadius="xl"
+              p={12}
               textAlign="center"
+              maxW="600px"
+              mx="auto"
             >
-              <Heading size="md" color="white" mb={4}>
-                What Happens in The Lab?
-              </Heading>
-              <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={6} mb={6}>
-                <VStack>
-                  <Box
-                    w={12}
-                    h={12}
-                    borderRadius="lg"
-                    bg={`${neonColors.cyan}22`}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    mb={2}
-                  >
-                    <Text fontSize="xl">🧪</Text>
-                  </Box>
-                  <Text color="white" fontWeight="600">Real Experiments</Text>
-                  <Text color="gray.400" fontSize="sm">
-                    Watch actual client projects come to life
-                  </Text>
-                </VStack>
-                <VStack>
-                  <Box
-                    w={12}
-                    h={12}
-                    borderRadius="lg"
-                    bg={`${neonColors.purple}22`}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    mb={2}
-                  >
-                    <Text fontSize="xl">🔬</Text>
-                  </Box>
-                  <Text color="white" fontWeight="600">Transparent Process</Text>
-                  <Text color="gray.400" fontSize="sm">
-                    See how we think, design, and build
-                  </Text>
-                </VStack>
-                <VStack>
-                  <Box
-                    w={12}
-                    h={12}
-                    borderRadius="lg"
-                    bg={`${neonColors.orange}22`}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    mb={2}
-                  >
-                    <Text fontSize="xl">🚀</Text>
-                  </Box>
-                  <Text color="white" fontWeight="600">Community First</Text>
-                  <Text color="gray.400" fontSize="sm">
-                    Building for Ridgway, one site at a time
-                  </Text>
-                </VStack>
-              </Grid>
-              
-              <Text color="gray.500" fontSize="sm" fontStyle="italic">
-                "Every great website starts as an experiment in The Lab"
+              <Text 
+                color="gray.500" 
+                fontSize="lg" 
+                fontWeight="300"
+                lineHeight="1.8"
+                fontStyle="italic"
+              >
+                "In the lab, we experiment without fear. 
+                Every project is a hypothesis waiting to be proven."
+              </Text>
+              <Text color="gray.600" fontSize="xs" mt={6} letterSpacing="0.1em">
+                RESTRICTED ACCESS • AUTHORIZED PERSONNEL ONLY
               </Text>
             </Box>
           </MotionBox>
