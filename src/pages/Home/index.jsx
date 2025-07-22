@@ -1,12 +1,12 @@
 import { Box } from '@chakra-ui/react';
-import ShopHero from './components/ShopHero';
-import ProductGrid from './components/ProductGrid';
+import FoodHero from './components/FoodHero';
+import BreakfastMenu from './components/BreakfastMenu';
 
 const Home = () => {
   return (
     <Box bg="dark.black" minH="100vh">
-      <ShopHero />
-      <ProductGrid />
+      <FoodHero />
+      <BreakfastMenu />
     </Box>
   );
 };

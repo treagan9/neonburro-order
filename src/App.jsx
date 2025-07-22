@@ -6,7 +6,7 @@ import ShopNavigation from './components/navigation/ShopNavigation';
 import CartDrawer from './components/cart/CartDrawer';
 import Footer from './components/common/Footer';
 import Home from './pages/Home';
-import ProductDetail from './pages/ProductDetail';
+import ItemDetail from './pages/ItemDetail';
 import Invoice from './pages/Invoice';
 import Cart from './pages/Cart';
 import Privacy from './pages/Privacy';
@@ -36,7 +36,7 @@ function AppContent() {
       <CartDrawer />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/product/:productId" element={<ProductDetail />} />
+        <Route path="/item/:itemId" element={<ItemDetail />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Invoice />} />
         <Route path="/privacy" element={<Privacy />} />

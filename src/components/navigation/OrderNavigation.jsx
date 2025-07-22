@@ -5,7 +5,7 @@ import { useCart } from '../../context/CartContext';
 
 const MotionBox = motion(Box);
 
-const ShopNavigation = () => {
+const OrderNavigation = () => {
   const { getCartItemsCount, setIsOpen } = useCart();
   const itemCount = getCartItemsCount();
 
@@ -44,14 +44,19 @@ const ShopNavigation = () => {
             </Link>
           </MotionBox>
 
-          {/* Restaurant Name */}
-          <Text 
-            color="white" 
-            fontWeight="800" 
-            fontSize="lg"
-            letterSpacing="-0.02em"
+          {/* Center Logo/Text */}
+          <Text
+            fontSize="xl"
+            fontWeight="800"
+            color="#00D9FF"
+            letterSpacing="wider"
+            textTransform="uppercase"
+            position="absolute"
+            left="50%"
+            transform="translateX(-50%)"
+            display={{ base: "none", md: "block" }}
           >
-            GLOWBACHI
+            Order Food
           </Text>
 
           {/* Cart Icon */}
@@ -66,7 +71,7 @@ const ShopNavigation = () => {
               as={FiShoppingBag}
               boxSize={6}
               color="white"
-              _hover={{ color: '#FFC107' }}
+              _hover={{ color: '#00D9FF' }}
               transition="color 0.2s"
             />
             {itemCount > 0 && (
@@ -74,7 +79,7 @@ const ShopNavigation = () => {
                 position="absolute"
                 top="-8px"
                 right="-8px"
-                bg="#FFC107"
+                bg="#00D9FF"
                 color="black"
                 borderRadius="full"
                 minW="20px"
@@ -95,4 +100,4 @@ const ShopNavigation = () => {
   );
 };
 
-export default ShopNavigation;
+export default OrderNavigation;
