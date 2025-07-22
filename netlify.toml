@@ -17,6 +17,30 @@
   to = "/subscription.html"
   status = 200
 
+# Specific redirect for services page to use the custom HTML with proper meta tags
+[[redirects]]
+  from = "/services"
+  to = "/services.html"
+  status = 200
+
+# Specific redirect for about page to use the custom HTML with proper meta tags
+[[redirects]]
+  from = "/about"
+  to = "/about.html"
+  status = 200
+
+# Specific redirect for work page to use the custom HTML with proper meta tags
+[[redirects]]
+  from = "/work"
+  to = "/work.html"
+  status = 200
+
+# Specific redirect for contact page to use the custom HTML with proper meta tags
+[[redirects]]
+  from = "/contact"
+  to = "/contact.html"
+  status = 200
+
 # Catch-all redirect for all other routes (SPA behavior)
 [[redirects]]
   from = "/*"
