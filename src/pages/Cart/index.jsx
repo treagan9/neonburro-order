@@ -1,5 +1,5 @@
 import { Box, Container, Heading, Text, VStack, HStack, Button, Image, IconButton, Divider } from '@chakra-ui/react';
-import { FiX, FiPlus, FiMinus, FiArrowRight } from 'react-icons/fi';
+import { FiX, FiPlus, FiMinus, FiArrowRight, FiShoppingBag } from 'react-icons/fi';
 import { useCart } from '../../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,15 +14,16 @@ const Cart = () => {
           <VStack spacing={8}>
             <Text fontSize="6xl">🛒</Text>
             <Heading color="white">Your cart is empty</Heading>
-            <Text color="gray.400">Time to add some mountain magic!</Text>
+            <Text color="gray.400">Time to add some delicious food!</Text>
             <Button
               onClick={() => navigate('/')}
-              bg="white"
+              bg="#FFE135"
               color="black"
               fontWeight="700"
               size="lg"
+              _hover={{ bg: '#FF6B35' }}
             >
-              Continue Shopping
+              Back to Menu
             </Button>
           </VStack>
         </Container>
@@ -34,7 +35,7 @@ const Cart = () => {
     <Box minH="100vh" bg="dark.black" pt="100px" pb={20}>
       <Container maxW="800px">
         <VStack spacing={8} align="stretch">
-          <Heading color="white">Your Cart ({cart.length} items)</Heading>
+          <Heading color="white">Your Order ({cart.length} items)</Heading>
           
           {/* Cart Items */}
           <VStack spacing={4} align="stretch">
@@ -50,14 +51,17 @@ const Cart = () => {
                 <HStack justify="space-between" align="start">
                   <VStack align="start" flex={1} spacing={2}>
                     <Text color="white" fontWeight="600">{item.name}</Text>
-                    <Text color="gray.400" fontSize="sm">{item.material}</Text>
+                    {item.description && (
+                      <Text color="gray.400" fontSize="sm">{item.description}</Text>
+                    )}
                     <HStack spacing={2}>
                       <IconButton
                         size="sm"
                         icon={<FiMinus />}
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        onClick={() => updateQuantity(item.id, Math.max(0, item.quantity - 1))}
                         variant="outline"
                         colorScheme="whiteAlpha"
+                        isDisabled={item.quantity <= 1}
                       />
                       <Text color="white" fontWeight="600" minW="40px" textAlign="center">
                         {item.quantity}
@@ -73,8 +77,8 @@ const Cart = () => {
                   </VStack>
                   
                   <VStack align="end" spacing={2}>
-                    <Text color="white" fontWeight="700" fontSize="lg">
-                      ${item.price * item.quantity}
+                    <Text color="#FFE135" fontWeight="700" fontSize="lg">
+                      ${(item.price * item.quantity).toFixed(2)}
                     </Text>
                     <IconButton
                       size="sm"
@@ -94,8 +98,8 @@ const Cart = () => {
           {/* Total */}
           <HStack justify="space-between">
             <Text color="white" fontSize="xl" fontWeight="700">Total</Text>
-            <Text color="#39FF14" fontSize="2xl" fontWeight="800">
-              ${getCartTotal()}
+            <Text color="#FFE135" fontSize="2xl" fontWeight="800">
+              ${getCartTotal().toFixed(2)}
             </Text>
           </HStack>
 
@@ -109,14 +113,15 @@ const Cart = () => {
               Clear Cart
             </Button>
             <Button
-              bg="#39FF14"
+              bg="#FFE135"
               color="black"
               fontWeight="700"
               size="lg"
               rightIcon={<FiArrowRight />}
-              onClick={() => navigate('/checkout')}
+              onClick={() => navigate('/')}
+              _hover={{ bg: '#FF6B35' }}
             >
-              Proceed to Checkout
+              Continue Ordering
             </Button>
           </HStack>
         </VStack>
