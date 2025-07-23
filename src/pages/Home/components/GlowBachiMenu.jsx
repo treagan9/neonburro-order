@@ -31,6 +31,7 @@ import {
   Stack,
   useBreakpointValue,
   Link,
+  AspectRatio,
 } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiPlus, FiPhone, FiClock } from 'react-icons/fi';
@@ -359,7 +360,7 @@ const GlowBachiMenu = () => {
     });
   };
 
-  // Appetizer Card Component
+  // Appetizer Card Component - Consistent horizontal layout for all screen sizes
   const AppetizerCard = ({ item, index }) => (
     <MotionBox
       initial={{ opacity: 0, y: 20 }}
@@ -375,53 +376,60 @@ const GlowBachiMenu = () => {
         borderColor="whiteAlpha.100"
         h="100%"
         display="flex"
-        flexDirection={{ base: "row", sm: "column" }}
+        flexDirection="row"
         transition="all 0.3s"
         _hover={{
           borderColor: banana,
-          boxShadow: `0 10px 30px ${banana}22`
+          boxShadow: `0 10px 30px ${banana}22`,
+          bg: "rgba(255, 255, 255, 0.04)"
         }}
       >
-        {/* Image */}
+        {/* Image - Always on the left */}
         <Box 
-          w={{ base: "120px", sm: "100%" }}
-          h={{ base: "120px", sm: "180px" }}
+          w={{ base: "120px", md: "160px" }}
+          h={{ base: "120px", md: "160px" }}
           flexShrink={0}
+          overflow="hidden"
         >
-          <Image
-            src={item.image}
-            alt={item.name}
-            w="100%"
-            h="100%"
-            objectFit="cover"
-            objectPosition="center"
-          />
+          <AspectRatio ratio={1}>
+            <Image
+              src={item.image}
+              alt={item.name}
+              objectFit="cover"
+              w="100%"
+              h="100%"
+            />
+          </AspectRatio>
         </Box>
         
         {/* Content */}
-        <Box p={4} flex={1} display="flex" flexDirection="column">
+        <Box p={{ base: 3, md: 4 }} flex={1} display="flex" flexDirection="column">
           <VStack align="stretch" spacing={2} flex={1}>
             <HStack justify="space-between" align="start">
               <VStack align="start" spacing={1} flex={1}>
-                <Heading size="sm" color="white">
+                <Heading size={{ base: "sm", md: "md" }} color="white">
                   {item.name}
                 </Heading>
-                <Text color="gray.500" fontSize="xs">
+                <Text color="gray.500" fontSize={{ base: "xs", md: "sm" }}>
                   {item.unit}
                 </Text>
               </VStack>
-              <Text color={banana} fontWeight="bold" fontSize="lg">
+              <Text color={banana} fontWeight="bold" fontSize={{ base: "lg", md: "xl" }}>
                 ${item.price}
               </Text>
             </HStack>
             
-            <Text color="gray.400" fontSize="xs" noOfLines={2}>
+            <Text color="gray.400" fontSize={{ base: "xs", md: "sm" }} noOfLines={2}>
               {item.description}
+            </Text>
+            
+            <Text color="gray.500" fontSize="xs" fontStyle="italic" mt="auto">
+              {item.flavor}
             </Text>
           </VStack>
           
           <Button
-            size="sm"
+            size={{ base: "sm", md: "md" }}
             bg={banana}
             color="black"
             fontWeight="700"
@@ -444,7 +452,7 @@ const GlowBachiMenu = () => {
     </MotionBox>
   );
 
-  // Bowl Card Component
+  // Bowl Card Component - Enhanced image display
   const BowlCard = ({ bowl, index }) => (
     <MotionBox
       initial={{ opacity: 0, y: 20 }}
@@ -467,17 +475,16 @@ const GlowBachiMenu = () => {
           boxShadow: `0 10px 30px ${fieryOrange}22`
         }}
       >
-        {/* Image */}
-        <Box h={{ base: "200px", md: "250px" }} overflow="hidden" position="relative">
+        {/* Image - Enhanced to show full square */}
+        <AspectRatio ratio={{ base: 1, md: 4/3 }}>
           <Image
             src={bowl.image}
             alt={bowl.name}
+            objectFit="cover"
             w="100%"
             h="100%"
-            objectFit="cover"
-            objectPosition="center top"
           />
-        </Box>
+        </AspectRatio>
         
         {/* Content */}
         <Box p={{ base: 4, md: 6 }}>
@@ -578,11 +585,12 @@ const GlowBachiMenu = () => {
               <Grid
                 templateColumns={{ 
                   base: "1fr", 
-                  sm: "repeat(2, 1fr)",
-                  lg: "repeat(3, 1fr)" 
+                  lg: "repeat(2, 1fr)" 
                 }}
                 gap={{ base: 4, md: 6 }}
                 w="100%"
+                maxW={{ base: "100%", lg: "1000px" }}
+                mx="auto"
               >
                 {appetizers.map((item, index) => (
                   <GridItem key={item.id}>
@@ -631,107 +639,7 @@ const GlowBachiMenu = () => {
         </Container>
       </Box>
 
-      {/* Custom Footer */}
-      <Box
-        bg="rgba(255, 255, 255, 0.02)"
-        borderTop="1px solid"
-        borderColor="whiteAlpha.100"
-        py={{ base: 12, md: 16 }}
-      >
-        <Container maxW="container.xl">
-          <VStack spacing={8}>
-            {/* Hours Section */}
-            <VStack spacing={6} textAlign="center">
-              <Heading size="md" color="white">
-                HOURS & ORDERING
-              </Heading>
-              
-              <HStack spacing={8} flexWrap="wrap" justify="center">
-                <VStack>
-                  <Text color={banana} fontWeight="bold" fontSize="sm">
-                    BREAKFAST
-                  </Text>
-                  <Text color="gray.300" fontSize="sm">
-                    5:00 AM - 11:00 AM
-                  </Text>
-                  <Text color="gray.500" fontSize="xs">
-                    Every Day
-                  </Text>
-                </VStack>
-                
-                <Box w="1px" h="50px" bg="whiteAlpha.300" display={{ base: "none", md: "block" }} />
-                
-                <VStack>
-                  <Text color={fieryOrange} fontWeight="bold" fontSize="sm">
-                    LUNCH & DINNER
-                  </Text>
-                  <Text color="gray.300" fontSize="sm">
-                    2:00 PM - 9:00 PM
-                  </Text>
-                  <Text color="gray.500" fontSize="xs">
-                    Every Day
-                  </Text>
-                </VStack>
-              </HStack>
-            </VStack>
-
-            {/* Call to Order */}
-            <VStack spacing={4}>
-              <Text color="gray.400" fontSize="md">
-                Order online or call
-              </Text>
-              <Link href="tel:9703163131" _hover={{ textDecoration: 'none' }}>
-                <Button
-                  size="lg"
-                  bg="transparent"
-                  border="2px solid"
-                  borderColor={banana}
-                  color={banana}
-                  leftIcon={<FiPhone />}
-                  _hover={{
-                    bg: banana,
-                    color: 'black',
-                    transform: 'scale(1.05)'
-                  }}
-                  transition="all 0.3s"
-                >
-                  (970) 316-3131
-                </Button>
-              </Link>
-            </VStack>
-
-            {/* Special Links */}
-            <VStack spacing={4} textAlign="center">
-              <Link 
-                href="/breakfast-special" 
-                color={neonTeal}
-                fontSize="sm"
-                fontWeight="600"
-                _hover={{ color: banana }}
-              >
-                THE BISCUIT SHOOTER BREAKFAST • 5-11AM EVERYDAY
-              </Link>
-              
-              <Text color="gray.500" fontSize="xs" maxW="400px">
-                We offer catering with 2-3 days advance notice. 
-                Call <Link href="tel:9703163131" color={banana}>(970) 316-3131</Link>
-              </Text>
-            </VStack>
-
-            {/* Bottom Branding */}
-            <Box pt={8} textAlign="center">
-              <Text color="gray.600" fontSize="xs" letterSpacing="wider">
-                GLOWBACHI • RIDGWAY, COLORADO
-              </Text>
-              <Text color="gray.700" fontSize="xs" mt={2}>
-                Old West x Neon Osaka on Wheels
-              </Text>
-            </Box>
-          </VStack>
-        </Container>
-      </Box>
-
-      {/* Bowl Detail Modal */}
+      {/* Bowl Detail Modal - Enhanced image */}
       <Modal 
         isOpen={isDetailModalOpen} 
         onClose={() => setIsDetailModalOpen(false)} 
@@ -751,17 +659,14 @@ const GlowBachiMenu = () => {
           
           <ModalBody py={6}>
             <VStack spacing={6} align="stretch">
-              {/* Image */}
-              <Box borderRadius="lg" overflow="hidden" h={{ base: "250px", md: "350px" }}>
+              {/* Image - Enhanced to show full square */}
+              <AspectRatio ratio={{ base: 1, md: 16/9 }} borderRadius="lg" overflow="hidden">
                 <Image
                   src={selectedItem?.image}
                   alt={selectedItem?.name}
-                  w="100%"
-                  h="100%"
                   objectFit="cover"
-                  objectPosition="center top"
                 />
-              </Box>
+              </AspectRatio>
               
               {/* Description */}
               <VStack align="stretch" spacing={4}>
