@@ -4,248 +4,213 @@ import {
   VStack, 
   HStack, 
   Text, 
-  Link, 
-  IconButton,
+  Image, 
+  Link,
   Divider,
-  Image
+  Grid,
+  GridItem,
+  Icon
 } from '@chakra-ui/react';
 import { 
   FiPhone, 
   FiMapPin, 
   FiClock,
-  FiInstagram,
-  FiFacebook,
-  FiArrowUp
+  FiMail
 } from 'react-icons/fi';
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
-const MotionBox = motion(Box);
-
-const Footer = () => {
-  const currentYear = new Date().getFullYear();
-  const [showScrollTop, setShowScrollTop] = useState(false);
-
-  // Colors
-  const banana = '#FFE135';
-  const fieryOrange = '#FF6B35';
-  const neonTeal = '#00D9FF';
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 400);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const socialLinks = [
-    { icon: FiInstagram, href: 'https://instagram.com/glowbachi', label: 'Instagram' },
-    { icon: FiFacebook, href: 'https://facebook.com/glowbachi', label: 'Facebook' }
-  ];
-
+const Footer = ({ currentMenu }) => {
+  const navigate = useNavigate();
+  const isBreakfastMenu = currentMenu === 'breakfast';
+  
+  const colors = {
+    breakfast: {
+      primary: '#FFE135',
+      secondary: '#FFD54F'
+    },
+    dinner: {
+      primary: '#FFC107',
+      secondary: '#FF6B35'
+    }
+  };
+  
+  const currentColors = isBreakfastMenu ? colors.breakfast : colors.dinner;
+  
   return (
-    <Box
-      as="footer"
-      bg="rgba(0, 0, 0, 0.95)"
+    <Box 
+      bg="dark.black" 
       borderTop="1px solid"
       borderColor="whiteAlpha.200"
-      mt={{ base: 0, md: 20 }}
+      mt={20}
     >
-      <Container maxW="1200px" py={{ base: 12, md: 16 }}>
-        <VStack spacing={8}>
-          {/* Main Footer Content */}
-          <Box textAlign="center" w="100%">
-            <VStack spacing={6}>
-              {/* Logo/Brand */}
-              <Image
-                src="/glow-bachi-hero-icon.png"
-                alt="GlowBachi"
-                height="80px"
-                width="auto"
-                opacity={0.9}
-                filter="drop-shadow(0 0 20px rgba(255, 193, 7, 0.3))"
-              />
-              
-              {/* Tagline */}
-              <Text
-                fontSize={{ base: "lg", md: "xl" }}
-                color="gray.300"
-                fontWeight="500"
-                letterSpacing="tight"
-              >
-                Old West × Neon Osaka on Wheels
-              </Text>
-
-              {/* Contact Info */}
-              <VStack spacing={4} py={4}>
-                {/* Phone */}
-                <Link
-                  href="tel:9703163131"
-                  display="flex"
-                  alignItems="center"
-                  gap={2}
-                  color="white"
-                  fontSize={{ base: "xl", md: "2xl" }}
-                  fontWeight="700"
-                  _hover={{ 
-                    color: banana,
-                    textDecoration: 'none',
-                    transform: 'scale(1.05)'
-                  }}
-                  transition="all 0.2s"
-                >
-                  <FiPhone />
-                  (970) 316-3131
-                </Link>
-
-                {/* Address */}
-                <HStack spacing={2} color="gray.400" fontSize="sm">
-                  <FiMapPin size={16} />
-                  <Text>Ridgway, Colorado</Text>
-                </HStack>
-
-                {/* Hours */}
-                <VStack spacing={2} color="gray.400" fontSize="sm">
-                  <HStack>
-                    <FiClock size={16} />
-                    <Text>Breakfast: 5:00 AM - 11:00 AM Daily</Text>
-                  </HStack>
-                  <Text>Lunch & Dinner: 2:00 PM - 9:00 PM Daily</Text>
-                </VStack>
-              </VStack>
-
-              {/* Social Links */}
-              <HStack spacing={4}>
-                {socialLinks.map((social) => (
-                  <IconButton
-                    key={social.label}
-                    icon={<social.icon size={20} />}
-                    variant="ghost"
-                    size="md"
-                    color="gray.400"
-                    aria-label={social.label}
-                    onClick={() => window.open(social.href, '_blank')}
-                    borderRadius="full"
-                    border="1px solid"
-                    borderColor="whiteAlpha.200"
-                    _hover={{
-                      color: banana,
-                      bg: `${banana}11`,
-                      borderColor: banana,
-                      transform: 'translateY(-2px)'
-                    }}
-                    transition="all 0.2s"
-                  />
-                ))}
+      <Container maxW="container.xl" py={12}>
+        <Grid
+          templateColumns={{ base: "1fr", md: "repeat(4, 1fr)" }}
+          gap={8}
+        >
+          {/* Location */}
+          <GridItem>
+            <VStack align={{ base: "center", md: "start" }} spacing={4}>
+              <HStack spacing={2} color={currentColors.primary}>
+                <Icon as={FiMapPin} />
+                <Text fontSize="sm" fontWeight="600">LOCATION</Text>
               </HStack>
+              <Text fontSize="sm" color="gray.300">
+                Downtown Ridgway, CO
+              </Text>
             </VStack>
-          </Box>
-
-          <Divider borderColor="whiteAlpha.200" opacity={0.5} />
-
-          {/* Bottom Links */}
-          <HStack 
-            spacing={{ base: 4, md: 8 }} 
-            flexWrap="wrap" 
-            justify="center"
-          >
-            <Link
-              href="/"
-              color="gray.500"
-              fontSize="sm"
-              _hover={{ color: banana }}
-              transition="color 0.2s"
-            >
-              Menu
-            </Link>
-            <Link
-              href="/about"
-              color="gray.500"
-              fontSize="sm"
-              _hover={{ color: banana }}
-              transition="color 0.2s"
-            >
-              About
-            </Link>
-            <Link
-              href="/catering"
-              color="gray.500"
-              fontSize="sm"
-              _hover={{ color: banana }}
-              transition="color 0.2s"
-            >
-              Catering
-            </Link>
-            <Link
-              href="/contact"
-              color="gray.500"
-              fontSize="sm"
-              _hover={{ color: banana }}
-              transition="color 0.2s"
-            >
-              Contact
-            </Link>
-          </HStack>
-
-          {/* Copyright */}
-          <VStack spacing={2}>
-            <Text color="gray.600" fontSize="xs" textAlign="center">
-              © {currentYear} GlowBachi Food Truck. All rights reserved.
-            </Text>
-            <HStack spacing={2} fontSize="xs" color="gray.600">
-              <Text>Powered by</Text>
-              <Link
-                href="https://neonburro.com"
-                color={neonTeal}
-                fontWeight="600"
-                _hover={{ 
-                  color: banana,
-                  textDecoration: 'none' 
-                }}
-                transition="color 0.2s"
+          </GridItem>
+          
+          {/* Hours */}
+          <GridItem>
+            <VStack align={{ base: "center", md: "start" }} spacing={4}>
+              <HStack spacing={2} color={currentColors.primary}>
+                <Icon as={FiClock} />
+                <Text fontSize="sm" fontWeight="600">HOURS</Text>
+              </HStack>
+              <VStack align={{ base: "center", md: "start" }} spacing={2}>
+                <Link
+                  onClick={() => navigate('/?menu=breakfast')}
+                  cursor="pointer"
+                  _hover={{ color: colors.breakfast.primary }}
+                  transition="color 0.2s"
+                >
+                  <VStack align="start" spacing={0}>
+                    <Text fontSize="sm" fontWeight="600" color="white">
+                      BISCUIT SHOOTER
+                    </Text>
+                    <Text fontSize="xs" color="gray.400">
+                      Breakfast • 5:00 AM - 11:00 AM
+                    </Text>
+                  </VStack>
+                </Link>
+                <Link
+                  onClick={() => navigate('/?menu=dinner')}
+                  cursor="pointer"
+                  _hover={{ color: colors.dinner.primary }}
+                  transition="color 0.2s"
+                >
+                  <VStack align="start" spacing={0}>
+                    <Text fontSize="sm" fontWeight="600" color="white">
+                      GLOWBACHI
+                    </Text>
+                    <Text fontSize="xs" color="gray.400">
+                      Lunch • Dinner • 12:30 PM - 9:00 PM
+                    </Text>
+                  </VStack>
+                </Link>
+              </VStack>
+            </VStack>
+          </GridItem>
+          
+          {/* Quick Links */}
+          <GridItem>
+            <VStack align={{ base: "center", md: "start" }} spacing={4}>
+              <Text fontSize="sm" fontWeight="600" color={currentColors.primary}>
+                QUICK LINKS
+              </Text>
+              <VStack align={{ base: "center", md: "start" }} spacing={2}>
+                <Link 
+                  href="/contact" 
+                  fontSize="sm" 
+                  color="gray.300"
+                  _hover={{ color: "white" }}
+                >
+                  Contact
+                </Link>
+                <Link 
+                  href="/careers" 
+                  fontSize="sm" 
+                  color="gray.300"
+                  _hover={{ color: "white" }}
+                >
+                  Careers
+                </Link>
+                <Link 
+                  href="/catering" 
+                  fontSize="sm" 
+                  color="gray.300"
+                  _hover={{ color: "white" }}
+                >
+                  <VStack align="start" spacing={0}>
+                    <Text>Catering</Text>
+                    <Text fontSize="xs" color="gray.500">
+                      Feed your crew right
+                    </Text>
+                  </VStack>
+                </Link>
+              </VStack>
+            </VStack>
+          </GridItem>
+          
+          {/* Contact & Website */}
+          <GridItem>
+            <VStack align={{ base: "center", md: "start" }} spacing={4}>
+              <HStack spacing={2} color={currentColors.primary}>
+                <Icon as={FiPhone} />
+                <Text fontSize="sm" fontWeight="600">CONTACT</Text>
+              </HStack>
+              <Link 
+                href="tel:9703163131"
+                fontSize="sm" 
+                color="gray.300"
+                _hover={{ color: "white" }}
               >
-                Neon Burro
+                (970) 316-3131
               </Link>
-            </HStack>
-          </VStack>
-        </VStack>
-      </Container>
-
-      {/* Scroll to top button */}
-      <AnimatePresence>
-        {showScrollTop && (
-          <MotionBox
-            position="fixed"
-            bottom={6}
-            right={6}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.2 }}
+              
+              {/* Subtle website CTA */}
+              <Box pt={2}>
+                <Link 
+                  href="https://neonburro.com" 
+                  isExternal
+                  fontSize="xs"
+                  color="gray.600"
+                  _hover={{ color: "#00D9FF" }}
+                  transition="color 0.2s"
+                >
+                  <HStack spacing={2}>
+                    <Image 
+                      src="/favicon.svg" 
+                      boxSize="16px" 
+                      opacity={0.6}
+                      _hover={{ opacity: 1 }}
+                    />
+                    <Text>Website by Neon Burro</Text>
+                  </HStack>
+                </Link>
+              </Box>
+            </VStack>
+          </GridItem>
+        </Grid>
+        
+        <Divider borderColor="whiteAlpha.100" my={8} />
+        
+        {/* Bottom */}
+        <HStack justify="center">
+          <Link
+            href="https://neonburro.com"
+            isExternal
+            _hover={{ textDecoration: 'none' }}
           >
-            <IconButton
-              icon={<FiArrowUp size={18} />}
-              aria-label="Scroll to top"
-              size="md"
-              borderRadius="full"
-              bg={banana}
-              color="black"
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              _hover={{
-                bg: fieryOrange,
-                transform: 'translateY(-3px)',
-                boxShadow: `0 10px 20px ${banana}44`
-              }}
-              _active={{
-                transform: 'translateY(-1px)'
-              }}
-              transition="all 0.2s"
-            />
-          </MotionBox>
-        )}
-      </AnimatePresence>
+            <HStack spacing={2}>
+              <Text fontSize="xs" color="gray.600">
+                Powered by
+              </Text>
+              <Text
+                fontSize="xs"
+                fontWeight="700"
+                bgGradient={`linear(to-r, #00D9FF, ${currentColors.primary})`}
+                bgClip="text"
+                _hover={{ filter: 'brightness(1.2)' }}
+                transition="all 0.2s"
+              >
+                NEON BURRO
+              </Text>
+            </HStack>
+          </Link>
+        </HStack>
+      </Container>
     </Box>
   );
 };

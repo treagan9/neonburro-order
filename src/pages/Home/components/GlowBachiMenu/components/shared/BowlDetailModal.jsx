@@ -1,36 +1,33 @@
-import React from 'react';
 import {
   Modal,
   ModalOverlay,
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalCloseButton,
   ModalFooter,
+  ModalCloseButton,
   Button,
   VStack,
   HStack,
-  Box,
   Text,
+  Box,
   Image,
-  AspectRatio,
-  Heading,
-  Stack,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
+  Badge,
+  Grid,
+  GridItem,
+  Divider,
+  useNumberInput,
+  Input,
   IconButton
 } from '@chakra-ui/react';
-import { FiPlus } from 'react-icons/fi';
+import { FiPlus, FiMinus } from 'react-icons/fi';
 import SpicyLevel from './SpicyLevel';
 
-const BowlDetailModal = ({ 
-  isOpen, 
-  onClose, 
-  selectedItem, 
-  selectedSize, 
+const BowlDetailModal = ({
+  isOpen,
+  onClose,
+  selectedItem,
+  selectedSize,
   setSelectedSize,
   addedAddOns,
   totalPrice,
@@ -39,299 +36,203 @@ const BowlDetailModal = ({
   extraProteins,
   sides,
   toppings,
-  colors 
+  colors
 }) => {
-  const { banana, fieryOrange, neonTeal } = colors;
-  
-  return (
-    <Modal 
-      isOpen={isOpen} 
-      onClose={onClose} 
-      size={{ base: "full", md: "4xl" }}
-      scrollBehavior="inside"
-    >
-      <ModalOverlay bg="blackAlpha.800" />
-      <ModalContent bg="dark.black" border="1px solid" borderColor="whiteAlpha.200">
-        <ModalHeader borderBottom="1px solid" borderColor="whiteAlpha.100" pb={4}>
-          <HStack justify="space-between">
-            <Heading size="lg" color="white">
-              {selectedItem?.name}
-            </Heading>
-            <ModalCloseButton position="static" />
-          </HStack>
-        </ModalHeader>
-        
-        <ModalBody py={6}>
-          <VStack spacing={6} align="stretch">
-            {/* Image */}
-            <AspectRatio ratio={{ base: 1, md: 16/9 }} borderRadius="lg" overflow="hidden">
-              <Image
-                src={selectedItem?.image}
-                alt={selectedItem?.name}
-                objectFit="cover"
-              />
-            </AspectRatio>
-            
-            {/* Description */}
-            <VStack align="stretch" spacing={4}>
-              <Text color="gray.300" fontSize="sm">
-                {selectedItem?.description}
-              </Text>
-              
-              {selectedItem?.spicyLevel !== undefined && (
-                <HStack>
-                  <Text color="gray.500" fontSize="xs">Spicy Level:</Text>
-                  <SpicyLevel level={selectedItem.spicyLevel} />
-                </HStack>
-              )}
-              
-              {selectedItem?.defaultSauces && (
-                <Box>
-                  <Text color="gray.500" fontSize="xs" mb={2}>
-                    Includes:
-                  </Text>
-                  <HStack spacing={2} flexWrap="wrap">
-                    {selectedItem.defaultSauces.map(sauce => (
-                      <Text
-                        key={sauce}
-                        fontSize="xs"
-                        px={2}
-                        py={1}
-                        bg="whiteAlpha.100"
-                        borderRadius="md"
-                        color="gray.300"
-                      >
-                        {sauce}
-                      </Text>
-                    ))}
-                  </HStack>
-                </Box>
-              )}
-            </VStack>
-            
-            {/* Size Selection */}
-            <Box>
-              <Text fontWeight="600" color="white" mb={4}>
-                Choose Size
-              </Text>
-              <Stack direction={{ base: "column", sm: "row" }} spacing={4}>
-                <Box
-                  flex={1}
-                  p={4}
-                  border="2px solid"
-                  borderColor={selectedSize === 'small' ? banana : 'whiteAlpha.200'}
-                  borderRadius="lg"
-                  cursor="pointer"
-                  onClick={() => setSelectedSize('small')}
-                  transition="all 0.2s"
-                  _hover={{ borderColor: banana }}
-                >
-                  <VStack>
-                    <Text color="white" fontWeight="600">Small</Text>
-                    <Text color={banana} fontSize="xl" fontWeight="700">
-                      ${selectedItem?.smallPrice}
-                    </Text>
-                  </VStack>
-                </Box>
-                <Box
-                  flex={1}
-                  p={4}
-                  border="2px solid"
-                  borderColor={selectedSize === 'large' ? banana : 'whiteAlpha.200'}
-                  borderRadius="lg"
-                  cursor="pointer"
-                  onClick={() => setSelectedSize('large')}
-                  transition="all 0.2s"
-                  _hover={{ borderColor: banana }}
-                >
-                  <VStack>
-                    <Text color="white" fontWeight="600">Large</Text>
-                    <Text color={banana} fontSize="xl" fontWeight="700">
-                      ${selectedItem?.largePrice}
-                    </Text>
-                  </VStack>
-                </Box>
-              </Stack>
-            </Box>
+  if (!selectedItem) return null;
 
-            {/* Add-ons Tabs */}
-            <Tabs variant="soft-rounded" colorScheme="orange" size="sm">
-              <TabList flexWrap="wrap">
-                <Tab _selected={{ bg: `${fieryOrange}22`, color: fieryOrange }}>
-                  Extra Proteins
-                </Tab>
-                <Tab _selected={{ bg: `${fieryOrange}22`, color: fieryOrange }}>
-                  Sides
-                </Tab>
-                <Tab _selected={{ bg: `${fieryOrange}22`, color: fieryOrange }}>
-                  Toppings
-                </Tab>
-              </TabList>
-              
-              <TabPanels>
-                {/* Extra Proteins Tab */}
-                <TabPanel px={0}>
-                  <VStack align="stretch" spacing={3}>
-                    <Text color="gray.400" fontSize="xs" mb={2}>
-                      Add extra protein to your bowl
-                    </Text>
-                    {extraProteins.map(item => (
-                      <HStack
-                        key={item.id}
-                        p={3}
-                        bg="whiteAlpha.50"
-                        borderRadius="lg"
-                        justify="space-between"
-                      >
-                        <VStack align="start" flex={1} spacing={0}>
-                          <Text color="white" fontSize="sm" fontWeight="500">
-                            {item.name}
-                          </Text>
-                          <Text color="gray.500" fontSize="xs">
-                            {item.description}
-                          </Text>
-                        </VStack>
-                        <HStack>
-                          <Text color={banana} fontWeight="600">
-                            +${item.price}
-                          </Text>
-                          <IconButton
-                            icon={<FiPlus />}
-                            size="xs"
-                            bg={neonTeal}
-                            color="black"
-                            onClick={() => onAddOnAdd(item, 'protein')}
-                          />
-                        </HStack>
-                      </HStack>
-                    ))}
-                  </VStack>
-                </TabPanel>
-                
-                {/* Sides Tab */}
-                <TabPanel px={0}>
-                  <VStack align="stretch" spacing={3}>
-                    {sides.map(item => (
-                      <HStack
-                        key={item.id}
-                        p={3}
-                        bg="whiteAlpha.50"
-                        borderRadius="lg"
-                        justify="space-between"
-                      >
-                        <VStack align="start" flex={1} spacing={0}>
-                          <Text color="white" fontSize="sm" fontWeight="500">
-                            {item.name}
-                          </Text>
-                          <Text color="gray.500" fontSize="xs">
-                            {item.description}
-                          </Text>
-                        </VStack>
-                        <HStack>
-                          <Text color={banana} fontWeight="600">
-                            +${item.price}
-                          </Text>
-                          <IconButton
-                            icon={<FiPlus />}
-                            size="xs"
-                            bg={neonTeal}
-                            color="black"
-                            onClick={() => onAddOnAdd(item, 'side')}
-                          />
-                        </HStack>
-                      </HStack>
-                    ))}
-                  </VStack>
-                </TabPanel>
-                
-                {/* Toppings Tab */}
-                <TabPanel px={0}>
-                  <VStack align="stretch" spacing={3}>
-                    {toppings.map(item => (
-                      <HStack
-                        key={item.id}
-                        p={3}
-                        bg="whiteAlpha.50"
-                        borderRadius="lg"
-                        justify="space-between"
-                      >
-                        <VStack align="start" flex={1} spacing={0}>
-                          <Text color="white" fontSize="sm" fontWeight="500">
-                            {item.name}
-                          </Text>
-                          {item.description && (
-                            <Text color="gray.500" fontSize="xs">
-                              {item.description}
-                            </Text>
-                          )}
-                        </VStack>
-                        <HStack>
-                          <Text color={banana} fontWeight="600">
-                            +${item.price}
-                          </Text>
-                          <IconButton
-                            icon={<FiPlus />}
-                            size="xs"
-                            bg={neonTeal}
-                            color="black"
-                            onClick={() => onAddOnAdd(item, 'topping')}
-                          />
-                        </HStack>
-                      </HStack>
-                    ))}
-                  </VStack>
-                </TabPanel>
-              </TabPanels>
-            </Tabs>
+  const { banana, fieryOrange } = colors;
+  const allAddOns = [
+    ...extraProteins.map(item => ({ ...item, category: 'protein' })),
+    ...sides.map(item => ({ ...item, category: 'side' })),
+    ...toppings.map(item => ({ ...item, category: 'topping' }))
+  ];
 
-            {/* Added Add-ons Summary */}
-            {addedAddOns.length > 0 && (
-              <Box p={4} bg="whiteAlpha.50" borderRadius="lg">
-                <Text color="gray.400" fontSize="xs" mb={2}>
-                  Added to your bowl:
-                </Text>
-                <VStack align="stretch" spacing={1}>
-                  {addedAddOns.map((addon, index) => (
-                    <HStack key={index} justify="space-between">
-                      <Text color="white" fontSize="sm">
-                        {addon.name}
-                      </Text>
-                      <Text color={banana} fontSize="sm">
-                        +${addon.price}
-                      </Text>
-                    </HStack>
-                  ))}
-                </VStack>
-              </Box>
+  const AddOnCard = ({ addon }) => {
+    const isAdded = addedAddOns.some(a => a.id === addon.id);
+    
+    return (
+      <Box
+        p={3}
+        bg={isAdded ? `${banana}22` : "whiteAlpha.50"}
+        borderRadius="lg"
+        border="1px solid"
+        borderColor={isAdded ? banana : "whiteAlpha.200"}
+        cursor="pointer"
+        onClick={() => !isAdded && onAddOnAdd(addon, addon.category)}
+        transition="all 0.2s"
+        _hover={{
+          borderColor: banana,
+          bg: isAdded ? `${banana}33` : "whiteAlpha.100"
+        }}
+      >
+        <HStack justify="space-between">
+          <VStack align="start" spacing={0}>
+            <Text color="white" fontSize="sm" fontWeight="600">
+              {addon.name}
+            </Text>
+            {addon.description && (
+              <Text color="gray.400" fontSize="xs">
+                {addon.description}
+              </Text>
             )}
           </VStack>
-        </ModalBody>
+          <HStack>
+            <Text color={banana} fontWeight="700">
+              +${addon.price}
+            </Text>
+            {isAdded ? (
+              <Badge colorScheme="yellow">Added</Badge>
+            ) : (
+              <IconButton
+                icon={<FiPlus />}
+                size="xs"
+                bg={banana}
+                color="black"
+                _hover={{ bg: fieryOrange }}
+              />
+            )}
+          </HStack>
+        </HStack>
+      </Box>
+    );
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} size="4xl">
+      <ModalOverlay bg="blackAlpha.800" />
+      <ModalContent bg="dark.gray" maxH="90vh" overflow="hidden">
+        <ModalHeader color="white" pb={0}>
+          <HStack justify="space-between" align="start">
+            <VStack align="start" spacing={1}>
+              <HStack>
+                <Text fontSize="2xl">{selectedItem.name}</Text>
+                {selectedItem.spicyLevel && <SpicyLevel level={selectedItem.spicyLevel} size="lg" />}
+              </HStack>
+              <Text fontSize="md" color={banana} fontWeight="400">
+                {selectedItem.protein}
+              </Text>
+            </VStack>
+          </HStack>
+        </ModalHeader>
+        <ModalCloseButton color="white" />
         
-        <ModalFooter borderTop="1px solid" borderColor="whiteAlpha.100" pt={4}>
+        <ModalBody overflowY="auto" pb={6}>
+          <VStack spacing={6} align="stretch">
+            {/* Image & Description */}
+            <Grid templateColumns={{ base: "1fr", md: "1fr 2fr" }} gap={6}>
+              <GridItem>
+                {selectedItem.image && (
+                  <Image
+                    src={selectedItem.image}
+                    alt={selectedItem.name}
+                    borderRadius="lg"
+                    w="100%"
+                    h="250px"
+                    objectFit="cover"
+                  />
+                )}
+              </GridItem>
+              <GridItem>
+                <VStack align="stretch" spacing={4}>
+                  <Text color="gray.300" lineHeight="1.8">
+                    {selectedItem.description}
+                  </Text>
+                  
+                  {selectedItem.flavor && (
+                    <Text color="gray.400" fontStyle="italic" fontSize="sm">
+                      {selectedItem.flavor}
+                    </Text>
+                  )}
+
+                  {/* Size Selection */}
+                  <Box>
+                    <Text color="white" fontWeight="600" mb={3}>
+                      Choose Your Size
+                    </Text>
+                    <HStack spacing={3}>
+                      {['small', 'large'].map((size) => (
+                        <Box
+                          key={size}
+                          flex={1}
+                          p={4}
+                          bg={selectedSize === size ? `${banana}22` : "whiteAlpha.50"}
+                          borderRadius="lg"
+                          border="2px solid"
+                          borderColor={selectedSize === size ? banana : "whiteAlpha.200"}
+                          cursor="pointer"
+                          onClick={() => setSelectedSize(size)}
+                          transition="all 0.2s"
+                          _hover={{
+                            borderColor: banana
+                          }}
+                        >
+                          <VStack>
+                            <Text color="white" fontWeight="700" textTransform="capitalize">
+                              {size}
+                            </Text>
+                            <Text color={banana} fontSize="xl" fontWeight="800">
+                              ${size === 'small' ? selectedItem.smallPrice : selectedItem.largePrice}
+                            </Text>
+                          </VStack>
+                        </Box>
+                      ))}
+                    </HStack>
+                  </Box>
+                </VStack>
+              </GridItem>
+            </Grid>
+
+            <Divider borderColor="whiteAlpha.200" />
+
+            {/* Add-ons Section */}
+            <Box>
+              <HStack justify="space-between" mb={4}>
+                <VStack align="start" spacing={0}>
+                  <Text color="white" fontSize="lg" fontWeight="700">
+                    Power Up Your Bowl
+                  </Text>
+                  <Text color="gray.400" fontSize="sm">
+                    Add extra proteins, sides, and toppings
+                  </Text>
+                </VStack>
+                {addedAddOns.length > 0 && (
+                  <Badge colorScheme="yellow" p={2}>
+                    {addedAddOns.length} items added
+                  </Badge>
+                )}
+              </HStack>
+              
+              <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={3}>
+                {allAddOns.map((addon) => (
+                  <GridItem key={addon.id}>
+                    <AddOnCard addon={addon} />
+                  </GridItem>
+                ))}
+              </Grid>
+            </Box>
+          </VStack>
+        </ModalBody>
+
+        <ModalFooter borderTop="1px solid" borderColor="whiteAlpha.200">
           <HStack justify="space-between" w="100%">
             <VStack align="start" spacing={0}>
-              <Text color="gray.500" fontSize="xs">Total Price</Text>
-              <Text color={banana} fontSize="2xl" fontWeight="700">
+              <Text color="gray.400" fontSize="sm">Total Price</Text>
+              <Text color="white" fontSize="2xl" fontWeight="800">
                 ${totalPrice.toFixed(2)}
               </Text>
             </VStack>
-            
-            <HStack>
-              <Button
-                variant="ghost"
-                onClick={onClose}
-                color="gray.400"
-              >
+            <HStack spacing={3}>
+              <Button variant="ghost" onClick={onClose} color="gray.400">
                 Cancel
               </Button>
               <Button
-                bg={selectedSize ? banana : 'gray.600'}
+                bg={banana}
                 color="black"
-                fontWeight="700"
-                leftIcon={<FiPlus />}
+                size="lg"
+                fontWeight="800"
                 onClick={onAddBowl}
                 isDisabled={!selectedSize}
-                _hover={selectedSize ? { bg: fieryOrange } : {}}
+                _hover={{ bg: fieryOrange }}
                 px={8}
               >
                 Add to Cart

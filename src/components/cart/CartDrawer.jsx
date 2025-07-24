@@ -10,144 +10,181 @@ import {
   VStack,
   HStack,
   Text,
+  Box,
   IconButton,
   Divider,
-  Box
+  Image,
+  useDisclosure
 } from '@chakra-ui/react';
-import { FiMinus, FiPlus, FiX, FiShoppingBag } from 'react-icons/fi';
+import { FiShoppingCart, FiPlus, FiMinus, FiTrash2 } from 'react-icons/fi';
 import { useCart } from '../../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 
 const CartDrawer = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const navigate = useNavigate();
-  const { isOpen, setIsOpen, cart, removeFromCart, updateQuantity, getCartTotal } = useCart();
+  const { 
+    cart, 
+    getCartTotal, 
+    getCartItemsCount, 
+    updateQuantity,
+    removeFromCart 
+  } = useCart();
 
   const handleCheckout = () => {
-    setIsOpen(false);
+    onClose();
     navigate('/checkout');
   };
 
-  const handleViewCart = () => {
-    setIsOpen(false);
-    navigate('/cart');
+  const increaseQuantity = (productId, currentQuantity) => {
+    updateQuantity(productId, currentQuantity + 1);
+  };
+
+  const decreaseQuantity = (productId, currentQuantity) => {
+    if (currentQuantity > 1) {
+      updateQuantity(productId, currentQuantity - 1);
+    }
   };
 
   return (
-    <Drawer isOpen={isOpen} placement="right" onClose={() => setIsOpen(false)} size="md">
-      <DrawerOverlay />
-      <DrawerContent bg="rgba(10, 10, 10, 0.95)" backdropFilter="blur(20px)">
-        <DrawerCloseButton color="white" />
-        <DrawerHeader color="white">
-          <HStack spacing={2}>
-            <FiShoppingBag />
-            <Text>Your Cart ({cart.length})</Text>
-          </HStack>
-        </DrawerHeader>
+    <>
+      {/* Cart Button */}
+      <Box position="fixed" bottom={4} right={4} zIndex={10}>
+        <Button
+          leftIcon={<FiShoppingCart />}
+          onClick={onOpen}
+          colorScheme="yellow"
+          size="lg"
+          borderRadius="full"
+          boxShadow="lg"
+          pr={getCartItemsCount() > 0 ? 3 : 5}
+        >
+          {getCartItemsCount() > 0 && (
+            <Box
+              as="span"
+              bg="red.500"
+              color="white"
+              borderRadius="full"
+              px={2}
+              py={1}
+              ml={2}
+              fontSize="sm"
+              fontWeight="bold"
+            >
+              {getCartItemsCount()}
+            </Box>
+          )}
+        </Button>
+      </Box>
 
-        <DrawerBody>
-          {cart.length === 0 ? (
-            <VStack spacing={8} justify="center" height="100%">
-              <Text fontSize="6xl">🛒</Text>
-              <Text color="gray.400">Your cart is empty</Text>
-              <Button
-                onClick={() => {
-                  setIsOpen(false);
-                  navigate('/');
-                }}
-                variant="outline"
-                colorScheme="whiteAlpha"
-              >
-                Continue Shopping
-              </Button>
-            </VStack>
-          ) : (
-            <VStack spacing={4} align="stretch">
-              {cart.map((item) => (
-                <Box
-                  key={item.id}
-                  p={4}
-                  bg="whiteAlpha.50"
-                  borderRadius="lg"
-                  border="1px solid"
-                  borderColor="whiteAlpha.100"
-                >
-                  <HStack justify="space-between" mb={2}>
-                    <Text color="white" fontWeight="600" fontSize="sm">
-                      {item.name}
-                    </Text>
-                    <IconButton
-                      size="xs"
-                      icon={<FiX />}
-                      onClick={() => removeFromCart(item.id)}
-                      variant="ghost"
-                      colorScheme="red"
-                    />
-                  </HStack>
-                  
-                  <HStack justify="space-between">
-                    <HStack spacing={2}>
+      {/* Cart Drawer */}
+      <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="md">
+        <DrawerOverlay />
+        <DrawerContent bg="dark.black">
+          <DrawerCloseButton color="white" />
+          <DrawerHeader color="white">Your Cart</DrawerHeader>
+
+          <DrawerBody>
+            {cart.length === 0 ? (
+              <VStack spacing={4} py={8}>
+                <Text color="gray.400" fontSize="lg">Your cart is empty</Text>
+                <Button onClick={onClose} colorScheme="yellow">
+                  Continue Shopping
+                </Button>
+              </VStack>
+            ) : (
+              <VStack spacing={4} align="stretch">
+                {cart.map((item) => (
+                  <Box
+                    key={item.id}
+                    p={4}
+                    bg="whiteAlpha.50"
+                    borderRadius="lg"
+                    border="1px solid"
+                    borderColor="whiteAlpha.200"
+                  >
+                    <HStack spacing={4}>
+                      {item.image && (
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          boxSize="60px"
+                          objectFit="cover"
+                          borderRadius="md"
+                        />
+                      )}
+                      <VStack align="stretch" flex={1} spacing={2}>
+                        <Text color="white" fontWeight="medium">
+                          {item.name}
+                        </Text>
+                        <HStack justify="space-between">
+                          <HStack>
+                            <IconButton
+                              icon={<FiMinus />}
+                              size="sm"
+                              variant="ghost"
+                              color="gray.400"
+                              onClick={() => decreaseQuantity(item.id, item.quantity)}
+                              isDisabled={item.quantity <= 1}
+                              _hover={{ color: 'white' }}
+                            />
+                            <Text color="white" fontWeight="bold" px={2}>
+                              {item.quantity}
+                            </Text>
+                            <IconButton
+                              icon={<FiPlus />}
+                              size="sm"
+                              variant="ghost"
+                              color="gray.400"
+                              onClick={() => increaseQuantity(item.id, item.quantity)}
+                              _hover={{ color: 'white' }}
+                            />
+                          </HStack>
+                          <Text color="yellow.400" fontWeight="bold">
+                            ${(item.price * item.quantity).toFixed(2)}
+                          </Text>
+                        </HStack>
+                      </VStack>
                       <IconButton
-                        size="xs"
-                        icon={<FiMinus />}
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        variant="outline"
-                        colorScheme="whiteAlpha"
-                      />
-                      <Text color="white" fontSize="sm" minW="30px" textAlign="center">
-                        {item.quantity}
-                      </Text>
-                      <IconButton
-                        size="xs"
-                        icon={<FiPlus />}
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        variant="outline"
-                        colorScheme="whiteAlpha"
+                        icon={<FiTrash2 />}
+                        size="sm"
+                        variant="ghost"
+                        color="red.400"
+                        onClick={() => removeFromCart(item.id)}
+                        _hover={{ color: 'red.300' }}
                       />
                     </HStack>
-                    <Text color={item.color} fontWeight="700">
-                      ${item.price * item.quantity}
-                    </Text>
-                  </HStack>
-                </Box>
-              ))}
-            </VStack>
-          )}
-        </DrawerBody>
+                  </Box>
+                ))}
+              </VStack>
+            )}
+          </DrawerBody>
 
-        {cart.length > 0 && (
-          <DrawerFooter borderTop="1px solid" borderColor="whiteAlpha.100">
-            <VStack width="100%" spacing={4}>
-              <HStack justify="space-between" width="100%">
-                <Text color="white" fontSize="lg" fontWeight="700">Total</Text>
-                <Text color="#39FF14" fontSize="xl" fontWeight="800">
-                  ${getCartTotal()}
-                </Text>
-              </HStack>
-              
-              <HStack width="100%" spacing={3}>
+          {cart.length > 0 && (
+            <DrawerFooter borderTop="1px solid" borderColor="whiteAlpha.200">
+              <VStack w="100%" spacing={4}>
+                <HStack justify="space-between" w="100%">
+                  <Text color="white" fontSize="lg" fontWeight="bold">
+                    Total:
+                  </Text>
+                  <Text color="yellow.400" fontSize="xl" fontWeight="bold">
+                    ${getCartTotal().toFixed(2)}
+                  </Text>
+                </HStack>
                 <Button
-                  flex={1}
-                  variant="outline"
-                  colorScheme="whiteAlpha"
-                  onClick={handleViewCart}
-                >
-                  View Cart
-                </Button>
-                <Button
-                  flex={1}
-                  bg="#39FF14"
-                  color="black"
-                  fontWeight="700"
+                  colorScheme="yellow"
+                  size="lg"
+                  w="100%"
                   onClick={handleCheckout}
                 >
                   Checkout
                 </Button>
-              </HStack>
-            </VStack>
-          </DrawerFooter>
-        )}
-      </DrawerContent>
-    </Drawer>
+              </VStack>
+            </DrawerFooter>
+          )}
+        </DrawerContent>
+      </Drawer>
+    </>
   );
 };
 

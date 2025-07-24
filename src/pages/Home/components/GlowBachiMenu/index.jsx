@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { Box, Container, VStack, useToast } from '@chakra-ui/react';
 import { useCart } from '../../../../context/CartContext';
-import { glowBachiMenu } from '../../../../data/menuData';
+import { glowBachiMenu } from '../../../../data/glowBachiMenuData';
 
 // Import sections
 import AppetizerSection from './components/AppetizerSection';
-import BuildYourOwn from './components/BuildYourOwn';
 import BowlsSection from './components/BowlsSection';
 import MenuSeparator from './components/shared/MenuSeparator';
 import BowlDetailModal from './components/shared/BowlDetailModal';
 import SauceModal from './components/shared/SauceModal';
+import BuildAndTrack from '../BuildAndTrack';
 
 const GlowBachiMenu = () => {
   const { addToCart } = useCart();
@@ -21,6 +21,7 @@ const GlowBachiMenu = () => {
   const [selectedSauce, setSelectedSauce] = useState('');
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isSauceModalOpen, setIsSauceModalOpen] = useState(false);
+  const [isBuildModalOpen, setIsBuildModalOpen] = useState(false);
   const [pendingWingOrder, setPendingWingOrder] = useState(null);
   const [addedAddOns, setAddedAddOns] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
@@ -155,19 +156,19 @@ const GlowBachiMenu = () => {
             
             <MenuSeparator />
             
-            {/* Build Your Own */}
-            <BuildYourOwn
-              onOpen={() => console.log('Build your own modal coming soon!')}
-              pricing={glowBachiMenu.buildYourOwn.pricing}
+            {/* Signature Bowls */}
+            <BowlsSection
+              bowls={glowBachiMenu.signatureBowls}
+              onItemClick={handleItemClick}
               colors={glowBachiMenu.colors}
             />
             
             <MenuSeparator />
             
-            {/* Signature Bowls */}
-            <BowlsSection
-              bowls={glowBachiMenu.signatureBowls}
-              onItemClick={handleItemClick}
+            {/* Build Your Own + Active Orders */}
+            <BuildAndTrack
+              menuType="dinner"
+              onBuildClick={() => setIsBuildModalOpen(true)}
               colors={glowBachiMenu.colors}
             />
           </VStack>

@@ -4,15 +4,16 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalCloseButton,
   ModalFooter,
+  ModalCloseButton,
   Button,
+  VStack,
+  Text,
   RadioGroup,
   Radio,
   Stack,
   Box,
-  VStack,
-  Text
+  HStack
 } from '@chakra-ui/react';
 
 const SauceModal = ({ 
@@ -21,73 +22,69 @@ const SauceModal = ({
   pendingItem, 
   selectedSauce, 
   setSelectedSauce, 
-  onConfirm, 
+  onConfirm,
   sauces,
   colors 
 }) => {
-  const { banana, fieryOrange } = colors;
-  
+  if (!pendingItem) return null;
+
   return (
-    <Modal 
-      isOpen={isOpen} 
-      onClose={onClose}
-      size={{ base: "full", md: "md" }}
-    >
+    <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay bg="blackAlpha.800" />
-      <ModalContent bg="dark.black" border="1px solid" borderColor="whiteAlpha.200">
-        <ModalHeader borderBottom="1px solid" borderColor="whiteAlpha.100">
-          <Text color="white">Choose Your Sauce</Text>
-          <Text fontSize="sm" color="gray.400" fontWeight="normal">
-            {pendingItem?.name} - 1 flavor per 6 wings
+      <ModalContent bg="dark.gray" border="1px solid" borderColor="whiteAlpha.200">
+        <ModalHeader color="white">
+          Choose Your Sauce
+          <Text fontSize="sm" fontWeight="normal" color="gray.400" mt={1}>
+            {pendingItem.shortName || pendingItem.name} - 1 flavor per {pendingItem.unit}
           </Text>
         </ModalHeader>
         <ModalCloseButton color="white" />
         
-        <ModalBody py={6}>
+        <ModalBody>
           <RadioGroup value={selectedSauce} onChange={setSelectedSauce}>
             <Stack spacing={3}>
               {sauces.map(sauce => (
                 <Box
-                  key={sauce.name}
+                  key={sauce}
                   p={3}
-                  border="1px solid"
-                  borderColor={selectedSauce === sauce.name ? banana : 'whiteAlpha.200'}
                   borderRadius="lg"
+                  border="1px solid"
+                  borderColor={selectedSauce === sauce ? colors.banana : "whiteAlpha.200"}
+                  bg={selectedSauce === sauce ? `${colors.banana}11` : "whiteAlpha.50"}
                   cursor="pointer"
-                  onClick={() => setSelectedSauce(sauce.name)}
                   transition="all 0.2s"
-                  _hover={{ borderColor: banana }}
+                  _hover={{
+                    borderColor: colors.banana,
+                    bg: `${colors.banana}11`
+                  }}
                 >
-                  <Radio value={sauce.name} colorScheme="orange">
-                    <VStack align="start" spacing={1} ml={2}>
-                      <Text color="white" fontSize="sm" fontWeight="500">
-                        {sauce.name}
-                      </Text>
-                      <Text color="gray.400" fontSize="xs">
-                        {sauce.description}
-                      </Text>
-                    </VStack>
+                  <Radio value={sauce} colorScheme="yellow" size="lg">
+                    <Text color="white" fontWeight="medium">
+                      {sauce}
+                    </Text>
                   </Radio>
                 </Box>
               ))}
             </Stack>
           </RadioGroup>
         </ModalBody>
-        
-        <ModalFooter borderTop="1px solid" borderColor="whiteAlpha.100">
-          <Button variant="ghost" mr={3} onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
-            bg={selectedSauce ? banana : 'gray.600'}
-            color="black"
-            fontWeight="700"
-            onClick={onConfirm}
-            isDisabled={!selectedSauce}
-            _hover={selectedSauce ? { bg: fieryOrange } : {}}
-          >
-            Add to Cart
-          </Button>
+
+        <ModalFooter>
+          <HStack spacing={3}>
+            <Button variant="ghost" onClick={onClose} color="gray.400">
+              Cancel
+            </Button>
+            <Button
+              bg={colors.banana}
+              color="black"
+              fontWeight="bold"
+              onClick={onConfirm}
+              isDisabled={!selectedSauce}
+              _hover={{ bg: colors.fieryOrange }}
+            >
+              Add to Cart
+            </Button>
+          </HStack>
         </ModalFooter>
       </ModalContent>
     </Modal>

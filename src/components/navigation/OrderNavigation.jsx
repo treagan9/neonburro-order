@@ -1,13 +1,26 @@
-import { Box, Container, HStack, Link, Text, Icon, Badge } from '@chakra-ui/react';
-import { FiArrowLeft, FiShoppingBag } from 'react-icons/fi';
-import { motion } from 'framer-motion';
+import { Box, Container, HStack, Text, keyframes } from '@chakra-ui/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../../context/CartContext';
+import { useLocation } from 'react-router-dom';
+import { GiRevolver, GiFlamingTrident } from 'react-icons/gi';
 
 const MotionBox = motion(Box);
 
+// Keyframe animations
+const pulse = keyframes`
+  0% { opacity: 0.3; }
+  50% { opacity: 1; }
+  100% { opacity: 0.3; }
+`;
+
 const OrderNavigation = () => {
-  const { getCartItemsCount, setIsOpen } = useCart();
+  const { getCartItemsCount } = useCart();
+  const location = useLocation();
   const itemCount = getCartItemsCount();
+  
+  const isBreakfast = location.search.includes('menu=breakfast');
+  const isHome = location.pathname === '/';
+  const showAnimation = isHome;
 
   return (
     <Box
@@ -15,85 +28,96 @@ const OrderNavigation = () => {
       top={0}
       left={0}
       right={0}
-      bg="rgba(10, 10, 10, 0.8)"
+      bg="rgba(10, 10, 10, 0.95)"
       backdropFilter="blur(20px)"
       borderBottom="1px solid"
       borderColor="whiteAlpha.100"
       zIndex={1000}
       height="70px"
+      overflow="hidden"
     >
-      <Container maxW="1200px" height="100%">
-        <HStack justify="space-between" align="center" height="100%">
-          {/* Back to Main Site */}
-          <MotionBox
-            whileHover={{ x: -4 }}
-            transition={{ duration: 0.2 }}
-          >
-            <Link
-              href="https://neonburro.com"
-              display="flex"
-              alignItems="center"
-              gap={2}
-              color="gray.400"
-              _hover={{ color: 'white', textDecoration: 'none' }}
-              fontWeight="500"
-              fontSize="sm"
-            >
-              <Icon as={FiArrowLeft} />
-              <Text>Back to NEONBURRO</Text>
-            </Link>
-          </MotionBox>
-
-          {/* Center Logo/Text */}
-          <Text
-            fontSize="xl"
-            fontWeight="800"
-            color="#00D9FF"
-            letterSpacing="wider"
-            textTransform="uppercase"
-            position="absolute"
-            left="50%"
-            transform="translateX(-50%)"
-            display={{ base: "none", md: "block" }}
-          >
-            Order Food
-          </Text>
-
-          {/* Cart Icon */}
-          <MotionBox
-            position="relative"
-            cursor="pointer"
-            onClick={() => setIsOpen(true)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Icon
-              as={FiShoppingBag}
-              boxSize={6}
-              color="white"
-              _hover={{ color: '#00D9FF' }}
-              transition="color 0.2s"
-            />
-            {itemCount > 0 && (
-              <Badge
-                position="absolute"
-                top="-8px"
-                right="-8px"
-                bg="#00D9FF"
-                color="black"
-                borderRadius="full"
-                minW="20px"
-                height="20px"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                fontSize="xs"
-                fontWeight="700"
-              >
-                {itemCount}
-              </Badge>
-            )}
-          </MotionBox>
+      <Container maxW="1200px" height="100%" position="relative">
+        <HStack justify="center" align="center" height="100%">
+          {showAnimation && (
+            <AnimatePresence mode="wait">
+              {isBreakfast ? (
+                // Biscuit Shooter - Western Theme (Simplified)
+                <MotionBox
+                  key="breakfast"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  position="relative"
+                  width="300px"
+                  height="100%"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  {/* Left Revolver */}
+                  <Box position="absolute" left="0" color="#FFE135">
+                    <GiRevolver size={32} />
+                  </Box>
+                  
+                  {/* Right Revolver (flipped) */}
+                  <Box position="absolute" right="0" color="#FFE135" transform="scaleX(-1)">
+                    <GiRevolver size={32} />
+                  </Box>
+                  
+                  {/* Center pulsing line */}
+                  <Box
+                    width="180px"
+                    height="2px"
+                    bg="linear-gradient(90deg, transparent, #FFE135, transparent)"
+                    animation={`${pulse} 2s ease-in-out infinite`}
+                  />
+                </MotionBox>
+              ) : (
+                // GlowBachi - Fire Theme (Simplified)
+                <MotionBox
+                  key="dinner"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  position="relative"
+                  width="300px"
+                  height="100%"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  {/* Left Pitchfork */}
+                  <Box 
+                    position="absolute" 
+                    left="0" 
+                    color="#FF1744"
+                    filter="drop-shadow(0 0 10px rgba(255,23,68,0.5))"
+                  >
+                    <GiFlamingTrident size={32} />
+                  </Box>
+                  
+                  {/* Right Pitchfork (flipped) */}
+                  <Box 
+                    position="absolute" 
+                    right="0" 
+                    color="#FF1744"
+                    transform="scaleX(-1)"
+                    filter="drop-shadow(0 0 10px rgba(255,23,68,0.5))"
+                  >
+                    <GiFlamingTrident size={32} />
+                  </Box>
+                  
+                  {/* Center pulsing line */}
+                  <Box
+                    width="180px"
+                    height="2px"
+                    bg="linear-gradient(90deg, transparent, #FF1744, transparent)"
+                    animation={`${pulse} 2s ease-in-out infinite`}
+                  />
+                </MotionBox>
+              )}
+            </AnimatePresence>
+          )}
         </HStack>
       </Container>
     </Box>

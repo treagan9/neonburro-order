@@ -222,16 +222,16 @@ export const glowBachiMenu = {
 
   // Operating hours for menu availability
   schedule: {
-    start: { hour: 13, minute: 0 },  // 1:00 PM MT
-    end: { hour: 21, minute: 0 }     // 9:00 PM MT
+    breakfast: { start: 4, end: 11 },     // 4:00 AM - 11:00 AM
+    lunch: { start: 12.5, end: 21 }      // 12:30 PM - 9:00 PM
   }
 };
 
 // Export for future breakfast menu
 export const biscuitShooterMenu = {
-  // We'll build this out later
+  // We'll build this out with full data
   schedule: {
-    start: { hour: 1, minute: 0 },   // 1:00 AM MT
-    end: { hour: 12, minute: 59 }    // 12:59 PM MT
+    start: 4,    // 4:00 AM
+    end: 11      // 11:00 AM
   }
 };
