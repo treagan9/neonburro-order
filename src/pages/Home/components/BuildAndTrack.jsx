@@ -19,7 +19,6 @@ import { GiNoodles, GiBowlOfRice } from 'react-icons/gi';
 import ActiveOrdersTracker from '../../../components/common/ActiveOrdersTracker';
 import SauceShowcase from '../../../components/menu/SauceShowcase';
 import { glowBachiMenu } from '../../../data/glowBachiMenu';
-import { biscuitShooterMenu } from '../../../data/biscuitShooterMenu';
 
 const MotionBox = motion(Box);
 
@@ -34,11 +33,17 @@ const slideIn = keyframes`
   to { transform: translateX(0); opacity: 1; }
 `;
 
-const BuildAndTrack = ({ menuType, onBuildClick, colors }) => {
+const BuildAndTrack = ({ menuType, onBuildClick, colors, menuData }) => {
   const isMobile = useBreakpointValue({ base: true, lg: false });
   const isBreakfast = menuType === 'breakfast';
   
-  const currentMenu = isBreakfast ? biscuitShooterMenu : glowBachiMenu;
+  // Use passed menuData prop for breakfast, or glowBachiMenu for dinner
+  const currentMenu = isBreakfast ? menuData : glowBachiMenu;
+  
+  // Make sure we have menu data
+  if (!currentMenu) {
+    return null;
+  }
   
   const buildYourOwnData = isBreakfast ? {
     title: 'BUILD YOUR BREAKFAST',
