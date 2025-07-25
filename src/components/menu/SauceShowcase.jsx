@@ -1,3 +1,4 @@
+import React, { useRef, useState, useEffect } from 'react';
 import { 
   Box, 
   VStack, 
@@ -9,360 +10,619 @@ import {
   Icon,
   Button,
   useBreakpointValue,
-  keyframes
+  keyframes,
+  Flex,
+  useToast,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  ModalCloseButton,
+  IconButton,
+  Divider,
+  useDisclosure,
+  Center
 } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
-import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FiChevronLeft, FiChevronRight, FiShoppingCart } from 'react-icons/fi';
 import { HiFire } from 'react-icons/hi';
-import { GiChiliPepper } from 'react-icons/gi';
-import { glowBachiMenu } from '../../data/glowBachiMenu';
-import { useRef } from 'react';
+import { BsStarFill } from 'react-icons/bs';
+import { RiShoppingBag3Line } from 'react-icons/ri';
 
 const MotionBox = motion(Box);
 
 // Keyframe animations
 const float = keyframes`
-  0%, 100% { transform: translateY(0) rotate(-5deg); }
-  50% { transform: translateY(-10px) rotate(5deg); }
-`;
-
-const shimmer = keyframes`
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
 `;
 
 const pulse = keyframes`
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
 `;
 
-const SauceShowcase = ({ colors }) => {
+const glow = keyframes`
+  0%, 100% { box-shadow: 0 0 20px rgba(255, 193, 7, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(255, 193, 7, 0.6), 0 0 60px rgba(255, 193, 7, 0.4); }
+`;
+
+// Sample sauce data
+const sauces = [
+  {
+    id: 'lava_kiss',
+    name: 'Lava Kiss',
+    description: 'Creamy spicy house sauce',
+    details: 'Sriracha, mayo, garlic, lemon',
+    personality: 'Neon Fox – Flirty, spicy, confident',
+    image: '/images/menu-items/glow-bachi-sauces/lava-kiss.png',
+    spicyLevel: 2,
+    retailPrice: 9,
+    bestseller: true,
+    flavor: 'Creamy · Spicy · Tangy',
+    pairsWith: 'Perfect with crispy wings, shrimp tempura, and veggie bowls'
+  },
+  {
+    id: 'ashwood',
+    name: 'Ashwood',
+    description: 'Rich ginger-soy depth',
+    details: 'Soy sauce, ginger, sesame oil, garlic',
+    personality: 'Neon Bear – Stoic, smoky, grounded',
+    image: '/images/menu-items/glow-bachi-sauces/ashwood.png',
+    retailPrice: 9,
+    flavor: 'Umami · Ginger · Deep',
+    pairsWith: 'Excellent with steak bowls, grilled vegetables, and tofu'
+  },
+  {
+    id: 'sugar_char',
+    name: 'Sugar Char',
+    description: 'Thick teriyaki glaze',
+    details: 'Soy, brown sugar, mirin, toasted sesame',
+    personality: 'Neon Raccoon – Sneaky, sweet, sticky',
+    image: '/images/menu-items/glow-bachi-sauces/sugar-char.png',
+    retailPrice: 9,
+    bestseller: true,
+    flavor: 'Sweet · Savory · Caramelized',
+    pairsWith: 'Amazing on chicken, salmon, and fried rice'
+  },
+  {
+    id: 'first_light',
+    name: 'First Light',
+    description: 'Chili-lime citrus zing',
+    details: 'Fresh lime, chili flakes, garlic, rice vinegar',
+    personality: 'Neon Rooster – Bright, bold, zesty',
+    image: '/images/menu-items/glow-bachi-sauces/first-light.png',
+    spicyLevel: 1,
+    retailPrice: 9,
+    flavor: 'Citrus · Fresh · Zingy',
+    pairsWith: 'Brightens up seafood, salads, and spring rolls'
+  },
+  {
+    id: 'stone_bloom',
+    name: 'Stone Bloom',
+    description: 'Bright cilantro-mint herb',
+    details: 'Cilantro, mint, lime, jalapeño, olive oil',
+    personality: 'Neon Lizard – Fresh, herbal, lifted',
+    image: '/images/menu-items/glow-bachi-sauces/stone-bloom.png',
+    retailPrice: 9,
+    flavor: 'Herbal · Fresh · Vibrant',
+    pairsWith: 'Ideal for tofu bowls, fresh rolls, and grilled shrimp'
+  },
+  {
+    id: 'redshift',
+    name: 'Redshift',
+    description: 'Sweet & spicy gochujang glaze',
+    details: 'Gochujang, garlic, soy, honey',
+    personality: 'Neon Dragon – Fermented, bold, cosmic',
+    image: '/images/menu-items/glow-bachi-sauces/redshift.png',
+    spicyLevel: 3,
+    retailPrice: 9,
+    flavor: 'Fermented · Spicy · Complex',
+    pairsWith: 'Incredible on beef, pork, and kimchi fried rice'
+  },
+  {
+    id: 'ghost_silk',
+    name: 'Ghost Silk',
+    description: 'Miso garlic butter',
+    details: 'White miso, garlic, butter, soy',
+    personality: 'Neon Owl – Savory, buttery, deep',
+    image: '/images/menu-items/glow-bachi-sauces/ghost-silk.png',
+    retailPrice: 9,
+    flavor: 'Buttery · Umami · Rich',
+    pairsWith: 'Luxurious on steak, corn, and garlic noodles'
+  },
+  {
+    id: 'ice_veil',
+    name: 'Ice Veil',
+    description: 'Yuzu ponzu tang',
+    details: 'Yuzu juice, soy, rice vinegar, dashi',
+    personality: 'Neon Crane – Crisp, citrusy, clean',
+    image: '/images/menu-items/glow-bachi-sauces/ice-veil.png',
+    retailPrice: 9,
+    flavor: 'Citrus · Light · Elegant',
+    pairsWith: 'Divine with sashimi, poke bowls, and crispy tofu'
+  },
+  {
+    id: 'static_haze',
+    name: 'Static Haze',
+    description: 'Wasabi ranch',
+    details: 'Wasabi, buttermilk, herbs, rice vinegar',
+    personality: 'Neon Ram – Herby, hot, wild',
+    image: '/images/menu-items/glow-bachi-sauces/static-haze.png',
+    spicyLevel: 2,
+    retailPrice: 9,
+    flavor: 'Creamy · Sharp · Cooling',
+    pairsWith: 'Bold on tempura, calamari, and veggie skewers'
+  }
+];
+
+// Sauce Detail Modal
+const SauceDetailModal = ({ isOpen, onClose, sauce, onAddToCart, colors }) => {
+  const toast = useToast();
+  
+  if (!sauce) return null;
+
+  const handleAddToCart = () => {
+    if (onAddToCart) {
+      onAddToCart(sauce);
+    }
+    toast({
+      title: `${sauce.name} added to cart!`,
+      status: 'success',
+      duration: 2000,
+      isClosable: true,
+      position: 'top'
+    });
+    onClose();
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered motionPreset="slideInBottom">
+      <ModalOverlay bg="blackAlpha.800" backdropFilter="blur(10px)" />
+      <ModalContent 
+        bg="gray.900" 
+        borderRadius="3xl"
+        overflow="hidden"
+        maxW={{ base: "90vw", md: "500px" }}
+        mx={4}
+      >
+        <ModalCloseButton 
+          color="white" 
+          bg="whiteAlpha.200"
+          _hover={{ bg: "whiteAlpha.300" }}
+          borderRadius="full"
+          size="lg"
+          top={4}
+          right={4}
+          zIndex={2}
+        />
+
+        {/* Sauce Image Hero */}
+        <Center 
+          h={{ base: "300px", md: "350px" }}
+          bg="black"
+          position="relative"
+          overflow="hidden"
+        >
+          <Box
+            position="absolute"
+            inset={0}
+            bg="radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.4) 100%)"
+          />
+          <Image
+            src={sauce.image}
+            alt={sauce.name}
+            h="85%"
+            objectFit="contain"
+            animation={`${float} 4s ease-in-out infinite`}
+          />
+          {sauce.bestseller && (
+            <Badge
+              position="absolute"
+              top={4}
+              left={4}
+              bg="red.500"
+              color="white"
+              px={3}
+              py={1}
+              borderRadius="full"
+              fontSize="xs"
+              fontWeight="bold"
+              display="flex"
+              alignItems="center"
+              gap={1}
+            >
+              <Icon as={BsStarFill} />
+              BESTSELLER
+            </Badge>
+          )}
+        </Center>
+
+        <ModalBody p={0}>
+          <VStack align="stretch" spacing={0}>
+            {/* Header Section */}
+            <Box px={6} pt={6} pb={4} textAlign="center">
+              <Heading size="xl" color="white" mb={2}>
+                {sauce.name}
+              </Heading>
+              {sauce.spicyLevel && (
+                <HStack spacing={1} justify="center" mb={3}>
+                  {[...Array(3)].map((_, i) => (
+                    <Icon 
+                      key={i} 
+                      as={HiFire} 
+                      color={i < sauce.spicyLevel ? "#FF1744" : "gray.700"}
+                      boxSize={5}
+                    />
+                  ))}
+                </HStack>
+              )}
+              <Text fontSize="lg" color="gray.300" fontWeight="medium">
+                {sauce.description}
+              </Text>
+            </Box>
+
+            <Divider borderColor="whiteAlpha.100" />
+
+            {/* Details Grid */}
+            <VStack spacing={4} p={6} align="stretch">
+              <Box textAlign="center">
+                <Text fontSize="xs" color={colors.primary} fontWeight="bold" textTransform="uppercase" mb={1}>
+                  Ingredients
+                </Text>
+                <Text color="gray.400">
+                  {sauce.details}
+                </Text>
+              </Box>
+
+              <Box textAlign="center">
+                <Text fontSize="xs" color={colors.primary} fontWeight="bold" textTransform="uppercase" mb={1}>
+                  Flavor Profile
+                </Text>
+                <Text color="white" fontWeight="medium">
+                  {sauce.flavor}
+                </Text>
+              </Box>
+
+              <Box textAlign="center">
+                <Text fontSize="xs" color={colors.primary} fontWeight="bold" textTransform="uppercase" mb={1}>
+                  Pairs With
+                </Text>
+                <Text color="gray.400" fontSize="sm">
+                  {sauce.pairsWith}
+                </Text>
+              </Box>
+            </VStack>
+
+            <Divider borderColor="whiteAlpha.100" />
+
+            {/* Personality Section */}
+            <Center p={4} bg="whiteAlpha.50">
+              <VStack spacing={1}>
+                <Text fontSize="sm" color={colors.secondary} fontWeight="bold">
+                  {sauce.personality.split('–')[0]}
+                </Text>
+                <Text fontSize="xs" color="gray.500">
+                  {sauce.personality.split('–')[1]}
+                </Text>
+              </VStack>
+            </Center>
+
+            {/* Price & Add to Cart */}
+            <Flex p={6} align="center" justify="space-between" bg="black">
+              <VStack align="start" spacing={0}>
+                <Text fontSize="xs" color="gray.500" textTransform="uppercase">
+                  Retail Price
+                </Text>
+                <Text fontSize="3xl" color={colors.primary} fontWeight="900">
+                  ${sauce.retailPrice}
+                </Text>
+              </VStack>
+              <Button
+                size="lg"
+                px={8}
+                h={14}
+                bg={colors.primary}
+                color="black"
+                fontWeight="bold"
+                rightIcon={<RiShoppingBag3Line />}
+                _hover={{
+                  bg: colors.secondary,
+                  transform: 'scale(1.05)',
+                  boxShadow: `0 10px 30px ${colors.secondary}44`
+                }}
+                onClick={handleAddToCart}
+                animation={`${pulse} 2s ease-in-out infinite`}
+              >
+                Add to Cart
+              </Button>
+            </Flex>
+          </VStack>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
+  );
+};
+
+// Main Component
+const ImprovedSauceShowcase = ({ colors = { primary: '#FFC107', secondary: '#FF6B35' }, onAddToCart }) => {
   const scrollRef = useRef(null);
   const isMobile = useBreakpointValue({ base: true, md: false });
+  const [selectedSauce, setSelectedSauce] = useState(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  
+  // Force scroll to start
+  useEffect(() => {
+    if (scrollRef.current) {
+      setTimeout(() => {
+        scrollRef.current.scrollLeft = 0;
+      }, 200);
+    }
+  }, []);
   
   const scroll = (direction) => {
     if (scrollRef.current) {
-      const scrollAmount = 340;
-      scrollRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
+      const scrollAmount = 300;
+      const currentScroll = scrollRef.current.scrollLeft;
+      const newScroll = direction === 'left' 
+        ? currentScroll - scrollAmount 
+        : currentScroll + scrollAmount;
+      
+      scrollRef.current.scrollTo({
+        left: newScroll,
         behavior: 'smooth'
       });
     }
   };
 
+  const handleSauceClick = (sauce) => {
+    setSelectedSauce(sauce);
+    onOpen();
+  };
+
   return (
-    <Box 
-      py={16} 
-      bg="rgba(0,0,0,0.4)"
-      borderY="1px solid"
-      borderColor="whiteAlpha.100"
-      position="relative"
-      overflow="hidden"
-    >
-      {/* Background decoration */}
-      <Box
-        position="absolute"
-        top="0"
-        left="0"
-        right="0"
-        height="100%"
-        opacity={0.03}
-        bg={`repeating-linear-gradient(
-          45deg,
-          transparent,
-          transparent 10px,
-          ${colors.primary} 10px,
-          ${colors.primary} 20px
-        )`}
-      />
-      
-      <VStack spacing={8} align="stretch" maxW="container.xl" mx="auto" px={{ base: 4, md: 8 }}>
+    <>
+      <Box 
+        py={{ base: 10, md: 14 }}
+        bg="rgba(0,0,0,0.8)"
+        position="relative"
+        overflow="hidden"
+      >
         {/* Header */}
-        <VStack spacing={3} textAlign="center">
-          <MotionBox
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+        <VStack spacing={3} textAlign="center" mb={{ base: 6, md: 8 }} px={4}>
+          <Badge
+            colorScheme="red"
+            fontSize={{ base: "xs", md: "sm" }}
+            px={4}
+            py={1.5}
+            borderRadius="full"
+            textTransform="uppercase"
+            letterSpacing="wider"
+            animation={`${glow} 3s ease-in-out infinite`}
           >
-            <Badge
-              colorScheme="orange"
-              fontSize="sm"
-              px={4}
-              py={2}
-              borderRadius="full"
-              textTransform="uppercase"
-              letterSpacing="wider"
-              border="1px solid"
-              borderColor={`${colors.primary}44`}
-              bg={`${colors.primary}11`}
-              color={colors.primary}
-            >
-              9 Signature GlowDrip Sauces
-            </Badge>
-          </MotionBox>
+            Just $9 Each
+          </Badge>
           
-          <MotionBox
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+          <Heading 
+            size={{ base: "lg", md: "xl" }}
+            color="white"
+            fontWeight="800"
+            letterSpacing="-0.02em"
           >
-            <Heading 
-              size="xl" 
-              color="white"
-              fontWeight="800"
-              letterSpacing="-0.02em"
-            >
-              Pick Your Flavor Adventure
-            </Heading>
-          </MotionBox>
+            GlowDrip Sauce Collection
+          </Heading>
           
-          <Text color="gray.400" fontSize="md" maxW="600px" mx="auto">
-            Every bowl comes with your choice of sauce. From mild to wild, find your perfect match.
+          <Text color="gray.400" fontSize={{ base: "sm", md: "md" }} maxW="500px" mx="auto">
+            Nine signature sauces. Tap any sauce to explore flavors and take home your favorites.
           </Text>
         </VStack>
 
-        {/* Sauce Carousel Container */}
-        <Box position="relative">
-          {/* Navigation Buttons - Desktop Only */}
+        {/* Carousel Container */}
+        <Box position="relative" maxW="100vw" overflow="hidden">
+          {/* Desktop Navigation */}
           {!isMobile && (
             <>
-              <Button
+              <IconButton
+                icon={<FiChevronLeft />}
                 position="absolute"
-                left={{ base: "-10px", lg: "-50px" }}
+                left={4}
                 top="50%"
                 transform="translateY(-50%)"
-                zIndex={2}
+                zIndex={10}
                 borderRadius="full"
-                bg="rgba(0,0,0,0.9)"
-                border="2px solid"
-                borderColor="whiteAlpha.200"
+                bg="blackAlpha.700"
                 color="white"
                 size="lg"
-                p={0}
-                w="50px"
-                h="50px"
                 _hover={{ 
-                  bg: "rgba(0,0,0,1)", 
-                  borderColor: colors.primary,
-                  color: colors.primary,
-                  transform: "translateY(-50%) scale(1.1)"
+                  bg: "blackAlpha.900",
+                  color: colors.primary
                 }}
                 onClick={() => scroll('left')}
-                transition="all 0.2s"
-              >
-                <Icon as={FiChevronLeft} boxSize={6} />
-              </Button>
+                aria-label="Previous"
+              />
               
-              <Button
+              <IconButton
+                icon={<FiChevronRight />}
                 position="absolute"
-                right={{ base: "-10px", lg: "-50px" }}
+                right={4}
                 top="50%"
                 transform="translateY(-50%)"
-                zIndex={2}
+                zIndex={10}
                 borderRadius="full"
-                bg="rgba(0,0,0,0.9)"
-                border="2px solid"
-                borderColor="whiteAlpha.200"
+                bg="blackAlpha.700"
                 color="white"
                 size="lg"
-                p={0}
-                w="50px"
-                h="50px"
                 _hover={{ 
-                  bg: "rgba(0,0,0,1)", 
-                  borderColor: colors.primary,
-                  color: colors.primary,
-                  transform: "translateY(-50%) scale(1.1)"
+                  bg: "blackAlpha.900",
+                  color: colors.primary
                 }}
                 onClick={() => scroll('right')}
-                transition="all 0.2s"
-              >
-                <Icon as={FiChevronRight} boxSize={6} />
-              </Button>
+                aria-label="Next"
+              />
             </>
           )}
 
-          {/* Scrollable Sauce Container */}
+          {/* Scrollable Area */}
           <Box
             ref={scrollRef}
-            overflowX="auto"
+            overflowX="scroll"
             overflowY="hidden"
-            pb={4}
-            mx={{ base: -4, md: 0 }}
-            px={{ base: 4, md: 0 }}
+            scrollBehavior="smooth"
             css={{
               '&::-webkit-scrollbar': {
-                height: '8px',
+                display: 'none',
               },
-              '&::-webkit-scrollbar-track': {
-                background: 'rgba(255,255,255,0.05)',
-                borderRadius: '4px',
-              },
-              '&::-webkit-scrollbar-thumb': {
-                background: `linear-gradient(90deg, ${colors.primary}, ${colors.secondary})`,
-                borderRadius: '4px',
-              },
-              scrollbarWidth: 'thin',
-              scrollbarColor: `${colors.primary} rgba(255,255,255,0.05)`
+              '-ms-overflow-style': 'none',
+              'scrollbar-width': 'none',
             }}
           >
-            <HStack spacing={4} align="stretch" py={2}>
-              {glowBachiMenu.sauces.map((sauce, idx) => (
+            <Flex
+              gap={{ base: 3, md: 4 }}
+              px={{ base: 4, md: 8 }}
+              py={2}
+              minW="max-content"
+            >
+              {sauces.map((sauce, idx) => (
                 <MotionBox
                   key={sauce.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
-                  whiteSpace="normal"
-                  display="inline-block"
-                  verticalAlign="top"
-                  width="320px"
-                  flexShrink={0}
+                  whileHover={{ y: -8 }}
                 >
                   <Box
-                    bg="rgba(20,20,20,0.8)"
-                    backdropFilter="blur(20px)"
+                    w={{ base: "200px", md: "260px" }}
+                    h={{ base: "380px", md: "440px" }}
+                    bg="gray.900"
                     borderRadius="xl"
-                    border="2px solid"
-                    borderColor="whiteAlpha.100"
-                    p={6}
-                    h="100%"
-                    position="relative"
                     overflow="hidden"
-                    role="group"
                     cursor="pointer"
+                    onClick={() => handleSauceClick(sauce)}
+                    role="group"
+                    border="2px solid"
+                    borderColor="transparent"
                     _hover={{
                       borderColor: colors.primary,
-                      transform: 'translateY(-8px) scale(1.02)',
-                      bg: "rgba(25,25,25,0.9)",
-                      boxShadow: `0 20px 40px ${colors.primary}22`,
-                      '& .sauce-bottle': {
-                        transform: 'rotate(-10deg) scale(1.1)',
-                      },
-                      '& .personality-text': {
-                        color: colors.secondary,
-                        transform: 'translateX(5px)'
-                      }
+                      boxShadow: `0 20px 40px rgba(0,0,0,0.5)`,
                     }}
-                    transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                    transition="all 0.3s"
                   >
-                    {/* Shimmer effect on hover */}
-                    <Box
-                      position="absolute"
-                      top={0}
-                      left={0}
-                      right={0}
-                      bottom={0}
-                      bg="linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 50%, transparent 100%)"
-                      backgroundSize="1000px 100%"
-                      animation={`${shimmer} 2s linear infinite`}
-                      opacity={0}
-                      _groupHover={{ opacity: 1 }}
-                      transition="opacity 0.3s"
-                      pointerEvents="none"
-                    />
+                    {/* Bestseller Badge */}
+                    {sauce.bestseller && (
+                      <Badge
+                        position="absolute"
+                        top={2}
+                        left={2}
+                        zIndex={2}
+                        bg="red.500"
+                        color="white"
+                        fontSize="xs"
+                        px={2}
+                        py={0.5}
+                        borderRadius="full"
+                        fontWeight="bold"
+                      >
+                        <Icon as={BsStarFill} boxSize={3} mr={1} />
+                        BESTSELLER
+                      </Badge>
+                    )}
 
-                    {/* Sauce Bottle Image */}
-                    <Box
-                      position="absolute"
-                      top="-30px"
-                      right="-30px"
-                      width="140px"
-                      height="140px"
-                      className="sauce-bottle"
-                      transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
-                      animation={`${float} 4s ease-in-out infinite ${idx * 0.2}s`}
+                    {/* Image Container */}
+                    <Box 
+                      h={{ base: "280px", md: "340px" }}
+                      bg="black"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      overflow="hidden"
+                      p={2}
                     >
                       <Image
                         src={sauce.image}
                         alt={sauce.name}
-                        width="100%"
-                        height="100%"
+                        h="100%"
+                        w="auto"
+                        maxW="100%"
                         objectFit="contain"
-                        opacity={0.15}
-                        _groupHover={{ opacity: 0.25 }}
-                        transition="opacity 0.3s"
+                        _groupHover={{
+                          transform: 'scale(1.05)',
+                        }}
+                        transition="transform 0.3s"
                       />
                     </Box>
 
-                    <VStack align="start" spacing={4} position="relative">
-                      {/* Header with spice level */}
-                      <HStack justify="space-between" width="100%">
-                        <Heading 
-                          size="lg" 
-                          color={colors.primary} 
-                          fontWeight="700"
-                          letterSpacing="-0.02em"
-                        >
-                          {sauce.name}
-                        </Heading>
-                        {sauce.spicyLevel && (
-                          <HStack spacing={1}>
-                            {[...Array(sauce.spicyLevel)].map((_, i) => (
-                              <Icon 
-                                key={i} 
-                                as={HiFire} 
-                                color="#FF1744" 
-                                boxSize={5}
-                                animation={`${pulse} 1s ease-in-out infinite ${i * 0.1}s`}
-                              />
-                            ))}
-                          </HStack>
-                        )}
-                      </HStack>
+                    {/* Info Section */}
+                    <VStack 
+                      p={3}
+                      spacing={1}
+                      align="center"
+                      textAlign="center"
+                    >
+                      <Heading 
+                        size="sm"
+                        color="white" 
+                        fontWeight="700"
+                      >
+                        {sauce.name}
+                      </Heading>
                       
-                      {/* Description */}
-                      <Text fontSize="md" color="white" fontWeight="500">
+                      {sauce.spicyLevel && (
+                        <HStack spacing={0.5}>
+                          {[...Array(3)].map((_, i) => (
+                            <Icon 
+                              key={i} 
+                              as={HiFire} 
+                              color={i < sauce.spicyLevel ? "#FF1744" : "gray.700"}
+                              boxSize={3.5}
+                            />
+                          ))}
+                        </HStack>
+                      )}
+                      
+                      <Text 
+                        fontSize="xs"
+                        color="gray.400"
+                        noOfLines={1}
+                      >
                         {sauce.description}
                       </Text>
-                      
-                      {/* Ingredients */}
-                      <Text fontSize="sm" color="gray.400" fontStyle="italic">
-                        {sauce.details}
-                      </Text>
-                      
-                      {/* Personality */}
-                      <Box 
-                        pt={2} 
-                        borderTop="1px solid" 
-                        borderColor="whiteAlpha.100" 
-                        width="100%"
-                      >
-                        <Text 
-                          fontSize="sm" 
-                          color={colors.secondary} 
-                          fontWeight="600"
-                          className="personality-text"
-                          transition="all 0.3s"
-                        >
-                          {sauce.personality.split('–')[0]}
-                        </Text>
-                        <Text fontSize="xs" color="gray.500">
-                          {sauce.personality.split('–')[1]}
-                        </Text>
-                      </Box>
                     </VStack>
                   </Box>
                 </MotionBox>
               ))}
-            </HStack>
+            </Flex>
           </Box>
         </Box>
 
-        {/* Mobile scroll indicator */}
+        {/* Mobile Hint */}
         {isMobile && (
           <Text 
             fontSize="xs" 
-            color="gray.500" 
+            color="gray.600" 
             textAlign="center"
-            fontStyle="italic"
+            mt={4}
           >
-            Swipe to explore all sauces →
+            Swipe to explore →
           </Text>
         )}
-      </VStack>
-    </Box>
+      </Box>
+
+      {/* Modal */}
+      <AnimatePresence>
+        {isOpen && (
+          <SauceDetailModal
+            isOpen={isOpen}
+            onClose={onClose}
+            sauce={selectedSauce}
+            onAddToCart={onAddToCart}
+            colors={colors}
+          />
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 
-export default SauceShowcase;
+export default ImprovedSauceShowcase;
