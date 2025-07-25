@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Container, VStack, useToast } from '@chakra-ui/react';
 import { useCart } from '../../../../context/CartContext';
-import { glowBachiMenu } from '../../../../data/glowBachiMenuData';
+import { glowBachiMenu } from '../../../../data/glowBachiMenu';
 
 // Import sections
 import AppetizerSection from './components/AppetizerSection';
@@ -10,6 +10,8 @@ import MenuSeparator from './components/shared/MenuSeparator';
 import BowlDetailModal from './components/shared/BowlDetailModal';
 import SauceModal from './components/shared/SauceModal';
 import BuildAndTrack from '../BuildAndTrack';
+// Temporarily commenting out BuildYourOwnModal
+// import BuildYourOwnModal from '../../../../components/menu/BuildYourOwnModal';
 
 const GlowBachiMenu = () => {
   const { addToCart } = useCart();
@@ -26,10 +28,23 @@ const GlowBachiMenu = () => {
   const [addedAddOns, setAddedAddOns] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   
+  // Debug: Log the appetizers to console
+  console.log('GlowBachi Menu Data:', glowBachiMenu);
+  console.log('Appetizers:', glowBachiMenu.appetizers);
+  
   // Calculate total price including add-ons
   const calculateTotalPrice = () => {
-    if (!selectedItem || !selectedSize) return 0;
+    if (!selectedItem) return 0;
     
+    // Handle single-price items
+    if (selectedItem.price && !selectedItem.smallPrice) {
+      let basePrice = selectedItem.price;
+      let addOnsTotal = addedAddOns.reduce((sum, addon) => sum + addon.price, 0);
+      return basePrice + addOnsTotal;
+    }
+    
+    // Handle dual-price items
+    if (!selectedSize) return 0;
     let basePrice = selectedSize === 'small' ? selectedItem.smallPrice : selectedItem.largePrice;
     let addOnsTotal = addedAddOns.reduce((sum, addon) => sum + addon.price, 0);
     
@@ -39,7 +54,7 @@ const GlowBachiMenu = () => {
   // Update total price when add-ons change
   React.useEffect(() => {
     setTotalPrice(calculateTotalPrice());
-  }, [selectedSize, addedAddOns]);
+  }, [selectedSize, addedAddOns, selectedItem]);
   
   // Handlers
   const handleItemClick = (item) => {
@@ -91,7 +106,38 @@ const GlowBachiMenu = () => {
   };
   
   const handleBowlAdd = () => {
-    if (!selectedItem || !selectedSize) return;
+    if (!selectedItem) return;
+    
+    // Handle single-price items
+    if (selectedItem.price && !selectedItem.smallPrice) {
+      const cartItem = {
+        id: `${selectedItem.id}_${Date.now()}`,
+        name: selectedItem.name,
+        price: selectedItem.price,
+        category: 'bowl',
+        image: selectedItem.image
+      };
+      
+      addToCart(cartItem);
+      
+      addedAddOns.forEach(addon => {
+        addToCart({
+          id: `${addon.id}_${Date.now()}`,
+          name: addon.name,
+          price: addon.price,
+          category: addon.category
+        });
+      });
+      
+      showToast();
+      setIsDetailModalOpen(false);
+      setSelectedItem(null);
+      setAddedAddOns([]);
+      return;
+    }
+    
+    // Handle dual-price items
+    if (!selectedSize) return;
     
     const cartItem = {
       id: `${selectedItem.id}_${selectedSize}_${Date.now()}`,
@@ -130,6 +176,12 @@ const GlowBachiMenu = () => {
       duration: 2000,
       isClosable: true,
     });
+  };
+  
+  const handleBuildYourOwn = (customItem) => {
+    addToCart(customItem);
+    // Close the modal
+    setIsBuildModalOpen(false);
   };
   
   const showToast = () => {
@@ -202,6 +254,27 @@ const GlowBachiMenu = () => {
         sauces={glowBachiMenu.sauces}
         colors={glowBachiMenu.colors}
       />
+      
+      {/* Build Your Own Modal - For now, just show an alert */}
+      {isBuildModalOpen && (
+        <Box
+          position="fixed"
+          top="50%"
+          left="50%"
+          transform="translate(-50%, -50%)"
+          bg="dark.black"
+          p={8}
+          borderRadius="xl"
+          border="2px solid"
+          borderColor={glowBachiMenu.colors.primary}
+          zIndex={1000}
+        >
+          <VStack>
+            <Text color="white" fontSize="xl">Build Your Own Bowl Coming Soon!</Text>
+            <Button onClick={() => setIsBuildModalOpen(false)} mt={4}>Close</Button>
+          </VStack>
+        </Box>
+      )}
     </Box>
   );
 };
