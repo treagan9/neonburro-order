@@ -11,171 +11,231 @@ import {
   HStack,
   Text,
   Box,
-  Grid,
-  GridItem,
-  Radio,
+  Heading,
   RadioGroup,
+  Radio,
   Checkbox,
   CheckboxGroup,
-  Heading,
+  Stack,
   Badge,
   Icon,
   Divider,
   useToast,
-  Flex,
+  Progress,
   Image,
-  keyframes,
-  Stepper,
-  Step,
-  StepIndicator,
-  StepStatus,
-  StepIcon,
-  StepNumber,
-  StepTitle,
-  StepDescription,
-  StepSeparator,
-  useSteps,
-  Select
+  Grid,
+  GridItem,
+  Flex,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
+  keyframes
 } from '@chakra-ui/react';
-import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiCheck, FiPlus, FiMinus } from 'react-icons/fi';
-import { GiBowlOfRice, GiChickenOven, GiChiliPepper, GiNoodles } from 'react-icons/gi';
-import { HiFire } from 'react-icons/hi';
-import { IoLeafOutline } from 'react-icons/io5'; // Using this instead of GiVegetarianFood
+import { useState, useEffect } from 'react';
+import { 
+  FiCheck, 
+  FiArrowRight, 
+  FiArrowLeft,
+  FiShoppingCart,
+  FiDollarSign
+} from 'react-icons/fi';
+import { 
+  GiBowlOfRice, 
+  GiNoodles, 
+  GiChickenLeg,
+  GiDoubleFish,
+  GiMeat,
+  GiBroccoli,
+  GiSaucepan,
+  GiCookingPot
+} from 'react-icons/gi';
+import { useCart } from '../../context/CartContext';
 
 const MotionBox = motion(Box);
 
+// Animation keyframes
 const pulse = keyframes`
   0% { transform: scale(1); }
   50% { transform: scale(1.05); }
   100% { transform: scale(1); }
 `;
 
-const BuildYourOwnModal = ({ isOpen, onClose, menuData, colors, onAddToCart }) => {
-  const toast = useToast();
-  const isBreakfast = menuData.name === 'Biscuit Shooter';
-  
-  // Steps for the builder
-  const steps = isBreakfast ? [
-    { title: 'Base', description: 'Choose your foundation' },
-    { title: 'Protein', description: 'Add your proteins' },
-    { title: 'Add-ons', description: 'Stack it up' },
-    { title: 'Review', description: 'Confirm your creation' }
-  ] : [
-    { title: 'Size', description: 'Choose your portion' },
-    { title: 'Base', description: 'Pick your foundation' },
-    { title: 'Protein', description: 'Select your protein' },
-    { title: 'Veggies', description: 'Add vegetables' },
-    { title: 'Sauce', description: 'Choose your GlowDrip' },
-    { title: 'Review', description: 'Confirm your bowl' }
-  ];
+const glow = keyframes`
+  0% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(255, 193, 7, 0.8); }
+  100% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.5); }
+`;
 
-  const { activeStep, setActiveStep } = useSteps({
-    index: 0,
-    count: steps.length,
+// Step Icons
+const stepIcons = {
+  size: { icon: GiCookingPot, label: 'Size' },
+  base: { icon: GiBowlOfRice, label: 'Base' },
+  protein: { icon: GiChickenLeg, label: 'Protein' },
+  vegetables: { icon: GiBroccoli, label: 'Veggies' },
+  sauce: { icon: GiSaucepan, label: 'Sauce' },
+  addOns: { icon: GiBroccoli, label: 'Add-Ons' },
+  review: { icon: FiShoppingCart, label: 'Review' }
+};
+
+const BuildYourOwnModal = ({ isOpen, onClose, menuType, menuData, colors }) => {
+  const { addToCart } = useCart();
+  const toast = useToast();
+  const isBreakfast = menuType === 'breakfast';
+  
+  // State management
+  const [currentStep, setCurrentStep] = useState(0);
+  const [quantity, setQuantity] = useState(1);
+  const [selections, setSelections] = useState({
+    size: isBreakfast ? null : 'small',
+    base: null,
+    protein: isBreakfast ? [] : null,
+    vegetables: [],
+    sauce: null,
+    addOns: []
   });
 
-  // State for selections
-  const [selectedSize, setSelectedSize] = useState(isBreakfast ? null : 'small');
-  const [selectedBase, setSelectedBase] = useState('');
-  const [selectedProteins, setSelectedProteins] = useState(isBreakfast ? [] : '');
-  const [selectedVeggies, setSelectedVeggies] = useState([]);
-  const [selectedSauce, setSelectedSauce] = useState('');
-  const [selectedAddOns, setSelectedAddOns] = useState([]);
-  const [quantity, setQuantity] = useState(1);
+  // Define steps based on menu type
+  const steps = isBreakfast 
+    ? ['base', 'protein', 'addOns', 'review']
+    : ['size', 'base', 'protein', 'vegetables', 'sauce', 'review'];
 
   // Calculate price
   const calculatePrice = () => {
-    let price = 0;
+    let total = 0;
 
     if (isBreakfast) {
-      // Breakfast: base price + proteins + add-ons
-      const base = menuData.buildYourOwn?.bases?.find(b => b.id === selectedBase);
-      if (base) price += base.price;
-
-      selectedProteins.forEach(proteinId => {
-        const protein = menuData.buildYourOwn?.proteins?.find(p => p.id === proteinId);
-        if (protein) price += protein.price;
+      // Base price
+      if (selections.base) {
+        const base = menuData.buildYourOwn.bases.find(b => b.id === selections.base);
+        if (base) total += base.price;
+      }
+      
+      // Proteins
+      selections.protein.forEach(proteinId => {
+        const protein = menuData.buildYourOwn.proteins.find(p => p.id === proteinId);
+        if (protein) total += protein.price;
       });
-
-      selectedAddOns.forEach(addonId => {
-        const addon = menuData.buildYourOwn?.addOns?.find(a => a.id === addonId);
-        if (addon) price += addon.price;
+      
+      // Add-ons
+      selections.addOns.forEach(addOnId => {
+        const addOn = menuData.buildYourOwn.addOns.find(a => a.id === addOnId);
+        if (addOn) total += addOn.price;
       });
     } else {
-      // Dinner: size base price + upcharges
-      price = selectedSize === 'large' ? menuData.buildYourOwn.pricing.large : menuData.buildYourOwn.pricing.small;
-
-      const base = menuData.buildYourOwn?.bases?.find(b => b.id === selectedBase);
-      if (base?.upcharge) price += base.upcharge;
-
-      const protein = menuData.buildYourOwn?.proteins?.find(p => p.id === selectedProteins);
-      if (protein?.upcharge) price += protein.upcharge;
+      // GlowBachi pricing
+      total = selections.size === 'small' 
+        ? menuData.buildYourOwn.pricing.small 
+        : menuData.buildYourOwn.pricing.large;
+      
+      // Base upcharges
+      if (selections.base) {
+        const base = menuData.buildYourOwn.bases.find(b => b.id === selections.base);
+        if (base && base.upcharge) total += base.upcharge;
+      }
+      
+      // Protein upcharges
+      if (selections.protein) {
+        const protein = menuData.buildYourOwn.proteins.find(p => p.id === selections.protein);
+        if (protein && protein.upcharge) total += protein.upcharge;
+      }
     }
-
-    return price * quantity;
+    
+    return total * quantity;
   };
 
   // Navigation
-  const handleNext = () => {
-    if (activeStep < steps.length - 1) {
-      setActiveStep(activeStep + 1);
+  const goToNext = () => {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
     }
   };
 
-  const handleBack = () => {
-    if (activeStep > 0) {
-      setActiveStep(activeStep - 1);
+  const goToPrevious = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
     }
   };
 
   const canProceed = () => {
-    if (isBreakfast) {
-      switch (activeStep) {
-        case 0: return selectedBase !== '';
-        case 1: return selectedProteins.length > 0;
-        case 2: return true; // Add-ons are optional
-        default: return true;
-      }
-    } else {
-      switch (activeStep) {
-        case 0: return true; // Size already has default
-        case 1: return selectedBase !== '';
-        case 2: return selectedProteins !== '';
-        case 3: return selectedVeggies.length > 0;
-        case 4: return selectedSauce !== '';
-        default: return true;
-      }
+    const step = steps[currentStep];
+    switch (step) {
+      case 'size':
+        return selections.size !== null;
+      case 'base':
+        return selections.base !== null;
+      case 'protein':
+        return isBreakfast ? selections.protein.length > 0 : selections.protein !== null;
+      case 'vegetables':
+        return true; // Optional
+      case 'sauce':
+        return selections.sauce !== null;
+      case 'addOns':
+        return true; // Optional
+      case 'review':
+        return true;
+      default:
+        return false;
     }
   };
 
+  // Add to cart
   const handleAddToCart = () => {
-    const itemName = isBreakfast ? 
-      `Custom ${menuData.buildYourOwn?.bases?.find(b => b.id === selectedBase)?.name || 'Breakfast'}` :
-      `Custom ${selectedSize === 'large' ? 'Large' : 'Small'} Bowl`;
+    const getItemName = () => {
+      if (isBreakfast) {
+        const base = menuData.buildYourOwn.bases.find(b => b.id === selections.base);
+        return `Custom ${base?.name || 'Breakfast'}`;
+      } else {
+        return `Custom ${selections.size === 'small' ? 'Small' : 'Large'} Bowl`;
+      }
+    };
 
-    const description = isBreakfast ?
-      `${selectedProteins.map(p => menuData.buildYourOwn?.proteins?.find(pr => pr.id === p)?.name).join(', ')}` :
-      `${menuData.buildYourOwn?.bases?.find(b => b.id === selectedBase)?.name}, ${menuData.buildYourOwn?.proteins?.find(p => p.id === selectedProteins)?.name}, ${selectedSauce}`;
+    const getDescription = () => {
+      const parts = [];
+      
+      if (selections.base) {
+        const base = menuData.buildYourOwn.bases.find(b => b.id === selections.base);
+        parts.push(base?.name);
+      }
+      
+      if (isBreakfast && selections.protein.length > 0) {
+        const proteins = selections.protein.map(id => 
+          menuData.buildYourOwn.proteins.find(p => p.id === id)?.name
+        ).filter(Boolean);
+        parts.push(...proteins);
+      } else if (selections.protein) {
+        const protein = menuData.buildYourOwn.proteins.find(p => p.id === selections.protein);
+        parts.push(protein?.name);
+      }
+      
+      if (selections.sauce) {
+        const sauce = menuData.sauces.find(s => s.id === selections.sauce);
+        parts.push(`${sauce?.name} sauce`);
+      }
+      
+      return parts.join(', ');
+    };
 
-    onAddToCart({
-      id: `custom_${Date.now()}`,
-      name: itemName,
+    const cartItem = {
+      id: `custom_${menuType}_${Date.now()}`,
+      name: getItemName(),
+      description: getDescription(),
       price: calculatePrice() / quantity,
       quantity: quantity,
-      description: description,
+      category: isBreakfast ? 'breakfast' : 'bowl',
       isCustom: true,
-      customizations: {
-        size: selectedSize,
-        base: selectedBase,
-        proteins: selectedProteins,
-        veggies: selectedVeggies,
-        sauce: selectedSauce,
-        addOns: selectedAddOns
-      }
-    });
+      selections: selections
+    };
 
+    addToCart(cartItem, quantity);
+    
     toast({
       title: "Added to cart!",
       description: `Your custom ${isBreakfast ? 'breakfast' : 'bowl'} is ready`,
@@ -183,517 +243,625 @@ const BuildYourOwnModal = ({ isOpen, onClose, menuData, colors, onAddToCart }) =
       duration: 3000,
       isClosable: true,
     });
-
+    
     onClose();
-    resetSelections();
   };
 
-  const resetSelections = () => {
-    setActiveStep(0);
-    setSelectedSize(isBreakfast ? null : 'small');
-    setSelectedBase('');
-    setSelectedProteins(isBreakfast ? [] : '');
-    setSelectedVeggies([]);
-    setSelectedSauce('');
-    setSelectedAddOns([]);
-    setQuantity(1);
-  };
-
-  // Step Components
-  const SizeStep = () => (
-    <VStack spacing={6} align="stretch">
-      <Heading size="md" textAlign="center">Choose Your Size</Heading>
-      <RadioGroup value={selectedSize} onChange={setSelectedSize}>
-        <Grid templateColumns="1fr 1fr" gap={4}>
-          <GridItem>
-            <Box
-              as="label"
-              p={6}
-              borderRadius="xl"
-              border="2px solid"
-              borderColor={selectedSize === 'small' ? colors.primary : 'whiteAlpha.200'}
-              bg={selectedSize === 'small' ? `${colors.primary}22` : 'whiteAlpha.50'}
-              cursor="pointer"
-              transition="all 0.3s"
-              _hover={{ borderColor: colors.primary, transform: 'translateY(-2px)' }}
+  // Render step content
+  const renderStepContent = () => {
+    const step = steps[currentStep];
+    
+    switch (step) {
+      case 'size':
+        return (
+          <VStack spacing={6} align="stretch">
+            <Heading size="md" textAlign="center" color="white">
+              Choose Your Bowl Size
+            </Heading>
+            <RadioGroup 
+              value={selections.size} 
+              onChange={(value) => setSelections({...selections, size: value})}
             >
-              <Radio value="small" display="none" />
-              <VStack spacing={2}>
-                <Text fontSize="2xl" fontWeight="bold" color={colors.primary}>
-                  ${menuData.buildYourOwn.pricing.small}
-                </Text>
-                <Text fontWeight="600">Small Bowl</Text>
-                <Text fontSize="sm" color="gray.400">Perfect for lunch</Text>
-              </VStack>
-            </Box>
-          </GridItem>
-          <GridItem>
-            <Box
-              as="label"
-              p={6}
-              borderRadius="xl"
-              border="2px solid"
-              borderColor={selectedSize === 'large' ? colors.secondary : 'whiteAlpha.200'}
-              bg={selectedSize === 'large' ? `${colors.secondary}22` : 'whiteAlpha.50'}
-              cursor="pointer"
-              transition="all 0.3s"
-              _hover={{ borderColor: colors.secondary, transform: 'translateY(-2px)' }}
-            >
-              <Radio value="large" display="none" />
-              <VStack spacing={2}>
-                <Text fontSize="2xl" fontWeight="bold" color={colors.secondary}>
-                  ${menuData.buildYourOwn.pricing.large}
-                </Text>
-                <Text fontWeight="600">Large Bowl</Text>
-                <Text fontSize="sm" color="gray.400">Dinner sized</Text>
-              </VStack>
-            </Box>
-          </GridItem>
-        </Grid>
-      </RadioGroup>
-    </VStack>
-  );
+              <Stack spacing={4}>
+                {Object.entries(menuData.buildYourOwn.pricing).map(([size, price]) => (
+                  <Box
+                    key={size}
+                    p={4}
+                    borderRadius="lg"
+                    border="2px solid"
+                    borderColor={selections.size === size ? colors.primary : "whiteAlpha.200"}
+                    bg={selections.size === size ? `${colors.primary}22` : "whiteAlpha.50"}
+                    cursor="pointer"
+                    transition="all 0.2s"
+                    _hover={{
+                      borderColor: colors.primary,
+                      bg: `${colors.primary}11`
+                    }}
+                  >
+                    <Radio value={size} colorScheme="yellow" size="lg">
+                      <HStack justify="space-between" flex={1}>
+                        <VStack align="start" spacing={1}>
+                          <Text color="white" fontSize="lg" fontWeight="bold">
+                            {size.charAt(0).toUpperCase() + size.slice(1)} Bowl
+                          </Text>
+                          <Text color="gray.400" fontSize="sm">
+                            {size === 'small' ? 'Perfect for lunch' : 'Dinner sized portion'}
+                          </Text>
+                        </VStack>
+                        <Text fontSize="2xl" fontWeight="bold" color={colors.primary}>
+                          ${price}
+                        </Text>
+                      </HStack>
+                    </Radio>
+                  </Box>
+                ))}
+              </Stack>
+            </RadioGroup>
+          </VStack>
+        );
 
-  const BaseStep = () => (
-    <VStack spacing={6} align="stretch">
-      <Heading size="md" textAlign="center">
-        {isBreakfast ? 'Choose Your Base' : 'Pick Your Foundation'}
-      </Heading>
-      <RadioGroup value={selectedBase} onChange={setSelectedBase}>
-        <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={4}>
-          {menuData.buildYourOwn?.bases?.map((base) => (
-            <GridItem key={base.id}>
-              <Box
-                as="label"
-                p={4}
-                borderRadius="lg"
-                border="2px solid"
-                borderColor={selectedBase === base.id ? colors.primary : 'whiteAlpha.200'}
-                bg={selectedBase === base.id ? `${colors.primary}22` : 'whiteAlpha.50'}
-                cursor="pointer"
-                transition="all 0.3s"
-                _hover={{ borderColor: colors.primary, transform: 'translateY(-2px)' }}
+      case 'base':
+        return (
+          <VStack spacing={6} align="stretch">
+            <Heading size="md" textAlign="center" color="white">
+              {isBreakfast ? 'Choose Your Base' : 'Choose Your Rice or Noodles'}
+            </Heading>
+            <RadioGroup 
+              value={selections.base} 
+              onChange={(value) => setSelections({...selections, base: value})}
+            >
+              <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={3}>
+                {menuData.buildYourOwn.bases.map((base) => (
+                  <GridItem key={base.id}>
+                    <Box
+                      p={4}
+                      borderRadius="lg"
+                      border="2px solid"
+                      borderColor={selections.base === base.id ? colors.primary : "whiteAlpha.200"}
+                      bg={selections.base === base.id ? `${colors.primary}22` : "whiteAlpha.50"}
+                      cursor="pointer"
+                      transition="all 0.2s"
+                      _hover={{
+                        borderColor: colors.primary,
+                        bg: `${colors.primary}11`
+                      }}
+                    >
+                      <Radio value={base.id} colorScheme="yellow" size="lg">
+                        <VStack align="start" spacing={1} flex={1}>
+                          <HStack justify="space-between" w="100%">
+                            <Text color="white" fontWeight="bold">
+                              {base.name}
+                            </Text>
+                            {isBreakfast ? (
+                              <Text color={colors.primary} fontWeight="bold">
+                                ${base.price}
+                              </Text>
+                            ) : (
+                              base.upcharge && (
+                                <Badge colorScheme="orange">+${base.upcharge}</Badge>
+                              )
+                            )}
+                          </HStack>
+                          {base.description && (
+                            <Text color="gray.400" fontSize="xs">
+                              {base.description}
+                            </Text>
+                          )}
+                        </VStack>
+                      </Radio>
+                    </Box>
+                  </GridItem>
+                ))}
+              </Grid>
+            </RadioGroup>
+          </VStack>
+        );
+
+      case 'protein':
+        return (
+          <VStack spacing={6} align="stretch">
+            <Heading size="md" textAlign="center" color="white">
+              {isBreakfast ? 'Choose Your Proteins' : 'Choose Your Protein'}
+            </Heading>
+            {isBreakfast ? (
+              <CheckboxGroup 
+                value={selections.protein} 
+                onChange={(value) => setSelections({...selections, protein: value})}
               >
-                <Radio value={base.id} display="none" />
-                <HStack justify="space-between">
-                  <VStack align="start" spacing={1}>
-                    <Text fontWeight="600">{base.name}</Text>
-                    <Text fontSize="sm" color="gray.400">{base.description}</Text>
-                  </VStack>
-                  <VStack spacing={0}>
-                    {isBreakfast ? (
-                      <Text fontSize="lg" fontWeight="bold" color={colors.primary}>
-                        ${base.price}
-                      </Text>
-                    ) : (
-                      base.upcharge && (
-                        <Badge colorScheme="orange">+${base.upcharge}</Badge>
-                      )
-                    )}
-                  </VStack>
-                </HStack>
-              </Box>
-            </GridItem>
-          ))}
-        </Grid>
-      </RadioGroup>
-    </VStack>
-  );
+                <Stack spacing={3}>
+                  {menuData.buildYourOwn.proteins.map((protein) => (
+                    <Box
+                      key={protein.id}
+                      p={4}
+                      borderRadius="lg"
+                      border="2px solid"
+                      borderColor={selections.protein.includes(protein.id) ? colors.primary : "whiteAlpha.200"}
+                      bg={selections.protein.includes(protein.id) ? `${colors.primary}22` : "whiteAlpha.50"}
+                      cursor="pointer"
+                      transition="all 0.2s"
+                      _hover={{
+                        borderColor: colors.primary,
+                        bg: `${colors.primary}11`
+                      }}
+                    >
+                      <Checkbox value={protein.id} colorScheme="yellow" size="lg">
+                        <HStack justify="space-between" flex={1} w="100%">
+                          <VStack align="start" spacing={0}>
+                            <Text color="white" fontWeight="bold">
+                              {protein.name}
+                            </Text>
+                            <Text color="gray.400" fontSize="xs">
+                              {protein.description}
+                            </Text>
+                          </VStack>
+                          <Text color={colors.primary} fontWeight="bold">
+                            +${protein.price}
+                          </Text>
+                        </HStack>
+                      </Checkbox>
+                    </Box>
+                  ))}
+                </Stack>
+              </CheckboxGroup>
+            ) : (
+              <RadioGroup 
+                value={selections.protein} 
+                onChange={(value) => setSelections({...selections, protein: value})}
+              >
+                <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={3}>
+                  {menuData.buildYourOwn.proteins.map((protein) => (
+                    <GridItem key={protein.id}>
+                      <Box
+                        p={4}
+                        borderRadius="lg"
+                        border="2px solid"
+                        borderColor={selections.protein === protein.id ? colors.primary : "whiteAlpha.200"}
+                        bg={selections.protein === protein.id ? `${colors.primary}22` : "whiteAlpha.50"}
+                        cursor="pointer"
+                        transition="all 0.2s"
+                        _hover={{
+                          borderColor: colors.primary,
+                          bg: `${colors.primary}11`
+                        }}
+                      >
+                        <Radio value={protein.id} colorScheme="yellow" size="lg">
+                          <HStack justify="space-between" flex={1}>
+                            <Text color="white" fontWeight="bold">
+                              {protein.name}
+                            </Text>
+                            {protein.upcharge && (
+                              <Badge colorScheme="orange">+${protein.upcharge}</Badge>
+                            )}
+                          </HStack>
+                        </Radio>
+                      </Box>
+                    </GridItem>
+                  ))}
+                </Grid>
+              </RadioGroup>
+            )}
+          </VStack>
+        );
 
-  const ProteinStep = () => (
-    <VStack spacing={6} align="stretch">
-      <Heading size="md" textAlign="center">
-        {isBreakfast ? 'Add Your Proteins' : 'Select Your Protein'}
-      </Heading>
-      {isBreakfast ? (
-        <CheckboxGroup value={selectedProteins} onChange={setSelectedProteins}>
-          <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={4}>
-            {menuData.buildYourOwn?.proteins?.map((protein) => (
-              <GridItem key={protein.id}>
-                <Box
-                  as="label"
-                  p={4}
-                  borderRadius="lg"
-                  border="2px solid"
-                  borderColor={selectedProteins.includes(protein.id) ? colors.primary : 'whiteAlpha.200'}
-                  bg={selectedProteins.includes(protein.id) ? `${colors.primary}22` : 'whiteAlpha.50'}
-                  cursor="pointer"
-                  transition="all 0.3s"
-                  _hover={{ borderColor: colors.primary, transform: 'translateY(-2px)' }}
-                >
-                  <Checkbox value={protein.id} display="none" />
+      case 'vegetables':
+        return (
+          <VStack spacing={6} align="stretch">
+            <Heading size="md" textAlign="center" color="white">
+              Choose Your Vegetables
+            </Heading>
+            <Text textAlign="center" color="gray.400" fontSize="sm">
+              Select as many as you'd like
+            </Text>
+            <CheckboxGroup 
+              value={selections.vegetables} 
+              onChange={(value) => setSelections({...selections, vegetables: value})}
+            >
+              <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={3}>
+                {menuData.buildYourOwn.vegetables.map((veggie, idx) => (
+                  <GridItem key={idx}>
+                    <Box
+                      p={4}
+                      borderRadius="lg"
+                      border="2px solid"
+                      borderColor={selections.vegetables.includes(veggie) ? colors.primary : "whiteAlpha.200"}
+                      bg={selections.vegetables.includes(veggie) ? `${colors.primary}22` : "whiteAlpha.50"}
+                      cursor="pointer"
+                      transition="all 0.2s"
+                      _hover={{
+                        borderColor: colors.primary,
+                        bg: `${colors.primary}11`
+                      }}
+                    >
+                      <Checkbox value={veggie} colorScheme="yellow" size="lg">
+                        <Text color="white" fontWeight="medium">
+                          {veggie}
+                        </Text>
+                      </Checkbox>
+                    </Box>
+                  </GridItem>
+                ))}
+              </Grid>
+            </CheckboxGroup>
+          </VStack>
+        );
+
+      case 'sauce':
+        return (
+          <VStack spacing={6} align="stretch">
+            <Heading size="md" textAlign="center" color="white">
+              Choose Your GlowDrip Sauce
+            </Heading>
+            <RadioGroup 
+              value={selections.sauce} 
+              onChange={(value) => setSelections({...selections, sauce: value})}
+            >
+              <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={3}>
+                {menuData.sauces.map((sauce) => (
+                  <GridItem key={sauce.id}>
+                    <Box
+                      p={4}
+                      borderRadius="lg"
+                      border="2px solid"
+                      borderColor={selections.sauce === sauce.id ? colors.primary : "whiteAlpha.200"}
+                      bg={selections.sauce === sauce.id ? `${colors.primary}22` : "whiteAlpha.50"}
+                      cursor="pointer"
+                      transition="all 0.2s"
+                      _hover={{
+                        borderColor: colors.primary,
+                        bg: `${colors.primary}11`
+                      }}
+                    >
+                      <Radio value={sauce.id} colorScheme="yellow" size="lg">
+                        <VStack align="start" spacing={1} flex={1}>
+                          <HStack w="100%">
+                            <Text color="white" fontWeight="bold">
+                              {sauce.name}
+                            </Text>
+                            {sauce.spicyLevel && (
+                              <HStack spacing={0}>
+                                {[...Array(3)].map((_, i) => (
+                                  <Text 
+                                    key={i} 
+                                    color={i < sauce.spicyLevel ? "red.400" : "gray.600"}
+                                    fontSize="sm"
+                                  >
+                                    🌶️
+                                  </Text>
+                                ))}
+                              </HStack>
+                            )}
+                          </HStack>
+                          <Text color="gray.400" fontSize="xs">
+                            {sauce.description}
+                          </Text>
+                        </VStack>
+                      </Radio>
+                    </Box>
+                  </GridItem>
+                ))}
+              </Grid>
+            </RadioGroup>
+          </VStack>
+        );
+
+      case 'addOns':
+        return (
+          <VStack spacing={6} align="stretch">
+            <Heading size="md" textAlign="center" color="white">
+              Add Extra Toppings
+            </Heading>
+            <Text textAlign="center" color="gray.400" fontSize="sm">
+              Optional - customize your {isBreakfast ? 'breakfast' : 'bowl'}
+            </Text>
+            <CheckboxGroup 
+              value={selections.addOns} 
+              onChange={(value) => setSelections({...selections, addOns: value})}
+            >
+              <Stack spacing={3}>
+                {menuData.buildYourOwn.addOns.map((addOn) => (
+                  <Box
+                    key={addOn.id}
+                    p={4}
+                    borderRadius="lg"
+                    border="2px solid"
+                    borderColor={selections.addOns.includes(addOn.id) ? colors.primary : "whiteAlpha.200"}
+                    bg={selections.addOns.includes(addOn.id) ? `${colors.primary}22` : "whiteAlpha.50"}
+                    cursor="pointer"
+                    transition="all 0.2s"
+                    _hover={{
+                      borderColor: colors.primary,
+                      bg: `${colors.primary}11`
+                    }}
+                  >
+                    <Checkbox value={addOn.id} colorScheme="yellow" size="lg">
+                      <HStack justify="space-between" flex={1} w="100%">
+                        <VStack align="start" spacing={0}>
+                          <Text color="white" fontWeight="bold">
+                            {addOn.name}
+                          </Text>
+                          <Text color="gray.400" fontSize="xs">
+                            {addOn.description}
+                          </Text>
+                        </VStack>
+                        <Text color={colors.primary} fontWeight="bold">
+                          +${addOn.price}
+                        </Text>
+                      </HStack>
+                    </Checkbox>
+                  </Box>
+                ))}
+              </Stack>
+            </CheckboxGroup>
+          </VStack>
+        );
+
+      case 'review':
+        return (
+          <VStack spacing={6} align="stretch">
+            <Heading size="md" textAlign="center" color="white">
+              Review Your Order
+            </Heading>
+            
+            <Box
+              p={6}
+              bg="whiteAlpha.50"
+              borderRadius="lg"
+              border="1px solid"
+              borderColor="whiteAlpha.200"
+            >
+              <VStack align="stretch" spacing={4}>
+                {/* Size (if not breakfast) */}
+                {!isBreakfast && (
                   <HStack justify="space-between">
-                    <VStack align="start" spacing={1}>
-                      <Text fontWeight="600">{protein.name}</Text>
-                      <Text fontSize="sm" color="gray.400">{protein.description}</Text>
-                    </VStack>
-                    <Text fontSize="lg" fontWeight="bold" color={colors.primary}>
-                      +${protein.price}
+                    <Text color="gray.400">Size:</Text>
+                    <Text color="white" fontWeight="bold">
+                      {selections.size === 'small' ? 'Small' : 'Large'} Bowl
                     </Text>
                   </HStack>
-                </Box>
-              </GridItem>
-            ))}
-          </Grid>
-        </CheckboxGroup>
-      ) : (
-        <RadioGroup value={selectedProteins} onChange={setSelectedProteins}>
-          <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={4}>
-            {menuData.buildYourOwn?.proteins?.map((protein) => (
-              <GridItem key={protein.id}>
-                <Box
-                  as="label"
-                  p={4}
-                  borderRadius="lg"
-                  border="2px solid"
-                  borderColor={selectedProteins === protein.id ? colors.primary : 'whiteAlpha.200'}
-                  bg={selectedProteins === protein.id ? `${colors.primary}22` : 'whiteAlpha.50'}
-                  cursor="pointer"
-                  transition="all 0.3s"
-                  _hover={{ borderColor: colors.primary, transform: 'translateY(-2px)' }}
-                >
-                  <Radio value={protein.id} display="none" />
+                )}
+                
+                {/* Base */}
+                {selections.base && (
                   <HStack justify="space-between">
-                    <VStack align="start" spacing={1}>
-                      <HStack>
-                        <Text fontWeight="600">{protein.name}</Text>
-                        {protein.vegetarian && (
-                          <Icon as={IoLeafOutline} color="green.400" />
-                        )}
-                      </HStack>
-                      <Text fontSize="sm" color="gray.400">{protein.description}</Text>
+                    <Text color="gray.400">Base:</Text>
+                    <Text color="white" fontWeight="bold">
+                      {menuData.buildYourOwn.bases.find(b => b.id === selections.base)?.name}
+                    </Text>
+                  </HStack>
+                )}
+                
+                {/* Protein */}
+                {(isBreakfast ? selections.protein.length > 0 : selections.protein) && (
+                  <Box>
+                    <Text color="gray.400" mb={1}>Protein:</Text>
+                    {isBreakfast ? (
+                      <VStack align="end" spacing={1}>
+                        {selections.protein.map(id => {
+                          const protein = menuData.buildYourOwn.proteins.find(p => p.id === id);
+                          return (
+                            <Text key={id} color="white" fontWeight="bold" fontSize="sm">
+                              {protein?.name}
+                            </Text>
+                          );
+                        })}
+                      </VStack>
+                    ) : (
+                      <Text color="white" fontWeight="bold" textAlign="right">
+                        {menuData.buildYourOwn.proteins.find(p => p.id === selections.protein)?.name}
+                      </Text>
+                    )}
+                  </Box>
+                )}
+                
+                {/* Vegetables */}
+                {selections.vegetables.length > 0 && (
+                  <Box>
+                    <Text color="gray.400" mb={1}>Vegetables:</Text>
+                    <VStack align="end" spacing={1}>
+                      {selections.vegetables.map((veggie, idx) => (
+                        <Text key={idx} color="white" fontSize="sm">
+                          {veggie}
+                        </Text>
+                      ))}
                     </VStack>
-                    {protein.upcharge && (
-                      <Badge colorScheme="orange">+${protein.upcharge}</Badge>
-                    )}
+                  </Box>
+                )}
+                
+                {/* Sauce */}
+                {selections.sauce && (
+                  <HStack justify="space-between">
+                    <Text color="gray.400">Sauce:</Text>
+                    <Text color="white" fontWeight="bold">
+                      {menuData.sauces.find(s => s.id === selections.sauce)?.name}
+                    </Text>
                   </HStack>
-                </Box>
-              </GridItem>
-            ))}
-          </Grid>
-        </RadioGroup>
-      )}
-    </VStack>
-  );
-
-  const VeggiesStep = () => (
-    <VStack spacing={6} align="stretch">
-      <Heading size="md" textAlign="center">Add Your Vegetables</Heading>
-      <Text textAlign="center" color="gray.400" fontSize="sm">
-        All vegetables are included - pick as many as you like!
-      </Text>
-      <CheckboxGroup value={selectedVeggies} onChange={setSelectedVeggies}>
-        <Grid templateColumns={{ base: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }} gap={3}>
-          {menuData.buildYourOwn?.vegetables?.map((veggie) => (
-            <GridItem key={veggie}>
-              <Box
-                as="label"
-                p={3}
-                borderRadius="lg"
-                border="2px solid"
-                borderColor={selectedVeggies.includes(veggie) ? colors.primary : 'whiteAlpha.200'}
-                bg={selectedVeggies.includes(veggie) ? `${colors.primary}22` : 'whiteAlpha.50'}
-                cursor="pointer"
-                transition="all 0.3s"
-                _hover={{ borderColor: colors.primary, transform: 'translateY(-2px)' }}
-                textAlign="center"
-              >
-                <Checkbox value={veggie} display="none" />
-                <Text fontSize="sm" fontWeight="500">{veggie}</Text>
-              </Box>
-            </GridItem>
-          ))}
-        </Grid>
-      </CheckboxGroup>
-    </VStack>
-  );
-
-  const SauceStep = () => (
-    <VStack spacing={6} align="stretch">
-      <Heading size="md" textAlign="center">Choose Your GlowDrip Sauce</Heading>
-      <RadioGroup value={selectedSauce} onChange={setSelectedSauce}>
-        <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={4} maxH="400px" overflowY="auto">
-          {menuData.sauces?.map((sauce) => (
-            <GridItem key={sauce.id}>
-              <Box
-                as="label"
-                p={4}
-                borderRadius="lg"
-                border="2px solid"
-                borderColor={selectedSauce === sauce.id ? colors.primary : 'whiteAlpha.200'}
-                bg={selectedSauce === sauce.id ? `${colors.primary}22` : 'whiteAlpha.50'}
-                cursor="pointer"
-                transition="all 0.3s"
-                _hover={{ borderColor: colors.primary, transform: 'translateY(-2px)' }}
-              >
-                <Radio value={sauce.id} display="none" />
-                <VStack align="start" spacing={2}>
-                  <HStack justify="space-between" w="100%">
-                    <Text fontWeight="600">{sauce.name}</Text>
-                    {sauce.spicyLevel && (
-                      <HStack spacing={0}>
-                        {[...Array(sauce.spicyLevel)].map((_, i) => (
-                          <Icon key={i} as={HiFire} color="#FF1744" boxSize={4} />
-                        ))}
-                      </HStack>
-                    )}
-                  </HStack>
-                  <Text fontSize="sm" color="gray.400">{sauce.description}</Text>
-                  <Text fontSize="xs" color="gray.500" fontStyle="italic">
-                    {sauce.personality.split('–')[0]}
-                  </Text>
-                </VStack>
-              </Box>
-            </GridItem>
-          ))}
-        </Grid>
-      </RadioGroup>
-    </VStack>
-  );
-
-  const AddOnsStep = () => (
-    <VStack spacing={6} align="stretch">
-      <Heading size="md" textAlign="center">Stack It Up (Optional)</Heading>
-      <CheckboxGroup value={selectedAddOns} onChange={setSelectedAddOns}>
-        <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={4}>
-          {menuData.buildYourOwn?.addOns?.map((addon) => (
-            <GridItem key={addon.id}>
-              <Box
-                as="label"
-                p={4}
-                borderRadius="lg"
-                border="2px solid"
-                borderColor={selectedAddOns.includes(addon.id) ? colors.primary : 'whiteAlpha.200'}
-                bg={selectedAddOns.includes(addon.id) ? `${colors.primary}22` : 'whiteAlpha.50'}
-                cursor="pointer"
-                transition="all 0.3s"
-                _hover={{ borderColor: colors.primary, transform: 'translateY(-2px)' }}
-              >
-                <Checkbox value={addon.id} display="none" />
+                )}
+                
+                {/* Add-ons */}
+                {selections.addOns.length > 0 && (
+                  <Box>
+                    <Text color="gray.400" mb={1}>Add-ons:</Text>
+                    <VStack align="end" spacing={1}>
+                      {selections.addOns.map(id => {
+                        const addOn = menuData.buildYourOwn.addOns.find(a => a.id === id);
+                        return (
+                          <Text key={id} color="white" fontSize="sm">
+                            {addOn?.name}
+                          </Text>
+                        );
+                      })}
+                    </VStack>
+                  </Box>
+                )}
+                
+                <Divider borderColor="whiteAlpha.300" />
+                
+                {/* Quantity selector */}
                 <HStack justify="space-between">
-                  <VStack align="start" spacing={1}>
-                    <Text fontWeight="600">{addon.name}</Text>
-                    <Text fontSize="sm" color="gray.400">{addon.description}</Text>
-                  </VStack>
-                  <Text fontSize="lg" fontWeight="bold" color={colors.primary}>
-                    +${addon.price}
-                  </Text>
-                </HStack>
-              </Box>
-            </GridItem>
-          ))}
-        </Grid>
-      </CheckboxGroup>
-    </VStack>
-  );
-
-  const ReviewStep = () => {
-    const getBaseName = () => menuData.buildYourOwn?.bases?.find(b => b.id === selectedBase)?.name || '';
-    const getProteinNames = () => {
-      if (isBreakfast) {
-        return selectedProteins.map(p => menuData.buildYourOwn?.proteins?.find(pr => pr.id === p)?.name).join(', ');
-      }
-      return menuData.buildYourOwn?.proteins?.find(p => p.id === selectedProteins)?.name || '';
-    };
-    const getSauceName = () => menuData.sauces?.find(s => s.id === selectedSauce)?.name || '';
-    const getAddOnNames = () => selectedAddOns.map(a => menuData.buildYourOwn?.addOns?.find(ao => ao.id === a)?.name).join(', ');
-
-    return (
-      <VStack spacing={6} align="stretch">
-        <Heading size="md" textAlign="center">Review Your {isBreakfast ? 'Breakfast' : 'Bowl'}</Heading>
-        
-        <Box bg="whiteAlpha.100" p={6} borderRadius="xl">
-          <VStack align="stretch" spacing={4}>
-            {!isBreakfast && (
-              <HStack justify="space-between">
-                <Text color="gray.400">Size:</Text>
-                <Text fontWeight="600">{selectedSize === 'large' ? 'Large' : 'Small'}</Text>
-              </HStack>
-            )}
-            
-            <HStack justify="space-between">
-              <Text color="gray.400">Base:</Text>
-              <Text fontWeight="600">{getBaseName()}</Text>
-            </HStack>
-            
-            <HStack justify="space-between">
-              <Text color="gray.400">Protein{isBreakfast && 's'}:</Text>
-              <Text fontWeight="600">{getProteinNames()}</Text>
-            </HStack>
-            
-            {!isBreakfast && (
-              <>
-                <HStack justify="space-between">
-                  <Text color="gray.400">Vegetables:</Text>
-                  <Text fontWeight="600" textAlign="right" maxW="60%">
-                    {selectedVeggies.join(', ')}
-                  </Text>
+                  <Text color="gray.400">Quantity:</Text>
+                  <NumberInput
+                    value={quantity}
+                    onChange={(_, value) => setQuantity(value)}
+                    min={1}
+                    max={10}
+                    size="sm"
+                    maxW={20}
+                  >
+                    <NumberInputField 
+                      bg="whiteAlpha.100" 
+                      border="1px solid"
+                      borderColor="whiteAlpha.300"
+                      color="white"
+                      _hover={{ borderColor: colors.primary }}
+                      _focus={{ borderColor: colors.primary, boxShadow: `0 0 0 1px ${colors.primary}` }}
+                    />
+                    <NumberInputStepper>
+                      <NumberIncrementStepper color="white" />
+                      <NumberDecrementStepper color="white" />
+                    </NumberInputStepper>
+                  </NumberInput>
                 </HStack>
                 
-                <HStack justify="space-between">
-                  <Text color="gray.400">Sauce:</Text>
-                  <Text fontWeight="600">{getSauceName()}</Text>
-                </HStack>
-              </>
-            )}
-            
-            {selectedAddOns.length > 0 && (
-              <HStack justify="space-between">
-                <Text color="gray.400">Add-ons:</Text>
-                <Text fontWeight="600">{getAddOnNames()}</Text>
-              </HStack>
-            )}
-            
-            <Divider borderColor="whiteAlpha.300" />
-            
-            <HStack justify="space-between">
-              <HStack>
-                <Text color="gray.400">Quantity:</Text>
-                <HStack>
-                  <Button
-                    size="sm"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    variant="ghost"
-                    isDisabled={quantity === 1}
-                  >
-                    <Icon as={FiMinus} />
-                  </Button>
-                  <Text fontWeight="600" minW="40px" textAlign="center">{quantity}</Text>
-                  <Button
-                    size="sm"
-                    onClick={() => setQuantity(quantity + 1)}
-                    variant="ghost"
-                  >
-                    <Icon as={FiPlus} />
-                  </Button>
-                </HStack>
-              </HStack>
-              
-              <VStack align="end" spacing={0}>
-                <Text fontSize="2xl" fontWeight="bold" color={colors.primary}>
-                  ${calculatePrice().toFixed(2)}
-                </Text>
-                {quantity > 1 && (
-                  <Text fontSize="sm" color="gray.400">
-                    ${(calculatePrice() / quantity).toFixed(2)} each
+                {/* Total price */}
+                <HStack justify="space-between" pt={2}>
+                  <Text color="white" fontSize="lg" fontWeight="bold">Total:</Text>
+                  <Text color={colors.primary} fontSize="2xl" fontWeight="bold">
+                    ${calculatePrice().toFixed(2)}
                   </Text>
-                )}
+                </HStack>
               </VStack>
-            </HStack>
+            </Box>
           </VStack>
-        </Box>
-      </VStack>
-    );
-  };
+        );
 
-  const getCurrentStepComponent = () => {
-    if (isBreakfast) {
-      switch (activeStep) {
-        case 0: return <BaseStep />;
-        case 1: return <ProteinStep />;
-        case 2: return <AddOnsStep />;
-        case 3: return <ReviewStep />;
-        default: return null;
-      }
-    } else {
-      switch (activeStep) {
-        case 0: return <SizeStep />;
-        case 1: return <BaseStep />;
-        case 2: return <ProteinStep />;
-        case 3: return <VeggiesStep />;
-        case 4: return <SauceStep />;
-        case 5: return <ReviewStep />;
-        default: return null;
-      }
+      default:
+        return null;
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="4xl" scrollBehavior="inside">
-      <ModalOverlay backdropFilter="blur(10px)" />
-      <ModalContent bg="dark.black" border="2px solid" borderColor={colors.primary}>
-        <ModalHeader>
+    <Modal 
+      isOpen={isOpen} 
+      onClose={onClose} 
+      size="2xl"
+      motionPreset="slideInBottom"
+      scrollBehavior="inside"
+    >
+      <ModalOverlay bg="blackAlpha.800" backdropFilter="blur(10px)" />
+      <ModalContent 
+        bg="gray.900" 
+        borderRadius="2xl"
+        border="2px solid"
+        borderColor={colors.primary}
+        overflow="hidden"
+        maxH="90vh"
+      >
+        <ModalHeader 
+          bg={`linear-gradient(135deg, ${colors.primary}22 0%, ${colors.secondary}22 100%)`}
+          borderBottom="1px solid"
+          borderColor="whiteAlpha.200"
+          pb={6}
+        >
           <VStack spacing={4}>
-            <Heading size="lg" color={colors.primary}>
-              {isBreakfast ? 'Build Your Breakfast' : 'Build Your Bowl'}
-            </Heading>
+            <HStack justify="space-between" w="100%">
+              <Heading size="lg" color="white">
+                {isBreakfast ? 'Build Your Breakfast' : 'Build Your Bowl'}
+              </Heading>
+              <ModalCloseButton color="white" position="relative" top={0} right={0} />
+            </HStack>
             
-            {/* Stepper */}
-            <Box w="100%" px={4}>
-              <Stepper index={activeStep} size="sm">
-                {steps.map((step, index) => (
-                  <Step key={index}>
-                    <StepIndicator>
-                      <StepStatus
-                        complete={<StepIcon />}
-                        incomplete={<StepNumber />}
-                        active={<StepNumber />}
-                      />
-                    </StepIndicator>
-                    <Box display={{ base: "none", md: "block" }}>
-                      <StepTitle>{step.title}</StepTitle>
-                    </Box>
-                    <StepSeparator />
-                  </Step>
+            {/* Progress indicator */}
+            <Box w="100%">
+              <HStack spacing={1} mb={2}>
+                {steps.map((step, idx) => (
+                  <Box
+                    key={step}
+                    flex={1}
+                    h={1}
+                    bg={idx <= currentStep ? colors.primary : "whiteAlpha.300"}
+                    borderRadius="full"
+                    transition="all 0.3s"
+                  />
                 ))}
-              </Stepper>
+              </HStack>
+              <HStack justify="space-between">
+                <Text color="gray.400" fontSize="xs">
+                  Step {currentStep + 1} of {steps.length}
+                </Text>
+                <Text color={colors.primary} fontSize="xs" fontWeight="bold">
+                  {stepIcons[steps[currentStep]]?.label}
+                </Text>
+              </HStack>
             </Box>
           </VStack>
         </ModalHeader>
-        <ModalCloseButton color="white" />
-        
-        <ModalBody>
+
+        <ModalBody py={6}>
           <AnimatePresence mode="wait">
             <MotionBox
-              key={activeStep}
+              key={currentStep}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.2 }}
             >
-              {getCurrentStepComponent()}
+              {renderStepContent()}
             </MotionBox>
           </AnimatePresence>
         </ModalBody>
 
-        <ModalFooter>
+        <ModalFooter 
+          borderTop="1px solid" 
+          borderColor="whiteAlpha.200"
+          bg="black"
+        >
           <HStack spacing={4} w="100%" justify="space-between">
             <Button
               variant="ghost"
-              onClick={handleBack}
-              isDisabled={activeStep === 0}
-              leftIcon={<Icon as={FiCheck} transform="rotate(180deg)" />}
+              onClick={goToPrevious}
+              isDisabled={currentStep === 0}
+              leftIcon={<FiArrowLeft />}
+              color="gray.400"
+              _hover={{ color: 'white', bg: 'whiteAlpha.100' }}
             >
-              Back
+              Previous
             </Button>
             
-            <HStack spacing={4}>
-              <Button variant="ghost" onClick={onClose}>
-                Cancel
-              </Button>
-              
-              {activeStep === steps.length - 1 ? (
-                <Button
-                  bg={colors.primary}
-                  color="black"
-                  onClick={handleAddToCart}
-                  rightIcon={<Icon as={FiCheck} />}
-                  animation={`${pulse} 2s infinite`}
-                >
-                  Add to Cart - ${calculatePrice().toFixed(2)}
-                </Button>
-              ) : (
-                <Button
-                  bg={colors.primary}
-                  color="black"
-                  onClick={handleNext}
-                  isDisabled={!canProceed()}
-                  rightIcon={<Icon as={FiCheck} />}
-                >
-                  Next
-                </Button>
-              )}
+            <HStack spacing={2}>
+              <Icon as={FiDollarSign} color={colors.primary} />
+              <Text color="white" fontWeight="bold" fontSize="lg">
+                ${calculatePrice().toFixed(2)}
+              </Text>
             </HStack>
+            
+            {currentStep < steps.length - 1 ? (
+              <Button
+                bg={colors.primary}
+                color="black"
+                onClick={goToNext}
+                isDisabled={!canProceed()}
+                rightIcon={<FiArrowRight />}
+                _hover={{ bg: colors.secondary }}
+                fontWeight="bold"
+              >
+                Next
+              </Button>
+            ) : (
+              <Button
+                bg={colors.primary}
+                color="black"
+                onClick={handleAddToCart}
+                rightIcon={<FiShoppingCart />}
+                _hover={{ 
+                  bg: colors.secondary,
+                  transform: 'scale(1.05)'
+                }}
+                fontWeight="bold"
+                animation={`${glow} 2s ease-in-out infinite`}
+              >
+                Add to Cart
+              </Button>
+            )}
           </HStack>
         </ModalFooter>
       </ModalContent>

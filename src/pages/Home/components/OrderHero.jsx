@@ -10,6 +10,15 @@ import { useState, useEffect } from 'react';
 const MotionBox = motion(Box);
 const MotionImage = motion(Image);
 
+// Dark copper colors for Jinzo
+const copperColors = {
+  primary: '#B87333',
+  neon: '#FF7F50',
+  dark: '#8B4513',
+  glow: 'rgba(184, 115, 51, 0.6)',
+  neonGlow: 'rgba(255, 127, 80, 0.8)'
+};
+
 // Keyframe animations
 const pulse = keyframes`
   0% { opacity: 0.6; transform: scale(1); }
@@ -119,13 +128,14 @@ const OrderHero = ({ currentMenu }) => {
   return (
     <Box
       position="relative"
-      minH="100vh"
+      minH={{ base: "calc(100vh - 70px)", md: "100vh" }}
       display="flex"
       alignItems="center"
       justifyContent="center"
       overflow="hidden"
       bg="dark.black"
-      pt={{ base: "70px", md: "100px" }}
+      pt={{ base: "40px", md: "100px" }}
+      pb={{ base: "40px", md: "0" }}
     >
       {/* Animated gradient background */}
       <Box
@@ -137,8 +147,8 @@ const OrderHero = ({ currentMenu }) => {
           position="absolute"
           top="10%"
           left="20%"
-          width="500px"
-          height="500px"
+          width={{ base: "300px", md: "500px" }}
+          height={{ base: "300px", md: "500px" }}
           borderRadius="full"
           bg={isBreakfastMenu ? "yellow.500" : "red.600"}
           filter="blur(150px)"
@@ -148,8 +158,8 @@ const OrderHero = ({ currentMenu }) => {
           position="absolute"
           bottom="30%"
           right="15%"
-          width="400px"
-          height="400px"
+          width={{ base: "250px", md: "400px" }}
+          height={{ base: "250px", md: "400px" }}
           borderRadius="full"
           bg="orange.500"
           filter="blur(120px)"
@@ -157,8 +167,8 @@ const OrderHero = ({ currentMenu }) => {
         />
       </Box>
 
-      <Container maxW="900px" position="relative">
-        <VStack spacing={8} align="center" textAlign="center">
+      <Container maxW="900px" position="relative" px={{ base: 4, md: 6 }}>
+        <VStack spacing={{ base: 6, md: 8 }} align="center" textAlign="center">
           {/* Dynamic Hero Image */}
           <MotionBox
             initial={{ opacity: 0, scale: 0.8 }}
@@ -177,7 +187,7 @@ const OrderHero = ({ currentMenu }) => {
             <MotionImage
               src={isBreakfastMenu ? "/biscuit-shooter-hero-icon-logo.png" : "/glow-bachi-hero-icon.png"}
               alt={isBreakfastMenu ? "Biscuit Shooter" : "GlowBachi"}
-              maxW={{ base: "180px", md: "250px" }}
+              maxW={{ base: "150px", sm: "180px", md: "250px" }}
               height="auto"
               initial={{ rotate: -15 }}
               animate={{ rotate: -8 }}
@@ -189,7 +199,7 @@ const OrderHero = ({ currentMenu }) => {
           </MotionBox>
 
           {/* Main Content */}
-          <VStack spacing={6} maxW="700px">
+          <VStack spacing={{ base: 4, md: 6 }} maxW="700px">
             {/* Dynamic Heading */}
             <MotionBox
               initial={{ opacity: 0, y: 20 }}
@@ -197,7 +207,7 @@ const OrderHero = ({ currentMenu }) => {
               transition={{ duration: 0.6, delay: 0.5 }}
             >
               <Heading
-                fontSize={{ base: "4xl", md: "6xl", lg: "7xl" }}
+                fontSize={{ base: "3xl", sm: "4xl", md: "6xl", lg: "7xl" }}
                 fontWeight="900"
                 color="white"
                 lineHeight="0.9"
@@ -207,7 +217,7 @@ const OrderHero = ({ currentMenu }) => {
                 <Box 
                   as="span" 
                   display="block" 
-                  fontSize={{ base: "xl", md: "2xl" }} 
+                  fontSize={{ base: "lg", sm: "xl", md: "2xl" }} 
                   mb={2}
                   opacity={0.8}
                   fontWeight="700"
@@ -247,11 +257,12 @@ const OrderHero = ({ currentMenu }) => {
               transition={{ duration: 0.6, delay: 0.6 }}
             >
               <Text
-                fontSize={{ base: "lg", md: "xl" }}
+                fontSize={{ base: "md", sm: "lg", md: "xl" }}
                 color="gray.300"
                 fontWeight="400"
                 lineHeight="1.6"
                 maxW="500px"
+                px={{ base: 4, md: 0 }}
               >
                 {isBreakfastMenu 
                   ? "Mountain breakfast that hits different. Old West meets your morning routine."
@@ -259,7 +270,7 @@ const OrderHero = ({ currentMenu }) => {
                 }
               </Text>
               <Text
-                fontSize={{ base: "sm", md: "md" }}
+                fontSize={{ base: "xs", sm: "sm", md: "md" }}
                 color="gray.500"
                 mt={3}
                 fontStyle="italic"
@@ -276,7 +287,7 @@ const OrderHero = ({ currentMenu }) => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.7 }}
-              p={4}
+              p={{ base: 3, md: 4 }}
               bg="whiteAlpha.50"
               backdropFilter="blur(10px)"
               borderRadius="lg"
@@ -285,7 +296,7 @@ const OrderHero = ({ currentMenu }) => {
               position="relative"
               overflow="hidden"
               w="100%"
-              maxW="600px"
+              maxW={{ base: "100%", md: "600px" }}
             >
               <Box
                 position="absolute"
@@ -297,18 +308,18 @@ const OrderHero = ({ currentMenu }) => {
                 animation={`${slideRight} 3s linear infinite`}
               />
               
-              <VStack spacing={4}>
+              <VStack spacing={{ base: 3, md: 4 }}>
                 {/* Current Time */}
                 <HStack spacing={2}>
                   <FiClock />
-                  <Text color="gray.300" fontSize="sm" fontWeight="600">
+                  <Text color="gray.300" fontSize={{ base: "xs", md: "sm" }} fontWeight="600">
                     {formatTime(hours, minutes)} Mountain Time
                   </Text>
                 </HStack>
 
                 {/* Service Status */}
                 {isBreakfastHours && (
-                  <Badge colorScheme="green" fontSize="md" px={4} py={2}>
+                  <Badge colorScheme="green" fontSize={{ base: "sm", md: "md" }} px={{ base: 3, md: 4 }} py={2}>
                     <HStack spacing={2}>
                       <Box w={2} h={2} borderRadius="full" bg="#39FF14" />
                       <Text>BISCUIT SHOOTER OPEN</Text>
@@ -317,7 +328,7 @@ const OrderHero = ({ currentMenu }) => {
                 )}
                 
                 {isDinnerHours && (
-                  <Badge colorScheme="orange" fontSize="md" px={4} py={2}>
+                  <Badge colorScheme="orange" fontSize={{ base: "sm", md: "md" }} px={{ base: 3, md: 4 }} py={2}>
                     <HStack spacing={2}>
                       <Box w={2} h={2} borderRadius="full" bg="#FF6B35" />
                       <Text>GLOWBACHI OPEN</Text>
@@ -331,7 +342,7 @@ const OrderHero = ({ currentMenu }) => {
                       PREPPING FOR GLOWBACHI
                     </Badge>
                     {timeUntilNext && (
-                      <Text color="gray.400" fontSize="sm">
+                      <Text color="gray.400" fontSize={{ base: "xs", md: "sm" }}>
                         Opens in {timeUntilNext.hoursUntil}h {timeUntilNext.minutesUntil}m
                       </Text>
                     )}
@@ -344,7 +355,7 @@ const OrderHero = ({ currentMenu }) => {
                       CLOSED - PREPPING FOR BREAKFAST
                     </Badge>
                     {timeUntilNext && (
-                      <Text color="gray.400" fontSize="sm">
+                      <Text color="gray.400" fontSize={{ base: "xs", md: "sm" }}>
                         Opens in {timeUntilNext.hoursUntil}h {timeUntilNext.minutesUntil}m
                       </Text>
                     )}
@@ -358,11 +369,11 @@ const OrderHero = ({ currentMenu }) => {
                   <HStack justify="space-between" w="100%" px={2}>
                     <HStack>
                       <FiSunrise color="#FFE135" />
-                      <Text color="gray.300" fontSize="sm">
+                      <Text color="gray.300" fontSize={{ base: "xs", md: "sm" }}>
                         Biscuit Shooter
                       </Text>
                     </HStack>
-                    <Text color="gray.400" fontSize="sm" fontWeight="600">
+                    <Text color="gray.400" fontSize={{ base: "xs", md: "sm" }} fontWeight="600">
                       5:00 AM - 11:00 AM
                     </Text>
                   </HStack>
@@ -370,11 +381,11 @@ const OrderHero = ({ currentMenu }) => {
                   <HStack justify="space-between" w="100%" px={2}>
                     <HStack>
                       <FiMoon color="#FF6B35" />
-                      <Text color="gray.300" fontSize="sm">
+                      <Text color="gray.300" fontSize={{ base: "xs", md: "sm" }}>
                         GlowBachi
                       </Text>
                     </HStack>
-                    <Text color="gray.400" fontSize="sm" fontWeight="600">
+                    <Text color="gray.400" fontSize={{ base: "xs", md: "sm" }} fontWeight="600">
                       12:30 PM - 9:00 PM
                     </Text>
                   </HStack>
@@ -391,26 +402,26 @@ const OrderHero = ({ currentMenu }) => {
                 >
                   <Box
                     w="100%"
-                    p={3}
-                    bg="rgba(147, 51, 234, 0.1)"
+                    p={{ base: 2, md: 3 }}
+                    bg={`rgba(184, 115, 51, 0.1)`}
                     borderRadius="md"
                     border="1px solid"
-                    borderColor="purple.500"
+                    borderColor={copperColors.primary}
                     cursor="pointer"
                     transition="all 0.3s"
                     _hover={{
-                      bg: "rgba(147, 51, 234, 0.15)",
-                      borderColor: "purple.400",
+                      bg: `rgba(184, 115, 51, 0.15)`,
+                      borderColor: copperColors.neon,
                       transform: "scale(1.02)"
                     }}
                   >
-                    <HStack spacing={3} justify="center">
-                      <Icon as={GiVendingMachine} boxSize={6} color="purple.400" />
-                      <VStack spacing={0} align="start">
-                        <Text color="purple.300" fontSize="sm" fontWeight="700">
+                    <HStack spacing={{ base: 2, md: 3 }} justify="center">
+                      <Icon as={GiVendingMachine} boxSize={{ base: 5, md: 6 }} color={copperColors.neon} />
+                      <VStack spacing={0} align={{ base: "center", md: "start" }}>
+                        <Text color={copperColors.neon} fontSize={{ base: "xs", md: "sm" }} fontWeight="700">
                           TRY JINZO - OUR 24/7 VENDING MACHINE
                         </Text>
-                        <Text color="gray.400" fontSize="xs">
+                        <Text color="gray.400" fontSize="xs" display={{ base: "none", sm: "block" }}>
                           Snacks, Drinks & More Always Available
                         </Text>
                       </VStack>
@@ -430,16 +441,16 @@ const OrderHero = ({ currentMenu }) => {
               <VStack spacing={4}>
                 {/* Main CTA */}
                 <Button
-                  size="lg"
-                  height="60px"
-                  px={12}
+                  size={{ base: "md", md: "lg" }}
+                  height={{ base: "50px", md: "60px" }}
+                  px={{ base: 8, md: 12 }}
                   bg={isBreakfastMenu 
                     ? "linear-gradient(135deg, #FFE135 0%, #FFD54F 100%)"
                     : "linear-gradient(135deg, #FFC107 0%, #FF6B35 100%)"
                   }
                   color="black"
                   fontWeight="800"
-                  fontSize="md"
+                  fontSize={{ base: "sm", md: "md" }}
                   letterSpacing="0.05em"
                   borderRadius="full"
                   rightIcon={<FiArrowDown />}
@@ -458,10 +469,10 @@ const OrderHero = ({ currentMenu }) => {
                 </Button>
 
                 {/* Menu Toggle - Always Available */}
-                <HStack spacing={3}>
+                <VStack spacing={{ base: 2, md: 3 }} w="100%">
                   <Button
                     variant="outline"
-                    size="md"
+                    size={{ base: "sm", md: "md" }}
                     onClick={() => !isBreakfastMenu && toggleMenu()}
                     leftIcon={<FiSunrise size={16} />}
                     borderColor="#FFE135"
@@ -475,13 +486,14 @@ const OrderHero = ({ currentMenu }) => {
                     transition="all 0.3s"
                     fontWeight="600"
                     cursor={isBreakfastMenu ? "default" : "pointer"}
+                    width={{ base: "100%", sm: "auto" }}
                   >
                     View Breakfast Menu
                   </Button>
                   
                   <Button
                     variant="outline"
-                    size="md"
+                    size={{ base: "sm", md: "md" }}
                     onClick={() => isBreakfastMenu && toggleMenu()}
                     leftIcon={<FiMoon size={16} />}
                     borderColor="#FF6B35"
@@ -495,10 +507,11 @@ const OrderHero = ({ currentMenu }) => {
                     transition="all 0.3s"
                     fontWeight="600"
                     cursor={!isBreakfastMenu ? "default" : "pointer"}
+                    width={{ base: "100%", sm: "auto" }}
                   >
                     View Dinner Menu
                   </Button>
-                </HStack>
+                </VStack>
               </VStack>
             </MotionBox>
           </VStack>

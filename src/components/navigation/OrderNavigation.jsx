@@ -62,6 +62,23 @@ const OrderNavigation = () => {
   const isHome = location.pathname === '/';
   const showAnimation = isHome;
   
+  // Get page title based on current route
+  const getPageTitle = () => {
+    const path = location.pathname;
+    if (path === '/') return isBreakfast ? 'Biscuit Shooter' : 'GlowBachi';
+    if (path === '/jinzo/') return 'Jinzo';
+    if (path === '/cart/') return 'Cart';
+    if (path === '/checkout/') return 'Checkout';
+    if (path === '/catering/') return 'Catering';
+    if (path === '/careers/') return 'Careers';
+    if (path === '/contact/') return 'Contact';
+    if (path === '/about/') return 'About Us';
+    if (path === '/faq/') return 'FAQ';
+    if (path === '/privacy/') return 'Privacy';
+    if (path === '/terms/') return 'Terms';
+    return 'Menu';
+  };
+  
   // Dynamic colors based on menu
   const navColors = {
     bg: isBreakfast ? 'rgba(255, 193, 7, 0.05)' : 'rgba(255, 107, 53, 0.05)',
@@ -103,7 +120,7 @@ const OrderNavigation = () => {
             
             {/* Center Animation - Desktop */}
             <Box display={{ base: 'none', md: 'block' }} position="absolute" left="50%" transform="translateX(-50%)">
-              {showAnimation && (
+              {showAnimation ? (
                 <AnimatePresence mode="wait">
                   {isBreakfast ? (
                     // Biscuit Shooter - Western Theme
@@ -172,6 +189,15 @@ const OrderNavigation = () => {
                     </MotionBox>
                   )}
                 </AnimatePresence>
+              ) : (
+                // Show page title when not on home
+                <Text
+                  fontSize="lg"
+                  fontWeight="bold"
+                  color={navColors.primary}
+                >
+                  {getPageTitle()}
+                </Text>
               )}
             </Box>
 
@@ -185,7 +211,7 @@ const OrderNavigation = () => {
               left="50%"
               transform="translateX(-50%)"
             >
-              {isBreakfast ? 'Biscuit Shooter' : 'GlowBachi'}
+              {getPageTitle()}
             </Text>
 
             {/* Cart Button */}

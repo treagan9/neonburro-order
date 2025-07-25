@@ -10,6 +10,8 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Catering from './pages/Catering';
 import Careers from './pages/Careers';
+import Contact from './pages/Contact';
+import AboutUs from './pages/AboutUs';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import FAQ from './pages/FAQ';
@@ -31,6 +33,8 @@ function AppContent() {
         <Route path="/checkout/" element={<Checkout />} />
         <Route path="/catering/" element={<Catering />} />
         <Route path="/careers/" element={<Careers />} />
+        <Route path="/contact/" element={<Contact />} />
+        <Route path="/about/" element={<AboutUs />} />
         <Route path="/privacy/" element={<Privacy />} />
         <Route path="/terms/" element={<Terms />} />
         <Route path="/faq/" element={<FAQ />} />

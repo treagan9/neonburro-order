@@ -1,271 +1,292 @@
-import { Box, Container, useToast } from '@chakra-ui/react';
-import { useState, useEffect, useRef } from 'react';
-import { AnimatePresence } from 'framer-motion';
-import ContactHero from './components/ContactHero';
-import FormProgress from './components/FormProgress';
-import StepAboutYou from './components/StepAboutYou';
-import StepYourProject from './components/StepYourProject';
-import StepLetsConnect from './components/StepLetsConnect';
-import FormSuccessEnhanced from './components/FormSuccessEnhanced';
+import { 
+  Box, 
+  Container, 
+  VStack, 
+  Heading, 
+  Text, 
+  FormControl,
+  FormLabel,
+  Input,
+  Textarea,
+  Select,
+  Button,
+  HStack,
+  Icon,
+  useToast,
+  keyframes
+} from '@chakra-ui/react';
+import { motion } from 'framer-motion';
+import { FiMail, FiPhone, FiMapPin, FiSend } from 'react-icons/fi';
+import { useState } from 'react';
+
+const MotionBox = motion(Box);
+
+// Keyframe animations
+const pulse = keyframes`
+  0% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+  100% { opacity: 0.6; transform: scale(1); }
+`;
 
 const Contact = () => {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState({
-    // Step 1
-    name: '',
-    email: '',
-    company: '',
-    source: '',
-    // Step 2
-    projectType: '',
-    budget: '',
-    timeline: '',
-    description: '',
-    // Step 3
-    contactMethod: [],
-    phone: '',
-    bestTime: '',
-    additionalInfo: ''
-  });
-  const [touched, setTouched] = useState({});
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const formSectionRef = useRef(null);
   const toast = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Scroll to form when step changes
-  useEffect(() => {
-    if (formSectionRef.current && currentStep > 1) {
-      const yOffset = -20;
-      const element = formSectionRef.current;
-      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      
-      window.scrollTo({ top: y, behavior: 'smooth' });
-    }
-  }, [currentStep]);
-
-  const handleChange = (field, value) => {
-    setFormData({ ...formData, [field]: value });
-    setTouched({ ...touched, [field]: true });
-  };
-
-  const isFieldValid = (field) => {
-    switch (field) {
-      case 'email':
-        return formData.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
-      case 'name':
-        return formData.name && formData.name.length >= 2;
-      case 'phone':
-        return formData.phone && formData.phone.length >= 10;
-      default:
-        return true;
-    }
-  };
-
-  const handleNext = () => {
-    if (currentStep < 3) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-
-  const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  // Proper encoding function for form data
-  const encode = (data) => {
-    return Object.keys(data)
-      .map(key => encodeURIComponent(key) + "=" + encodeURIComponent(data[key]))
-      .join("&");
-  };
-
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setIsSubmitting(true);
     
-    // Check if we're in development/local environment
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    
-    try {
-      // Format the data for submission
-      const submissionData = {
-        'form-name': 'contact-form',
-        'name': formData.name,
-        'email': formData.email,
-        'company': formData.company || 'Not provided',
-        'source': formData.source || 'Not specified',
-        'projectType': formData.projectType,
-        'budget': formData.budget,
-        'timeline': formData.timeline,
-        'description': formData.description || 'No additional details',
-        'contactMethod': Array.isArray(formData.contactMethod) ? formData.contactMethod.join(', ') : '',
-        'phone': formData.phone || 'Not provided',
-        'bestTime': formData.bestTime || 'Any time',
-        'additionalInfo': formData.additionalInfo || 'None'
-      };
-
-      if (isLocal) {
-        // Simulate successful submission in local development
-        console.log('Form submission (local):', submissionData);
-        
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        setIsSubmitted(true);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        
-        toast({
-          title: "Success! (Local Test)",
-          description: "Form submission simulated. In production, this will be sent to Netlify.",
-          status: "success",
-          duration: 5000,
-          isClosable: true,
-          position: "top",
-        });
-      } else {
-        // Production submission to Netlify
-        const response = await fetch('/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: encode(submissionData)
-        });
-
-        if (response.ok) {
-          setIsSubmitted(true);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          
-          toast({
-            title: "Success! 🎉",
-            description: "Your message has been received. We'll be in touch within 24 hours!",
-            status: "success",
-            duration: 5000,
-            isClosable: true,
-            position: "top",
-          });
-        } else {
-          throw new Error('Submission failed');
-        }
-      }
-    } catch (error) {
-      console.error('Submission error:', error);
+    // Netlify forms handle submission automatically
+    // Just need to show success message
+    setTimeout(() => {
       toast({
-        title: "Oops! Something went wrong",
-        description: isLocal ? "This is expected in local development. Deploy to Netlify to test real submissions." : "Please try again or email us directly at hello@neonburro.com",
-        status: "error",
+        title: "Message sent!",
+        description: "We'll get back to you soon.",
+        status: "success",
         duration: 5000,
         isClosable: true,
-        position: "top",
       });
-    } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const handleNavigateHome = () => {
-    window.location.href = '/';
+      e.target.reset();
+    }, 1000);
   };
 
   return (
-    <Box minH="100vh" bg="#0A0A0A">
-      {/* Hidden form for Netlify - CRITICAL for detection */}
-      <form 
-        name="contact-form" 
-        data-netlify="true" 
-        netlify-honeypot="bot-field"
-        hidden
-      >
-        <input type="hidden" name="form-name" value="contact-form" />
-        <input type="text" name="name" />
-        <input type="email" name="email" />
-        <input type="text" name="company" />
-        <input type="text" name="source" />
-        <input type="text" name="projectType" />
-        <input type="text" name="budget" />
-        <input type="text" name="timeline" />
-        <textarea name="description"></textarea>
-        <input type="text" name="contactMethod" />
-        <input type="tel" name="phone" />
-        <input type="text" name="bestTime" />
-        <textarea name="additionalInfo"></textarea>
-        <input type="text" name="bot-field" />
-      </form>
-      
-      {/* Hero Section */}
-      <ContactHero />
-      
-      <Container maxW="800px" pb={20} px={{ base: 6, md: 8 }}>
-        {!isSubmitted ? (
-          <>
-            {/* Form Progress with ref for scroll target */}
-            <Box ref={formSectionRef}>
-              <FormProgress currentStep={currentStep} />
-            </Box>
-            
-            <Box
-              bg="rgba(0,0,0,0.6)"
-              backdropFilter="blur(20px)"
-              border="2px solid"
+    <Box bg="dark.black" minH="100vh" pt={{ base: "80px", md: "100px" }}>
+      {/* Background gradient */}
+      <Box
+        position="absolute"
+        top="20%"
+        left="10%"
+        width="500px"
+        height="500px"
+        borderRadius="full"
+        bg="orange.500"
+        filter="blur(200px)"
+        opacity={0.05}
+        animation={`${pulse} 4s ease-in-out infinite`}
+      />
+
+      <Container maxW="container.lg" px={{ base: 4, md: 6 }} py={{ base: 8, md: 12 }}>
+        {/* Hero Section */}
+        <MotionBox
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          textAlign="center"
+          mb={{ base: 8, md: 12 }}
+        >
+          <Heading
+            fontSize={{ base: "3xl", md: "5xl" }}
+            fontWeight="900"
+            color="white"
+            mb={4}
+            lineHeight="0.9"
+          >
+            Get In Touch
+          </Heading>
+          <Text
+            fontSize={{ base: "md", md: "lg" }}
+            color="gray.300"
+            maxW="600px"
+            mx="auto"
+          >
+            Questions about catering? Want to join our team? Just want to say howdy? 
+            Drop us a line and we'll get back to you faster than a tumbleweed in a windstorm.
+          </Text>
+        </MotionBox>
+
+        {/* Contact Info Cards */}
+        <MotionBox
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          mb={{ base: 8, md: 12 }}
+        >
+          <HStack 
+            spacing={{ base: 4, md: 8 }}
+            justify="center"
+            flexWrap="wrap"
+            gap={{ base: 4, md: 0 }}
+          >
+            <VStack
+              p={6}
+              bg="whiteAlpha.50"
+              borderRadius="lg"
+              border="1px solid"
               borderColor="whiteAlpha.100"
-              borderRadius="2xl"
-              p={{ base: 6, md: 10 }}
-              boxShadow="0 20px 40px rgba(0,0,0,0.4)"
-              position="relative"
-              overflow="hidden"
+              spacing={3}
+              minW={{ base: "100%", sm: "auto" }}
             >
-              {/* Subtle gradient background */}
-              <Box
-                position="absolute"
-                top={0}
-                left={0}
-                right={0}
-                bottom={0}
-                bgGradient="radial(at top left, rgba(0, 229, 229, 0.05) 0%, transparent 50%)"
-                pointerEvents="none"
-              />
-              
-              <AnimatePresence mode="wait">
-                {currentStep === 1 && (
-                  <StepAboutYou
-                    key="step1"
-                    formData={formData}
-                    handleChange={handleChange}
-                    onNext={handleNext}
-                    isFieldValid={isFieldValid}
-                    touched={touched}
-                  />
-                )}
-                
-                {currentStep === 2 && (
-                  <StepYourProject
-                    key="step2"
-                    formData={formData}
-                    handleChange={handleChange}
-                    onNext={handleNext}
-                    onBack={handleBack}
-                  />
-                )}
-                
-                {currentStep === 3 && (
-                  <StepLetsConnect
-                    key="step3"
-                    formData={formData}
-                    handleChange={handleChange}
-                    onBack={handleBack}
-                    onSubmit={handleSubmit}
-                    isSubmitting={isSubmitting}
-                  />
-                )}
-              </AnimatePresence>
+              <Icon as={FiPhone} boxSize={6} color="#FFC107" />
+              <Text fontWeight="700" color="white">(970) 316-3131</Text>
+            </VStack>
+
+            <VStack
+              p={6}
+              bg="whiteAlpha.50"
+              borderRadius="lg"
+              border="1px solid"
+              borderColor="whiteAlpha.100"
+              spacing={3}
+              minW={{ base: "100%", sm: "auto" }}
+            >
+              <Icon as={FiMapPin} boxSize={6} color="#FF6B35" />
+              <Text fontWeight="700" color="white">Ridgway, Colorado</Text>
+            </VStack>
+
+            <VStack
+              p={6}
+              bg="whiteAlpha.50"
+              borderRadius="lg"
+              border="1px solid"
+              borderColor="whiteAlpha.100"
+              spacing={3}
+              minW={{ base: "100%", sm: "auto" }}
+            >
+              <Icon as={FiMail} boxSize={6} color="#39FF14" />
+              <Text fontWeight="700" color="white">hello@neonburro.com</Text>
+            </VStack>
+          </HStack>
+        </MotionBox>
+
+        {/* Contact Form */}
+        <MotionBox
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          maxW="600px"
+          mx="auto"
+        >
+          <Box
+            as="form"
+            name="contact"
+            method="POST"
+            data-netlify="true"
+            data-netlify-honeypot="bot-field"
+            onSubmit={handleSubmit}
+            p={{ base: 6, md: 8 }}
+            bg="rgba(255,255,255,0.02)"
+            borderRadius="xl"
+            border="2px solid"
+            borderColor="whiteAlpha.100"
+            backdropFilter="blur(20px)"
+          >
+            {/* Hidden Netlify form fields */}
+            <input type="hidden" name="form-name" value="contact" />
+            <Box display="none">
+              <label>
+                Don't fill this out if you're human: 
+                <input name="bot-field" />
+              </label>
             </Box>
-          </>
-        ) : (
-          <FormSuccessEnhanced 
-            formData={formData}
-            onNavigateHome={handleNavigateHome}
-          />
-        )}
+
+            <VStack spacing={6}>
+              <FormControl isRequired>
+                <FormLabel color="gray.300" fontSize="sm">Your Name</FormLabel>
+                <Input
+                  name="name"
+                  type="text"
+                  bg="whiteAlpha.50"
+                  border="1px solid"
+                  borderColor="whiteAlpha.200"
+                  color="white"
+                  _hover={{ borderColor: "whiteAlpha.300" }}
+                  _focus={{ borderColor: "#FFC107", boxShadow: "0 0 0 1px #FFC107" }}
+                  size="lg"
+                />
+              </FormControl>
+
+              <FormControl isRequired>
+                <FormLabel color="gray.300" fontSize="sm">Email</FormLabel>
+                <Input
+                  name="email"
+                  type="email"
+                  bg="whiteAlpha.50"
+                  border="1px solid"
+                  borderColor="whiteAlpha.200"
+                  color="white"
+                  _hover={{ borderColor: "whiteAlpha.300" }}
+                  _focus={{ borderColor: "#FFC107", boxShadow: "0 0 0 1px #FFC107" }}
+                  size="lg"
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel color="gray.300" fontSize="sm">Phone</FormLabel>
+                <Input
+                  name="phone"
+                  type="tel"
+                  bg="whiteAlpha.50"
+                  border="1px solid"
+                  borderColor="whiteAlpha.200"
+                  color="white"
+                  _hover={{ borderColor: "whiteAlpha.300" }}
+                  _focus={{ borderColor: "#FFC107", boxShadow: "0 0 0 1px #FFC107" }}
+                  size="lg"
+                />
+              </FormControl>
+
+              <FormControl isRequired>
+                <FormLabel color="gray.300" fontSize="sm">Inquiry Type</FormLabel>
+                <Select
+                  name="inquiry_type"
+                  bg="whiteAlpha.50"
+                  border="1px solid"
+                  borderColor="whiteAlpha.200"
+                  color="white"
+                  _hover={{ borderColor: "whiteAlpha.300" }}
+                  _focus={{ borderColor: "#FFC107", boxShadow: "0 0 0 1px #FFC107" }}
+                  size="lg"
+                >
+                  <option value="" style={{ background: '#1A1A1A' }}>Select an option</option>
+                  <option value="general" style={{ background: '#1A1A1A' }}>General Inquiry</option>
+                  <option value="catering" style={{ background: '#1A1A1A' }}>Catering Request</option>
+                  <option value="careers" style={{ background: '#1A1A1A' }}>Join Our Team</option>
+                  <option value="feedback" style={{ background: '#1A1A1A' }}>Feedback</option>
+                  <option value="other" style={{ background: '#1A1A1A' }}>Other</option>
+                </Select>
+              </FormControl>
+
+              <FormControl isRequired>
+                <FormLabel color="gray.300" fontSize="sm">Message</FormLabel>
+                <Textarea
+                  name="message"
+                  rows={6}
+                  bg="whiteAlpha.50"
+                  border="1px solid"
+                  borderColor="whiteAlpha.200"
+                  color="white"
+                  _hover={{ borderColor: "whiteAlpha.300" }}
+                  _focus={{ borderColor: "#FFC107", boxShadow: "0 0 0 1px #FFC107" }}
+                  resize="vertical"
+                />
+              </FormControl>
+
+              <Button
+                type="submit"
+                size="lg"
+                width="100%"
+                bg="linear-gradient(135deg, #FFC107 0%, #FF6B35 100%)"
+                color="black"
+                fontWeight="800"
+                rightIcon={<FiSend />}
+                isLoading={isSubmitting}
+                loadingText="Sending..."
+                _hover={{
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 10px 30px rgba(255,193,7,0.4)'
+                }}
+                _active={{
+                  transform: 'translateY(0)'
+                }}
+                transition="all 0.2s"
+              >
+                Send Message
+              </Button>
+            </VStack>
+          </Box>
+        </MotionBox>
       </Container>
     </Box>
   );

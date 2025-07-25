@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Container, VStack, useToast } from '@chakra-ui/react';
+import { Box, Container, VStack, useToast, useDisclosure } from '@chakra-ui/react';
 import { useCart } from '../../../../context/CartContext';
 import { glowBachiMenu } from '../../../../data/glowBachiMenu';
 
@@ -10,12 +10,12 @@ import MenuSeparator from './components/shared/MenuSeparator';
 import BowlDetailModal from './components/shared/BowlDetailModal';
 import SauceModal from './components/shared/SauceModal';
 import BuildAndTrack from '../BuildAndTrack';
-// Temporarily commenting out BuildYourOwnModal
-// import BuildYourOwnModal from '../../../../components/menu/BuildYourOwnModal';
+import BuildYourOwnModal from '../../../../components/menu/BuildYourOwnModal';
 
 const GlowBachiMenu = () => {
   const { addToCart } = useCart();
   const toast = useToast();
+  const { isOpen: isBuildOpen, onOpen: onBuildOpen, onClose: onBuildClose } = useDisclosure();
   
   // State management
   const [selectedItem, setSelectedItem] = useState(null);
@@ -23,14 +23,9 @@ const GlowBachiMenu = () => {
   const [selectedSauce, setSelectedSauce] = useState('');
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isSauceModalOpen, setIsSauceModalOpen] = useState(false);
-  const [isBuildModalOpen, setIsBuildModalOpen] = useState(false);
   const [pendingWingOrder, setPendingWingOrder] = useState(null);
   const [addedAddOns, setAddedAddOns] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
-  
-  // Debug: Log the appetizers to console
-  console.log('GlowBachi Menu Data:', glowBachiMenu);
-  console.log('Appetizers:', glowBachiMenu.appetizers);
   
   // Calculate total price including add-ons
   const calculateTotalPrice = () => {
@@ -178,12 +173,6 @@ const GlowBachiMenu = () => {
     });
   };
   
-  const handleBuildYourOwn = (customItem) => {
-    addToCart(customItem);
-    // Close the modal
-    setIsBuildModalOpen(false);
-  };
-  
   const showToast = () => {
     toast({
       title: "Added to cart!",
@@ -220,7 +209,7 @@ const GlowBachiMenu = () => {
             {/* Build Your Own + Active Orders */}
             <BuildAndTrack
               menuType="dinner"
-              onBuildClick={() => setIsBuildModalOpen(true)}
+              onBuildClick={onBuildOpen}
               colors={glowBachiMenu.colors}
             />
           </VStack>
@@ -255,26 +244,14 @@ const GlowBachiMenu = () => {
         colors={glowBachiMenu.colors}
       />
       
-      {/* Build Your Own Modal - For now, just show an alert */}
-      {isBuildModalOpen && (
-        <Box
-          position="fixed"
-          top="50%"
-          left="50%"
-          transform="translate(-50%, -50%)"
-          bg="dark.black"
-          p={8}
-          borderRadius="xl"
-          border="2px solid"
-          borderColor={glowBachiMenu.colors.primary}
-          zIndex={1000}
-        >
-          <VStack>
-            <Text color="white" fontSize="xl">Build Your Own Bowl Coming Soon!</Text>
-            <Button onClick={() => setIsBuildModalOpen(false)} mt={4}>Close</Button>
-          </VStack>
-        </Box>
-      )}
+      {/* Build Your Own Modal */}
+      <BuildYourOwnModal
+        isOpen={isBuildOpen}
+        onClose={onBuildClose}
+        menuType="dinner"
+        menuData={glowBachiMenu}
+        colors={glowBachiMenu.colors}
+      />
     </Box>
   );
 };

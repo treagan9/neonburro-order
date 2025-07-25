@@ -28,7 +28,6 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiChevronLeft, FiChevronRight, FiShoppingCart } from 'react-icons/fi';
 import { HiFire } from 'react-icons/hi';
-import { BsStarFill } from 'react-icons/bs';
 import { RiShoppingBag3Line } from 'react-icons/ri';
 
 const MotionBox = motion(Box);
@@ -60,7 +59,6 @@ const sauces = [
     image: '/images/menu-items/glow-bachi-sauces/lava-kiss.png',
     spicyLevel: 2,
     retailPrice: 9,
-    bestseller: true,
     flavor: 'Creamy · Spicy · Tangy',
     pairsWith: 'Perfect with crispy wings, shrimp tempura, and veggie bowls'
   },
@@ -83,7 +81,6 @@ const sauces = [
     personality: 'Neon Raccoon – Sneaky, sweet, sticky',
     image: '/images/menu-items/glow-bachi-sauces/sugar-char.png',
     retailPrice: 9,
-    bestseller: true,
     flavor: 'Sweet · Savory · Caramelized',
     pairsWith: 'Amazing on chicken, salmon, and fried rice'
   },
@@ -218,26 +215,6 @@ const SauceDetailModal = ({ isOpen, onClose, sauce, onAddToCart, colors }) => {
             objectFit="contain"
             animation={`${float} 4s ease-in-out infinite`}
           />
-          {sauce.bestseller && (
-            <Badge
-              position="absolute"
-              top={4}
-              left={4}
-              bg="red.500"
-              color="white"
-              px={3}
-              py={1}
-              borderRadius="full"
-              fontSize="xs"
-              fontWeight="bold"
-              display="flex"
-              alignItems="center"
-              gap={1}
-            >
-              <Icon as={BsStarFill} />
-              BESTSELLER
-            </Badge>
-          )}
         </Center>
 
         <ModalBody p={0}>
@@ -347,7 +324,7 @@ const SauceDetailModal = ({ isOpen, onClose, sauce, onAddToCart, colors }) => {
 };
 
 // Main Component
-const ImprovedSauceShowcase = ({ colors = { primary: '#FFC107', secondary: '#FF6B35' }, onAddToCart }) => {
+const SauceShowcase = ({ colors = { primary: '#FFC107', secondary: '#FF6B35' }, onAddToCart }) => {
   const scrollRef = useRef(null);
   const isMobile = useBreakpointValue({ base: true, md: false });
   const [selectedSauce, setSelectedSauce] = useState(null);
@@ -509,26 +486,6 @@ const ImprovedSauceShowcase = ({ colors = { primary: '#FFC107', secondary: '#FF6
                     }}
                     transition="all 0.3s"
                   >
-                    {/* Bestseller Badge */}
-                    {sauce.bestseller && (
-                      <Badge
-                        position="absolute"
-                        top={2}
-                        left={2}
-                        zIndex={2}
-                        bg="red.500"
-                        color="white"
-                        fontSize="xs"
-                        px={2}
-                        py={0.5}
-                        borderRadius="full"
-                        fontWeight="bold"
-                      >
-                        <Icon as={BsStarFill} boxSize={3} mr={1} />
-                        BESTSELLER
-                      </Badge>
-                    )}
-
                     {/* Image Container */}
                     <Box 
                       h={{ base: "280px", md: "340px" }}
@@ -625,4 +582,4 @@ const ImprovedSauceShowcase = ({ colors = { primary: '#FFC107', secondary: '#FF6
   );
 };
 
-export default ImprovedSauceShowcase;
+export default SauceShowcase;

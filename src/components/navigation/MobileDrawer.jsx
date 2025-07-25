@@ -23,8 +23,7 @@ import {
   FiPhone,
   FiCalendar,
   FiUsers,
-  FiFileText,
-  FiHelpCircle
+  FiFileText
 } from 'react-icons/fi';
 import { GiTacos, GiFriedEggs } from 'react-icons/gi';
 import { useCart } from '../../context/CartContext';
@@ -96,13 +95,7 @@ const MobileDrawer = ({ isOpen, onClose }) => {
       icon: FiUsers, 
       path: '/careers/',
       color: colors.primary
-    },
-    { 
-      label: 'FAQ', 
-      icon: FiHelpCircle, 
-      path: '/faq/',
-      color: colors.primary
-    },
+    }
   ];
 
   return (
@@ -183,13 +176,23 @@ const MobileDrawer = ({ isOpen, onClose }) => {
           </VStack>
 
           <Box mt={8} p={4} bg="whiteAlpha.50" borderRadius="lg">
-            <VStack spacing={2} align="start">
-              <Text fontSize="xs" color="gray.500" textTransform="uppercase">
-                Current Location
-              </Text>
-              <Text fontSize="sm" color="white" fontWeight="medium">
-                Denver, Colorado
-              </Text>
+            <VStack spacing={3} align="start">
+              <Box>
+                <Text fontSize="xs" color="gray.500" textTransform="uppercase" mb={1}>
+                  Location
+                </Text>
+                <Text fontSize="sm" color="white" fontWeight="medium">
+                  Ridgway, Colorado
+                </Text>
+              </Box>
+              <Box>
+                <Text fontSize="xs" color="gray.500" textTransform="uppercase" mb={1}>
+                  Phone
+                </Text>
+                <Text fontSize="sm" color="white" fontWeight="medium">
+                  (970) 316-3131
+                </Text>
+              </Box>
             </VStack>
           </Box>
         </DrawerBody>
