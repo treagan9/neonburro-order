@@ -2,11 +2,11 @@ import { VStack, Heading, Grid, GridItem } from '@chakra-ui/react';
 import MenuCard from './shared/MenuCard';
 
 const AppetizerSection = ({ appetizers, onQuickAdd, colors }) => {
-  const { banana } = colors;
+  const { primary } = colors;
   
   return (
     <VStack spacing={8} w="100%">
-      <Heading size={{ base: "md", md: "lg" }} color={banana} textAlign="center">
+      <Heading size={{ base: "md", md: "lg" }} color={primary} textAlign="center">
         APPETIZERS
       </Heading>
       
@@ -20,7 +20,7 @@ const AppetizerSection = ({ appetizers, onQuickAdd, colors }) => {
         maxW={{ base: "100%", lg: "1000px" }}
         mx="auto"
       >
-        {appetizers.filter(item => item.available).map((item, index) => (
+        {appetizers.map((item, index) => (
           <GridItem key={item.id}>
             <MenuCard 
               item={item}
