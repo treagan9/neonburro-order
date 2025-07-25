@@ -33,7 +33,32 @@ const OrderNavigation = () => {
   const location = useLocation();
   const itemCount = getCartItemsCount();
   
-  const isBreakfast = location.search.includes('menu=breakfast');
+  // Get current time to determine which menu should be active
+  const getMountainTime = () => {
+    const now = new Date();
+    const isDST = now.getMonth() >= 2 && now.getMonth() <= 10;
+    const utcHours = now.getUTCHours();
+    const utcMinutes = now.getUTCMinutes();
+    let mountainHours = utcHours - (isDST ? 6 : 7);
+    if (mountainHours < 0) mountainHours += 24;
+    if (mountainHours >= 24) mountainHours -= 24;
+    return mountainHours + (utcMinutes / 60);
+  };
+
+  const currentTime = getMountainTime();
+  
+  // Check URL params first, then use time-based logic
+  const urlParams = new URLSearchParams(location.search);
+  const menuParam = urlParams.get('menu');
+  
+  // Show GlowBachi from 11:01 AM to 11:59 PM (11.0167 to 23.9833)
+  const isGlowBachiTime = currentTime > 11;
+  
+  // Determine which menu is active
+  const isBreakfast = menuParam === 'breakfast' ? true : 
+                     menuParam === 'dinner' ? false : 
+                     !isGlowBachiTime;
+  
   const isHome = location.pathname === '/';
   const showAnimation = isHome;
   

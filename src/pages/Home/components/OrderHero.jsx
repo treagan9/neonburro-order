@@ -1,8 +1,11 @@
-import { Box, Container, Heading, Text, VStack, Image, Button, HStack, Badge, keyframes, Link } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, VStack, Image, Button, HStack, Badge, keyframes, Link as ChakraLink, Divider, Icon } from '@chakra-ui/react';
+import { Link as RouterLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiArrowDown, FiClock, FiSunrise, FiMoon } from 'react-icons/fi';
+import { FiArrowDown, FiClock, FiSunrise, FiMoon, FiShoppingBag } from 'react-icons/fi';
 import { HiFire } from 'react-icons/hi';
+import { GiVendingMachine } from 'react-icons/gi';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
 const MotionBox = motion(Box);
 const MotionImage = motion(Image);
@@ -29,6 +32,15 @@ const OrderHero = ({ currentMenu }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isBreakfastMenu = currentMenu === 'breakfast';
+  const [currentTime, setCurrentTime] = useState(new Date());
+  
+  // Update time every minute
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
   
   const scrollToMenu = () => {
     const menuElement = document.getElementById('menu-section');
@@ -39,21 +51,64 @@ const OrderHero = ({ currentMenu }) => {
 
   // Get current hour in Mountain Time for display purposes
   const getMountainTime = () => {
-    const now = new Date();
+    const now = currentTime;
+    const isDST = now.getMonth() >= 2 && now.getMonth() <= 10;
     const utcHours = now.getUTCHours();
     const utcMinutes = now.getUTCMinutes();
-    let mountainHours = utcHours - 7;
+    let mountainHours = utcHours - (isDST ? 6 : 7);
     if (mountainHours < 0) mountainHours += 24;
+    if (mountainHours >= 24) mountainHours -= 24;
     return { hours: mountainHours, minutes: utcMinutes };
   };
 
-  const { hours } = getMountainTime();
-  const currentHour = hours + (getMountainTime().minutes / 60);
+  const { hours, minutes } = getMountainTime();
+  const currentHour = hours + (minutes / 60);
   
-  // Check if we're in actual service hours
+  // Check service hours and gaps
   const isBreakfastHours = currentHour >= 5 && currentHour < 11;
+  const isBreakfastPrep = currentHour >= 21 || currentHour < 5;
   const isDinnerHours = currentHour >= 12.5 && currentHour < 21;
-  const isOpen = isBreakfastHours || isDinnerHours;
+  const isDinnerPrep = currentHour >= 11 && currentHour < 12.5;
+  
+  // Calculate time until next opening
+  const getTimeUntilNext = () => {
+    if (isBreakfastHours || isDinnerHours) return null;
+    
+    let targetHour, targetMinute, serviceName;
+    
+    if (isDinnerPrep) {
+      targetHour = 12;
+      targetMinute = 30;
+      serviceName = "GlowBachi";
+    } else {
+      targetHour = 5;
+      targetMinute = 0;
+      serviceName = "Biscuit Shooter";
+    }
+    
+    const now = new Date();
+    const target = new Date(now);
+    target.setHours(targetHour, targetMinute, 0, 0);
+    
+    if (target <= now) {
+      target.setDate(target.getDate() + 1);
+    }
+    
+    const diff = target - now;
+    const hoursUntil = Math.floor(diff / (1000 * 60 * 60));
+    const minutesUntil = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    
+    return { hoursUntil, minutesUntil, serviceName };
+  };
+
+  const timeUntilNext = getTimeUntilNext();
+
+  // Format current time for display
+  const formatTime = (h, m) => {
+    const hour = h % 12 || 12;
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`;
+  };
 
   // Handle menu toggle
   const toggleMenu = () => {
@@ -130,14 +185,6 @@ const OrderHero = ({ currentMenu }) => {
               filter={`drop-shadow(0 0 40px ${isBreakfastMenu ? 'rgba(255,225,53,0.6)' : 'rgba(255,193,7,0.6)'})`}
               position="relative"
               zIndex={1}
-              fallback={
-                <Box
-                  w={{ base: "180px", md: "250px" }}
-                  h={{ base: "180px", md: "250px" }}
-                  bg={`radial-gradient(circle, ${isBreakfastMenu ? '#FFE135' : '#FF6B35'}, transparent)`}
-                  borderRadius="full"
-                />
-              }
             />
           </MotionBox>
 
@@ -224,188 +271,11 @@ const OrderHero = ({ currentMenu }) => {
               </Text>
             </MotionBox>
 
-            {/* Dynamic Features */}
+            {/* Enhanced Status Display */}
             <MotionBox
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.7 }}
-              width="100%"
-            >
-              <HStack
-                spacing={{ base: 8, md: 16 }}
-                justify="center"
-                py={6}
-                position="relative"
-              >
-                <Box
-                  position="absolute"
-                  width="80%"
-                  height="1px"
-                  bg="whiteAlpha.200"
-                  top="50%"
-                  transform="translateY(-50%)"
-                />
-                <AnimatePresence mode="wait">
-                  {isBreakfastMenu ? (
-                    <>
-                      <VStack spacing={1} position="relative" bg="dark.black" px={4}>
-                        <Text fontSize="xs" color="#FFE135" textTransform="uppercase" letterSpacing="widest">
-                          Fresh
-                        </Text>
-                        <Text fontSize="2xl" fontWeight="800" color="white">
-                          Grub
-                        </Text>
-                      </VStack>
-                      <VStack spacing={1} position="relative" bg="dark.black" px={4}>
-                        <Text fontSize="xs" color="#FFD54F" textTransform="uppercase" letterSpacing="widest">
-                          Daily
-                        </Text>
-                        <Text fontSize="2xl" fontWeight="800" color="white">
-                          Fixins
-                        </Text>
-                      </VStack>
-                      <VStack spacing={1} position="relative" bg="dark.black" px={4}>
-                        <Text fontSize="xs" color="#FFE082" textTransform="uppercase" letterSpacing="widest">
-                          Hearty
-                        </Text>
-                        <Text fontSize="2xl" fontWeight="800" color="white">
-                          Vittles
-                        </Text>
-                      </VStack>
-                    </>
-                  ) : (
-                    <>
-                      <VStack spacing={1} position="relative" bg="dark.black" px={4}>
-                        <Text fontSize="xs" color="#FFC107" textTransform="uppercase" letterSpacing="widest">
-                          Sizzling
-                        </Text>
-                        <Text fontSize="2xl" fontWeight="800" color="white">
-                          鉄板
-                        </Text>
-                      </VStack>
-                      <VStack spacing={1} position="relative" bg="dark.black" px={4}>
-                        <Text fontSize="xs" color="#FF6B35" textTransform="uppercase" letterSpacing="widest">
-                          Fresh
-                        </Text>
-                        <Text fontSize="2xl" fontWeight="800" color="white">
-                          新鮮
-                        </Text>
-                      </VStack>
-                      <VStack spacing={1} position="relative" bg="dark.black" px={4}>
-                        <Text fontSize="xs" color="#FF1744" textTransform="uppercase" letterSpacing="widest">
-                          Flavor
-                        </Text>
-                        <Text fontSize="2xl" fontWeight="800" color="white">
-                          旨味
-                        </Text>
-                      </VStack>
-                    </>
-                  )}
-                </AnimatePresence>
-              </HStack>
-            </MotionBox>
-
-            {/* Dynamic CTA */}
-            <MotionBox
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.8 }}
-              position="relative"
-            >
-              <Box
-                position="absolute"
-                inset={-2}
-                bg={isBreakfastMenu 
-                  ? "linear-gradient(45deg, #FFE135, #FFD54F)"
-                  : "linear-gradient(45deg, #FFC107, #FF6B35, #FF1744)"
-                }
-                borderRadius="full"
-                opacity={0.7}
-                filter="blur(10px)"
-                animation={`${pulse} 2s ease-in-out infinite`}
-              />
-              <Button
-                size="lg"
-                height="60px"
-                px={12}
-                bg={isBreakfastMenu 
-                  ? "linear-gradient(135deg, #FFE135 0%, #FFD54F 100%)"
-                  : "linear-gradient(135deg, #FFC107 0%, #FF6B35 100%)"
-                }
-                color="black"
-                fontWeight="800"
-                fontSize="md"
-                letterSpacing="0.05em"
-                borderRadius="full"
-                rightIcon={<FiArrowDown />}
-                onClick={scrollToMenu}
-                position="relative"
-                overflow="hidden"
-                _hover={{
-                  transform: 'translateY(-2px) scale(1.02)',
-                  _before: {
-                    transform: 'translateX(0%)',
-                  }
-                }}
-                _active={{
-                  transform: 'translateY(0) scale(0.98)'
-                }}
-                _before={{
-                  content: '""',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  bg: isBreakfastMenu 
-                    ? 'linear-gradient(135deg, #FFD54F 0%, #FFE082 100%)'
-                    : 'linear-gradient(135deg, #FF6B35 0%, #FF1744 100%)',
-                  transform: 'translateX(-100%)',
-                  transition: 'transform 0.3s ease',
-                  borderRadius: 'full',
-                }}
-                transition="all 0.3s"
-              >
-                <Text position="relative" zIndex={1}>
-                  {isBreakfastMenu ? "View Breakfast Menu" : "Fire Up Your Order"}
-                </Text>
-              </Button>
-            </MotionBox>
-
-            {/* Enhanced Menu Toggle */}
-            <MotionBox
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.9 }}
-            >
-              <Button
-                variant="outline"
-                size="md"
-                onClick={toggleMenu}
-                leftIcon={isBreakfastMenu ? <FiMoon size={16} /> : <FiSunrise size={16} />}
-                borderColor={isBreakfastMenu ? "#FF6B35" : "#FFE135"}
-                color={isBreakfastMenu ? "#FF6B35" : "#FFE135"}
-                _hover={{ 
-                  bg: isBreakfastMenu ? "rgba(255,107,53,0.1)" : "rgba(255,225,53,0.1)",
-                  borderColor: isBreakfastMenu ? "#FF1744" : "#FFD54F",
-                  transform: "scale(1.05)",
-                  boxShadow: isBreakfastMenu 
-                    ? "0 0 20px rgba(255,107,53,0.5)" 
-                    : "0 0 20px rgba(255,225,53,0.5)"
-                }}
-                animation={`${glow} 3s ease-in-out infinite`}
-                transition="all 0.3s"
-                fontWeight="600"
-              >
-                {isBreakfastMenu ? "Switch to Dinner Menu" : "Switch to Breakfast Menu"}
-              </Button>
-            </MotionBox>
-
-            {/* Time and Status Info */}
-            <MotionBox
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 1 }}
               p={4}
               bg="whiteAlpha.50"
               backdropFilter="blur(10px)"
@@ -415,7 +285,7 @@ const OrderHero = ({ currentMenu }) => {
               position="relative"
               overflow="hidden"
               w="100%"
-              maxW="500px"
+              maxW="600px"
             >
               <Box
                 position="absolute"
@@ -426,45 +296,209 @@ const OrderHero = ({ currentMenu }) => {
                 bg="linear-gradient(90deg, transparent, #FFC107, transparent)"
                 animation={`${slideRight} 3s linear infinite`}
               />
-              <VStack spacing={2}>
-                {/* Current Status */}
-                <HStack spacing={2} justify="center">
-                  <Box
-                    w={2}
-                    h={2}
-                    borderRadius="full"
-                    bg={isOpen ? "#39FF14" : "red.500"}
-                    animation={isOpen ? `${pulse} 2s ease-in-out infinite` : 'none'}
-                  />
+              
+              <VStack spacing={4}>
+                {/* Current Time */}
+                <HStack spacing={2}>
+                  <FiClock />
                   <Text color="gray.300" fontSize="sm" fontWeight="600">
-                    {isOpen 
-                      ? (isBreakfastHours ? "Breakfast service open now" : "Dinner service open now")
-                      : "Currently closed"
-                    }
+                    {formatTime(hours, minutes)} Mountain Time
                   </Text>
                 </HStack>
+
+                {/* Service Status */}
+                {isBreakfastHours && (
+                  <Badge colorScheme="green" fontSize="md" px={4} py={2}>
+                    <HStack spacing={2}>
+                      <Box w={2} h={2} borderRadius="full" bg="#39FF14" />
+                      <Text>BISCUIT SHOOTER OPEN</Text>
+                    </HStack>
+                  </Badge>
+                )}
                 
+                {isDinnerHours && (
+                  <Badge colorScheme="orange" fontSize="md" px={4} py={2}>
+                    <HStack spacing={2}>
+                      <Box w={2} h={2} borderRadius="full" bg="#FF6B35" />
+                      <Text>GLOWBACHI OPEN</Text>
+                    </HStack>
+                  </Badge>
+                )}
+                
+                {isDinnerPrep && (
+                  <VStack spacing={2}>
+                    <Badge colorScheme="yellow" fontSize="sm" px={3} py={1}>
+                      PREPPING FOR GLOWBACHI
+                    </Badge>
+                    {timeUntilNext && (
+                      <Text color="gray.400" fontSize="sm">
+                        Opens in {timeUntilNext.hoursUntil}h {timeUntilNext.minutesUntil}m
+                      </Text>
+                    )}
+                  </VStack>
+                )}
+                
+                {isBreakfastPrep && (
+                  <VStack spacing={2}>
+                    <Badge colorScheme="purple" fontSize="sm" px={3} py={1}>
+                      CLOSED - PREPPING FOR BREAKFAST
+                    </Badge>
+                    {timeUntilNext && (
+                      <Text color="gray.400" fontSize="sm">
+                        Opens in {timeUntilNext.hoursUntil}h {timeUntilNext.minutesUntil}m
+                      </Text>
+                    )}
+                  </VStack>
+                )}
+
+                <Divider borderColor="whiteAlpha.200" />
+
                 {/* Hours Display */}
-                <VStack spacing={1}>
-                  <HStack spacing={3} fontSize="xs" color="gray.500">
+                <VStack spacing={2} w="100%">
+                  <HStack justify="space-between" w="100%" px={2}>
                     <HStack>
-                      <FiSunrise />
-                      <Text fontWeight={isBreakfastMenu ? "600" : "400"}>
-                        Breakfast: 5:00 AM - 11:00 AM
+                      <FiSunrise color="#FFE135" />
+                      <Text color="gray.300" fontSize="sm">
+                        Biscuit Shooter
                       </Text>
                     </HStack>
-                    <Text>•</Text>
-                    <HStack>
-                      <FiMoon />
-                      <Text fontWeight={!isBreakfastMenu ? "600" : "400"}>
-                        Dinner: 12:30 PM - 9:00 PM
-                      </Text>
-                    </HStack>
+                    <Text color="gray.400" fontSize="sm" fontWeight="600">
+                      5:00 AM - 11:00 AM
+                    </Text>
                   </HStack>
-                  <Text color="gray.600" fontSize="xs">
-                    Mountain Time • {isBreakfastMenu ? "Currently viewing breakfast" : "Currently viewing dinner"}
-                  </Text>
+                  
+                  <HStack justify="space-between" w="100%" px={2}>
+                    <HStack>
+                      <FiMoon color="#FF6B35" />
+                      <Text color="gray.300" fontSize="sm">
+                        GlowBachi
+                      </Text>
+                    </HStack>
+                    <Text color="gray.400" fontSize="sm" fontWeight="600">
+                      12:30 PM - 9:00 PM
+                    </Text>
+                  </HStack>
                 </VStack>
+
+                <Divider borderColor="whiteAlpha.200" />
+
+                {/* Jinzo Vending Machine */}
+                <ChakraLink
+                  as={RouterLink}
+                  to="/jinzo/"
+                  _hover={{ textDecoration: 'none' }}
+                  w="100%"
+                >
+                  <Box
+                    w="100%"
+                    p={3}
+                    bg="rgba(147, 51, 234, 0.1)"
+                    borderRadius="md"
+                    border="1px solid"
+                    borderColor="purple.500"
+                    cursor="pointer"
+                    transition="all 0.3s"
+                    _hover={{
+                      bg: "rgba(147, 51, 234, 0.15)",
+                      borderColor: "purple.400",
+                      transform: "scale(1.02)"
+                    }}
+                  >
+                    <HStack spacing={3} justify="center">
+                      <Icon as={GiVendingMachine} boxSize={6} color="purple.400" />
+                      <VStack spacing={0} align="start">
+                        <Text color="purple.300" fontSize="sm" fontWeight="700">
+                          TRY JINZO - OUR 24/7 VENDING MACHINE
+                        </Text>
+                        <Text color="gray.400" fontSize="xs">
+                          Snacks, Drinks & More Always Available
+                        </Text>
+                      </VStack>
+                    </HStack>
+                  </Box>
+                </ChakraLink>
+              </VStack>
+            </MotionBox>
+
+            {/* Dynamic CTAs */}
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
+              w="100%"
+            >
+              <VStack spacing={4}>
+                {/* Main CTA */}
+                <Button
+                  size="lg"
+                  height="60px"
+                  px={12}
+                  bg={isBreakfastMenu 
+                    ? "linear-gradient(135deg, #FFE135 0%, #FFD54F 100%)"
+                    : "linear-gradient(135deg, #FFC107 0%, #FF6B35 100%)"
+                  }
+                  color="black"
+                  fontWeight="800"
+                  fontSize="md"
+                  letterSpacing="0.05em"
+                  borderRadius="full"
+                  rightIcon={<FiArrowDown />}
+                  onClick={scrollToMenu}
+                  position="relative"
+                  overflow="hidden"
+                  _hover={{
+                    transform: 'translateY(-2px) scale(1.02)',
+                  }}
+                  transition="all 0.3s"
+                >
+                  {isBreakfastMenu 
+                    ? (isBreakfastHours ? "Order Breakfast Now" : "View Breakfast Menu")
+                    : (isDinnerHours ? "Order Dinner Now" : "View Dinner Menu")
+                  }
+                </Button>
+
+                {/* Menu Toggle - Always Available */}
+                <HStack spacing={3}>
+                  <Button
+                    variant="outline"
+                    size="md"
+                    onClick={() => !isBreakfastMenu && toggleMenu()}
+                    leftIcon={<FiSunrise size={16} />}
+                    borderColor="#FFE135"
+                    color="#FFE135"
+                    opacity={isBreakfastMenu ? 0.6 : 1}
+                    _hover={{ 
+                      opacity: isBreakfastMenu ? 0.6 : 1,
+                      bg: !isBreakfastMenu ? "rgba(255,225,53,0.1)" : "transparent",
+                      transform: !isBreakfastMenu ? "scale(1.05)" : "scale(1)",
+                    }}
+                    transition="all 0.3s"
+                    fontWeight="600"
+                    cursor={isBreakfastMenu ? "default" : "pointer"}
+                  >
+                    View Breakfast Menu
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    size="md"
+                    onClick={() => isBreakfastMenu && toggleMenu()}
+                    leftIcon={<FiMoon size={16} />}
+                    borderColor="#FF6B35"
+                    color="#FF6B35"
+                    opacity={!isBreakfastMenu ? 0.6 : 1}
+                    _hover={{ 
+                      opacity: !isBreakfastMenu ? 0.6 : 1,
+                      bg: isBreakfastMenu ? "rgba(255,107,53,0.1)" : "transparent",
+                      transform: isBreakfastMenu ? "scale(1.05)" : "scale(1)",
+                    }}
+                    transition="all 0.3s"
+                    fontWeight="600"
+                    cursor={!isBreakfastMenu ? "default" : "pointer"}
+                  >
+                    View Dinner Menu
+                  </Button>
+                </HStack>
               </VStack>
             </MotionBox>
           </VStack>

@@ -13,6 +13,7 @@ import Careers from './pages/Careers';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import FAQ from './pages/FAQ';
+import Jinzo from './pages/Jinzo';
 import './styles/global.css';
 // Cart Context Provider
 import { CartProvider } from './context/CartContext';
@@ -33,6 +34,7 @@ function AppContent() {
         <Route path="/privacy/" element={<Privacy />} />
         <Route path="/terms/" element={<Terms />} />
         <Route path="/faq/" element={<FAQ />} />
+        <Route path="/jinzo/" element={<Jinzo />} />
       </Routes>
     </>
   );
