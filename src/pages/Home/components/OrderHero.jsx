@@ -175,7 +175,7 @@ const OrderHero = ({ currentMenu }) => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
             position="relative"
-            mt={{ base: 0, md: 8 }}
+            mt={{ base: 12, md: 8 }}
           >
             <Box
               position="absolute"
