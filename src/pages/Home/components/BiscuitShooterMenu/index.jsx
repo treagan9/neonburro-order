@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { useCart } from '../../../../context/CartContext';
-import { biscuitShooterMenu } from './menuData';
+import { biscuitShooterMenu } from '../../../../data/biscuitShooterMenu';
 import MenuCard from '../GlowBachiMenu/components/shared/MenuCard';
 import MenuSeparator from '../GlowBachiMenu/components/shared/MenuSeparator';
 import BuildAndTrack from '../BuildAndTrack';
@@ -99,7 +99,6 @@ const BiscuitShooterMenu = () => {
           <BuildAndTrack
             menuType="breakfast"
             onBuildClick={onBuildOpen}
-            menuData={biscuitShooterMenu}
             colors={{
               primary: colors.primary,
               secondary: colors.secondary

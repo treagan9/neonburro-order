@@ -181,7 +181,6 @@ const BuildAndTrack = ({ menuType, onBuildClick, colors, menuData }) => {
                     bg: 'rgba(255,255,255,0.05)',
                     borderColor: 'rgba(255,255,255,0.1)'
                   }}
-                  transition="all 0.3s"
                 >
                   <VStack align="start" spacing={1}>
                     <Text fontSize="sm" fontWeight="600" color="white">
@@ -221,7 +220,6 @@ const BuildAndTrack = ({ menuType, onBuildClick, colors, menuData }) => {
                     transform: 'scale(1.05)',
                     borderColor: key === 'small' ? colors.primary : colors.secondary
                   }}
-                  transition="all 0.3s"
                 >
                   <Text 
                     fontSize="3xl" 
