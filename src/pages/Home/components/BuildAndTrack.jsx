@@ -19,6 +19,7 @@ import { GiNoodles, GiBowlOfRice } from 'react-icons/gi';
 import ActiveOrdersTracker from '../../../components/common/ActiveOrdersTracker';
 import SauceShowcase from '../../../components/menu/SauceShowcase';
 import { glowBachiMenu } from '../../../data/glowBachiMenu';
+import { biscuitShooterMenu } from '../../../data/biscuitShooterMenu';
 
 const MotionBox = motion(Box);
 
@@ -33,12 +34,12 @@ const slideIn = keyframes`
   to { transform: translateX(0); opacity: 1; }
 `;
 
-const BuildAndTrack = ({ menuType, onBuildClick, colors, menuData }) => {
+const BuildAndTrack = ({ menuType, onBuildClick, colors }) => {
   const isMobile = useBreakpointValue({ base: true, lg: false });
   const isBreakfast = menuType === 'breakfast';
   
-  // Use passed menuData prop for breakfast, or glowBachiMenu for dinner
-  const currentMenu = isBreakfast ? menuData : glowBachiMenu;
+  // Use the imported menu data
+  const currentMenu = isBreakfast ? biscuitShooterMenu : glowBachiMenu;
   
   // Make sure we have menu data
   if (!currentMenu) {
@@ -181,6 +182,7 @@ const BuildAndTrack = ({ menuType, onBuildClick, colors, menuData }) => {
                     bg: 'rgba(255,255,255,0.05)',
                     borderColor: 'rgba(255,255,255,0.1)'
                   }}
+                  transition="all 0.3s"
                 >
                   <VStack align="start" spacing={1}>
                     <Text fontSize="sm" fontWeight="600" color="white">
@@ -220,6 +222,7 @@ const BuildAndTrack = ({ menuType, onBuildClick, colors, menuData }) => {
                     transform: 'scale(1.05)',
                     borderColor: key === 'small' ? colors.primary : colors.secondary
                   }}
+                  transition="all 0.3s"
                 >
                   <Text 
                     fontSize="3xl" 

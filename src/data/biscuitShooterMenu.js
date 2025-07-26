@@ -68,79 +68,88 @@ export const biscuitShooterMenu = {
   
   signatures: [
     {
-      id: 'the_iron_skillet',
-      name: 'The Iron Skillet',
-      price: 14,
-      description: 'Two biscuits smothered in sausage gravy, topped with fried chicken, bacon, and a fried egg',
-      image: '/images/menu-items/biscuit-shooter-breakfast/the-iron-skillet.png',
-      bestseller: true
-    },
-    {
-      id: 'the_ranch_hand',
+      id: 'the-ranch-hand',
       name: 'The Ranch Hand',
       price: 12,
-      description: 'Scrambled eggs, country sausage, hash browns, peppers, onions, and cheddar cheese',
+      description: 'Hearty biscuit sandwich with fried egg, smoked thin ribeye, sharp cheddar, and a slather of peppered gravy. Built to fuel the day.',
       image: '/images/menu-items/biscuit-shooter-breakfast/the-ranch-hand.png'
     },
     {
-      id: 'the_golden_gate',
-      name: 'The Golden Gate',
-      price: 13,
-      description: 'Sourdough french toast, whipped butter, bourbon maple syrup, fresh berries',
-      image: '/images/menu-items/biscuit-shooter-breakfast/the-golden-gate.png',
-      vegetarian: true
-    },
-    {
-      id: 'the_riverboat',
-      name: 'The Riverboat',
-      price: 16,
-      description: 'Ribeye steak & eggs, hash browns, biscuit with butter and jam',
-      image: '/images/menu-items/biscuit-shooter-breakfast/the-riverboat.png'
-    },
-    {
-      id: 'the_greenhorn',
-      name: 'The Greenhorn',
+      id: 'the-velvet-revolver',
+      name: 'The Velvet Revolver',
       price: 11,
-      description: 'Veggie scramble with mushrooms, spinach, tomatoes, avocado, and goat cheese',
-      image: '/images/menu-items/biscuit-shooter-breakfast/the-greenhorn.png',
-      vegetarian: true
+      description: 'Smoky bacon, molten gouda, slow-cooked caramelized onions, and buttery avocado folded into a golden omelet. Fires smooth. Hits hard.',
+      image: '/images/menu-items/biscuit-shooter-breakfast/the-velvet-revolver.png'
     },
     {
-      id: 'the_wildflower',
+      id: 'the-wildflower',
       name: 'The Wildflower',
       price: 10,
-      description: 'Greek yogurt parfait with granola, honey, fresh berries, and edible flowers',
+      description: 'Fresh spinach, fire-roasted red peppers, tomato, and crumbled feta folded into farm-fresh eggs. Light, clean, and built for the trail.',
       image: '/images/menu-items/biscuit-shooter-breakfast/the-wildflower.png',
       vegetarian: true
     },
     {
-      id: 'the_stockyard',
-      name: 'The Stockyard',
-      price: 15,
-      description: 'Meat lovers omelette with bacon, sausage, ham, cheddar, served with hash browns',
-      image: '/images/menu-items/biscuit-shooter-breakfast/the-stockyard.png'
+      id: 'kouign-amann',
+      name: 'Kouign-Amann',
+      price: 5,
+      description: 'Buttery, flaky pastry with a caramelized sugar crust and golden layers that melt in your mouth. No toppings needed. No crumbs left behind.',
+      image: '/images/menu-items/biscuit-shooter-breakfast/kouign-amann.png',
+      vegetarian: true
     },
     {
-      id: 'the_honey_hitter',
+      id: 'the-honey-hitter',
       name: 'The Honey Hitter',
-      price: 12,
-      description: 'Buttermilk fried chicken on a biscuit with hot honey drizzle and pickles',
+      price: 9,
+      description: 'Buttermilk fried chicken, honey butter, and a biscuit that slaps. Sticky-finger good.',
       image: '/images/menu-items/biscuit-shooter-breakfast/the-honey-hitter.png',
       spicyLevel: 1
     },
     {
-      id: 'the_coastline_scramble',
-      name: 'The Coastline Scramble',
+      id: 'the-iron-skillet',
+      name: 'The Iron Skillet',
       price: 14,
-      description: 'Scrambled eggs with smoked salmon, cream cheese, capers, and dill on sourdough',
-      image: '/images/menu-items/biscuit-shooter-breakfast/the-coastline-scramble.png'
+      description: 'Farm eggs with crispy Yukon potatoes, sweet corn, smoky poblanos and sharp white cheddar. Topped with seared brisket and a hit of chipotle crema.',
+      image: '/images/menu-items/biscuit-shooter-breakfast/the-iron-skillet.png',
+      bestseller: true,
+      spicyLevel: 2
     },
     {
-      id: 'the_velvet_revolver',
-      name: 'The Velvet Revolver',
+      id: 'the-greenhorn',
+      name: 'The Greenhorn',
       price: 11,
-      description: 'Red velvet pancakes with cream cheese frosting, chocolate chips, and whipped cream',
-      image: '/images/menu-items/biscuit-shooter-breakfast/the-velvet-revolver.png',
+      description: 'Scrambled farm eggs with crispy Yukon potatoes, fire-roasted peppers, and fresh spinach. Topped with sliced avocado, bright salsa fresca, and crumbled queso fresco.',
+      image: '/images/menu-items/biscuit-shooter-breakfast/the-greenhorn.png',
+      vegetarian: true
+    },
+    {
+      id: 'the-riverboat',
+      name: 'The Riverboat',
+      price: 7,
+      description: 'An open biscuit riding a flood of peppered sausage gravy. Float into flavor.',
+      image: '/images/menu-items/biscuit-shooter-breakfast/the-riverboat.png'
+    },
+    {
+      id: 'the-stockyard',
+      name: 'The Stockyard',
+      price: 15,
+      description: 'Smoked ribeye served with four eggs any style and a heap of crispy Yukon potatoes. Built for big appetites.',
+      image: '/images/menu-items/biscuit-shooter-breakfast/the-stockyard.png'
+    },
+    {
+      id: 'the-golden-gate',
+      name: 'The Golden Gate',
+      price: 9,
+      description: 'Toasted sourdough piled high with creamy avocado, a sprinkle of everything seasoning, and a sunny-side egg on top. West Coast classic, done right.',
+      image: '/images/menu-items/biscuit-shooter-breakfast/the-golden-gate.png',
+      vegetarian: true
+    },
+    {
+      id: 'the-coastline-scramble',
+      name: 'The Coastline Scramble',
+      price: 14,
+      description: 'Fluffy eggs over crispy sweet potato hash with charred peppers, caramelized onions, and wilted greens. Finished with sliced avocado, queso fresco, and a drizzle of zesty lime crema.',
+      image: '/images/menu-items/biscuit-shooter-breakfast/the-coastline-scramble.png',
       vegetarian: true
     }
   ],
